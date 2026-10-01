@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Halaman masuk prototype LKS Santri Karya." />
+    <title>Masuk · LKS Santri Karya</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="login.css" />
+  </head>
+  <body class="login-page">
+    <main class="login-shell">
+      <aside class="login-intro"><a class="login-brand" href="index.html" aria-label="LKS Santri Karya"><span aria-hidden="true">LKS</span> Santri Karya</a><div><p class="login-period">Periode September 2026</p><h1>Catatan kecil yang menjaga langkah setiap hari.</h1><p class="login-copy">Masuk untuk mencatat amalan, melihat capaian, dan menjaga komitmen bersama.</p></div><p class="login-footer">Lembar Amalan Harian · Prototype frontend</p></aside>
+      <section class="login-card" aria-labelledby="login-title"><div><h2 id="login-title">Masuk ke akun Anda</h2><p>Gunakan email dan kata sandi yang telah didaftarkan oleh admin.</p></div><form id="login-form" novalidate><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" placeholder="nama@perusahaan.com" required /><label for="password">Kata sandi</label><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Masukkan kata sandi" required /><div class="login-options"><label class="remember"><input type="checkbox" name="remember" /> Ingat saya</label><button type="button" class="plain-action">Lupa kata sandi?</button></div><button class="login-submit" type="submit">Masuk</button><p id="login-feedback" class="login-feedback" aria-live="polite">Prototype ini belum terhubung ke autentikasi.</p></form><a class="prototype-link" href="index.html">Lihat prototype dashboard <span aria-hidden="true">→</span></a></section>
+    </main>
+    <script>document.querySelector('#login-form').addEventListener('submit', (event) => { event.preventDefault(); document.querySelector('#login-feedback').textContent = 'Autentikasi akan tersedia setelah integrasi backend. Anda dapat melihat prototype dashboard terlebih dahulu.'; });</script>
+  </body>
+</html>

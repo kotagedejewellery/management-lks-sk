@@ -1,0 +1,68 @@
+name: lks-santri-karya
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    working_dir: /var/www/html
+    volumes:
+      - ./backend:/var/www/html
+      - ./frontend:/var/www/frontend:ro
+    environment:
+      APP_ENV: local
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: lks_santri_karya
+      DB_USERNAME: lks
+      DB_PASSWORD: lks
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >-
+      sh -lc 'test -f vendor/autoload.php || composer install --no-interaction;
+      php-fpm'
+
+  nginx:
+    image: nginx:1.28-alpine
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www/html:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+
+  postgres:
+    image: postgres:18-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: lks_santri_karya
+      POSTGRES_USER: lks
+      POSTGRES_PASSWORD: lks
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lks -d lks_santri_karya"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  node:
+    image: node:24-bookworm-slim
+    working_dir: /var/www/html
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./backend:/var/www/html
+      - node_modules:/var/www/html/node_modules
+    command: >-
+      sh -lc 'test -d node_modules/vite || npm ci;
+      npm run dev -- --host 0.0.0.0'
+
+volumes:
+  node_modules:
+  postgres_data:

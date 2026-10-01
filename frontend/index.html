@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="LKS Santri Karya — catatan amalan harian dan rekap capaian." />
+    <title>LKS Santri Karya</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="overrides.css" />
+  </head>
+  <body>
+    <svg class="icon-sprite" aria-hidden="true">
+      <symbol id="icon-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z"/></symbol>
+      <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4.2 4.2L19 6.5"/></symbol>
+      <symbol id="icon-chart" viewBox="0 0 24 24"><path d="M4 20V10m6 10V4m6 16v-7m4 7H2"/></symbol>
+      <symbol id="icon-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/><path d="M12 7v5l3 2"/></symbol>
+      <symbol id="icon-settings" viewBox="0 0 24 24"><path d="M12 15.2A3.2 3.2 0 1 0 12 8.8a3.2 3.2 0 0 0 0 6.4Z"/><path d="m19.4 15 .1 2.3-2 1.2-1.8-1.4a7.8 7.8 0 0 1-2 .8l-.5 2.2h-2.4l-.5-2.2a7.8 7.8 0 0 1-2-.8l-1.8 1.4-2-1.2.1-2.3a7.4 7.4 0 0 1-1-1.8l-2.2-.6v-2.3l2.2-.6a7.4 7.4 0 0 1 1-1.8l-.1-2.3 2-1.2 1.8 1.4a7.8 7.8 0 0 1 2-.8l.5-2.2h2.4l.5 2.2a7.8 7.8 0 0 1 2 .8l1.8-1.4 2 1.2-.1 2.3a7.4 7.4 0 0 1 1 1.8l2.2.6v2.3l-2.2.6a7.4 7.4 0 0 1-1 1.8Z"/></symbol>
+      <symbol id="icon-users" viewBox="0 0 24 24"><path d="M16 20v-1.8A4.2 4.2 0 0 0 11.8 14H6.2A4.2 4.2 0 0 0 2 18.2V20"/><circle cx="9" cy="7" r="3.5"/><path d="M16 4.2a3.5 3.5 0 0 1 0 6.7m2.4 3.5a4.1 4.1 0 0 1 3.6 4.1V20"/></symbol>
+      <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M5 12h13m-5-5 5 5-5 5"/></symbol>
+      <symbol id="icon-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/></symbol>
+      <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></symbol>
+      <symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    </svg>
+
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Navigasi utama">
+        <a class="brand" href="#dashboard" aria-label="LKS Santri Karya - Dashboard">
+          <span class="brand-mark" aria-hidden="true">L</span>
+          <span><strong>LKS</strong><small>Santri Karya</small></span>
+        </a>
+
+        <nav class="nav-list">
+          <button class="nav-item is-active" data-view="dashboard"><svg><use href="#icon-home"/></svg><span>Dashboard</span></button>
+          <button class="nav-item" data-view="lks"><svg><use href="#icon-check"/></svg><span>LKS Saya</span></button>
+          <button class="nav-item" data-view="recap"><svg><use href="#icon-users"/></svg><span>Rekap</span></button>
+          <button class="nav-item" data-view="department"><svg><use href="#icon-chart"/></svg><span>Departemen</span></button>
+          <button class="nav-item" data-view="history"><svg><use href="#icon-history"/></svg><span>Riwayat</span></button>
+          <button class="nav-item nav-admin" data-view="settings"><svg><use href="#icon-settings"/></svg><span>Pengaturan</span></button>
+        </nav>
+
+        <div class="sidebar-foot">
+          <p>Periode aktif</p>
+          <strong id="sidebar-period-name">September 2026</strong>
+          <span id="sidebar-period-end">Berakhir 30 Sep</span>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div class="mobile-brand"><span class="brand-mark" aria-hidden="true">L</span><strong>LKS</strong></div>
+          <div class="topbar-title"><p id="breadcrumb">Ruang pribadi</p><h1 id="page-title">Dashboard</h1></div>
+          <div class="topbar-actions">
+            <div class="account-summary" aria-live="polite">
+              <strong id="account-name">Memuat akun</strong>
+              <span id="account-role">Memuat peran</span>
+            </div>
+            <button class="logout-button" id="logout-button" type="button">Keluar</button>
+          </div>
+        </header>
+
+        <section class="view is-active" data-view-panel="dashboard">
+          <div class="dashboard-santri" data-role-panel="santri">
+            <div class="welcome-row">
+              <div><p class="date-line" id="dashboard-date">Senin, 28 September 2026</p><h2 id="dashboard-greeting">Assalamu'alaikum, Ahmad.</h2><p class="supporting-copy">Satu catatan kecil hari ini menjaga ritme baikmu.</p></div>
+              <button class="period-button"><svg><use href="#icon-calendar"/></svg> <span id="dashboard-period-name">September 2026</span> <svg class="tiny"><use href="#icon-chevron"/></svg></button>
+            </div>
+
+            <div class="today-layout">
+              <article class="today-register">
+                <div class="register-heading"><div><p class="section-label">LKS hari ini</p><h3 id="register-date">Senin, 28 September</h3></div><span class="save-state" id="save-state"><i></i>Tersimpan</span></div>
+                <p class="register-intro">Tandai amalan yang sudah kamu lakukan. Perubahan tersimpan otomatis.</p>
+                <div class="quick-checks" id="quick-checks">
+                  <button class="quick-check is-done" data-check="subuh" aria-pressed="true"><span class="check-mark"><svg><use href="#icon-check"/></svg></span><span><strong>Absen Subuh</strong><small>Sudah dicatat</small></span></button>
+                  <button class="quick-check is-done" data-check="shalawat" aria-pressed="true"><span class="check-mark"><svg><use href="#icon-check"/></svg></span><span><strong>Shalawat Munjiyat</strong><small>Sudah dicatat</small></span></button>
+                  <button class="quick-check" data-check="tepat-waktu" aria-pressed="false"><span class="check-mark"><svg><use href="#icon-check"/></svg></span><span><strong>Shalat tepat waktu</strong><small>Belum dicatat</small></span></button>
+                  <button class="quick-check" data-check="dzikir" aria-pressed="false"><span class="check-mark"><svg><use href="#icon-check"/></svg></span><span><strong>Dzikir pagi petang</strong><small>Belum dicatat</small></span></button>
+                </div>
+                <button class="text-action" data-go="lks">Lihat seluruh amalan <svg><use href="#icon-arrow"/></svg></button>
+              </article>
+
+              <aside class="daily-progress">
+                <div class="progress-seal"><span id="daily-done">2</span><small>/ 4</small></div>
+                <h3>Mulai dengan yang dekat</h3>
+                <p id="daily-copy">Dua amalan hari ini sudah tercatat.</p>
+                <div class="progress-line"><span id="daily-line" style="width:50%"></span></div>
+                <p class="muted">Catatan hari ini akan memperbarui nilai sementara.</p>
+              </aside>
+            </div>
+
+            <section class="activity-section">
+              <div class="section-head"><div><p class="section-label">Perjalanan periode</p><h2>Capaian amalan</h2></div><button class="text-button" data-go="lks">Buka LKS Saya</button></div>
+              <div class="activity-list">
+                <article class="activity-row"><div class="activity-name"><span class="activity-dot completed"></span><strong>Shalat Dhuha</strong><small>18 dari target 20 kali</small></div><div class="activity-track"><span style="width:90%"></span></div><strong class="activity-value">90%</strong><span class="status status-waiting">Hampir</span></article>
+                <article class="activity-row"><div class="activity-name"><span class="activity-dot completed"></span><strong>Tilawah Harian</strong><small>25 dari target 25 kali</small></div><div class="activity-track"><span style="width:100%"></span></div><strong class="activity-value">100%</strong><span class="status status-done">Tuntas</span></article>
+                <article class="activity-row"><div class="activity-name"><span class="activity-dot"></span><strong>Tahajud</strong><small>15 dari target 20 kali</small></div><div class="activity-track"><span style="width:75%"></span></div><strong class="activity-value">75%</strong><span class="status status-open">Berjalan</span></article>
+              </div>
+            </section>
+          </div>
+
+          <div class="dashboard-leader" data-role-panel="leader" hidden>
+            <div class="welcome-row"><div><p class="date-line">September 2026 · Rekap kelompok</p><h2>Ringkasan anggota.</h2><p class="supporting-copy">Mulai dari anggota yang masih membutuhkan perhatian.</p></div><button class="period-button"><svg><use href="#icon-calendar"/></svg> September 2026</button></div>
+            <div class="leader-overview"><article><p>Anggota aktif</p><strong>12</strong><small>Tim Karya 02</small></article><article><p>Sudah tuntas</p><strong>8</strong><small>67% anggota</small></article><article><p>Perlu perhatian</p><strong>4</strong><small>Nilai di bawah 90%</small></article></div>
+            <section class="priority-panel"><div class="section-head"><div><p class="section-label">Perlu perhatian</p><h2>Anggota yang belum tuntas</h2></div><button class="text-button" data-go="recap">Buka rekap</button></div><div class="member-list"><div class="member-row"><span class="person-initials tone-one">RF</span><div><strong>Rizky Fadillah</strong><small>Marketing · 78% capaian</small></div><span class="status status-open">Belum tuntas</span><button class="row-button" aria-label="Lihat Rizky Fadillah"><svg><use href="#icon-chevron"/></svg></button></div><div class="member-row"><span class="person-initials tone-two">MK</span><div><strong>Maulana K.</strong><small>Marketing · 84% capaian</small></div><span class="status status-open">Belum tuntas</span><button class="row-button" aria-label="Lihat Maulana K."><svg><use href="#icon-chevron"/></svg></button></div><div class="member-row"><span class="person-initials tone-three">AS</span><div><strong>Ahmad Syamsudin</strong><small>Marketing · 89% capaian</small></div><span class="status status-waiting">Hampir</span><button class="row-button" aria-label="Lihat Ahmad Syamsudin"><svg><use href="#icon-chevron"/></svg></button></div></div></section>
+          </div>
+
+          <div class="dashboard-admin" data-role-panel="admin" hidden>
+            <div class="welcome-row"><div><p class="date-line">September 2026 · Ringkasan organisasi</p><h2>Capaian LKS organisasi.</h2><p class="supporting-copy">Lihat kondisi periode aktif sebelum mengubah konfigurasi.</p></div><button class="primary-button" data-go="settings">Kelola periode <svg><use href="#icon-arrow"/></svg></button></div>
+            <div class="admin-metrics"><article><p>Peserta aktif</p><strong>96</strong><span>+4 dari periode lalu</span></article><article><p>Rata-rata capaian</p><strong>89,4%</strong><span>Naik 2,1 poin</span></article><article><p>Sudah tuntas</p><strong>71</strong><span>74% peserta</span></article><article><p>Belum tuntas</p><strong>25</strong><span>Perlu tindak lanjut</span></article></div>
+            <section class="department-snapshot"><div class="section-head"><div><p class="section-label">Perbandingan saat ini</p><h2>Capaian departemen</h2></div><button class="text-button" data-go="department">Lihat laporan</button></div><div class="department-bars"><div><span>Production</span><div class="bar-rail"><i style="width:94%"></i></div><strong>94%</strong></div><div><span>Marketing</span><div class="bar-rail"><i style="width:91%"></i></div><strong>91%</strong></div><div><span>IT</span><div class="bar-rail"><i style="width:90%"></i></div><strong>90%</strong></div><div><span>Finance</span><div class="bar-rail"><i style="width:88%"></i></div><strong>88%</strong></div></div></section>
+          </div>
+        </section>
+
+        <section class="view" data-view-panel="lks">
+          <div class="page-intro"><div><p class="section-label">September 2026</p><h2>LKS Saya</h2><p>Catat amalan harian dan lihat capaian periode secara utuh.</p></div><div class="score-box"><span>Nilai sementara</span><strong>88,6%</strong><small>Belum tuntas</small></div></div>
+          <div class="lks-grid"><section class="date-rail"><p class="section-label">Pilih tanggal</p><div class="date-scroller"><button class="date-chip"><span>Jum</span><strong>25</strong></button><button class="date-chip"><span>Sab</span><strong>26</strong></button><button class="date-chip"><span>Min</span><strong>27</strong></button><button class="date-chip is-today"><span>Sen</span><strong>28</strong><i>Hari ini</i></button><button class="date-chip"><span>Sel</span><strong>29</strong></button><button class="date-chip"><span>Rab</span><strong>30</strong></button></div></section>
+            <section class="full-checklist"><div class="section-head"><div><p class="section-label" id="full-checklist-date">Senin, 28 September</p><h2>Catatan hari ini</h2></div><span class="save-state"><i></i>Tersimpan</span></div><div class="checklist-groups" id="full-checklist"><div class="checklist-item is-done"><button class="square-check" aria-pressed="true"><svg><use href="#icon-check"/></svg></button><div><strong>Absen Subuh</strong><small>Rutinitas pagi</small></div><span class="item-note">Dicatat</span></div><div class="checklist-item is-done"><button class="square-check" aria-pressed="true"><svg><use href="#icon-check"/></svg></button><div><strong>Shalawat Munjiyat</strong><small>Rutinitas pagi</small></div><span class="item-note">Dicatat</span></div><div class="checklist-item"><button class="square-check" aria-pressed="false"><svg><use href="#icon-check"/></svg></button><div><strong>Shalat Tepat Waktu di Jam Kerja</strong><small>Amalan harian</small></div><span class="item-note">Belum dicatat</span></div><div class="checklist-item"><button class="square-check" aria-pressed="false"><svg><use href="#icon-check"/></svg></button><div><strong>Dzikir Pagi Petang</strong><small>Amalan harian</small></div><span class="item-note">Belum dicatat</span></div><div class="checklist-item"><button class="square-check" aria-pressed="false"><svg><use href="#icon-check"/></svg></button><div><strong>Tilawah Harian</strong><small>Amalan harian</small></div><span class="item-note">Belum dicatat</span></div><div class="checklist-item"><button class="square-check" aria-pressed="false"><svg><use href="#icon-check"/></svg></button><div><strong>Shalat Dhuha</strong><small>Amalan harian</small></div><span class="item-note">Belum dicatat</span></div></div></section>
+            <aside class="period-summary"><p class="section-label">Ringkasan periode</p><h3>Masih ada ruang untuk bertumbuh.</h3><div class="summary-score"><strong>88,6%</strong><span>Nilai sementara</span></div><ul><li><span>3</span> amalan sudah tuntas</li><li><span>4</span> amalan masih berjalan</li><li><span>2</span> amalan mendekati target</li></ul><button class="text-action" data-go="history">Lihat riwayat <svg><use href="#icon-arrow"/></svg></button></aside></div>
+        </section>
+
+        <section class="view" data-view-panel="recap">
+          <div class="page-intro recap-intro"><div><p class="section-label">Rekap periode aktif</p><h2>Perkembangan anggota</h2><p>Urutkan dari capaian yang paling membutuhkan perhatian.</p></div><button class="period-button"><svg><use href="#icon-calendar"/></svg> September 2026</button></div>
+          <div class="filter-bar"><label class="search-field"><svg><use href="#icon-search"/></svg><input id="member-search" type="search" placeholder="Cari nama anggota" /></label><button class="filter-pill is-on">Semua status</button><button class="filter-pill">Belum tuntas</button><button class="filter-pill">Tuntas</button><button class="filter-pill admin-only">Semua departemen</button></div>
+          <section class="recap-table" aria-label="Rekap anggota"><div class="table-head"><span>Santri Karya</span><span>Departemen</span><span>Nilai</span><span>Status</span><span></span></div><div id="recap-rows"><div class="table-row" data-member="Rizky Fadillah Marketing"><div class="member-cell"><span class="person-initials tone-one">RF</span><div><strong>Rizky Fadillah</strong><small>Leader: Ahmad Fikri</small></div></div><span>Marketing</span><strong>78%</strong><span class="status status-open">Belum tuntas</span><button class="row-button" aria-label="Buka Rizky Fadillah"><svg><use href="#icon-chevron"/></svg></button></div><div class="table-row" data-member="Maulana Kurnia Marketing"><div class="member-cell"><span class="person-initials tone-two">MK</span><div><strong>Maulana Kurnia</strong><small>Leader: Ahmad Fikri</small></div></div><span>Marketing</span><strong>84%</strong><span class="status status-open">Belum tuntas</span><button class="row-button" aria-label="Buka Maulana Kurnia"><svg><use href="#icon-chevron"/></svg></button></div><div class="table-row" data-member="Ahmad Syamsudin Marketing"><div class="member-cell"><span class="person-initials tone-three">AS</span><div><strong>Ahmad Syamsudin</strong><small>Leader: Ahmad Fikri</small></div></div><span>Marketing</span><strong>89%</strong><span class="status status-waiting">Hampir</span><button class="row-button" aria-label="Buka Ahmad Syamsudin"><svg><use href="#icon-chevron"/></svg></button></div><div class="table-row" data-member="Nadia Aulia Finance"><div class="member-cell"><span class="person-initials tone-four">NA</span><div><strong>Nadia Aulia</strong><small>Leader: Siti Hasanah</small></div></div><span>Finance</span><strong>92%</strong><span class="status status-done">Tuntas</span><button class="row-button" aria-label="Buka Nadia Aulia"><svg><use href="#icon-chevron"/></svg></button></div></div></section>
+          <p class="empty-search" id="empty-search" hidden>Tidak ada anggota yang sesuai dengan pencarian ini.</p>
+        </section>
+
+        <section class="view" data-view-panel="department">
+          <div class="page-intro"><div><p class="section-label">Laporan organisasi</p><h2>Capaian departemen</h2><p>Bandingkan capaian periode aktif dengan dua periode sebelumnya.</p></div><button class="period-button"><svg><use href="#icon-calendar"/></svg> Jul — Sep 2026</button></div>
+          <section class="chart-panel"><div class="chart-legend"><span><i class="legend-mark now"></i>September</span><span><i class="legend-mark before"></i>Agustus</span><span><i class="legend-mark older"></i>Juli</span></div><div class="bar-chart" role="img" aria-label="Grafik perbandingan capaian departemen Juli hingga September"><div class="chart-scale"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div><div class="chart-groups"><div class="chart-group"><div class="bars"><i class="older" style="height:86%"></i><i class="before" style="height:89%"></i><i class="now" style="height:91%"></i></div><strong>Marketing</strong></div><div class="chart-group"><div class="bars"><i class="older" style="height:82%"></i><i class="before" style="height:85%"></i><i class="now" style="height:88%"></i></div><strong>Finance</strong></div><div class="chart-group"><div class="bars"><i class="older" style="height:90%"></i><i class="before" style="height:92%"></i><i class="now" style="height:94%"></i></div><strong>Production</strong></div><div class="chart-group"><div class="bars"><i class="older" style="height:84%"></i><i class="before" style="height:87%"></i><i class="now" style="height:90%"></i></div><strong>IT</strong></div></div></div></section>
+          <section class="department-table"><div class="section-head"><div><p class="section-label">Nilai periode ini</p><h2>Rincian per departemen</h2></div></div><div class="department-row"><strong>Production</strong><span>94% capaian</span><span class="trend up">Naik 2 poin</span></div><div class="department-row"><strong>Marketing</strong><span>91% capaian</span><span class="trend up">Naik 2 poin</span></div><div class="department-row"><strong>IT</strong><span>90% capaian</span><span class="trend up">Naik 3 poin</span></div><div class="department-row"><strong>Finance</strong><span>88% capaian</span><span class="trend up">Naik 3 poin</span></div></section>
+        </section>
+
+        <section class="view" data-view-panel="history">
+          <div class="page-intro"><div><p class="section-label">Arsip LKS</p><h2>Riwayat periode</h2><p>Hasil periode yang telah selesai tersimpan sebagai catatan pribadi.</p></div></div>
+          <div class="history-list"><article><div><p>Agustus 2026</p><h3>Nilai akhir 91,2%</h3><span class="status status-done">Tuntas</span></div><div class="history-meta"><span>8 dari 10 amalan tuntas</span><button class="row-button" aria-label="Buka Agustus 2026"><svg><use href="#icon-chevron"/></svg></button></div></article><article><div><p>Juli 2026</p><h3>Nilai akhir 87,5%</h3><span class="status status-open">Belum tuntas</span></div><div class="history-meta"><span>6 dari 10 amalan tuntas</span><button class="row-button" aria-label="Buka Juli 2026"><svg><use href="#icon-chevron"/></svg></button></div></article><article><div><p>Juni 2026</p><h3>Nilai akhir 92,4%</h3><span class="status status-done">Tuntas</span></div><div class="history-meta"><span>9 dari 10 amalan tuntas</span><button class="row-button" aria-label="Buka Juni 2026"><svg><use href="#icon-chevron"/></svg></button></div></article></div>
+        </section>
+
+        <section class="view" data-view-panel="settings">
+          <div class="page-intro"><div><h2>Pengaturan LKS</h2><p>Pilih area yang ingin dikelola. Data dimuat saat halaman ini dibuka.</p></div></div>
+          <div class="admin-hub-list"><button class="admin-hub-item" type="button" data-go="organization"><span><strong>Struktur Organisasi</strong><small>Departemen dan tim</small></span><span class="admin-hub-action">Kelola <svg><use href="#icon-chevron"/></svg></span></button><button class="admin-hub-item" type="button" data-go="people"><span><strong>Data Santri Karya</strong><small>Akun, penempatan tim, dan leader</small></span><span class="admin-hub-action">Kelola <svg><use href="#icon-chevron"/></svg></span></button><button class="admin-hub-item" type="button" data-go="activities"><span><strong>Aktivitas LKS</strong><small>Daftar aktivitas dan target periode</small></span><span class="admin-hub-action">Kelola <svg><use href="#icon-chevron"/></svg></span></button><button class="admin-hub-item" type="button" data-go="periods"><span><strong>Periode LKS</strong><small>Draft, peserta, dan aktivasi periode</small></span><span class="admin-hub-action">Kelola <svg><use href="#icon-chevron"/></svg></span></button></div>
+        </section>
+
+        <section class="view" data-view-panel="organization"></section>
+        <section class="view" data-view-panel="people">
+          <div class="page-intro"><div><h2>Data Santri Karya</h2><p>Kelola keanggotaan, penempatan departemen, dan leader pada periode yang dipilih.</p></div><button class="primary-button" data-demo="Tambah Santri Karya">Tambah Santri <svg><use href="#icon-arrow"/></svg></button></div>
+          <div class="filter-bar admin-filter"><label class="search-field"><svg><use href="#icon-search"/></svg><input type="search" placeholder="Cari nama atau departemen" aria-label="Cari Santri Karya" /></label><button class="filter-pill is-on" type="button">Aktif</button><button class="filter-pill" type="button">Semua departemen</button></div>
+          <section class="recap-table admin-directory" aria-label="Daftar Santri Karya"><div class="table-head"><span>Santri Karya</span><span>Departemen</span><span>Leader</span><span>Status</span><span></span></div><div class="table-row"><div class="member-cell"><span class="person-initials tone-one">RF</span><div><strong>Rizky Fadillah</strong><small>SK-0261</small></div></div><span>Marketing</span><span>Ahmad Fikri</span><span class="status status-done">Aktif</span><button class="row-button" data-demo="Detail Rizky Fadillah" aria-label="Lihat Rizky Fadillah"><svg><use href="#icon-chevron"/></svg></button></div><div class="table-row"><div class="member-cell"><span class="person-initials tone-two">MK</span><div><strong>Maulana Kurnia</strong><small>SK-0262</small></div></div><span>Marketing</span><span>Ahmad Fikri</span><span class="status status-done">Aktif</span><button class="row-button" data-demo="Detail Maulana Kurnia" aria-label="Lihat Maulana Kurnia"><svg><use href="#icon-chevron"/></svg></button></div><div class="table-row"><div class="member-cell"><span class="person-initials tone-three">AS</span><div><strong>Ahmad Syamsudin</strong><small>SK-0263</small></div></div><span>Marketing</span><span>Ahmad Fikri</span><span class="status status-done">Aktif</span><button class="row-button" data-demo="Detail Ahmad Syamsudin" aria-label="Lihat Ahmad Syamsudin"><svg><use href="#icon-chevron"/></svg></button></div><div class="table-row"><div class="member-cell"><span class="person-initials tone-four">NA</span><div><strong>Nadia Aulia</strong><small>SK-0318</small></div></div><span>Finance</span><span>Siti Hasanah</span><span class="status status-done">Aktif</span><button class="row-button" data-demo="Detail Nadia Aulia" aria-label="Lihat Nadia Aulia"><svg><use href="#icon-chevron"/></svg></button></div></section>
+          <p class="admin-note">Data pada prototype ini bersifat ilustratif. Perubahan akan tersedia setelah integrasi backend.</p>
+        </section>
+
+        <section class="view" data-view-panel="periods">
+          <div class="page-intro"><div><h2>Pengaturan Periode</h2><p>Tentukan rentang pencatatan dan ambang kelulusan sebelum periode dijalankan.</p></div><button class="primary-button" data-demo="Buat periode baru">Buat periode <svg><use href="#icon-arrow"/></svg></button></div>
+          <section class="period-detail" aria-label="Periode aktif"><div><span class="status status-done">Aktif</span><h3>September 2026</h3><p>1 September 2026 sampai 30 September 2026</p></div><dl><div><dt>Ambang tuntas</dt><dd>90%</dd></div><div><dt>Aktivitas aktif</dt><dd>10 amalan</dd></div><div><dt>Peserta</dt><dd>96 Santri Karya</dd></div></dl><button class="text-action" data-demo="Ubah periode September 2026">Ubah periode <svg><use href="#icon-arrow"/></svg></button></section>
+          <section class="history-list period-archive" aria-label="Arsip periode"><article><div><p>Agustus 2026</p><h3>Periode telah ditutup</h3><span class="status status-done">Selesai</span></div><div class="history-meta"><span>1 sampai 31 Agustus 2026</span><button class="row-button" data-demo="Lihat periode Agustus 2026" aria-label="Lihat Agustus 2026"><svg><use href="#icon-chevron"/></svg></button></div></article><article><div><p>Juli 2026</p><h3>Periode telah ditutup</h3><span class="status status-done">Selesai</span></div><div class="history-meta"><span>1 sampai 31 Juli 2026</span><button class="row-button" data-demo="Lihat periode Juli 2026" aria-label="Lihat Juli 2026"><svg><use href="#icon-chevron"/></svg></button></div></article></section>
+        </section>
+
+        <section class="view" data-view-panel="activities">
+          <div class="page-intro"><div><h2>Pengaturan Aktivitas</h2><p>Atur amalan, target periode, dan bobot sebelum periode aktif digunakan.</p></div><button class="primary-button" data-demo="Tambah aktivitas">Tambah aktivitas <svg><use href="#icon-arrow"/></svg></button></div>
+          <section class="activity-admin-list" aria-label="Daftar aktivitas aktif"><div class="activity-admin-head"><span>Aktivitas</span><span>Target periode</span><span>Bobot</span><span>Status</span><span></span></div><article><div><strong>Absen Subuh</strong><small>Rutinitas pagi</small></div><span>30 kali</span><span>10%</span><span class="status status-done">Aktif</span><button class="row-button" data-demo="Ubah Absen Subuh" aria-label="Ubah Absen Subuh"><svg><use href="#icon-chevron"/></svg></button></article><article><div><strong>Shalawat Munjiyat</strong><small>Rutinitas pagi</small></div><span>30 kali</span><span>10%</span><span class="status status-done">Aktif</span><button class="row-button" data-demo="Ubah Shalawat Munjiyat" aria-label="Ubah Shalawat Munjiyat"><svg><use href="#icon-chevron"/></svg></button></article><article><div><strong>Shalat Tepat Waktu</strong><small>Amalan harian</small></div><span>30 kali</span><span>15%</span><span class="status status-done">Aktif</span><button class="row-button" data-demo="Ubah Shalat Tepat Waktu" aria-label="Ubah Shalat Tepat Waktu"><svg><use href="#icon-chevron"/></svg></button></article><article><div><strong>Tilawah Harian</strong><small>Amalan harian</small></div><span>25 kali</span><span>15%</span><span class="status status-done">Aktif</span><button class="row-button" data-demo="Ubah Tilawah Harian" aria-label="Ubah Tilawah Harian"><svg><use href="#icon-chevron"/></svg></button></article><article><div><strong>Shalat Dhuha</strong><small>Amalan harian</small></div><span>20 kali</span><span>10%</span><span class="status status-done">Aktif</span><button class="row-button" data-demo="Ubah Shalat Dhuha" aria-label="Ubah Shalat Dhuha"><svg><use href="#icon-chevron"/></svg></button></article></section>
+          <p class="admin-note">Target dan bobot baru diterapkan saat konfigurasi telah disimpan pada backend.</p>
+        </section>
+      </main>
+
+      <nav class="mobile-nav" aria-label="Navigasi seluler"><button class="mobile-nav-item is-active" data-view="dashboard"><svg><use href="#icon-home"/></svg><span>Beranda</span></button><button class="mobile-nav-item" data-view="lks"><svg><use href="#icon-check"/></svg><span>LKS Saya</span></button><button class="mobile-nav-item" data-view="recap"><svg><use href="#icon-users"/></svg><span>Rekap</span></button><button class="mobile-nav-item" data-view="department" hidden><svg><use href="#icon-chart"/></svg><span>Departemen</span></button><button class="mobile-nav-item" data-view="history" hidden><svg><use href="#icon-history"/></svg><span>Riwayat</span></button><button class="mobile-nav-item" data-view="settings" hidden><svg><use href="#icon-settings"/></svg><span>Pengaturan</span></button></nav>
+    </div>
+    <div class="page-progress" id="page-progress" role="status" aria-live="polite" hidden><div class="page-progress-content"><i aria-hidden="true"></i><span>Memuat halaman…</span></div></div>
+    <div class="toast" role="status" aria-live="polite" id="toast"><svg><use href="#icon-check"/></svg><span>Checklist tersimpan</span></div>
+    <dialog class="confirm-dialog" id="confirm-dialog" aria-labelledby="confirm-dialog-title">
+      <form method="dialog">
+        <h2 id="confirm-dialog-title" data-confirm-title>Konfirmasi tindakan</h2>
+        <p data-confirm-message>Pastikan tindakan ini sudah sesuai.</p>
+        <div class="confirm-dialog-actions"><button class="text-button" type="submit" value="cancel">Batal</button><button class="primary-button" type="submit" value="confirm">Lanjutkan</button></div>
+      </form>
+    </dialog>
+    <dialog class="admin-form-dialog" id="admin-form-dialog" aria-labelledby="admin-form-dialog-title">
+      <div data-admin-form-dialog-content></div>
+    </dialog>
+    <script src="app.js"></script>
+  </body>
+</html>

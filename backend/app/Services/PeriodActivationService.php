@@ -1,0 +1,171 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\AuditLog;
+use App\Models\LksPeriod;
+use App\Models\PeriodParticipantSnapshot;
+use App\Models\SantriProfile;
+use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+
+class PeriodActivationService
+{
+    public function activate(User $actor, LksPeriod $period): LksPeriod
+    {
+        $this->ensureAdmin($actor);
+
+        return DB::transaction(function () use ($actor, $period): LksPeriod {
+            $period = LksPeriod::query()->lockForUpdate()->findOrFail($period->getKey());
+            $today = now()->startOfDay();
+
+            if ($period->status !== 'draft') {
+                throw ValidationException::withMessages(['period' => 'Hanya periode draft yang dapat diaktifkan.']);
+            }
+
+            if ($today->gt($period->end_date)) {
+                throw ValidationException::withMessages(['period' => 'Periode yang sudah berakhir tidak dapat diaktifkan.']);
+            }
+
+            if (LksPeriod::query()->where('status', 'active')->exists()) {
+                throw ValidationException::withMessages(['period' => 'Masih ada periode LKS aktif.']);
+            }
+
+            if (! $period->periodActivities()->where('is_active', true)->exists()) {
+                throw ValidationException::withMessages(['period_activities' => 'Periode aktif harus memiliki minimal satu aktivitas aktif.']);
+            }
+
+            $profiles = SantriProfile::query()
+                ->where('status', 'active')
+                ->with(['user', 'department', 'team', 'leader'])
+                ->get();
+
+            foreach ($profiles as $profile) {
+                $this->assertProfileOrganization($profile);
+                $this->snapshot($period, $profile, $period->start_date->toDateString());
+            }
+
+            // MVP memakai bobot setara untuk seluruh aktivitas pada saat periode dikunci aktif.
+            $period->periodActivities()->where('is_active', true)->update(['weight' => 1]);
+            $period->update(['status' => 'active', 'activated_at' => now()]);
+
+            AuditLog::create([
+                'actor_user_id' => $actor->getKey(),
+                'event' => 'period.activated',
+                'auditable_type' => $period->getMorphClass(),
+                'auditable_id' => $period->getKey(),
+                'after_data' => ['status' => 'active', 'participant_count' => $profiles->count()],
+            ]);
+
+            return $period->refresh();
+        });
+    }
+
+    public function addParticipant(User $actor, LksPeriod $period, SantriProfile $profile): PeriodParticipantSnapshot
+    {
+        $this->ensureAdmin($actor);
+
+        return DB::transaction(function () use ($actor, $period, $profile): PeriodParticipantSnapshot {
+            $period = LksPeriod::query()->lockForUpdate()->findOrFail($period->getKey());
+            $today = now()->startOfDay();
+
+            if ($period->status !== 'active') {
+                throw ValidationException::withMessages(['period' => 'Peserta manual hanya dapat ditambahkan pada periode aktif.']);
+            }
+
+            if ($today->lt($period->start_date) || $today->gt($period->end_date)) {
+                throw ValidationException::withMessages(['period' => 'Tanggal penambahan peserta berada di luar periode.']);
+            }
+
+            $profile->loadMissing(['user', 'department', 'team', 'leader']);
+            if ($profile->status !== 'active') {
+                throw ValidationException::withMessages(['santri' => 'Hanya Santri Karya aktif yang dapat menjadi peserta.']);
+            }
+
+            $this->assertProfileOrganization($profile);
+            $snapshot = $this->snapshot($period, $profile, $today->toDateString());
+
+            if ($snapshot->wasRecentlyCreated) {
+                AuditLog::create([
+                    'actor_user_id' => $actor->getKey(),
+                    'event' => 'period.participant_added',
+                    'auditable_type' => $snapshot->getMorphClass(),
+                    'auditable_id' => $snapshot->getKey(),
+                    'after_data' => ['period_id' => $period->getKey(), 'user_id' => $profile->getKey()],
+                ]);
+            }
+
+            return $snapshot;
+        });
+    }
+
+    public function close(User $actor, LksPeriod $period): LksPeriod
+    {
+        $this->ensureAdmin($actor);
+
+        return DB::transaction(function () use ($actor, $period): LksPeriod {
+            $period = LksPeriod::query()->lockForUpdate()->findOrFail($period->getKey());
+
+            if ($period->status !== 'active') {
+                throw ValidationException::withMessages(['period' => 'Hanya periode aktif yang dapat ditutup.']);
+            }
+
+            if (now()->startOfDay()->lte($period->end_date)) {
+                throw ValidationException::withMessages(['period' => 'Periode hanya dapat ditutup setelah tanggal akhirnya berlalu.']);
+            }
+
+            $closedAt = now();
+            $period->update(['status' => 'closed', 'closed_at' => $closedAt]);
+
+            AuditLog::create([
+                'actor_user_id' => $actor->getKey(),
+                'event' => 'period.closed',
+                'auditable_type' => $period->getMorphClass(),
+                'auditable_id' => $period->getKey(),
+                'before_data' => ['status' => 'active'],
+                'after_data' => ['status' => 'closed', 'closed_at' => $closedAt->toIso8601String()],
+            ]);
+
+            return $period->refresh();
+        });
+    }
+
+    private function ensureAdmin(User $actor): void
+    {
+        if (! $actor->isAdmin()) {
+            throw new AuthorizationException('Hanya Admin yang dapat mengelola periode LKS.');
+        }
+    }
+
+    private function assertProfileOrganization(SantriProfile $profile): void
+    {
+        if ($profile->team !== null && $profile->department_id !== $profile->team->department_id) {
+            throw ValidationException::withMessages([
+                'santri' => 'Departemen Santri Karya harus sama dengan departemen timnya.',
+            ]);
+        }
+    }
+
+    private function snapshot(LksPeriod $period, SantriProfile $profile, string $participationStartDate): PeriodParticipantSnapshot
+    {
+        return PeriodParticipantSnapshot::firstOrCreate(
+            ['period_id' => $period->getKey(), 'user_id' => $profile->getKey()],
+            [
+                'participant_name_snapshot' => $profile->user->name,
+                'gender_snapshot' => $profile->gender,
+                'department_id_snapshot' => $profile->department?->getKey(),
+                'department_name_snapshot' => $profile->department?->name,
+                'team_id_snapshot' => $profile->team?->getKey(),
+                'team_name_snapshot' => $profile->team?->name,
+                'leader_user_id_snapshot' => $profile->leader?->getKey(),
+                'leader_name_snapshot' => $profile->leader?->name,
+                'category_snapshot' => $profile->category,
+                'level_snapshot' => $profile->level,
+                'participation_start_date' => $participationStartDate,
+            ],
+        );
+    }
+}
