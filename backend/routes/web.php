@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\PrototypeDashboardController;
 use App\Http\Controllers\Lks\ChecklistController;
+use App\Http\Controllers\Lks\AccountController;
 use App\Http\Controllers\Lks\DashboardController;
 use App\Http\Controllers\Lks\PeriodController;
 use App\Http\Controllers\Lks\OrganizationController;
@@ -11,7 +12,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome')->name('home');
+Route::get('/', function () {
+    return Auth::check()
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
+})->name('home');
 
 Route::post('logout', function (Request $request) {
     Auth::guard('web')->logout();
@@ -28,6 +33,9 @@ Route::middleware(['auth'])->group(function () {
         ->name('lks-prototype.asset');
 
     Route::prefix('api/lks')->name('api.lks.')->group(function (): void {
+        Route::get('account', [AccountController::class, 'show'])->name('account.show');
+        Route::put('account/profile', [AccountController::class, 'updateProfile'])->name('account.profile.update');
+        Route::put('account/password', [AccountController::class, 'updatePassword'])->name('account.password.update');
         Route::get('dashboard', DashboardController::class)->name('dashboard');
         Route::get('recap', RecapController::class)->name('recap');
         Route::get('department-trends', [RecapController::class, 'departmentTrends'])->name('department-trends');

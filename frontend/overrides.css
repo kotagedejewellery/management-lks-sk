@@ -306,3 +306,223 @@
     font-size: 11px;
   }
 }
+
+/* Keep utility labels comfortably readable without changing the app's calm hierarchy. */
+.section-label,
+.date-line,
+.topbar-title p,
+.brand small,
+.sidebar-foot p,
+.save-state,
+.status,
+.person-initials,
+.score-box span,
+.score-box small,
+.date-chip span,
+.date-chip i,
+.table-head,
+.member-cell small,
+.chart-scale,
+.chart-group,
+.mobile-nav-item,
+.role-option,
+.avatar,
+.leader-overview small,
+.leader-overview p,
+.admin-metrics p,
+.admin-metrics span,
+.account-summary span,
+.department-history-row small {
+  font-size: 12px;
+}
+
+.chart-groups {
+  padding-inline: 12px;
+}
+
+.lks-grid {
+  align-items: start;
+}
+
+.account-layout {
+  display: grid;
+  gap: 44px;
+  max-width: 920px;
+}
+
+.account-section {
+  display: grid;
+  grid-template-columns: minmax(200px, .8fr) minmax(0, 1.2fr);
+  gap: 32px;
+  padding-top: 26px;
+  border-top: 1px solid var(--line-dark, #c5d0c8);
+}
+
+.account-section h2 {
+  margin: 0 0 8px;
+  font-size: 25px;
+}
+
+.account-section > div > p,
+.account-help {
+  margin: 0;
+  color: var(--ink-soft, #53645a);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.account-form,
+.account-fields {
+  display: grid;
+  gap: 16px;
+}
+
+.account-field {
+  display: grid;
+  gap: 7px;
+  color: var(--ink-soft, #53645a);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.account-field input {
+  min-height: 44px;
+  width: 100%;
+  padding: 10px 12px;
+  color: var(--ink, #203329);
+  background: var(--surface, #fffefa);
+  border: 1px solid var(--line-dark, #c5d0c8);
+  border-radius: 9px;
+  font: inherit;
+  font-weight: 600;
+}
+
+.account-field input:focus-visible {
+  outline: 2px solid var(--evergreen, #25705b);
+  outline-offset: 2px;
+}
+
+.account-password-control {
+  position: relative;
+}
+
+.account-password-control input {
+  padding-right: 46px;
+}
+
+.account-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 7px;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  color: var(--ink-soft, #53645a);
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+  place-items: center;
+  transform: translateY(-50%);
+}
+
+.account-password-toggle:hover,
+.account-password-toggle:focus-visible {
+  color: var(--evergreen-dark, #155244);
+  background: var(--evergreen-pale, #e4f0e8);
+}
+
+.account-password-toggle:focus-visible {
+  outline: 2px solid var(--evergreen, #25705b);
+  outline-offset: 2px;
+}
+
+.account-password-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 1.8;
+}
+
+.account-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+@media (max-width: 640px) {
+  .mobile-nav {
+    display: flex;
+  }
+
+  .mobile-nav-item {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .account-layout {
+    gap: 34px;
+  }
+
+  .account-section {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding-top: 22px;
+  }
+
+  .account-section h2 {
+    font-size: 23px;
+  }
+
+  .account-actions .primary-button {
+    width: 100%;
+  }
+}
+
+.toast {
+  align-items: center;
+}
+
+.toast[data-type="error"] {
+  background: var(--danger, #9c4e47);
+}
+
+.toast-dismiss {
+  display: inline-grid;
+  width: 28px;
+  height: 28px;
+  margin: -4px -6px -4px 2px;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  place-items: center;
+}
+
+.toast-dismiss:hover,
+.toast-dismiss:focus-visible {
+  background: rgb(255 255 255 / 16%);
+}
+
+.toast-dismiss:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.toast-dismiss svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.confirm-dialog[data-tone="danger"] .primary-button {
+  border-color: var(--danger, #9c4e47);
+  background: var(--danger, #9c4e47);
+}

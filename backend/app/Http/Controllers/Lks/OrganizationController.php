@@ -135,6 +135,7 @@ class OrganizationController extends Controller
             'level' => ['nullable', 'string', 'max:100'],
             'is_leader' => ['nullable', 'boolean'],
         ]);
+        $data['is_leader'] = $request->boolean('is_leader');
 
         $team = Team::query()->findOrFail($data['team_id']);
         if (isset($data['leader_user_id']) && ! User::query()->whereKey($data['leader_user_id'])
@@ -142,7 +143,13 @@ class OrganizationController extends Controller
             throw ValidationException::withMessages(['leader_user_id' => 'Pengguna yang dipilih belum memiliki role Leader.']);
         }
 
-        $profile = DB::transaction(function () use ($data, $team): SantriProfile {
+        $roleCodes = ['santri'];
+        if ($data['is_leader']) {
+            $roleCodes[] = 'leader';
+        }
+        $roleIds = $this->requiredRoleIds($roleCodes);
+
+        $profile = DB::transaction(function () use ($data, $team, $roleIds): SantriProfile {
             $user = new User([
                 'name' => $data['name'],
                 'email' => $data['email'],
@@ -151,11 +158,7 @@ class OrganizationController extends Controller
             $user->email_verified_at = now();
             $user->save();
 
-            $roleCodes = ['santri'];
-            if (($data['is_leader'] ?? false) === true) {
-                $roleCodes[] = 'leader';
-            }
-            $user->roles()->sync(Role::query()->whereIn('code', $roleCodes)->pluck('id'));
+            $user->roles()->sync(array_values($roleIds));
 
             return SantriProfile::create([
                 'user_id' => $user->getKey(),
@@ -186,6 +189,7 @@ class OrganizationController extends Controller
             'is_leader' => ['required', 'boolean'],
             'status' => ['required', 'in:active,inactive'],
         ]);
+        $data['is_leader'] = $request->boolean('is_leader');
 
         $team = Team::query()->where('is_active', true)->find($data['team_id']);
         if ($team === null) {
@@ -201,7 +205,9 @@ class OrganizationController extends Controller
             throw ValidationException::withMessages(['leader_user_id' => 'Pengguna yang dipilih belum memiliki role Leader.']);
         }
 
-        $profile = DB::transaction(function () use ($data, $team, $profile): SantriProfile {
+        $roleIds = $this->requiredRoleIds(['santri', 'leader']);
+
+        $profile = DB::transaction(function () use ($data, $team, $profile, $roleIds): SantriProfile {
             $profile->load('user');
             $profile->user->name = $data['name'];
             $profile->user->email = $data['email'];
@@ -218,20 +224,35 @@ class OrganizationController extends Controller
                 'status' => $data['status'],
             ]);
 
-            $santriRoleId = Role::query()->where('code', 'santri')->value('id');
-            $leaderRoleId = Role::query()->where('code', 'leader')->value('id');
-            $profile->user->roles()->syncWithoutDetaching([$santriRoleId]);
+            $profile->user->roles()->syncWithoutDetaching([$roleIds['santri']]);
 
             if ($data['is_leader']) {
-                $profile->user->roles()->syncWithoutDetaching([$leaderRoleId]);
+                $profile->user->roles()->syncWithoutDetaching([$roleIds['leader']]);
             } else {
-                $profile->user->roles()->detach($leaderRoleId);
+                $profile->user->roles()->detach($roleIds['leader']);
             }
 
             return $profile->refresh();
         });
 
         return response()->json(['data' => $profile->load(['user:id,name,email,is_active', 'user.roles:id,code', 'department:id,name', 'team:id,name', 'leader:id,name'])]);
+    }
+
+    /** @param array<int, string> $roleCodes
+     *  @return array<string, string>
+     */
+    private function requiredRoleIds(array $roleCodes): array
+    {
+        $roleIds = Role::query()->whereIn('code', $roleCodes)->pluck('id', 'code')->all();
+        $missingRoles = array_values(array_diff($roleCodes, array_keys($roleIds)));
+
+        if ($missingRoles !== []) {
+            throw ValidationException::withMessages([
+                'roles' => 'Konfigurasi role '.implode(', ', $missingRoles).' belum tersedia. Jalankan provisioning database sebelum mengelola Santri Karya.',
+            ]);
+        }
+
+        return $roleIds;
     }
 
     private function ensureAdmin(Request $request): void

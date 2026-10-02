@@ -61,11 +61,7 @@ class PeriodController extends Controller
         $viewer = $request->user();
         $periods = LksPeriod::query()
             ->where('status', 'closed')
-            ->when(! $viewer->isAdmin() && $viewer->hasRole('leader'), fn ($query) => $query->whereHas(
-                'participants',
-                fn ($participants) => $participants->where('leader_user_id_snapshot', $viewer->getKey()),
-            ))
-            ->when(! $viewer->isAdmin() && ! $viewer->hasRole('leader'), fn ($query) => $query->whereHas(
+            ->when(! $viewer->isAdmin(), fn ($query) => $query->whereHas(
                 'participants',
                 fn ($participants) => $participants->where('user_id', $viewer->getKey()),
             ))

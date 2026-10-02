@@ -1,4 +1,4 @@
-const viewLabels = { dashboard: ['Ruang pribadi', 'Dashboard'], lks: ['Catatan pribadi', 'LKS Saya'], recap: ['Pemantauan', 'Rekap'], department: ['Laporan organisasi', 'Departemen'], history: ['Catatan pribadi', 'Riwayat'], settings: ['Administrasi', 'Pengaturan'], organization: ['Pengaturan', 'Struktur Organisasi'], people: ['Pengaturan', 'Data Santri Karya'], periods: ['Pengaturan', 'Periode LKS'], activities: ['Pengaturan', 'Aktivitas LKS'] };
+const viewLabels = { dashboard: ['Ruang pribadi', 'Dashboard'], lks: ['Catatan pribadi', 'LKS Saya'], recap: ['Pemantauan', 'Rekap'], department: ['Laporan organisasi', 'Departemen'], history: ['Catatan pribadi', 'Riwayat'], account: ['Akun', 'Akun Saya'], settings: ['Administrasi', 'Pengaturan'], organization: ['Pengaturan', 'Struktur Organisasi'], people: ['Pengaturan', 'Data Santri Karya'], periods: ['Pengaturan', 'Periode LKS'], activities: ['Pengaturan', 'Aktivitas LKS'] };
 const navButtons = document.querySelectorAll('[data-view]');
 const viewPanels = document.querySelectorAll('[data-view-panel]');
 const pageTitle = document.querySelector('#page-title');
@@ -24,6 +24,7 @@ let recapPeriods = [];
 let departmentTrendData = [];
 let selectedChecklistDate = todayIso();
 let activePeriodActivities = [];
+let accountData = null;
 
 function openView(name) {
   viewPanels.forEach((panel) => panel.classList.toggle('is-active', panel.dataset.viewPanel === name));
@@ -34,7 +35,9 @@ function openView(name) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (['settings', 'organization', 'people', 'periods', 'activities'].includes(name)) loadAdminView(name);
   if (['recap', 'department'].includes(name)) loadRecap();
+  if (['dashboard', 'lks'].includes(name)) loadDashboard({ showProgress: true, reloadRecap: false });
   if (name === 'history') loadHistory({ showProgress: true });
+  if (name === 'account') loadAccount({ showProgress: true });
 }
 
 navButtons.forEach((button) => button.addEventListener('click', () => openView(button.dataset.view)));
@@ -53,14 +56,19 @@ function hidePageProgress() {
 }
 
 let toastTimer;
-function showToast(message, type = 'success') {
+function showToast(message, type = 'success', duration = type === 'error' ? 6000 : 2600) {
   toast.querySelector('span').textContent = message;
   toast.dataset.type = type;
   toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
   toast.classList.add('is-visible');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 2600);
+  if (duration > 0) toastTimer = setTimeout(() => toast.classList.remove('is-visible'), duration);
 }
+
+document.querySelector('[data-dismiss-toast]')?.addEventListener('click', () => {
+  clearTimeout(toastTimer);
+  toast.classList.remove('is-visible');
+});
 
 function setButtonBusy(button, isBusy, label = '') {
   if (!button) return;
@@ -110,10 +118,11 @@ function setFormError(form, message = '') {
   feedback.textContent = message;
 }
 
-function confirmAction({ title, message, confirmLabel }) {
+function confirmAction({ title, message, confirmLabel, tone = 'default' }) {
   confirmDialog.querySelector('[data-confirm-title]').textContent = title;
   confirmDialog.querySelector('[data-confirm-message]').textContent = message;
   confirmDialog.querySelector('[value="confirm"]').textContent = confirmLabel;
+  confirmDialog.dataset.tone = tone;
   confirmDialog.returnValue = '';
   return new Promise((resolve) => {
     confirmDialog.addEventListener('close', () => resolve(confirmDialog.returnValue === 'confirm'), { once: true });
@@ -188,30 +197,62 @@ function syncChecklist(activityId, complete) {
   updateTodayProgress();
 }
 
-function setChecklistEmpty(message) {
+function setChecklistEmpty(message, title = 'Catatan LKS belum tersedia') {
   const empty = `<p class="muted" role="status">${escapeHtml(message)}</p>`;
   quickChecks.innerHTML = empty;
   fullChecklist.innerHTML = empty;
+  document.querySelector('.full-checklist .section-head h2').textContent = title;
+  document.querySelector('.full-checklist .save-state').hidden = true;
   const activityList = document.querySelector('.dashboard-santri .activity-list');
   if (activityList) activityList.innerHTML = empty;
   updateTodayProgress();
+}
+
+function setChecklistReady() {
+  document.querySelector('.full-checklist .section-head h2').textContent = 'Catatan hari ini';
+  document.querySelector('.full-checklist .save-state').hidden = false;
+}
+
+function canUsePersonalLks(roles = []) {
+  return !roles.includes('admin') && roles.some((role) => ['santri', 'leader'].includes(role));
+}
+
+function renderPersonalSummaryUnavailable(message) {
+  document.querySelector('.score-box').hidden = true;
+  document.querySelector('.period-summary').innerHTML = `<h3>Ringkasan belum tersedia.</h3><p class="muted">${escapeHtml(message)}</p>`;
+}
+
+function renderPersonalSummaryLoading() {
+  document.querySelector('.score-box').hidden = true;
+  document.querySelector('.period-summary').innerHTML = '<h3>Menyiapkan ringkasan.</h3><p class="muted">Capaian periode Anda sedang dimuat.</p>';
 }
 
 function applyDashboard(data) {
   const viewerChanged = viewer?.id !== data.viewer.id;
   viewer = data.viewer;
   if (viewerChanged) applyViewerIdentity(data.viewer);
+  if (!hasConfiguredRole(data.viewer.roles ?? [])) return;
+  if (!canUsePersonalLks(data.viewer.roles ?? [])) {
+    participantId = null;
+    activePeriodActivities = [];
+    document.querySelector('.date-rail').innerHTML = '<p class="date-note">Akun Admin tidak memiliki catatan LKS pribadi.</p>';
+    setChecklistEmpty('Admin menggunakan LKS untuk pemantauan dan koreksi, bukan pencatatan amalan pribadi.');
+    renderPersonalSummaryUnavailable('Rekap pribadi hanya tersedia untuk Santri Karya dan Leader.');
+    return;
+  }
   selectedChecklistDate = data.selected_date ?? todayIso();
   activePeriodActivities = data.activities ?? [];
   document.querySelector('#dashboard-date').textContent = formatDate(selectedChecklistDate, true);
   document.querySelector('#register-date').textContent = formatDate(selectedChecklistDate);
   document.querySelector('#full-checklist-date').textContent = formatDate(selectedChecklistDate);
   document.querySelector('#dashboard-greeting').textContent = `Assalamu'alaikum, ${data.viewer.name.split(' ')[0]}.`;
-  document.querySelector('.date-rail').innerHTML = '<p class="date-note">Pilih tanggal dalam periode untuk melihat atau mencatat aktivitas. Admin dapat melakukan koreksi dengan alasan yang tercatat.</p>';
+  document.querySelector('.date-rail').innerHTML = '<p class="date-note">Pilih tanggal dalam periode untuk melihat atau mencatat aktivitas.</p>';
+  renderPersonalSummaryLoading();
 
   if (data.period === null) {
     participantId = null;
     setChecklistEmpty('Belum ada periode LKS aktif. Hubungi Admin untuk mengaktifkan periode.');
+    renderPersonalSummaryUnavailable('Belum ada periode LKS aktif untuk diringkas.');
     renderUnavailableDashboard('Belum ada periode aktif untuk diringkas.');
     return;
   }
@@ -224,13 +265,17 @@ function applyDashboard(data) {
     participantId = null;
     document.querySelector('.date-rail').innerHTML = `<p class="date-note">Periode ini telah disiapkan dan pencatatan akan dibuka pada ${formatDate(data.period.start_date)}.</p>`;
     setChecklistEmpty(`Periode ${data.period.name} belum dimulai. Checklist dapat diisi mulai ${formatDate(data.period.start_date)}.`);
+    renderPersonalSummaryUnavailable(`Ringkasan tersedia setelah periode ${data.period.name} dimulai.`);
     renderUnavailableDashboard(`Periode ${data.period.name} dijadwalkan dimulai pada ${formatDate(data.period.start_date)}.`);
     return;
   }
 
   if (data.participant === null) {
     participantId = null;
-    setChecklistEmpty('Anda belum terdaftar sebagai peserta pada periode aktif ini.');
+    const message = `Anda belum didaftarkan sebagai peserta ${data.period.name}. Hubungi Admin LKS untuk ditambahkan; catatan dapat dibuat mulai tanggal pendaftaran.`;
+    document.querySelector('.date-rail').innerHTML = `<p class="date-note">${escapeHtml(message)}</p>`;
+    setChecklistEmpty(message);
+    renderPersonalSummaryUnavailable(message);
     return;
   }
 
@@ -239,6 +284,8 @@ function applyDashboard(data) {
   document.querySelector('.date-rail').innerHTML = `<label class="checklist-date-control">Tanggal pencatatan<input type="date" data-checklist-date value="${escapeHtml(selectedChecklistDate)}" min="${escapeHtml(data.participant.participation_start_date)}" max="${escapeHtml(maxDate)}"></label><p class="date-note">Checklist tersimpan berdasarkan tanggal yang dipilih.</p>`;
   quickChecks.innerHTML = data.activities.slice(0, 4).map(renderQuickCheck).join('');
   fullChecklist.innerHTML = data.activities.map(renderFullCheck).join('');
+  setChecklistReady();
+  if (data.personal_summary) renderPersonalSummary(data.personal_summary);
   updateTodayProgress();
 }
 
@@ -266,23 +313,28 @@ function renderActivityProgress(activity) {
   return `<article class="activity-row"><div class="activity-name"><span class="activity-dot${complete ? ' completed' : ''}"></span><strong>${escapeHtml(activity.name)}</strong><small>${escapeHtml(activity.completed_count)} dari target ${escapeHtml(activity.target_count)} kali</small></div><div class="activity-track"><span style="width:${progress}%"></span></div><strong class="activity-value">${percentage(progress)}</strong>${statusBadge(activity.status)}</article>`;
 }
 
-function renderPersonalRecap() {
-  if (!recapData || !viewer?.roles?.includes('santri')) return;
-  const personal = recapData.participants.find((participant) => participant.user_id === viewer.id) ?? recapData.participants[0];
-  if (!personal) return;
+function renderPersonalSummary(personal) {
+  if (!personal || !canUsePersonalLks(viewer?.roles ?? [])) return;
 
   const activityList = document.querySelector('.dashboard-santri .activity-list');
   if (activityList) activityList.innerHTML = personal.activities.map(renderActivityProgress).join('') || '<p class="muted">Belum ada aktivitas pada periode ini.</p>';
 
-  document.querySelectorAll('.score-box strong, .summary-score strong').forEach((element) => { element.textContent = percentage(personal.final_percentage); });
-  document.querySelectorAll('.score-box small').forEach((element) => { element.textContent = personal.final_status === 'tuntas' ? 'Tuntas' : 'Belum tuntas'; });
-  const identity = viewer.identity;
-  const summary = document.querySelector('.period-summary ul');
-  if (identity && summary) {
-    summary.innerHTML = [
-      ['Tim', identity.team], ['Leader', identity.leader], ['Departemen', identity.department], ['Kategori', identity.category], ['Level', identity.level],
-    ].filter(([, value]) => value).map(([label, value]) => `<li><span>${escapeHtml(label.slice(0, 1))}</span><div><small>${escapeHtml(label)}</small><strong>${escapeHtml(value)}</strong></div></li>`).join('');
-  }
+  const score = percentage(personal.final_percentage);
+  const status = personal.final_status === 'tuntas' ? 'Tuntas' : 'Belum tuntas';
+  const scoreBox = document.querySelector('.score-box');
+  scoreBox.hidden = false;
+  scoreBox.innerHTML = `<span>Nilai sementara</span><strong>${score}</strong><small>${status}</small>`;
+
+  const details = [
+    ['Tim', viewer.identity?.team], ['Leader', viewer.identity?.leader], ['Departemen', viewer.identity?.department], ['Kategori', viewer.identity?.category], ['Level', viewer.identity?.level],
+  ].filter(([, value]) => value).map(([label, value]) => `<li><span>${escapeHtml(label.slice(0, 1))}</span><div><small>${escapeHtml(label)}</small><strong>${escapeHtml(value)}</strong></div></li>`).join('');
+  document.querySelector('.period-summary').innerHTML = `<h3>${personal.final_status === 'tuntas' ? 'Target periode tercapai.' : 'Masih ada ruang untuk bertumbuh.'}</h3><div class="summary-score"><strong>${score}</strong><span>Nilai sementara</span></div>${details ? `<ul>${details}</ul>` : ''}<button class="text-action" type="button" data-go="history">Lihat riwayat <svg><use href="#icon-arrow"/></svg></button>`;
+}
+
+function renderPersonalRecap() {
+  if (!recapData || !canUsePersonalLks(viewer?.roles ?? [])) return;
+  const personal = recapData.participants.find((participant) => participant.user_id === viewer.id);
+  if (personal) renderPersonalSummary(personal);
 }
 
 function dashboardNotice(title, message, action = '') {
@@ -338,8 +390,7 @@ function renderHistory() {
 
 function renderHistoryDetail(data) {
   const { period, participants, summary } = data;
-  const role = displayRole(viewer?.roles ?? []);
-  const personal = role === 'santri' ? participants[0] : null;
+  const personal = canUsePersonalLks(viewer?.roles ?? []) ? participants.find((participant) => participant.user_id === viewer?.id) : null;
   const score = personal ? `<div class="history-score"><span>Nilai akhir</span><strong>${percentage(personal.final_percentage)}</strong>${statusBadge(personal.final_status)}</div>` : `<div class="history-score"><span>Peserta sesuai akses</span><strong>${summary.participant_count}</strong><small>${summary.tuntas_count} tuntas · Rata-rata ${percentage(summary.average_percentage)}</small></div>`;
   const activities = personal?.activities?.map((activity) => `<li><span>${escapeHtml(activity.name)}</span><strong>${activity.completed_count}/${activity.target_count} · ${percentage(activity.percentage)}</strong></li>`).join('');
   return `<div class="history-detail-head"><span class="status status-closed">Ditutup</span><h3>${escapeHtml(period.name)}</h3><p>${formatDate(period.start_date, true)} — ${formatDate(period.end_date, true)}</p></div>${score}${activities ? `<ul class="history-activity-list">${activities}</ul>` : '<p class="history-empty-detail">Ringkasan ini menampilkan hasil peserta yang berada dalam cakupan akses Anda.</p>'}`;
@@ -362,7 +413,8 @@ async function loadHistory({ showProgress = false } = {}) {
 async function loadHistoryRecap(periodId, trigger) {
   setButtonBusy(trigger, true, 'Memuat…');
   try {
-    const response = await fetch(`${apiBase}/recap?period_id=${encodeURIComponent(periodId)}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+    const scope = canUsePersonalLks(viewer?.roles ?? []) ? '&scope=personal' : '';
+    const response = await fetch(`${apiBase}/recap?period_id=${encodeURIComponent(periodId)}${scope}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
     if (!response.ok) throw new Error(await apiError(response));
     historyRecapData = (await response.json()).data;
     renderHistory();
@@ -371,27 +423,6 @@ async function loadHistoryRecap(periodId, trigger) {
   } finally {
     setButtonBusy(trigger, false);
   }
-}
-
-function renderRecapViews() {
-  const recapPanel = document.querySelector('[data-view-panel="recap"]');
-  const departmentPanel = document.querySelector('[data-view-panel="department"]');
-  if (!recapData) return;
-
-  const { period, participants, summary } = recapData;
-  const recapRows = participants.map((participant, index) => `<div class="table-row" data-member="${escapeHtml(`${participant.name} ${participant.department ?? ''}`)}" data-status="${escapeHtml(participant.final_status)}"><div class="member-cell"><span class="person-initials tone-${['one', 'two', 'three', 'four'][index % 4]}">${escapeHtml(initials(participant.name))}</span><div><strong>${escapeHtml(participant.name)}</strong><small>${escapeHtml(participant.team ?? 'Tanpa tim')} · Leader: ${escapeHtml(participant.leader ?? 'Belum ditetapkan')}</small></div></div><span>${escapeHtml(participant.department ?? 'Tanpa departemen')}</span><strong>${percentage(participant.final_percentage)}</strong>${statusBadge(participant.final_status)}<span aria-hidden="true"></span></div>`).join('');
-
-  recapPanel.innerHTML = `<div class="page-intro recap-intro"><div><h2>Perkembangan anggota</h2><p>${escapeHtml(period.name)} · ${summary.participant_count} peserta pada periode aktif.</p></div></div><div class="filter-bar"><label class="search-field"><svg aria-hidden="true"><use href="#icon-search"/></svg><span class="sr-only">Cari anggota</span><input id="member-search" type="search" aria-label="Cari anggota" placeholder="Cari nama anggota" /></label><button class="filter-pill is-on" type="button" data-recap-filter="all">Semua status</button><button class="filter-pill" type="button" data-recap-filter="belum_tuntas">Belum tuntas</button><button class="filter-pill" type="button" data-recap-filter="tuntas">Tuntas</button></div><section class="recap-table" aria-label="Rekap anggota"><div class="table-head"><span>Santri Karya</span><span>Departemen</span><span>Nilai</span><span>Status</span><span></span></div><div id="recap-rows">${recapRows || '<p class="empty-search">Belum ada peserta pada periode aktif ini.</p>'}</div></section><p class="empty-search" id="empty-search" hidden>Tidak ada anggota yang sesuai dengan pencarian atau status tersebut.</p>`;
-
-  const departments = summary.departments ?? [];
-  if (!viewer?.roles?.includes('admin')) {
-    departmentPanel.innerHTML = `<div class="page-intro"><div><h2>Capaian departemen</h2><p>Ringkasan lintas departemen tersedia untuk Admin.</p></div></div><p class="empty-search">Gunakan akun Admin untuk melihat perbandingan capaian tiap departemen.</p>`;
-    return;
-  }
-
-  const departmentBars = departments.map((department) => `<div class="chart-group"><div class="bars"><i class="now" style="height:${Math.min(Math.max(Number(department.average_percentage) || 0, 0), 100)}%"></i></div><strong>${escapeHtml(department.department)}</strong></div>`).join('');
-  const departmentRows = departments.map((department) => `<div class="department-row"><strong>${escapeHtml(department.department)}</strong><span>${percentage(department.average_percentage)} capaian</span><span class="trend up">${escapeHtml(department.tuntas_count)} dari ${escapeHtml(department.participant_count)} tuntas</span></div>`).join('');
-  departmentPanel.innerHTML = `<div class="page-intro"><div><h2>Capaian departemen</h2><p>${escapeHtml(period.name)} · Perbandingan capaian periode aktif berdasarkan hasil peserta saat ini.</p></div><button class="period-button" type="button" disabled><svg><use href="#icon-calendar"/></svg> Periode aktif</button></div><section class="chart-panel"><div class="chart-legend"><span><i class="legend-mark now"></i>Rata-rata periode aktif</span></div><div class="bar-chart" role="img" aria-label="Grafik capaian rata-rata per departemen"><div class="chart-scale"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div><div class="chart-groups">${departmentBars}</div></div></section><section class="department-table"><div class="section-head"><div><h2>Rincian per departemen</h2></div></div>${departmentRows || '<p class="empty-search">Belum ada data departemen pada periode aktif ini.</p>'}</section>`;
 }
 
 function renderRecapUnavailable(message) {
@@ -424,24 +455,6 @@ function renderRecapViews() {
   const departmentNames = [...new Set(departmentTrendData.flatMap((item) => item.departments.map((department) => department.department)))];
   const trendRows = departmentNames.map((name) => `<div class="department-history-row"><strong>${escapeHtml(name)}</strong>${trendPeriods.map((item) => `<span><small>${escapeHtml(item.period.name)}</small>${percentage(item.departments.find((department) => department.department === name)?.average_percentage ?? 0)}</span>`).join('')}</div>`).join('');
   departmentPanel.innerHTML = `<div class="page-intro"><div><h2>Capaian departemen</h2><p>${escapeHtml(period.name)} · Rekap periode dapat dipilih dan dibandingkan dengan riwayat yang tersedia.</p></div><label class="report-period-control">Periode<select data-recap-period>${periodOptions}</select></label></div><section class="chart-panel"><div class="chart-legend"><span><i class="legend-mark now"></i>Rata-rata ${escapeHtml(period.name)}</span></div><div class="bar-chart" role="img" aria-label="Grafik capaian rata-rata per departemen"><div class="chart-scale"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div><div class="chart-groups">${departmentBars}</div></div></section><section class="department-table"><div class="section-head"><div><h2>Rincian per departemen</h2></div></div>${departmentRows || '<p class="empty-search">Belum ada data departemen pada periode ini.</p>'}</section>${trendRows ? `<section class="department-history"><div class="section-head"><div><h2>Perbandingan riwayat</h2><p>Tiga periode terakhir yang tersedia.</p></div></div>${trendRows}</section>` : ''}`;
-}
-
-async function loadRecapLegacy() {
-  showPageProgress('Memuat rekap…');
-  try {
-    const response = await fetch(`${apiBase}/recap`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
-    if (!response.ok) throw new Error(await apiError(response));
-    recapData = (await response.json()).data;
-    renderPersonalRecap();
-    renderRecapViews();
-    renderRoleDashboard();
-  } catch (error) {
-    recapData = null;
-    renderRecapUnavailable(error.message || 'Data rekap belum dapat dimuat.');
-    renderUnavailableDashboard(error.message || 'Data rekap belum dapat dimuat.');
-  } finally {
-    hidePageProgress();
-  }
 }
 
 async function loadRecap(periodId = '', { showProgress = true } = {}) {
@@ -526,18 +539,45 @@ function displayRole(roles) {
   return 'santri';
 }
 
+function hasConfiguredRole(roles) {
+  return roles.some((role) => ['admin', 'leader', 'santri'].includes(role));
+}
+
+function canView(view, roles) {
+  const isAdmin = roles.includes('admin');
+  const isLeader = roles.includes('leader');
+  const hasPersonalLks = canUsePersonalLks(roles);
+  return {
+    dashboard: true,
+    account: true,
+    lks: hasPersonalLks,
+    recap: isAdmin || isLeader,
+    department: isAdmin,
+    history: hasPersonalLks,
+    settings: isAdmin,
+  }[view] ?? false;
+}
+
 function applyViewerIdentity(currentViewer) {
   const roles = currentViewer.roles ?? [];
+  if (!hasConfiguredRole(roles)) {
+    document.querySelector('#account-name').textContent = currentViewer.name;
+    document.querySelector('#account-role').textContent = 'Akses belum dikonfigurasi';
+    navButtons.forEach((button) => { button.hidden = !['dashboard', 'account'].includes(button.dataset.view); });
+    document.querySelectorAll('.nav-admin, .admin-only, [data-role-panel]').forEach((item) => { item.hidden = true; });
+    document.querySelector('[data-view-panel="dashboard"]').innerHTML = dashboardNotice(
+      'Akses LKS belum siap',
+      'Akun Anda belum memiliki peran LKS. Hubungi Admin LKS agar akses Santri Karya dapat diaktifkan, lalu muat ulang halaman ini.',
+    );
+    return;
+  }
   const role = displayRole(roles);
   const roleLabels = { santri: 'Santri Karya', leader: 'Leader', admin: 'Admin' };
-  const accessByView = { lks: 'santri', department: 'admin', settings: 'admin', organization: 'admin', people: 'admin', periods: 'admin', activities: 'admin' };
-
   document.querySelector('#account-name').textContent = currentViewer.name;
   document.querySelector('#account-role').textContent = roleLabels[role];
   document.querySelectorAll('[data-role-panel]').forEach((panel) => { panel.hidden = panel.dataset.rolePanel !== role; });
   navButtons.forEach((button) => {
-    const requiredRole = accessByView[button.dataset.view];
-    button.hidden = requiredRole !== undefined && !roles.includes(requiredRole);
+    button.hidden = !canView(button.dataset.view, roles);
   });
   document.querySelectorAll('.nav-admin, .admin-only').forEach((item) => { item.hidden = !roles.includes('admin'); });
   historyData = null;
@@ -557,14 +597,104 @@ async function logout() {
       headers: { Accept: 'application/json', ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}) },
     });
     if (!response.ok) throw new Error('Sesi belum dapat diakhiri. Coba lagi.');
-    window.location.assign('/');
+    window.location.assign('/login');
   } catch (error) {
     showToast(error.message, 'error');
     setButtonBusy(logoutButton, false);
   }
 }
 
-logoutButton.addEventListener('click', logout);
+async function requestLogout() {
+  const confirmed = await confirmAction({
+    title: 'Keluar dari LKS?',
+    message: 'Anda akan keluar dari sesi pada perangkat ini. Masuk kembali diperlukan untuk melanjutkan pencatatan.',
+    confirmLabel: 'Keluar',
+  });
+  if (confirmed) logout();
+}
+
+logoutButton.addEventListener('click', requestLogout);
+
+function accountPasswordField(id, name, label, autocomplete) {
+  return `<label class="account-field">${label}<span class="account-password-control"><input id="${id}" name="${name}" type="password" minlength="8" autocomplete="${autocomplete}" required><button type="button" class="account-password-toggle" data-toggle-account-password="${id}" aria-label="Tampilkan ${label.toLowerCase()}" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.8"/></svg></button></span></label>`;
+}
+
+function renderAccount(data) {
+  accountData = data;
+  const panel = document.querySelector('[data-view-panel="account"]');
+  panel.innerHTML = `<div class="page-intro"><div><h2>Akun Saya</h2><p>Kelola identitas akun dan keamanan password Anda. Penempatan, role, dan status akun diatur oleh Admin LKS.</p></div></div><div class="account-layout"><section class="account-section" aria-labelledby="account-profile-title"><div><h2 id="account-profile-title">Informasi akun</h2><p>Nama dan email dipakai untuk identitas serta proses masuk ke LKS.</p></div><form class="account-form" data-account-form="profile"><div class="account-fields"><label class="account-field">Nama<input name="name" maxlength="150" autocomplete="name" value="${escapeHtml(data.name)}" required></label><label class="account-field">Email<input name="email" type="email" maxlength="255" autocomplete="email" value="${escapeHtml(data.email)}" required></label></div><div class="account-actions"><button class="primary-button" type="submit">Simpan informasi</button></div></form></section><section class="account-section" aria-labelledby="account-password-title"><div><h2 id="account-password-title">Ganti password</h2><p>Masukkan password saat ini sebelum memilih password baru.</p></div><form class="account-form" data-account-form="password"><div class="account-fields">${accountPasswordField('account-current-password', 'current_password', 'Password saat ini', 'current-password')}${accountPasswordField('account-password', 'password', 'Password baru', 'new-password')}${accountPasswordField('account-password-confirmation', 'password_confirmation', 'Konfirmasi password baru', 'new-password')}</div><p class="account-help">Gunakan minimal 8 karakter dan simpan password baru Anda di tempat yang aman.</p><div class="account-actions"><button class="primary-button" type="submit">Perbarui password</button></div></form></section></div>`;
+}
+
+async function loadAccount({ showProgress = false } = {}) {
+  const panel = document.querySelector('[data-view-panel="account"]');
+  if (showProgress) showPageProgress('Memuat akun…');
+  panel.setAttribute('aria-busy', 'true');
+  try {
+    const response = await fetch(`${apiBase}/account`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+    if (!response.ok) throw new Error(await apiError(response));
+    renderAccount((await response.json()).data);
+  } catch (error) {
+    panel.innerHTML = `${dashboardNotice('Akun belum dapat dimuat', error.message || 'Coba lagi beberapa saat lagi.', '<button class="primary-button" type="button" data-account-refresh>Coba lagi</button>')}`;
+  } finally {
+    panel.removeAttribute('aria-busy');
+    if (showProgress) hidePageProgress();
+  }
+}
+
+async function submitAccountForm(form) {
+  const type = form.dataset.accountForm;
+  const endpoint = type === 'password' ? '/account/password' : '/account/profile';
+  const payload = Object.fromEntries(new FormData(form).entries());
+  setFormError(form);
+  setFormBusy(form, true, type === 'password' ? 'Memperbarui…' : 'Menyimpan…');
+  try {
+    const response = await fetch(`${apiBase}${endpoint}`, {
+      method: 'PUT', credentials: 'same-origin',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}) },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) throw new Error(await apiError(response));
+    const data = (await response.json()).data;
+    if (type === 'profile') {
+      accountData = { ...accountData, ...data };
+      viewer = { ...viewer, name: data.name };
+      document.querySelector('#account-name').textContent = data.name;
+      renderAccount(accountData);
+      showToast('Informasi akun diperbarui');
+      return;
+    }
+    form.reset();
+    showToast('Password berhasil diperbarui');
+  } catch (error) {
+    const message = error.message || 'Perubahan akun belum dapat disimpan. Coba lagi.';
+    setFormError(form, message);
+    showToast(message, 'error');
+  } finally {
+    setFormBusy(form, false);
+  }
+}
+
+document.addEventListener('submit', (event) => {
+  const form = event.target.closest('[data-account-form]');
+  if (!form) return;
+  event.preventDefault();
+  submitAccountForm(form);
+});
+
+document.addEventListener('click', (event) => {
+  const toggle = event.target.closest('[data-toggle-account-password]');
+  if (toggle) {
+    const input = document.querySelector(`#${CSS.escape(toggle.dataset.toggleAccountPassword)}`);
+    if (!input) return;
+    const visible = input.type === 'text';
+    input.type = visible ? 'password' : 'text';
+    toggle.setAttribute('aria-pressed', String(!visible));
+    toggle.setAttribute('aria-label', `${visible ? 'Tampilkan' : 'Sembunyikan'} ${input.closest('label')?.childNodes[0]?.textContent?.trim() ?? 'password'}`);
+    input.focus({ preventScroll: true });
+    return;
+  }
+  if (event.target.closest('[data-account-refresh]')) loadAccount({ showProgress: true });
+});
 
 document.addEventListener('input', (event) => {
   if (event.target.matches('#member-search')) filterRecapRows();
@@ -823,11 +953,11 @@ async function submitAdminForm(form) {
     if (!confirmed) return;
   }
   if (type === 'santri-edit' && payload.status === 'inactive') {
-    const confirmed = await confirmAction({ title: 'Nonaktifkan akun ini?', message: 'Santri Karya tidak dapat masuk atau dipilih untuk penempatan baru. Data periode yang sudah tersimpan tetap utuh.', confirmLabel: 'Nonaktifkan akun' });
+    const confirmed = await confirmAction({ title: 'Nonaktifkan akun ini?', message: 'Santri Karya tidak dapat masuk atau dipilih untuk penempatan baru. Data periode yang sudah tersimpan tetap utuh.', confirmLabel: 'Nonaktifkan akun', tone: 'danger' });
     if (!confirmed) return;
   }
   if (type === 'activity-edit' && !payload.is_active) {
-    const confirmed = await confirmAction({ title: 'Nonaktifkan aktivitas ini?', message: 'Aktivitas tidak tersedia untuk ditambahkan ke periode draft berikutnya. Konfigurasi periode yang sudah ada tidak berubah.', confirmLabel: 'Nonaktifkan aktivitas' });
+    const confirmed = await confirmAction({ title: 'Nonaktifkan aktivitas ini?', message: 'Aktivitas tidak tersedia untuk ditambahkan ke periode draft berikutnya. Konfigurasi periode yang sudah ada tidak berubah.', confirmLabel: 'Nonaktifkan aktivitas', tone: 'danger' });
     if (!confirmed) return;
   }
   setFormError(form);
@@ -862,8 +992,46 @@ function openChecklistCorrection(participantId) {
   adminFormDialogContent.innerHTML = `<form class="admin-modal-form" data-admin-form="checklist-correction"><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">Koreksi checklist</h2><p>Perubahan oleh Admin harus disertai alasan dan akan tercatat pada audit log.</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields"><label>Santri Karya<select name="participant_id" required>${adminOptions(participants, participantId)}</select></label><label>Aktivitas<select name="period_activity_id" required>${adminOptions(activities)}</select></label><label>Tanggal checklist<input type="date" name="checklist_date" min="${escapeHtml(recapData.period.start_date)}" max="${escapeHtml([todayIso(), recapData.period.end_date].sort()[0])}" value="${escapeHtml(selectedChecklistDate)}" required></label><label>Status<select name="is_completed" required><option value="true">Dicatat selesai</option><option value="false">Tidak selesai</option></select></label><label>Alasan koreksi<textarea name="reason" maxlength="1000" required></textarea></label></div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit">Simpan koreksi</button></div></form>`;
   adminFormDialog.dataset.returnView = 'recap';
   adminFormDialog.showModal();
+  markAdminFormPristine();
   adminFormDialog.querySelector('select, input, textarea')?.focus();
 }
+
+function adminFormSnapshot(form) {
+  return [...form.querySelectorAll('input, select, textarea')]
+    .filter((field) => field.type !== 'submit' && field.type !== 'button')
+    .map((field) => `${field.name}:${field.type === 'checkbox' ? field.checked : field.value}`)
+    .join('|');
+}
+
+function markAdminFormPristine() {
+  const form = adminFormDialog.querySelector('[data-admin-form]');
+  if (form) form.dataset.initialSnapshot = adminFormSnapshot(form);
+}
+
+function hasUnsavedAdminFormChanges() {
+  const form = adminFormDialog.querySelector('[data-admin-form]');
+  return Boolean(form?.dataset.initialSnapshot) && form.dataset.initialSnapshot !== adminFormSnapshot(form);
+}
+
+async function requestAdminFormClose() {
+  if (!hasUnsavedAdminFormChanges()) {
+    adminFormDialog.close();
+    return;
+  }
+  const confirmed = await confirmAction({
+    title: 'Batalkan perubahan?',
+    message: 'Input yang belum disimpan akan hilang.',
+    confirmLabel: 'Buang perubahan',
+    tone: 'danger',
+  });
+  if (confirmed) adminFormDialog.close();
+}
+
+adminFormDialog.addEventListener('cancel', async (event) => {
+  if (!hasUnsavedAdminFormChanges()) return;
+  event.preventDefault();
+  await requestAdminFormClose();
+});
 
 document.addEventListener('submit', (event) => { if (event.target.matches('[data-admin-form]')) { event.preventDefault(); submitAdminForm(event.target); } });
 let adminSearchTimer;
@@ -921,7 +1089,7 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
     } : null,
     santri: {
       title: 'Tambah Santri Karya', description: 'Admin menetapkan password sementara dan penempatan organisasi akun baru.', submitLabel: 'Buat akun Santri',
-      fields: `<label>Nama<input name="name" maxlength="150" autocomplete="name" required></label><label>Email<input type="email" name="email" autocomplete="email" required></label><label>Password sementara<input type="password" name="temporary_password" minlength="8" autocomplete="new-password" required></label><div class="admin-modal-inline-fields"><label>Gender<select name="gender" required><option value="ikhwan">Ikhwan</option><option value="akhwat">Akhwat</option></select></label><label>Tim<select name="team_id" required>${adminOptions(teams)}</select></label></div><label>Leader<select name="leader_user_id">${adminOptions(organizationData.leaders)}</select></label><label class="admin-modal-checkbox"><input type="checkbox" name="is_leader"> Jadikan Leader</label>`,
+      fields: `<label>Nama<input name="name" maxlength="150" autocomplete="name" required></label><label>Email<input type="email" name="email" autocomplete="email" required></label><label>Password sementara<input type="password" name="temporary_password" minlength="8" autocomplete="new-password" required></label><div class="admin-modal-inline-fields"><label>Gender<select name="gender" required><option value="ikhwan">Ikhwan</option><option value="akhwat">Akhwat</option></select></label><label>Tim<select name="team_id" required>${adminOptions(teams)}</select></label></div><label>Leader<select name="leader_user_id">${adminOptions(organizationData.leaders)}</select></label><div class="admin-modal-inline-fields"><label>Kategori (opsional)<input name="category" maxlength="100"></label><label>Level (opsional)<input name="level" maxlength="100"></label></div><label class="admin-modal-checkbox"><input type="checkbox" name="is_leader"> Jadikan Leader</label>`,
     },
     'santri-edit': selectedProfile ? {
       title: `Kelola Santri Karya · ${escapeHtml(selectedProfile.user.name)}`, description: 'Perubahan penempatan berlaku untuk data berikutnya. Riwayat periode yang sudah berjalan tetap menggunakan snapshot sebelumnya.', submitLabel: 'Simpan perubahan',
@@ -962,17 +1130,21 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
   adminFormDialogContent.innerHTML = `<form class="admin-modal-form" data-admin-form="${type}"${type === 'period-config' || type === 'period-edit' ? ` data-period-id="${escapeHtml(departmentId)}"` : ''}${type === 'department-edit' || type === 'team-edit' ? ` data-organization-id="${escapeHtml(departmentId)}"` : ''}${type === 'santri-edit' ? ` data-santri-id="${escapeHtml(departmentId)}"` : ''}${type === 'activity-edit' ? ` data-activity-id="${escapeHtml(departmentId)}"` : ''}><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">${definition.title}</h2><p>${definition.description}</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields">${definition.fields}</div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit"${disableSubmit ? ' disabled' : ''}>${definition.submitLabel}</button></div></form>`;
   adminFormDialog.dataset.returnView = returnView;
   adminFormDialog.showModal();
+  markAdminFormPristine();
   adminFormDialog.querySelector('input, select')?.focus();
 }
 
-document.addEventListener('click', (event) => {
+document.addEventListener('click', async (event) => {
   const trigger = event.target.closest('[data-open-admin-modal]');
-  if (trigger) openAdminFormModal(
-    trigger.dataset.openAdminModal,
-    trigger.dataset.departmentId ?? trigger.dataset.periodId ?? trigger.dataset.organizationId ?? trigger.dataset.santriId ?? trigger.dataset.activityId,
-    trigger.closest('[data-view-panel]')?.dataset.viewPanel,
-  );
-  if (event.target.closest('[data-close-admin-modal]')) adminFormDialog.close();
+  if (trigger) {
+    openAdminFormModal(
+      trigger.dataset.openAdminModal,
+      trigger.dataset.departmentId ?? trigger.dataset.periodId ?? trigger.dataset.organizationId ?? trigger.dataset.santriId ?? trigger.dataset.activityId,
+      trigger.closest('[data-view-panel]')?.dataset.viewPanel,
+    );
+    return;
+  }
+  if (event.target.closest('[data-close-admin-modal]')) await requestAdminFormClose();
 });
 document.addEventListener('click', (event) => {
   const correction = event.target.closest('[data-open-checklist-correction]');
@@ -997,7 +1169,7 @@ document.addEventListener('click', async (event) => {
   if (archive) {
     const type = archive.dataset.archiveOrganization;
     const unitName = archive.dataset.organizationName;
-    const confirmed = await confirmAction({ title: `Arsipkan ${type === 'department' ? 'departemen' : 'tim'}?`, message: `${unitName} tidak akan tersedia untuk penempatan baru. Data historis tetap tersimpan.`, confirmLabel: 'Arsipkan' });
+    const confirmed = await confirmAction({ title: `Arsipkan ${type === 'department' ? 'departemen' : 'tim'}?`, message: `${unitName} tidak akan tersedia untuk penempatan baru. Data historis tetap tersimpan.`, confirmLabel: 'Arsipkan', tone: 'danger' });
     if (!confirmed) return;
     setButtonBusy(archive, true, 'Mengarsipkan…');
     try {
@@ -1028,7 +1200,7 @@ document.addEventListener('click', async (event) => {
   const closePeriod = event.target.closest('[data-close-period]');
   if (closePeriod) {
     const periodName = closePeriod.dataset.periodName;
-    const confirmed = await confirmAction({ title: 'Tutup periode ini?', message: `${periodName} akan dikunci sebagai riwayat. Checklist dan konfigurasi periode tidak dapat diubah lagi.`, confirmLabel: 'Tutup periode' });
+    const confirmed = await confirmAction({ title: 'Tutup periode ini?', message: `${periodName} akan dikunci sebagai riwayat. Checklist dan konfigurasi periode tidak dapat diubah lagi.`, confirmLabel: 'Tutup periode', tone: 'danger' });
     if (!confirmed) return;
     setButtonBusy(closePeriod, true, 'Menutup…');
     try {
@@ -1052,7 +1224,8 @@ document.addEventListener('click', async (event) => {
   }
 });
 
-async function loadDashboard({ date = selectedChecklistDate, reloadRecap = true } = {}) {
+async function loadDashboard({ date = selectedChecklistDate, reloadRecap = true, showProgress = false } = {}) {
+  if (showProgress) showPageProgress();
   try {
     const response = await fetch(`${apiBase}/dashboard?date=${encodeURIComponent(date)}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
     if (!response.ok) throw new Error('Data LKS belum dapat dimuat. Muat ulang halaman untuk mencoba lagi.');
@@ -1060,7 +1233,9 @@ async function loadDashboard({ date = selectedChecklistDate, reloadRecap = true 
     if (reloadRecap) loadRecap();
   } catch (error) {
     setChecklistEmpty('Data LKS belum dapat dimuat. Muat ulang halaman untuk mencoba lagi.');
-    showToast(error.message);
+    showToast(error.message, 'error');
+  } finally {
+    if (showProgress) hidePageProgress();
   }
 }
 

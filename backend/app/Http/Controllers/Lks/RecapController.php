@@ -13,14 +13,13 @@ class RecapController extends Controller
     public function __invoke(Request $request, LksScoreCalculator $calculator): JsonResponse
     {
         $viewer = $request->user();
+        $personalScope = $request->query('scope') === 'personal' && ! $viewer->isAdmin();
         $periods = LksPeriod::query()->whereIn('status', ['active', 'closed']);
 
-        if (! $viewer->isAdmin() && $viewer->hasRole('leader')) {
-            $periods->whereHas('participants', fn ($participants) => $participants->where('leader_user_id_snapshot', $viewer->getKey()));
-        }
-
-        if (! $viewer->isAdmin() && ! $viewer->hasRole('leader')) {
+        if ($personalScope || (! $viewer->isAdmin() && ! $viewer->hasRole('leader'))) {
             $periods->whereHas('participants', fn ($participants) => $participants->where('user_id', $viewer->getKey()));
+        } elseif (! $viewer->isAdmin() && $viewer->hasRole('leader')) {
+            $periods->whereHas('participants', fn ($participants) => $participants->where('leader_user_id_snapshot', $viewer->getKey()));
         }
 
         $period = isset($request->period_id)
@@ -29,10 +28,10 @@ class RecapController extends Controller
 
         if ($viewer->isAdmin()) {
             $scores = $calculator->calculatePeriod($period);
+        } elseif ($personalScope || ! $viewer->hasRole('leader')) {
+            $scores = $calculator->calculatePeriod($period, userId: $viewer->getKey());
         } elseif ($viewer->hasRole('leader')) {
             $scores = $calculator->calculatePeriod($period, leaderUserId: $viewer->getKey());
-        } else {
-            $scores = $calculator->calculatePeriod($period, userId: $viewer->getKey());
         }
 
         return response()->json(['data' => [

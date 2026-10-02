@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Lks;
 use App\Http\Controllers\Controller;
 use App\Models\LksPeriod;
 use App\Models\SantriProfile;
+use App\Services\LksScoreCalculator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
 class DashboardController extends Controller
 {
-    public function __invoke(Request $request): JsonResponse
+    public function __invoke(Request $request, LksScoreCalculator $calculator): JsonResponse
     {
         $viewer = $request->user()->loadMissing('roles');
         $selectedDate = Carbon::parse($request->validate(['date' => ['nullable', 'date']])['date'] ?? now())->startOfDay();
@@ -37,6 +38,7 @@ class DashboardController extends Controller
                 'viewer' => $viewerData,
                 'period' => null,
                 'participant' => null,
+                'personal_summary' => null,
                 'activities' => [],
                 'selected_date' => $selectedDate->toDateString(),
             ]]);
@@ -54,6 +56,7 @@ class DashboardController extends Controller
                     'is_open' => false,
                 ],
                 'participant' => null,
+                'personal_summary' => null,
                 'activities' => [],
                 'selected_date' => $selectedDate->toDateString(),
             ]]);
@@ -95,6 +98,7 @@ class DashboardController extends Controller
                 'id' => $participant->getKey(),
                 'participation_start_date' => $participant->participation_start_date->toDateString(),
             ],
+            'personal_summary' => $participant === null ? null : $calculator->calculate($participant),
             'activities' => $activities,
             'selected_date' => $selectedDate->toDateString(),
         ]]);

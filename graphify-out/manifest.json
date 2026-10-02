@@ -456,9 +456,9 @@
     "semantic_hash": ""
   },
   "backend/routes/web.php": {
-    "mtime": 1790823533.754144,
-    "seen": 1790823883.424175,
-    "ast_hash": "b2796851e0eb133d6c9c19ba15d9bf06",
+    "mtime": 1790909848.0204628,
+    "seen": 1790910004.2297695,
+    "ast_hash": "b7d7c4d91caccd4e87fe4a7f260ab51f",
     "semantic_hash": ""
   },
   "backend/tests/Feature/Auth/AuthenticationTest.php": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1790823778.6176403,
-    "seen": 1790823883.4242682,
-    "ast_hash": "a86edb3aa2a587ab33ce83ea62549c1f",
+    "mtime": 1790909943.3951614,
+    "seen": 1790910004.2297952,
+    "ast_hash": "d73c1a3fc3a40618ebcf9ac2f1fe9eed",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -576,9 +576,9 @@
     "semantic_hash": ""
   },
   "frontend/index.html": {
-    "mtime": 1790754117.4951818,
-    "seen": 1790754177.1504934,
-    "ast_hash": "ba0718dd86c7555f881ac919862c63ed",
+    "mtime": 1790909874.528123,
+    "seen": 1790910004.2298205,
+    "ast_hash": "db4c669226796e02d63717a3a381a0bd",
     "semantic_hash": ""
   },
   "backend/public/apple-touch-icon.png": {
@@ -774,15 +774,15 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/DashboardController.php": {
-    "mtime": 1790823529.6569352,
-    "seen": 1790823883.4240034,
-    "ast_hash": "487e150f89c0ba84e35080c0b3cfc5b8",
+    "mtime": 1790908305.1568995,
+    "seen": 1790908334.5847158,
+    "ast_hash": "bccdec35ed0728883b56b422f720735e",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodController.php": {
-    "mtime": 1790822066.0348253,
-    "seen": 1790822153.3092015,
-    "ast_hash": "ee2e55380c8cdb46ba6c227beaed8332",
+    "mtime": 1790909849.6751332,
+    "seen": 1790910004.229596,
+    "ast_hash": "2c9e812796ac773022905f1fcf00b3ec",
     "semantic_hash": ""
   },
   "backend/app/Http/Requests/Lks/ActivatePeriodRequest.php": {
@@ -804,9 +804,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/OrganizationController.php": {
-    "mtime": 1790823038.640048,
-    "seen": 1790823124.420587,
-    "ast_hash": "a7b661a995b92eb6087f957833a217b9",
+    "mtime": 1790904317.2353814,
+    "seen": 1790904423.7624319,
+    "ast_hash": "e1501faf5e950ca881aac96d1431da93",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php": {
@@ -822,9 +822,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/RecapController.php": {
-    "mtime": 1790823531.0332646,
-    "seen": 1790823883.4240105,
-    "ast_hash": "1aff5de7633a2eb15a282b85e45d2342",
+    "mtime": 1790909852.1850138,
+    "seen": 1790910004.2295978,
+    "ast_hash": "01ef968a1f36667bc05588f6fa1d84df",
     "semantic_hash": ""
   },
   "backend/app/Services/LksScoreCalculator.php": {
@@ -837,6 +837,12 @@
     "mtime": 1790664755.1745188,
     "seen": 1790664767.715228,
     "ast_hash": "ec1e8770cf51f03bee0d22bedd725ddf",
+    "semantic_hash": ""
+  },
+  "backend/app/Http/Controllers/Lks/AccountController.php": {
+    "mtime": 1790909846.1602619,
+    "seen": 1790910004.2295856,
+    "ast_hash": "05dbef27fdd505ab30ad32f3b7d2d174",
     "semantic_hash": ""
   }
 }
