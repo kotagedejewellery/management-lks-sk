@@ -154,9 +154,14 @@ function todayIso() {
 }
 
 function formatDate(date, withYear = false) {
+  const dateValue = String(date ?? '').slice(0, 10);
   return new Intl.DateTimeFormat('id-ID', {
     weekday: 'long', day: 'numeric', month: 'long', ...(withYear ? { year: 'numeric' } : {}),
-  }).format(new Date(`${date}T00:00:00`));
+  }).format(new Date(`${dateValue}T00:00:00`));
+}
+
+function dateInputValue(date) {
+  return String(date ?? '').slice(0, 10);
 }
 
 function escapeHtml(value) {
@@ -295,8 +300,8 @@ function applyDashboard(data) {
   }
 
   participantId = data.participant.id;
-  const maxDate = [todayIso(), data.period.end_date].sort()[0];
-  document.querySelector('.date-rail').innerHTML = `<label class="checklist-date-control">Tanggal pencatatan<input type="date" data-checklist-date value="${escapeHtml(selectedChecklistDate)}" min="${escapeHtml(data.participant.participation_start_date)}" max="${escapeHtml(maxDate)}"></label><p class="date-note">Checklist tersimpan berdasarkan tanggal yang dipilih.</p>`;
+  const maxDate = [todayIso(), dateInputValue(data.period.end_date)].sort()[0];
+  document.querySelector('.date-rail').innerHTML = `<label class="checklist-date-control">Tanggal pencatatan<input type="date" data-checklist-date value="${escapeHtml(selectedChecklistDate)}" min="${escapeHtml(dateInputValue(data.participant.participation_start_date))}" max="${escapeHtml(maxDate)}"></label><p class="date-note">Checklist tersimpan berdasarkan tanggal yang dipilih.</p>`;
   quickChecks.innerHTML = data.activities.slice(0, 4).map(renderQuickCheck).join('');
   fullChecklist.innerHTML = data.activities.map(renderFullCheck).join('');
   setChecklistReady();
@@ -308,6 +313,7 @@ async function apiError(response) {
   const body = await response.json().catch(() => ({}));
   const validationMessage = Object.values(body.errors ?? {}).flat()[0];
   if (validationMessage) return validationMessage;
+  if (response.status === 404) return 'Data yang dipilih sudah tidak tersedia. Muat ulang data dan coba kembali.';
   if (response.status >= 500) return 'Server belum dapat memproses perubahan. Coba lagi beberapa saat lagi.';
   return body.message ?? 'Perubahan belum dapat disimpan. Coba lagi.';
 }
@@ -853,7 +859,7 @@ function renderAdminView(name) {
         : period.status === 'active'
           ? `<span class="status status-active">Aktif</span><button class="text-button organization-row-action organization-archive-action" type="button" data-close-period="${escapeHtml(period.id)}" data-period-name="${escapeHtml(period.name)}">Tutup periode</button>`
           : '<span class="status status-closed">Ditutup</span>';
-      return `<div class="admin-record-row period-record-row" role="row"><span role="cell"><strong>${escapeHtml(period.name)}</strong><small>Batas tuntas ${period.final_passing_threshold}%</small></span><span role="cell">${escapeHtml(period.start_date)} — ${escapeHtml(period.end_date)}<small>${period.period_activities.length} aktivitas · ${activeActivityCount} aktif</small></span><span role="cell">${periodAction}</span></div>`;
+      return `<div class="admin-record-row period-record-row" role="row"><span role="cell"><strong>${escapeHtml(period.name)}</strong><small>Batas tuntas ${period.final_passing_threshold}%</small></span><span role="cell">${escapeHtml(formatDate(period.start_date, true))} — ${escapeHtml(formatDate(period.end_date, true))}<small>${period.period_activities.length} aktivitas · ${activeActivityCount} aktif</small></span><span role="cell">${periodAction}</span></div>`;
     }).join('');
     const periodContent = !showPeriodEmpty
       ? `<section class="admin-record-section" aria-labelledby="period-list-title"><div class="organization-section-head"><div><h3 id="period-list-title">Daftar Periode</h3><p>${hasPeriodSearch ? `${periodMeta.total} periode ditemukan.` : `${periodMeta.total} periode tersimpan.`}</p></div></div><form class="admin-list-search" data-admin-list-search="periods"><label class="sr-only" for="period-search">Cari periode LKS</label><input id="period-search" name="search" value="${escapeHtml(adminListState.periods.search)}" placeholder="Cari nama atau status periode" autocomplete="off"></form>${configurationData.periods.length ? `<div class="admin-record-table period-record-table" role="table" aria-label="Daftar periode LKS"><div class="admin-record-head" role="row"><span role="columnheader">Periode</span><span role="columnheader">Rentang dan aktivitas</span><span role="columnheader">Status dan aksi</span></div>${periodRows}</div>${paginationControls(periodMeta, 'periods')}` : '<p class="admin-empty">Tidak ada periode yang sesuai dengan pencarian.</p>'}</section>`
@@ -1018,7 +1024,7 @@ function openChecklistCorrection(participantId) {
   }
   const participants = recapData.participants.map((participant) => ({ id: participant.participant_id, name: `${participant.name} — ${participant.team ?? 'Tanpa tim'}` }));
   const activities = activePeriodActivities.map((activity) => ({ id: activity.id, name: activity.name }));
-  adminFormDialogContent.innerHTML = `<form class="admin-modal-form" data-admin-form="checklist-correction"><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">Koreksi checklist</h2><p>Perubahan oleh Admin harus disertai alasan dan akan tercatat pada audit log.</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields"><label>Santri Karya<select name="participant_id" required>${adminOptions(participants, participantId)}</select></label><label>Aktivitas<select name="period_activity_id" required>${adminOptions(activities)}</select></label><label>Tanggal checklist<input type="date" name="checklist_date" min="${escapeHtml(recapData.period.start_date)}" max="${escapeHtml([todayIso(), recapData.period.end_date].sort()[0])}" value="${escapeHtml(selectedChecklistDate)}" required></label><label>Status<select name="is_completed" required><option value="true">Dicatat selesai</option><option value="false">Tidak selesai</option></select></label><label>Alasan koreksi<textarea name="reason" maxlength="1000" required></textarea></label></div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit">Simpan koreksi</button></div></form>`;
+  adminFormDialogContent.innerHTML = `<form class="admin-modal-form" data-admin-form="checklist-correction"><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">Koreksi checklist</h2><p>Perubahan oleh Admin harus disertai alasan dan akan tercatat pada audit log.</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields"><label>Santri Karya<select name="participant_id" required>${adminOptions(participants, participantId)}</select></label><label>Aktivitas<select name="period_activity_id" required>${adminOptions(activities)}</select></label><label>Tanggal checklist<input type="date" name="checklist_date" min="${escapeHtml(dateInputValue(recapData.period.start_date))}" max="${escapeHtml([todayIso(), dateInputValue(recapData.period.end_date)].sort()[0])}" value="${escapeHtml(selectedChecklistDate)}" required></label><label>Status<select name="is_completed" required><option value="true">Dicatat selesai</option><option value="false">Tidak selesai</option></select></label><label>Alasan koreksi<textarea name="reason" maxlength="1000" required></textarea></label></div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit">Simpan koreksi</button></div></form>`;
   adminFormDialog.dataset.returnView = 'recap';
   adminFormDialog.showModal();
   markAdminFormPristine();
@@ -1131,7 +1137,7 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
     },
     'period-edit': configuredPeriod ? {
       title: `Kelola periode · ${escapeHtml(configuredPeriod.name)}`, description: 'Periode draft dapat disesuaikan sebelum diaktifkan. Setelah aktif, rentang dan ambang nilai dikunci untuk menjaga konsistensi perhitungan.', submitLabel: 'Simpan perubahan',
-      fields: `<label>Nama periode<input name="name" maxlength="100" value="${escapeHtml(configuredPeriod.name)}" required></label><div class="admin-modal-inline-fields"><label>Tanggal mulai<input type="date" name="start_date" value="${escapeHtml(configuredPeriod.start_date)}" required></label><label>Tanggal selesai<input type="date" name="end_date" value="${escapeHtml(configuredPeriod.end_date)}" required></label></div><label>Batas tuntas periode (%)<input type="number" name="final_passing_threshold" min="0" max="100" value="${escapeHtml(configuredPeriod.final_passing_threshold)}" required></label>`,
+      fields: `<label>Nama periode<input name="name" maxlength="100" value="${escapeHtml(configuredPeriod.name)}" required></label><div class="admin-modal-inline-fields"><label>Tanggal mulai<input type="date" name="start_date" value="${escapeHtml(dateInputValue(configuredPeriod.start_date))}" required></label><label>Tanggal selesai<input type="date" name="end_date" value="${escapeHtml(dateInputValue(configuredPeriod.end_date))}" required></label></div><label>Batas tuntas periode (%)<input type="number" name="final_passing_threshold" min="0" max="100" value="${escapeHtml(configuredPeriod.final_passing_threshold)}" required></label>`,
     } : null,
     activity: {
       title: 'Tambah aktivitas LKS', description: 'Aktivitas master dapat dipakai kembali pada periode draft berikutnya.', submitLabel: 'Simpan aktivitas',

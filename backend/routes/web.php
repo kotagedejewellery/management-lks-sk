@@ -56,7 +56,7 @@ Route::middleware(['auth', 'active-user'])->group(function () {
             Route::delete('teams/{team}', [OrganizationController::class, 'destroyTeam'])->name('teams.destroy');
             Route::post('santri', [OrganizationController::class, 'storeSantri'])->name('santri.store');
             Route::patch('santri/{profile}', [OrganizationController::class, 'updateSantri'])->name('santri.update');
-            Route::delete('santri/{profile}', [OrganizationController::class, 'destroySantri'])->name('santri.destroy');
+            Route::delete('santri/{user}', [OrganizationController::class, 'destroySantri'])->name('santri.destroy');
             Route::get('configuration', [PeriodConfigurationController::class, 'index'])->name('configuration.index');
             Route::post('periods', [PeriodConfigurationController::class, 'storePeriod'])->name('periods.store');
             Route::patch('periods/{period}', [PeriodConfigurationController::class, 'updatePeriod'])->name('periods.update');

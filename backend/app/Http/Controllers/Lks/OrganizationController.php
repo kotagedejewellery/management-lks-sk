@@ -286,24 +286,27 @@ class OrganizationController extends Controller
         return response()->json(['data' => $profile->load(['user:id,name,email,is_active', 'user.roles:id,code', 'department:id,name', 'team:id,name', 'leader:id,name'])]);
     }
 
-    public function destroySantri(Request $request, SantriProfile $profile): JsonResponse
+    public function destroySantri(Request $request, User $user): JsonResponse
     {
         $this->ensureAdmin($request);
-        $profile->load('user');
-        if ($profile->getKey() === $request->user()->getKey() || $profile->user->isAdmin()) {
+        $profile = SantriProfile::query()->where('user_id', $user->getKey())->first();
+        if ($profile === null) {
+            throw ValidationException::withMessages(['santri' => 'Profil Santri Karya untuk akun ini sudah tidak tersedia. Muat ulang data dan coba kembali.']);
+        }
+        if ($user->getKey() === $request->user()->getKey() || $user->isAdmin()) {
             throw ValidationException::withMessages(['santri' => 'Akun Admin tidak dapat dihapus dari Pengaturan Santri Karya.']);
         }
-        if (PeriodParticipantSnapshot::query()->where('user_id', $profile->getKey())->exists()) {
+        if (PeriodParticipantSnapshot::query()->where('user_id', $user->getKey())->exists()) {
             throw ValidationException::withMessages(['santri' => 'Santri Karya yang sudah memiliki riwayat periode tidak dapat dihapus. Nonaktifkan akun ini sebagai gantinya.']);
         }
-        if (SantriProfile::query()->where('leader_user_id', $profile->getKey())->exists()) {
+        if (SantriProfile::query()->where('leader_user_id', $user->getKey())->exists()) {
             throw ValidationException::withMessages(['santri' => 'Pindahkan anggota yang dipimpin oleh akun ini sebelum menghapusnya.']);
         }
 
-        $before = ['user_id' => $profile->getKey(), 'name' => $profile->user->name, 'email' => $profile->user->email];
-        DB::transaction(function () use ($request, $profile, $before): void {
+        $before = ['user_id' => $user->getKey(), 'name' => $user->name, 'email' => $user->email];
+        DB::transaction(function () use ($request, $profile, $user, $before): void {
             AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => 'santri.deleted', 'auditable_type' => $profile->getMorphClass(), 'auditable_id' => $profile->getKey(), 'before_data' => $before]);
-            $profile->user->delete();
+            $user->delete();
         });
 
         return response()->noContent();

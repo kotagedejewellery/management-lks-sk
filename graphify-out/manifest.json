@@ -96,9 +96,9 @@
     "semantic_hash": ""
   },
   "backend/bootstrap/app.php": {
-    "mtime": 1791252438.9583602,
-    "seen": 1791252625.5789754,
-    "ast_hash": "0d4f192596897c39e76c0a65b445e789",
+    "mtime": 1791269301.2267005,
+    "seen": 1791270000.447209,
+    "ast_hash": "ff57c43c615d43d577b8e4e6482d0baf",
     "semantic_hash": ""
   },
   "backend/bootstrap/providers.php": {
@@ -456,9 +456,9 @@
     "semantic_hash": ""
   },
   "backend/routes/web.php": {
-    "mtime": 1791268127.485882,
-    "seen": 1791268472.2590067,
-    "ast_hash": "49f61836b3f649d9ad1608ad036e7cdd",
+    "mtime": 1791270409.526524,
+    "seen": 1791270454.2602634,
+    "ast_hash": "092be46ae40e75931995992f2cb4354b",
     "semantic_hash": ""
   },
   "backend/tests/Feature/Auth/AuthenticationTest.php": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1791268723.631809,
-    "seen": 1791268746.988795,
-    "ast_hash": "c37b33a63f768ab34a483d16435d8cc2",
+    "mtime": 1791270747.1574438,
+    "seen": 1791270827.6164732,
+    "ast_hash": "db12953fd006c8494f9c8c492322aa0e",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -576,9 +576,9 @@
     "semantic_hash": ""
   },
   "frontend/index.html": {
-    "mtime": 1791268145.962642,
-    "seen": 1791268472.2591174,
-    "ast_hash": "bd681be373564e72a4cda77905dd8ac4",
+    "mtime": 1791270409.523513,
+    "seen": 1791270454.2603128,
+    "ast_hash": "18cd68b239e2a45097bcf2e1cded12ac",
     "semantic_hash": ""
   },
   "backend/public/apple-touch-icon.png": {
@@ -804,9 +804,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/OrganizationController.php": {
-    "mtime": 1791268412.8141508,
-    "seen": 1791268472.2586505,
-    "ast_hash": "47ed61eb18e72b38907e1dffa1469815",
+    "mtime": 1791270409.527528,
+    "seen": 1791270454.2600996,
+    "ast_hash": "5503be3ca14396c62c9114488f389387",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php": {
