@@ -317,13 +317,14 @@ class OrganizationController extends Controller
      */
     private function requiredRoleIds(array $roleCodes): array
     {
-        $roleIds = Role::query()->whereIn('code', $roleCodes)->pluck('id', 'code')->all();
-        $missingRoles = array_values(array_diff($roleCodes, array_keys($roleIds)));
+        $roleNames = ['admin' => 'Admin', 'leader' => 'Leader', 'santri' => 'Santri Karya'];
+        $roleIds = [];
 
-        if ($missingRoles !== []) {
-            throw ValidationException::withMessages([
-                'roles' => 'Konfigurasi role '.implode(', ', $missingRoles).' belum tersedia. Jalankan provisioning database sebelum mengelola Santri Karya.',
-            ]);
+        foreach ($roleCodes as $code) {
+            $roleIds[$code] = Role::query()->firstOrCreate(
+                ['code' => $code],
+                ['name' => $roleNames[$code]],
+            )->getKey();
         }
 
         return $roleIds;

@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1791270409.525524,
-    "seen": 1791270454.260288,
-    "ast_hash": "4b3e833cdd49fe5ad4bbfd28cf02b96c",
+    "mtime": 1791270747.1574438,
+    "seen": 1791270827.6164732,
+    "ast_hash": "db12953fd006c8494f9c8c492322aa0e",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -867,6 +867,12 @@
     "mtime": 1791256252.373114,
     "seen": 1791256270.7674537,
     "ast_hash": "f173c031e0f011c9c1b1c124695142f9",
+    "semantic_hash": ""
+  },
+  "backend/database/migrations/2026_10_06_000000_ensure_required_lks_roles_exist.php": {
+    "mtime": 1791271484.1974635,
+    "seen": 1791271773.361504,
+    "ast_hash": "63e7806a3a685e1f6f549853e60c3681",
     "semantic_hash": ""
   }
 }

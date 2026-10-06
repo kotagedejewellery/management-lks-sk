@@ -804,9 +804,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/OrganizationController.php": {
-    "mtime": 1791270409.527528,
-    "seen": 1791270454.2600996,
-    "ast_hash": "5503be3ca14396c62c9114488f389387",
+    "mtime": 1791271850.875715,
+    "seen": 1791272042.9729903,
+    "ast_hash": "b6b0d3300b3e4bf45ac7add97c253f1c",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php": {
@@ -867,6 +867,12 @@
     "mtime": 1791256252.373114,
     "seen": 1791256270.7674537,
     "ast_hash": "f173c031e0f011c9c1b1c124695142f9",
+    "semantic_hash": ""
+  },
+  "backend/database/migrations/2026_10_06_000000_ensure_required_lks_roles_exist.php": {
+    "mtime": 1791271484.1974635,
+    "seen": 1791271773.361504,
+    "ast_hash": "63e7806a3a685e1f6f549853e60c3681",
     "semantic_hash": ""
   }
 }

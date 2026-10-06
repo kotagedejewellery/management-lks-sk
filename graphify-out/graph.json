@@ -530,7 +530,7 @@
       "label": ".ensureAdmin()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/OrganizationController.php",
-      "source_location": "L332",
+      "source_location": "L333",
       "_callable": true,
       "_origin": "ast"
     },
@@ -3314,6 +3314,32 @@
       "file_type": "code",
       "source_file": "backend/database/migrations/2026_09_29_000003_apply_approved_lks_policy_schema.php",
       "source_location": "L31",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "backend_database_migrations_2026_10_06_000000_ensure_required_lks_roles_exist",
+      "label": "2026_10_06_000000_ensure_required_lks_roles_exist.php",
+      "file_type": "code",
+      "source_file": "backend/database/migrations/2026_10_06_000000_ensure_required_lks_roles_exist.php",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "backend_database_migrations_2026_10_06_000000_ensure_required_lks_roles_exist_up",
+      "label": "up()",
+      "file_type": "code",
+      "source_file": "backend/database/migrations/2026_10_06_000000_ensure_required_lks_roles_exist.php",
+      "source_location": "L9",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "backend_database_migrations_2026_10_06_000000_ensure_required_lks_roles_exist_down",
+      "label": "down()",
+      "file_type": "code",
+      "source_file": "backend/database/migrations/2026_10_06_000000_ensure_required_lks_roles_exist.php",
+      "source_location": "L22",
       "_callable": true,
       "_origin": "ast"
     },
@@ -9168,7 +9194,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/OrganizationController.php",
-      "source_location": "L332",
+      "source_location": "L333",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -9178,7 +9204,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/OrganizationController.php",
-      "source_location": "L332",
+      "source_location": "L333",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -16440,6 +16466,59 @@
       "_origin": "ast"
     },
     {
+      "source": "backend_database_migrations_2026_10_06_000000_ensure_required_lks_roles_exist",
+      "target": "illuminate_database_migrations_migration",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/database/migrations/2026_10_06_000000_ensure_required_lks_roles_exist.php",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_database_migrations_2026_10_06_000000_ensure_required_lks_roles_exist",
+      "target": "illuminate_support_facades_db",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/database/migrations/2026_10_06_000000_ensure_required_lks_roles_exist.php",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_database_migrations_2026_10_06_000000_ensure_required_lks_roles_exist",
+      "target": "illuminate_support_str",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/database/migrations/2026_10_06_000000_ensure_required_lks_roles_exist.php",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_database_migrations_2026_10_06_000000_ensure_required_lks_roles_exist",
+      "target": "backend_database_migrations_2026_10_06_000000_ensure_required_lks_roles_exist_up",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/database/migrations/2026_10_06_000000_ensure_required_lks_roles_exist.php",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_database_migrations_2026_10_06_000000_ensure_required_lks_roles_exist",
+      "target": "backend_database_migrations_2026_10_06_000000_ensure_required_lks_roles_exist_down",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/database/migrations/2026_10_06_000000_ensure_required_lks_roles_exist.php",
+      "source_location": "L22",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
       "source": "backend_database_seeders_databaseseeder",
       "target": "illuminate_database_console_seeds_withoutmodelevents",
       "relation": "imports",
@@ -23530,7 +23609,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/OrganizationController.php",
-      "source_location": "L320",
+      "source_location": "L324",
       "weight": 1.0,
       "_origin": "ast"
     },
