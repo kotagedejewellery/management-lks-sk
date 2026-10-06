@@ -50,15 +50,20 @@ Route::middleware(['auth', 'active-user'])->group(function () {
             Route::get('organization', [OrganizationController::class, 'index'])->name('organization.index');
             Route::post('departments', [OrganizationController::class, 'storeDepartment'])->name('departments.store');
             Route::patch('departments/{department}', [OrganizationController::class, 'updateDepartment'])->name('departments.update');
+            Route::delete('departments/{department}', [OrganizationController::class, 'destroyDepartment'])->name('departments.destroy');
             Route::post('teams', [OrganizationController::class, 'storeTeam'])->name('teams.store');
             Route::patch('teams/{team}', [OrganizationController::class, 'updateTeam'])->name('teams.update');
+            Route::delete('teams/{team}', [OrganizationController::class, 'destroyTeam'])->name('teams.destroy');
             Route::post('santri', [OrganizationController::class, 'storeSantri'])->name('santri.store');
             Route::patch('santri/{profile}', [OrganizationController::class, 'updateSantri'])->name('santri.update');
+            Route::delete('santri/{profile}', [OrganizationController::class, 'destroySantri'])->name('santri.destroy');
             Route::get('configuration', [PeriodConfigurationController::class, 'index'])->name('configuration.index');
             Route::post('periods', [PeriodConfigurationController::class, 'storePeriod'])->name('periods.store');
             Route::patch('periods/{period}', [PeriodConfigurationController::class, 'updatePeriod'])->name('periods.update');
+            Route::delete('periods/{period}', [PeriodConfigurationController::class, 'destroyPeriod'])->name('periods.destroy');
             Route::post('activities', [PeriodConfigurationController::class, 'storeActivity'])->name('activities.store');
             Route::patch('activities/{activity}', [PeriodConfigurationController::class, 'updateActivity'])->name('activities.update');
+            Route::delete('activities/{activity}', [PeriodConfigurationController::class, 'destroyActivity'])->name('activities.destroy');
             Route::post('periods/{period}/activities', [PeriodConfigurationController::class, 'storePeriodActivity'])
                 ->name('periods.activities.store');
             Route::patch('periods/{period}/activities', [PeriodConfigurationController::class, 'updatePeriodActivities'])

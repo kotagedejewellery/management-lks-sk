@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Lks;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Department;
+use App\Models\PeriodParticipantSnapshot;
 use App\Models\Role;
 use App\Models\SantriProfile;
 use App\Models\Team;
@@ -88,6 +90,7 @@ class OrganizationController extends Controller
     public function updateDepartment(Request $request, Department $department): JsonResponse
     {
         $this->ensureAdmin($request);
+        $wasActive = $department->is_active;
         $data = $request->validate([
             'code' => ['sometimes', 'required', 'string', 'max:30', Rule::unique('departments', 'code')->ignore($department)],
             'name' => ['sometimes', 'required', 'string', 'max:100'],
@@ -99,6 +102,9 @@ class OrganizationController extends Controller
         }
 
         $department->update($data);
+        if (array_key_exists('is_active', $data) && $wasActive !== $department->is_active) {
+            AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => $department->is_active ? 'department.reactivated' : 'department.archived', 'auditable_type' => $department->getMorphClass(), 'auditable_id' => $department->getKey(), 'before_data' => ['is_active' => $wasActive], 'after_data' => ['is_active' => $department->is_active]]);
+        }
 
         return response()->json(['data' => $department->refresh()]);
     }
@@ -106,6 +112,7 @@ class OrganizationController extends Controller
     public function updateTeam(Request $request, Team $team): JsonResponse
     {
         $this->ensureAdmin($request);
+        $wasActive = $team->is_active;
         $data = $request->validate([
             'code' => ['sometimes', 'required', 'string', 'max:30', Rule::unique('teams', 'code')->ignore($team)],
             'name' => ['sometimes', 'required', 'string', 'max:100'],
@@ -117,8 +124,45 @@ class OrganizationController extends Controller
         }
 
         $team->update($data);
+        if (array_key_exists('is_active', $data) && $wasActive !== $team->is_active) {
+            AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => $team->is_active ? 'team.reactivated' : 'team.archived', 'auditable_type' => $team->getMorphClass(), 'auditable_id' => $team->getKey(), 'before_data' => ['is_active' => $wasActive], 'after_data' => ['is_active' => $team->is_active]]);
+        }
 
         return response()->json(['data' => $team->refresh()]);
+    }
+
+    public function destroyDepartment(Request $request, Department $department): JsonResponse
+    {
+        $this->ensureAdmin($request);
+        if ($department->teams()->exists() || $department->santriProfiles()->exists()
+            || PeriodParticipantSnapshot::query()->where('department_id_snapshot', $department->getKey())->exists()) {
+            throw ValidationException::withMessages(['department' => 'Departemen yang sudah memiliki tim, Santri Karya, atau riwayat periode tidak dapat dihapus. Arsipkan departemen ini sebagai gantinya.']);
+        }
+
+        $before = $department->only(['id', 'code', 'name']);
+        DB::transaction(function () use ($request, $department, $before): void {
+            AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => 'department.deleted', 'auditable_type' => $department->getMorphClass(), 'auditable_id' => $department->getKey(), 'before_data' => $before]);
+            $department->delete();
+        });
+
+        return response()->noContent();
+    }
+
+    public function destroyTeam(Request $request, Team $team): JsonResponse
+    {
+        $this->ensureAdmin($request);
+        if ($team->santriProfiles()->exists()
+            || PeriodParticipantSnapshot::query()->where('team_id_snapshot', $team->getKey())->exists()) {
+            throw ValidationException::withMessages(['team' => 'Tim yang sudah memiliki Santri Karya atau riwayat periode tidak dapat dihapus. Arsipkan tim ini sebagai gantinya.']);
+        }
+
+        $before = $team->only(['id', 'code', 'name', 'department_id']);
+        DB::transaction(function () use ($request, $team, $before): void {
+            AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => 'team.deleted', 'auditable_type' => $team->getMorphClass(), 'auditable_id' => $team->getKey(), 'before_data' => $before]);
+            $team->delete();
+        });
+
+        return response()->noContent();
     }
 
     public function storeSantri(Request $request): JsonResponse
@@ -178,6 +222,7 @@ class OrganizationController extends Controller
     public function updateSantri(Request $request, SantriProfile $profile): JsonResponse
     {
         $this->ensureAdmin($request);
+        $previousStatus = $profile->status;
         $data = $request->validate([
             'name' => ['required', 'string', 'max:150'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($profile->getKey())],
@@ -234,8 +279,34 @@ class OrganizationController extends Controller
 
             return $profile->refresh();
         });
+        if ($previousStatus !== $profile->status) {
+            AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => $profile->status === 'active' ? 'santri.reactivated' : 'santri.deactivated', 'auditable_type' => $profile->getMorphClass(), 'auditable_id' => $profile->getKey(), 'before_data' => ['status' => $previousStatus], 'after_data' => ['status' => $profile->status]]);
+        }
 
         return response()->json(['data' => $profile->load(['user:id,name,email,is_active', 'user.roles:id,code', 'department:id,name', 'team:id,name', 'leader:id,name'])]);
+    }
+
+    public function destroySantri(Request $request, SantriProfile $profile): JsonResponse
+    {
+        $this->ensureAdmin($request);
+        $profile->load('user');
+        if ($profile->getKey() === $request->user()->getKey() || $profile->user->isAdmin()) {
+            throw ValidationException::withMessages(['santri' => 'Akun Admin tidak dapat dihapus dari Pengaturan Santri Karya.']);
+        }
+        if (PeriodParticipantSnapshot::query()->where('user_id', $profile->getKey())->exists()) {
+            throw ValidationException::withMessages(['santri' => 'Santri Karya yang sudah memiliki riwayat periode tidak dapat dihapus. Nonaktifkan akun ini sebagai gantinya.']);
+        }
+        if (SantriProfile::query()->where('leader_user_id', $profile->getKey())->exists()) {
+            throw ValidationException::withMessages(['santri' => 'Pindahkan anggota yang dipimpin oleh akun ini sebelum menghapusnya.']);
+        }
+
+        $before = ['user_id' => $profile->getKey(), 'name' => $profile->user->name, 'email' => $profile->user->email];
+        DB::transaction(function () use ($request, $profile, $before): void {
+            AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => 'santri.deleted', 'auditable_type' => $profile->getMorphClass(), 'auditable_id' => $profile->getKey(), 'before_data' => $before]);
+            $profile->user->delete();
+        });
+
+        return response()->noContent();
     }
 
     /** @param array<int, string> $roleCodes

@@ -9,6 +9,7 @@ use App\Models\LksPeriod;
 use App\Models\PeriodActivity;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -96,14 +97,54 @@ class PeriodConfigurationController extends Controller
     public function updateActivity(Request $request, LksActivity $activity): JsonResponse
     {
         $this->ensureAdmin($request);
+        $wasActive = $activity->is_active;
         $data = $request->validate([
             'code' => ['required', 'string', 'max:50', Rule::unique('lks_activities', 'code')->ignore($activity)],
             'name' => ['required', 'string', 'max:150'],
             'is_active' => ['required', 'boolean'],
         ]);
         $activity->update($data);
+        if ($wasActive !== $activity->is_active) {
+            AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => $activity->is_active ? 'activity.reactivated' : 'activity.deactivated', 'auditable_type' => $activity->getMorphClass(), 'auditable_id' => $activity->getKey(), 'before_data' => ['is_active' => $wasActive], 'after_data' => ['is_active' => $activity->is_active]]);
+        }
 
         return response()->json(['data' => $activity->refresh()]);
+    }
+
+    public function destroyPeriod(Request $request, LksPeriod $period): JsonResponse
+    {
+        $this->ensureAdmin($request);
+        if ($period->status !== 'draft') {
+            throw ValidationException::withMessages(['period' => 'Hanya periode draft yang dapat dihapus. Periode aktif atau tertutup disimpan sebagai riwayat.']);
+        }
+        if ($period->participants()->exists() || $period->periodActivities()->whereHas('checklists')->exists()) {
+            throw ValidationException::withMessages(['period' => 'Periode yang sudah memiliki peserta atau checklist tidak dapat dihapus.']);
+        }
+
+        $before = $period->only(['id', 'name', 'start_date', 'end_date', 'status']);
+        DB::transaction(function () use ($request, $period, $before): void {
+            $period->periodActivities()->delete();
+            AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => 'period.deleted', 'auditable_type' => $period->getMorphClass(), 'auditable_id' => $period->getKey(), 'before_data' => $before]);
+            $period->delete();
+        });
+
+        return response()->noContent();
+    }
+
+    public function destroyActivity(Request $request, LksActivity $activity): JsonResponse
+    {
+        $this->ensureAdmin($request);
+        if ($activity->periodActivities()->exists()) {
+            throw ValidationException::withMessages(['activity' => 'Aktivitas yang sudah dipakai dalam periode tidak dapat dihapus. Nonaktifkan aktivitas ini sebagai gantinya.']);
+        }
+
+        $before = $activity->only(['id', 'code', 'name']);
+        DB::transaction(function () use ($request, $activity, $before): void {
+            AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => 'activity.deleted', 'auditable_type' => $activity->getMorphClass(), 'auditable_id' => $activity->getKey(), 'before_data' => $before]);
+            $activity->delete();
+        });
+
+        return response()->noContent();
     }
 
     public function storePeriodActivity(Request $request, LksPeriod $period): JsonResponse

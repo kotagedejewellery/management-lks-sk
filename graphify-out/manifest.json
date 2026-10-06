@@ -456,9 +456,9 @@
     "semantic_hash": ""
   },
   "backend/routes/web.php": {
-    "mtime": 1791252439.5320058,
-    "seen": 1791252625.5791156,
-    "ast_hash": "9b3f2e3deed053584e2603b4623dbe78",
+    "mtime": 1791268127.485882,
+    "seen": 1791268472.2590067,
+    "ast_hash": "49f61836b3f649d9ad1608ad036e7cdd",
     "semantic_hash": ""
   },
   "backend/tests/Feature/Auth/AuthenticationTest.php": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1790909943.3951614,
-    "seen": 1790910004.2297952,
-    "ast_hash": "d73c1a3fc3a40618ebcf9ac2f1fe9eed",
+    "mtime": 1791268723.631809,
+    "seen": 1791268746.988795,
+    "ast_hash": "c37b33a63f768ab34a483d16435d8cc2",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -576,9 +576,9 @@
     "semantic_hash": ""
   },
   "frontend/index.html": {
-    "mtime": 1790909874.528123,
-    "seen": 1790910004.2298205,
-    "ast_hash": "db4c669226796e02d63717a3a381a0bd",
+    "mtime": 1791268145.962642,
+    "seen": 1791268472.2591174,
+    "ast_hash": "bd681be373564e72a4cda77905dd8ac4",
     "semantic_hash": ""
   },
   "backend/public/apple-touch-icon.png": {
@@ -804,15 +804,15 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/OrganizationController.php": {
-    "mtime": 1790904317.2353814,
-    "seen": 1790904423.7624319,
-    "ast_hash": "e1501faf5e950ca881aac96d1431da93",
+    "mtime": 1791268412.8141508,
+    "seen": 1791268472.2586505,
+    "ast_hash": "47ed61eb18e72b38907e1dffa1469815",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php": {
-    "mtime": 1790823532.3924472,
-    "seen": 1790823883.4240072,
-    "ast_hash": "441444beb084f56009f49117e57a3adc",
+    "mtime": 1791268425.9730363,
+    "seen": 1791268472.2586548,
+    "ast_hash": "b0ad0f16384f84b57664ade1a1a280a7",
     "semantic_hash": ""
   },
   ".impeccable/config.json": {
