@@ -113,10 +113,6 @@ class PeriodActivationService
                 throw ValidationException::withMessages(['period' => 'Hanya periode aktif yang dapat ditutup.']);
             }
 
-            if (now()->startOfDay()->lte($period->end_date)) {
-                throw ValidationException::withMessages(['period' => 'Periode hanya dapat ditutup setelah tanggal akhirnya berlalu.']);
-            }
-
             $closedAt = now();
             $period->update(['status' => 'closed', 'closed_at' => $closedAt]);
 

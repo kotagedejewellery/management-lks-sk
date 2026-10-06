@@ -6350,21 +6350,12 @@
       "_origin": "ast"
     },
     {
-      "id": "docs_email_reset_password_panduan_brevo_untuk_email_reset_password",
-      "label": "Panduan Brevo untuk Email Reset Password",
+      "id": "docs_email_reset_password_panduan_email_reset_password",
+      "label": "Panduan Email Reset Password",
       "file_type": "document",
       "node_kind": "heading",
       "source_file": "docs/Email Reset Password.md",
       "source_location": "L1",
-      "_origin": "ast"
-    },
-    {
-      "id": "docs_email_reset_password_persiapan_di_brevo",
-      "label": "Persiapan di Brevo",
-      "file_type": "document",
-      "node_kind": "heading",
-      "source_file": "docs/Email Reset Password.md",
-      "source_location": "L5",
       "_origin": "ast"
     },
     {
@@ -6373,7 +6364,7 @@
       "file_type": "document",
       "node_kind": "heading",
       "source_file": "docs/Email Reset Password.md",
-      "source_location": "L13",
+      "source_location": "L5",
       "_origin": "ast"
     },
     {
@@ -6382,7 +6373,7 @@
       "file_type": "document",
       "node_kind": "heading",
       "source_file": "docs/Email Reset Password.md",
-      "source_location": "L36",
+      "source_location": "L28",
       "_origin": "ast"
     },
     {
@@ -22320,7 +22311,7 @@
     },
     {
       "source": "docs_email_reset_password",
-      "target": "docs_email_reset_password_panduan_brevo_untuk_email_reset_password",
+      "target": "docs_email_reset_password_panduan_email_reset_password",
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/Email Reset Password.md",
@@ -22329,8 +22320,8 @@
       "_origin": "ast"
     },
     {
-      "source": "docs_email_reset_password_panduan_brevo_untuk_email_reset_password",
-      "target": "docs_email_reset_password_persiapan_di_brevo",
+      "source": "docs_email_reset_password_panduan_email_reset_password",
+      "target": "docs_email_reset_password_konfigurasi_production",
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/Email Reset Password.md",
@@ -22339,22 +22330,12 @@
       "_origin": "ast"
     },
     {
-      "source": "docs_email_reset_password_panduan_brevo_untuk_email_reset_password",
-      "target": "docs_email_reset_password_konfigurasi_production",
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/Email Reset Password.md",
-      "source_location": "L13",
-      "weight": 1.0,
-      "_origin": "ast"
-    },
-    {
-      "source": "docs_email_reset_password_panduan_brevo_untuk_email_reset_password",
+      "source": "docs_email_reset_password_panduan_email_reset_password",
       "target": "docs_email_reset_password_terapkan_dan_verifikasi",
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/Email Reset Password.md",
-      "source_location": "L36",
+      "source_location": "L28",
       "weight": 1.0,
       "_origin": "ast"
     },

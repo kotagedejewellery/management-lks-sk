@@ -73,6 +73,8 @@
 .confirm-dialog-actions { display: flex; justify-content: flex-end; align-items: center; gap: 16px; margin-top: 26px; }
 .admin-form-dialog { width: min(520px, calc(100vw - 36px)); padding: 0; border: 0; border-radius: 14px; background: var(--surface, #fffefa); color: var(--ink, #203329); box-shadow: 0 24px 60px rgba(25, 52, 44, .2); }
 .admin-form-dialog::backdrop { background: rgba(23, 49, 58, .35); backdrop-filter: blur(3px); }
+.confirm-dialog,
+.admin-form-dialog { max-height: calc(100dvh - 36px); overflow-y: auto; }
 .admin-modal-form { display: grid; gap: 24px; padding: 28px; }
 .admin-modal-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
 .admin-modal-heading h2 { margin: 0 0 7px; font-family: Newsreader, serif; font-size: 29px; letter-spacing: -.03em; }
@@ -89,7 +91,12 @@
 .row-button { min-width: 44px; }
 .search-field input { min-height: 44px; font-size: 16px; }
 .member-cell, .activity-name, .department-row, .admin-list > div { min-width: 0; overflow-wrap: anywhere; }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within { scroll-behavior: auto; }
+  .view.is-active, .toast, .progress-line span { animation: none; transition: none; }
+  .button-spinner, .loading-spinner, .quick-check.is-busy .check-mark::after,
+  .square-check.is-busy::after, .page-progress i, .loading-lines i { animation: none; }
+}
 
 .admin-filter { margin-bottom: 18px; }
 .admin-directory .table-row > span:not(.status) { color: var(--ink-soft, #53645a); font-size: 13px; }
@@ -407,16 +414,16 @@
 }
 
 .account-password-control input {
-  padding-right: 46px;
+  padding-right: 54px;
 }
 
 .account-password-toggle {
   position: absolute;
   top: 50%;
-  right: 7px;
+  right: 0;
   display: grid;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   color: var(--ink-soft, #53645a);
   background: transparent;
@@ -492,8 +499,8 @@
 
 .toast-dismiss {
   display: inline-grid;
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   margin: -4px -6px -4px 2px;
   padding: 0;
   color: inherit;

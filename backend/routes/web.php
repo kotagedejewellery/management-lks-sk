@@ -26,7 +26,7 @@ Route::post('logout', function (Request $request) {
     return redirect()->route('home');
 })->middleware('auth')->name('logout');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'active-user'])->group(function () {
     Route::get('dashboard', PrototypeDashboardController::class)->name('dashboard');
     Route::get('lks-prototype/{asset}', [PrototypeDashboardController::class, 'asset'])
         ->where('asset', 'styles\.css|overrides\.css|app\.js')
