@@ -43,8 +43,11 @@ Route::middleware(['auth', 'active-user'])->group(function () {
         Route::put('checklists', [ChecklistController::class, 'store'])->name('checklists.store');
         Route::post('periods/{period}/activate', [PeriodController::class, 'activate'])->name('periods.activate');
         Route::post('periods/{period}/close', [PeriodController::class, 'close'])->name('periods.close');
+        Route::get('periods/{period}/participants', [PeriodController::class, 'participants'])->name('periods.participants.index');
         Route::post('periods/{period}/participants/{profile}', [PeriodController::class, 'addParticipant'])
             ->name('periods.participants.store');
+        Route::delete('periods/{period}/participants/{participant}', [PeriodController::class, 'removeParticipant'])
+            ->name('periods.participants.destroy');
 
         Route::prefix('admin')->name('admin.')->group(function (): void {
             Route::get('organization', [OrganizationController::class, 'index'])->name('organization.index');

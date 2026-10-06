@@ -102,6 +102,42 @@ class PeriodActivationService
         });
     }
 
+    public function removeParticipant(User $actor, LksPeriod $period, PeriodParticipantSnapshot $participant): void
+    {
+        $this->ensureAdmin($actor);
+
+        DB::transaction(function () use ($actor, $period, $participant): void {
+            $period = LksPeriod::query()->lockForUpdate()->findOrFail($period->getKey());
+            $participant = PeriodParticipantSnapshot::query()->lockForUpdate()->findOrFail($participant->getKey());
+
+            if ($period->status !== 'active') {
+                throw ValidationException::withMessages(['period' => 'Peserta hanya dapat dikelola pada periode aktif.']);
+            }
+
+            if ($participant->period_id !== $period->getKey()) {
+                throw ValidationException::withMessages(['participant' => 'Peserta tidak terdaftar pada periode ini.']);
+            }
+
+            if ($participant->checklists()->exists()) {
+                throw ValidationException::withMessages(['participant' => 'Peserta yang sudah memiliki checklist tidak dapat dikeluarkan agar riwayat tetap utuh.']);
+            }
+
+            AuditLog::create([
+                'actor_user_id' => $actor->getKey(),
+                'event' => 'period.participant_removed',
+                'auditable_type' => $participant->getMorphClass(),
+                'auditable_id' => $participant->getKey(),
+                'before_data' => [
+                    'period_id' => $period->getKey(),
+                    'user_id' => $participant->user_id,
+                    'participation_start_date' => $participant->participation_start_date->toDateString(),
+                ],
+            ]);
+
+            $participant->delete();
+        });
+    }
+
     public function close(User $actor, LksPeriod $period): LksPeriod
     {
         $this->ensureAdmin($actor);

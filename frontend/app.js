@@ -787,8 +787,9 @@ document.addEventListener('change', (event) => {
 const settingRoutes = { 'Kelola periode': 'periods', 'Kelola aktivitas': 'activities', 'Kelola Santri': 'people' };
 document.querySelectorAll('.settings-grid .text-action').forEach((button) => button.addEventListener('click', () => openView(settingRoutes[button.textContent.trim()])));
 document.querySelectorAll('[data-demo]').forEach((button) => button.addEventListener('click', () => showToast(`${button.dataset.demo} tersedia setelah integrasi backend`)));
-const adminListState = { organization: { page: 1, search: '' }, people: { page: 1, search: '' }, periods: { page: 1, search: '' }, activities: { page: 1, search: '' } };
+const adminListState = { organization: { page: 1, search: '' }, people: { page: 1, search: '' }, periods: { page: 1, search: '' }, activities: { page: 1, search: '' }, participants: { page: 1, search: '' } };
 let latestAdminRequest = 0;
+let activePeriodParticipants = null;
 
 function adminOptions(items, selected = '') {
   return `<option value="">Pilih</option>${items.map((item) => `<option value="${escapeHtml(item.id)}"${item.id === selected ? ' selected' : ''}>${escapeHtml(item.name)}</option>`).join('')}`;
@@ -872,6 +873,9 @@ function renderAdminView(name) {
   }
   if (name === 'periods') {
     const activePeriods = periodOptions.filter((period) => period.status === 'active');
+    const activePeriod = activePeriods[0] ?? null;
+    const participantData = activePeriodParticipants ?? { participants: [], pagination: { total: 0, current_page: 1, last_page: 1, per_page: 25 } };
+    const participantMeta = participantData.pagination;
     const hasPeriodSearch = Boolean(adminListState.periods.search);
     const showPeriodEmpty = periodMeta.total === 0 && !hasPeriodSearch;
     const periodRows = configuration.periods.map((period) => {
@@ -879,15 +883,17 @@ function renderAdminView(name) {
       const periodAction = period.status === 'draft'
         ? `<button class="text-button organization-row-action" type="button" data-open-admin-modal="period-edit" data-period-id="${escapeHtml(period.id)}">Edit</button><button class="text-button organization-row-action" type="button" data-open-admin-modal="period-config" data-period-id="${escapeHtml(period.id)}">Atur aktivitas</button><button class="text-button organization-row-action" type="button" data-activate-period="${escapeHtml(period.id)}">Aktifkan</button><button class="text-button organization-row-action" type="button" data-delete-resource="period" data-resource-id="${escapeHtml(period.id)}" data-resource-name="${escapeHtml(period.name)}">Hapus draft</button>`
         : period.status === 'active'
-          ? `<span class="status status-active">Aktif</span><button class="text-button organization-row-action organization-archive-action" type="button" data-close-period="${escapeHtml(period.id)}" data-period-name="${escapeHtml(period.name)}">Tutup periode</button>`
+          ? `<span class="status status-active">Aktif</span><button class="text-button organization-row-action" type="button" data-focus-period-participants>Kelola peserta</button><button class="text-button organization-row-action organization-archive-action" type="button" data-close-period="${escapeHtml(period.id)}" data-period-name="${escapeHtml(period.name)}">Tutup periode</button>`
           : '<span class="status status-closed">Ditutup</span>';
       return `<div class="admin-record-row period-record-row" role="row"><span role="cell"><strong>${escapeHtml(period.name)}</strong><small>Batas tuntas ${period.final_passing_threshold}%</small></span><span role="cell">${escapeHtml(formatDate(period.start_date, true))} — ${escapeHtml(formatDate(period.end_date, true))}<small>${period.period_activities.length} aktivitas · ${activeActivityCount} aktif</small></span><span role="cell">${periodAction}</span></div>`;
     }).join('');
     const periodContent = !showPeriodEmpty
       ? `<section class="admin-record-section" aria-labelledby="period-list-title"><div class="organization-section-head"><div><h3 id="period-list-title">Daftar Periode</h3><p>${hasPeriodSearch ? `${periodMeta.total} periode ditemukan.` : `${periodMeta.total} periode tersimpan.`}</p></div></div><form class="admin-list-search" data-admin-list-search="periods"><label class="sr-only" for="period-search">Cari periode LKS</label><input id="period-search" name="search" value="${escapeHtml(adminListState.periods.search)}" placeholder="Cari nama atau status periode" autocomplete="off"></form>${configurationData.periods.length ? `<div class="admin-record-table period-record-table" role="table" aria-label="Daftar periode LKS"><div class="admin-record-head" role="row"><span role="columnheader">Periode</span><span role="columnheader">Rentang dan aktivitas</span><span role="columnheader">Status dan aksi</span></div>${periodRows}</div>${paginationControls(periodMeta, 'periods')}` : '<p class="admin-empty">Tidak ada periode yang sesuai dengan pencarian.</p>'}</section>`
       : `<section class="organization-empty-state" aria-labelledby="period-empty-title"><h3 id="period-empty-title">Belum ada periode LKS</h3><p>Buat periode draft terlebih dahulu, lalu tambahkan aktivitas dan aktifkan ketika pengaturan sudah siap.</p><button class="primary-button" type="button" data-open-admin-modal="period">Tambah periode</button></section>`;
-    const periodActions = !showPeriodEmpty ? `<button class="primary-button" type="button" data-open-admin-modal="period">Tambah periode</button>${activePeriods.length && (organization.santri_options ?? organization.santri).length ? '<button class="text-button admin-add-team" type="button" data-open-admin-modal="participant">Tambah peserta</button>' : ''}` : '';
-    panel.innerHTML = adminPanel('Periode LKS', 'Buat periode draft, atur aktivitasnya, lalu aktifkan saat siap.', `<nav class="admin-back-link" aria-label="Navigasi pengaturan"><button class="text-button" type="button" data-go="settings">Kembali ke Pengaturan</button></nav>${periodContent}`, periodActions, !showPeriodEmpty);
+    const participantRows = participantData.participants.map((participant) => `<div class="admin-record-row participant-record-row" role="row"><span role="cell"><strong>${escapeHtml(participant.name)}</strong><small>Mulai ${escapeHtml(formatDate(participant.participation_start_date, true))}</small></span><span role="cell">${escapeHtml(participant.team ?? 'Tanpa tim')}<small>${escapeHtml(participant.department ?? 'Tanpa departemen')}</small></span><span role="cell">${participant.checklists_count ? `${participant.checklists_count} checklist tercatat` : 'Belum ada checklist'}</span><span role="cell">${participant.checklists_count ? '<small>Riwayat tercatat</small>' : `<button class="text-button organization-row-action organization-archive-action" type="button" data-remove-period-participant="${escapeHtml(participant.id)}" data-period-id="${escapeHtml(activePeriod?.id ?? '')}" data-participant-name="${escapeHtml(participant.name)}">Keluarkan</button>`}</span></div>`).join('');
+    const participantContent = activePeriod ? `<section id="period-participants" class="admin-record-section period-participant-section" aria-labelledby="participant-list-title"><div class="organization-section-head"><div><h3 id="participant-list-title">Peserta periode aktif</h3><p>${escapeHtml(activePeriod.name)} · ${participantMeta.total} peserta terdaftar.</p></div><button class="primary-button" type="button" data-open-admin-modal="participant" data-period-id="${escapeHtml(activePeriod.id)}">Tambah peserta</button></div><p class="admin-context-note">Saat periode diaktifkan, semua Santri Karya aktif dimasukkan otomatis. Tambahkan peserta hanya untuk akun yang dibuat setelah periode berjalan. Peserta tanpa checklist dapat dikeluarkan.</p><form class="admin-list-search" data-admin-list-search="participants"><label class="sr-only" for="participant-search">Cari peserta periode</label><input id="participant-search" name="search" value="${escapeHtml(adminListState.participants.search)}" placeholder="Cari nama, tim, atau departemen" autocomplete="off"></form>${participantData.participants.length ? `<div class="admin-record-table participant-record-table" role="table" aria-label="Peserta periode aktif"><div class="admin-record-head" role="row"><span role="columnheader">Santri Karya</span><span role="columnheader">Penempatan</span><span role="columnheader">Checklist</span><span role="columnheader">Aksi</span></div>${participantRows}</div>${paginationControls(participantMeta, 'participants')}` : `<p class="admin-empty">${adminListState.participants.search ? 'Tidak ada peserta yang sesuai dengan pencarian.' : 'Belum ada peserta pada periode aktif ini.'}</p>`}</section>` : '';
+    const periodActions = !showPeriodEmpty ? '<button class="primary-button" type="button" data-open-admin-modal="period">Tambah periode</button>' : '';
+    panel.innerHTML = adminPanel('Periode LKS', 'Buat periode draft, atur aktivitasnya, lalu aktifkan saat siap.', `<nav class="admin-back-link" aria-label="Navigasi pengaturan"><button class="text-button" type="button" data-go="settings">Kembali ke Pengaturan</button></nav>${periodContent}${participantContent}`, periodActions, !showPeriodEmpty);
     return;
   }
   const drafts = periodOptions.filter((period) => period.status === 'draft');
@@ -938,6 +944,18 @@ async function loadAdminView(name, { dataOnly = false } = {}) {
     if (requestId !== latestAdminRequest) return;
     if (organizationPayload) organizationData = organizationPayload.data;
     if (configurationPayload) configurationData = configurationPayload.data;
+    if (name === 'periods') {
+      const activePeriod = (configurationPayload?.data?.period_options ?? []).find((period) => period.status === 'active');
+      if (activePeriod) {
+        const participantQuery = new URLSearchParams({ search: adminListState.participants.search, page: String(adminListState.participants.page) });
+        const response = await fetch(`${apiBase}/periods/${activePeriod.id}/participants?${participantQuery}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+        if (!response.ok) throw new Error(await apiError(response));
+        activePeriodParticipants = (await response.json()).data;
+      } else {
+        activePeriodParticipants = null;
+      }
+    }
+    if (requestId !== latestAdminRequest) return;
     const requiresOrganization = ['settings', 'organization', 'people'].includes(name);
     const requiresConfiguration = ['settings', 'periods', 'activities'].includes(name);
     if ((requiresOrganization && !organizationPayload) || (requiresConfiguration && !configurationPayload)) {
@@ -1004,7 +1022,7 @@ async function submitAdminForm(form) {
   if (type === 'period-activity' || type === 'participant') { delete payload.period_id; delete payload.profile_id; }
   if (['final_passing_threshold', 'sort_order', 'target_count'].some((key) => key in payload)) Object.keys(payload).forEach((key) => { if (['final_passing_threshold', 'sort_order', 'target_count'].includes(key)) payload[key] = Number(payload[key]); });
   if (type === 'participant') {
-    const periodName = form.elements.period_id.selectedOptions[0]?.textContent ?? 'periode aktif';
+    const periodName = form.dataset.periodName || 'periode aktif';
     const participantName = form.elements.profile_id.selectedOptions[0]?.textContent ?? 'Santri Karya ini';
     const confirmed = await confirmAction({ title: 'Masukkan peserta ke periode?', message: `${participantName} akan mulai dapat mengisi checklist pada ${periodName} sejak hari ini. Catatan sebelumnya tidak dibuat mundur.`, confirmLabel: 'Masukkan peserta' });
     if (!confirmed) return;
@@ -1030,6 +1048,7 @@ async function submitAdminForm(form) {
     }
     organizationData = null;
     configurationData = null;
+    activePeriodParticipants = null;
     const returnView = form.closest('dialog')?.dataset.returnView;
     if (returnView) loadAdminView(returnView, { dataOnly: true });
   } catch (error) {
@@ -1100,7 +1119,7 @@ document.addEventListener('input', (event) => {
   adminSearchTimer = setTimeout(() => {
     adminListState[list].search = event.target.value.trim();
     adminListState[list].page = 1;
-    loadAdminView(list, { dataOnly: true });
+    loadAdminView(list === 'participants' ? 'periods' : list, { dataOnly: true });
   }, 280);
 });
 document.addEventListener('submit', (event) => {
@@ -1110,7 +1129,7 @@ document.addEventListener('submit', (event) => {
   clearTimeout(adminSearchTimer);
   adminListState[list].search = event.target.elements.search.value.trim();
   adminListState[list].page = 1;
-  loadAdminView(list, { dataOnly: true });
+  loadAdminView(list === 'participants' ? 'periods' : list, { dataOnly: true });
 });
 function openAdminFormModal(type, departmentId = '', returnView = '') {
   const organization = organizationData ?? { departments: [], department_options: [], santri: [], santri_options: [], leaders: [] };
@@ -1123,7 +1142,10 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
   const activityOptions = configuration.activity_options ?? configuration.activities;
   const drafts = periodOptions.filter((period) => period.status === 'draft');
   const activePeriods = periodOptions.filter((period) => period.status === 'active');
-  const participants = (organization.santri_options ?? organization.santri).map((profile) => ({ id: profile.id, name: profile.user.name }));
+  const selectedParticipantPeriod = activePeriods.find((period) => period.id === departmentId) ?? activePeriods[0];
+  const participants = (organization.santri_options ?? organization.santri).map((profile) => ({ id: profile.user_id ?? profile.id, name: profile.user.name }));
+  const enrolledParticipantIds = new Set((activePeriodParticipants?.participants ?? []).map((participant) => participant.user_id));
+  const availableParticipants = participants.filter((participant) => !enrolledParticipantIds.has(participant.id));
   const configuredPeriod = periodOptions.find((period) => period.id === departmentId);
   const selectedProfile = (organizationData.santri ?? []).find((profile) => profile.user_id === departmentId);
   const selectedActivity = activityOptions.find((activity) => activity.id === departmentId);
@@ -1178,14 +1200,14 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
       fields: `<div class="period-config-list">${configuredPeriod.period_activities.map((activity) => `<fieldset class="period-config-row" data-period-activity-id="${escapeHtml(activity.id)}"><div><strong>${escapeHtml(activity.activity_name_snapshot)}</strong><small>Rumus: min(checklist selesai ÷ target, 100%)</small></div><label>Target<input type="number" min="1" value="${activity.target_count}" data-target-count required></label><label class="admin-modal-checkbox"><input type="checkbox" data-is-active${activity.is_active ? ' checked' : ''}> Aktif</label><div class="period-weekday-control">${weekdayPicker(activity.allowed_weekdays)}</div></fieldset>`).join('') || '<p class="admin-form-note">Tambahkan aktivitas ke periode ini terlebih dahulu dari halaman Aktivitas LKS.</p>'}</div>`,
     } : null,
     participant: {
-      title: 'Tambah peserta periode', description: 'Peserta mulai dapat mengisi checklist sejak dimasukkan ke periode aktif.', submitLabel: 'Masukkan peserta',
-      fields: `<label>Periode aktif<select name="period_id" required>${adminOptions(activePeriods)}</select></label><label>Santri Karya<select name="profile_id" required>${adminOptions(participants)}</select></label>`,
+      title: `Tambah peserta · ${escapeHtml(selectedParticipantPeriod?.name ?? 'Periode aktif')}`, description: 'Peserta mulai dapat mengisi checklist sejak dimasukkan. Catatan sebelumnya tidak dibuat mundur.', submitLabel: 'Masukkan peserta',
+      fields: `<input type="hidden" name="period_id" value="${escapeHtml(selectedParticipantPeriod?.id ?? '')}"><label>Santri Karya<select name="profile_id" required>${adminOptions(availableParticipants)}</select></label><p class="admin-form-note">Pilih akun yang dibuat setelah periode aktif dimulai atau yang belum tercatat sebagai peserta.</p>`,
     },
   };
   const definition = definitions[type];
   if (!definition) return;
-  const disableSubmit = type === 'period-config' && configuredPeriod.period_activities.length === 0;
-  adminFormDialogContent.innerHTML = `<form class="admin-modal-form" data-admin-form="${type}"${type === 'period-config' || type === 'period-edit' ? ` data-period-id="${escapeHtml(departmentId)}"` : ''}${type === 'department-edit' || type === 'team-edit' ? ` data-organization-id="${escapeHtml(departmentId)}"` : ''}${type === 'santri-edit' ? ` data-santri-id="${escapeHtml(departmentId)}"` : ''}${type === 'activity-edit' ? ` data-activity-id="${escapeHtml(departmentId)}"` : ''}><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">${definition.title}</h2><p>${definition.description}</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields">${definition.fields}</div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit"${disableSubmit ? ' disabled' : ''}>${definition.submitLabel}</button></div></form>`;
+  const disableSubmit = (type === 'period-config' && configuredPeriod.period_activities.length === 0) || (type === 'participant' && (!selectedParticipantPeriod || availableParticipants.length === 0));
+  adminFormDialogContent.innerHTML = `<form class="admin-modal-form" data-admin-form="${type}"${type === 'period-config' || type === 'period-edit' ? ` data-period-id="${escapeHtml(departmentId)}"` : ''}${type === 'participant' ? ` data-period-name="${escapeHtml(selectedParticipantPeriod?.name ?? '')}"` : ''}${type === 'department-edit' || type === 'team-edit' ? ` data-organization-id="${escapeHtml(departmentId)}"` : ''}${type === 'santri-edit' ? ` data-santri-id="${escapeHtml(departmentId)}"` : ''}${type === 'activity-edit' ? ` data-activity-id="${escapeHtml(departmentId)}"` : ''}><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">${definition.title}</h2><p>${definition.description}</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields">${definition.fields}</div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit"${disableSubmit ? ' disabled' : ''}>${definition.submitLabel}</button></div></form>`;
   adminFormDialog.dataset.returnView = returnView;
   adminFormDialog.showModal();
   markAdminFormPristine();
@@ -1215,8 +1237,25 @@ document.addEventListener('click', async (event) => {
     const nextPage = Number(page.dataset.page);
     if (!page.disabled && adminListState[list] && nextPage > 0) {
       adminListState[list].page = nextPage;
-      return loadAdminView(list, { dataOnly: true });
+      return loadAdminView(list === 'participants' ? 'periods' : list, { dataOnly: true });
     }
+  }
+  if (event.target.closest('[data-focus-period-participants]')) {
+    document.querySelector('#period-participants')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+  const participantRemoval = event.target.closest('[data-remove-period-participant]');
+  if (participantRemoval) {
+    const confirmed = await confirmAction({ title: 'Keluarkan peserta dari periode?', message: `${participantRemoval.dataset.participantName} tidak lagi dapat mengisi checklist periode ini. Riwayat checklist yang sudah tercatat tidak dapat dikeluarkan.`, confirmLabel: 'Keluarkan peserta', tone: 'danger' });
+    if (!confirmed) return;
+    setButtonBusy(participantRemoval, true, 'Mengeluarkan…');
+    try {
+      const response = await fetch(`${apiBase}/periods/${participantRemoval.dataset.periodId}/participants/${participantRemoval.dataset.removePeriodParticipant}`, { method: 'DELETE', credentials: 'same-origin', headers: { Accept: 'application/json', ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}) } });
+      if (!response.ok) throw new Error(await apiError(response));
+      showToast('Peserta dikeluarkan dari periode');
+      activePeriodParticipants = null;
+      return loadAdminView('periods', { dataOnly: true });
+    } catch (error) { showToast(error.message || 'Peserta belum dapat dikeluarkan.', 'error'); } finally { setButtonBusy(participantRemoval, false); }
   }
   const refresh = event.target.closest('[data-admin-refresh]');
   if (refresh) {

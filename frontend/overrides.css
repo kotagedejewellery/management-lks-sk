@@ -176,6 +176,9 @@
 .admin-record-row small { display: block; margin-top: 4px; color: var(--ink-soft, #53645a); font-size: 12px; }
 .people-record-table .admin-record-head, .people-record-table .admin-record-row { grid-template-columns: minmax(190px, 1.1fr) minmax(200px, 1.2fr) minmax(110px, .55fr) auto; }
 .period-record-table .admin-record-head, .period-record-table .admin-record-row { grid-template-columns: minmax(170px, 1fr) minmax(220px, 1.15fr) minmax(100px, .45fr); }
+.participant-record-table .admin-record-head, .participant-record-table .admin-record-row { grid-template-columns: minmax(180px, 1fr) minmax(180px, 1fr) minmax(150px, .75fr) auto; }
+.period-participant-section { margin-top: 34px; padding-top: 30px; border-top: 1px solid var(--line-dark, #c5d0c8); }
+.period-participant-section .organization-section-head { align-items: center; }
 .activity-record-table .admin-record-head, .activity-record-table .admin-record-row { grid-template-columns: minmax(220px, 1fr) minmax(230px, .8fr) auto; }
 .activity-period-summary { display: grid; gap: 6px; }
 .activity-period-summary > span { display: grid; gap: 3px; }
@@ -255,6 +258,12 @@
 
 @media (min-width: 641px) and (max-width: 900px) {
   .page-progress { left: 76px; }
+}
+@media (max-width: 760px) {
+  .participant-record-table .admin-record-row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 6px; padding: 15px 0; }
+  .participant-record-row > :nth-child(2) { grid-column: 1; grid-row: auto; text-align: left; }
+  .participant-record-row > :nth-child(3) { grid-column: 2; grid-row: 1; text-align: right; }
+  .participant-record-row > :nth-child(4) { grid-column: 2; grid-row: 2; text-align: right; }
 }
 .period-detail { display: grid; grid-template-columns: 1.1fr 1.5fr auto; align-items: center; gap: 28px; padding: 28px 0; border-top: 1px solid var(--line, #d9ddd5); border-bottom: 1px solid var(--line, #d9ddd5); }
 .period-detail h3 { margin: 10px 0 6px; font-size: 24px; }

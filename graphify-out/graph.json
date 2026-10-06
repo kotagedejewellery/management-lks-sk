@@ -727,7 +727,7 @@
       "label": "PeriodController",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L14",
+      "source_location": "L16",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast"
@@ -737,7 +737,7 @@
       "label": ".activate()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L16",
+      "source_location": "L18",
       "_callable": true,
       "_origin": "ast"
     },
@@ -746,25 +746,16 @@
       "label": ".addParticipant()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L30",
+      "source_location": "L32",
       "_callable": true,
       "_origin": "ast"
     },
     {
-      "id": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_close",
-      "label": ".close()",
+      "id": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_participants",
+      "label": ".participants()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L45",
-      "_callable": true,
-      "_origin": "ast"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_history",
-      "label": ".history()",
-      "file_type": "code",
-      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L59",
+      "source_location": "L47",
       "_callable": true,
       "_origin": "ast"
     },
@@ -773,7 +764,7 @@
       "label": "{closure#1}()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L64",
+      "source_location": "L54",
       "_callable": true,
       "_origin": "ast"
     },
@@ -782,7 +773,7 @@
       "label": "{closure#2}()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L66",
+      "source_location": "L54",
       "_callable": true,
       "_origin": "ast"
     },
@@ -791,7 +782,61 @@
       "label": "{closure#3}()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L70",
+      "source_location": "L63",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_removeparticipant",
+      "label": ".removeParticipant()",
+      "file_type": "code",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L81",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_close",
+      "label": ".close()",
+      "file_type": "code",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L92",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_history",
+      "label": ".history()",
+      "file_type": "code",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L106",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_periodcontroller_closure_4",
+      "label": "{closure#4}()",
+      "file_type": "code",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L111",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_periodcontroller_closure_5",
+      "label": "{closure#5}()",
+      "file_type": "code",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L113",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_periodcontroller_closure_6",
+      "label": "{closure#6}()",
+      "file_type": "code",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L117",
       "_callable": true,
       "_origin": "ast"
     },
@@ -2091,8 +2136,8 @@
       "_origin": "ast"
     },
     {
-      "id": "backend_app_services_periodactivationservice_periodactivationservice_close",
-      "label": ".close()",
+      "id": "backend_app_services_periodactivationservice_periodactivationservice_removeparticipant",
+      "label": ".removeParticipant()",
       "file_type": "code",
       "source_file": "backend/app/Services/PeriodActivationService.php",
       "source_location": "L105",
@@ -2109,11 +2154,29 @@
       "_origin": "ast"
     },
     {
+      "id": "backend_app_services_periodactivationservice_periodactivationservice_close",
+      "label": ".close()",
+      "file_type": "code",
+      "source_file": "backend/app/Services/PeriodActivationService.php",
+      "source_location": "L141",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "backend_app_services_periodactivationservice_closure_4",
+      "label": "{closure#4}()",
+      "file_type": "code",
+      "source_file": "backend/app/Services/PeriodActivationService.php",
+      "source_location": "L145",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
       "id": "backend_app_services_periodactivationservice_periodactivationservice_ensureadmin",
       "label": ".ensureAdmin()",
       "file_type": "code",
       "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L132",
+      "source_location": "L168",
       "_callable": true,
       "_origin": "ast"
     },
@@ -2122,7 +2185,7 @@
       "label": ".assertProfileOrganization()",
       "file_type": "code",
       "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L139",
+      "source_location": "L175",
       "_callable": true,
       "_origin": "ast"
     },
@@ -2131,7 +2194,7 @@
       "label": ".snapshot()",
       "file_type": "code",
       "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L148",
+      "source_location": "L184",
       "_callable": true,
       "_origin": "ast"
     },
@@ -4215,7 +4278,7 @@
       "label": "{closure#4}()",
       "file_type": "code",
       "source_file": "backend/routes/web.php",
-      "source_location": "L49",
+      "source_location": "L52",
       "_callable": true,
       "_origin": "ast"
     },
@@ -5669,7 +5732,7 @@
       "label": "adminOptions()",
       "file_type": "code",
       "source_file": "frontend/app.js",
-      "source_location": "L793",
+      "source_location": "L794",
       "_callable": true,
       "_origin": "ast"
     },
@@ -5678,7 +5741,7 @@
       "label": "weekdayPicker()",
       "file_type": "code",
       "source_file": "frontend/app.js",
-      "source_location": "L797",
+      "source_location": "L798",
       "_callable": true,
       "_origin": "ast"
     },
@@ -5687,7 +5750,7 @@
       "label": "paginationControls()",
       "file_type": "code",
       "source_file": "frontend/app.js",
-      "source_location": "L803",
+      "source_location": "L804",
       "_callable": true,
       "_origin": "ast"
     },
@@ -5696,7 +5759,7 @@
       "label": "adminPanel()",
       "file_type": "code",
       "source_file": "frontend/app.js",
-      "source_location": "L810",
+      "source_location": "L811",
       "_callable": true,
       "_origin": "ast"
     },
@@ -5705,7 +5768,7 @@
       "label": "renderAdminView()",
       "file_type": "code",
       "source_file": "frontend/app.js",
-      "source_location": "L814",
+      "source_location": "L815",
       "_callable": true,
       "_origin": "ast"
     },
@@ -5714,7 +5777,7 @@
       "label": "loadAdminView()",
       "file_type": "code",
       "source_file": "frontend/app.js",
-      "source_location": "L910",
+      "source_location": "L916",
       "_callable": true,
       "_origin": "ast"
     },
@@ -5723,7 +5786,7 @@
       "label": "submitAdminForm()",
       "file_type": "code",
       "source_file": "frontend/app.js",
-      "source_location": "L958",
+      "source_location": "L976",
       "_callable": true,
       "_origin": "ast"
     },
@@ -5732,7 +5795,7 @@
       "label": "openChecklistCorrection()",
       "file_type": "code",
       "source_file": "frontend/app.js",
-      "source_location": "L1042",
+      "source_location": "L1061",
       "_callable": true,
       "_origin": "ast"
     },
@@ -5741,7 +5804,7 @@
       "label": "adminFormSnapshot()",
       "file_type": "code",
       "source_file": "frontend/app.js",
-      "source_location": "L1056",
+      "source_location": "L1075",
       "_callable": true,
       "_origin": "ast"
     },
@@ -5750,7 +5813,7 @@
       "label": "markAdminFormPristine()",
       "file_type": "code",
       "source_file": "frontend/app.js",
-      "source_location": "L1063",
+      "source_location": "L1082",
       "_callable": true,
       "_origin": "ast"
     },
@@ -5759,7 +5822,7 @@
       "label": "hasUnsavedAdminFormChanges()",
       "file_type": "code",
       "source_file": "frontend/app.js",
-      "source_location": "L1068",
+      "source_location": "L1087",
       "_callable": true,
       "_origin": "ast"
     },
@@ -5768,7 +5831,7 @@
       "label": "requestAdminFormClose()",
       "file_type": "code",
       "source_file": "frontend/app.js",
-      "source_location": "L1073",
+      "source_location": "L1092",
       "_callable": true,
       "_origin": "ast"
     },
@@ -5777,7 +5840,7 @@
       "label": "openAdminFormModal()",
       "file_type": "code",
       "source_file": "frontend/app.js",
-      "source_location": "L1115",
+      "source_location": "L1134",
       "_callable": true,
       "_origin": "ast"
     },
@@ -5786,7 +5849,7 @@
       "label": "loadDashboard()",
       "file_type": "code",
       "source_file": "frontend/app.js",
-      "source_location": "L1304",
+      "source_location": "L1343",
       "_callable": true,
       "_origin": "ast"
     },
@@ -10162,7 +10225,7 @@
     },
     {
       "source": "backend_app_http_controllers_lks_periodcontroller",
-      "target": "backend_app_models_santriprofile_santriprofile",
+      "target": "backend_app_models_periodparticipantsnapshot_periodparticipantsnapshot",
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -10173,7 +10236,7 @@
     },
     {
       "source": "backend_app_http_controllers_lks_periodcontroller",
-      "target": "backend_app_services_periodactivationservice_periodactivationservice",
+      "target": "backend_app_models_santriprofile_santriprofile",
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -10184,7 +10247,7 @@
     },
     {
       "source": "backend_app_http_controllers_lks_periodcontroller",
-      "target": "illuminate_http_jsonresponse",
+      "target": "backend_app_services_periodactivationservice_periodactivationservice",
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -10195,7 +10258,7 @@
     },
     {
       "source": "backend_app_http_controllers_lks_periodcontroller",
-      "target": "illuminate_http_request",
+      "target": "illuminate_http_jsonresponse",
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -10206,11 +10269,33 @@
     },
     {
       "source": "backend_app_http_controllers_lks_periodcontroller",
+      "target": "illuminate_http_request",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller",
+      "target": "illuminate_http_response",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller",
       "target": "backend_app_http_controllers_lks_periodcontroller_periodcontroller",
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L14",
+      "source_location": "L16",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -10220,7 +10305,7 @@
       "relation": "inherits",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L14",
+      "source_location": "L16",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -10230,7 +10315,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L16",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -10240,7 +10325,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L16",
+      "source_location": "L18",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -10251,7 +10336,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L16",
+      "source_location": "L18",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -10262,7 +10347,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L16",
+      "source_location": "L18",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -10273,7 +10358,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L16",
+      "source_location": "L18",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast"
@@ -10284,7 +10369,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L30",
+      "source_location": "L32",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -10294,7 +10379,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L30",
+      "source_location": "L32",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -10305,7 +10390,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L30",
+      "source_location": "L32",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -10316,7 +10401,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L30",
+      "source_location": "L32",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -10327,7 +10412,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L30",
+      "source_location": "L32",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -10338,93 +10423,50 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L30",
+      "source_location": "L32",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast"
     },
     {
       "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller",
-      "target": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_close",
+      "target": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_participants",
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L45",
+      "source_location": "L47",
       "weight": 1.0,
       "_origin": "ast"
     },
     {
-      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_close",
+      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_participants",
       "target": "illuminate_http_request",
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L45",
+      "source_location": "L47",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
     },
     {
-      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_close",
+      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_participants",
       "target": "backend_app_models_lksperiod_lksperiod",
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L45",
+      "source_location": "L47",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
     },
     {
-      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_close",
-      "target": "backend_app_services_periodactivationservice_periodactivationservice",
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L45",
-      "weight": 1.0,
-      "context": "parameter_type",
-      "_origin": "ast"
-    },
-    {
-      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_close",
+      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_participants",
       "target": "illuminate_http_jsonresponse",
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L45",
-      "weight": 1.0,
-      "context": "return_type",
-      "_origin": "ast"
-    },
-    {
-      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller",
-      "target": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_history",
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L59",
-      "weight": 1.0,
-      "_origin": "ast"
-    },
-    {
-      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_history",
-      "target": "illuminate_http_request",
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L59",
-      "weight": 1.0,
-      "context": "parameter_type",
-      "_origin": "ast"
-    },
-    {
-      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_history",
-      "target": "illuminate_http_jsonresponse",
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L59",
+      "source_location": "L47",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast"
@@ -10435,7 +10477,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L64",
+      "source_location": "L54",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -10445,7 +10487,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L66",
+      "source_location": "L54",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -10455,17 +10497,209 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L70",
+      "source_location": "L63",
       "weight": 1.0,
       "_origin": "ast"
     },
     {
       "source": "backend_app_http_controllers_lks_periodcontroller_closure_3",
+      "target": "backend_app_models_periodparticipantsnapshot_periodparticipantsnapshot",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L63",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller",
+      "target": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_removeparticipant",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L81",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_removeparticipant",
+      "target": "illuminate_http_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L81",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_removeparticipant",
       "target": "backend_app_models_lksperiod_lksperiod",
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L70",
+      "source_location": "L81",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_removeparticipant",
+      "target": "backend_app_models_periodparticipantsnapshot_periodparticipantsnapshot",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L81",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_removeparticipant",
+      "target": "backend_app_services_periodactivationservice_periodactivationservice",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L81",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_removeparticipant",
+      "target": "illuminate_http_response",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L81",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller",
+      "target": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_close",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L92",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_close",
+      "target": "illuminate_http_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L92",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_close",
+      "target": "backend_app_models_lksperiod_lksperiod",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L92",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_close",
+      "target": "backend_app_services_periodactivationservice_periodactivationservice",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L92",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_close",
+      "target": "illuminate_http_jsonresponse",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L92",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller",
+      "target": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_history",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L106",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_history",
+      "target": "illuminate_http_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L106",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_history",
+      "target": "illuminate_http_jsonresponse",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L106",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller",
+      "target": "backend_app_http_controllers_lks_periodcontroller_closure_4",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L111",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller",
+      "target": "backend_app_http_controllers_lks_periodcontroller_closure_5",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L113",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller",
+      "target": "backend_app_http_controllers_lks_periodcontroller_closure_6",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L117",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller_closure_6",
+      "target": "backend_app_models_lksperiod_lksperiod",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L117",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -10477,7 +10711,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L21",
+      "source_location": "L23",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -10488,7 +10722,29 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L36",
+      "source_location": "L38",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_participants",
+      "target": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_participants",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L52",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_removeparticipant",
+      "target": "backend_app_http_controllers_lks_periodcontroller_periodcontroller_removeparticipant",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
+      "source_location": "L87",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -10499,7 +10755,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodController.php",
-      "source_location": "L50",
+      "source_location": "L97",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14204,7 +14460,7 @@
     },
     {
       "source": "backend_app_services_periodactivationservice_periodactivationservice",
-      "target": "backend_app_services_periodactivationservice_periodactivationservice_close",
+      "target": "backend_app_services_periodactivationservice_periodactivationservice_removeparticipant",
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Services/PeriodActivationService.php",
@@ -14213,7 +14469,7 @@
       "_origin": "ast"
     },
     {
-      "source": "backend_app_services_periodactivationservice_periodactivationservice_close",
+      "source": "backend_app_services_periodactivationservice_periodactivationservice_removeparticipant",
       "target": "backend_app_models_user_user",
       "relation": "references",
       "confidence": "EXTRACTED",
@@ -14224,8 +14480,19 @@
       "_origin": "ast"
     },
     {
-      "source": "backend_app_services_periodactivationservice_periodactivationservice_close",
+      "source": "backend_app_services_periodactivationservice_periodactivationservice_removeparticipant",
       "target": "backend_app_models_lksperiod_lksperiod",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Services/PeriodActivationService.php",
+      "source_location": "L105",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_services_periodactivationservice_periodactivationservice_removeparticipant",
+      "target": "backend_app_models_periodparticipantsnapshot_periodparticipantsnapshot",
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Services/PeriodActivationService.php",
@@ -14245,12 +14512,54 @@
       "_origin": "ast"
     },
     {
-      "source": "backend_app_services_periodactivationservice_closure_3",
+      "source": "backend_app_services_periodactivationservice_periodactivationservice",
+      "target": "backend_app_services_periodactivationservice_periodactivationservice_close",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Services/PeriodActivationService.php",
+      "source_location": "L141",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_services_periodactivationservice_periodactivationservice_close",
+      "target": "backend_app_models_user_user",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Services/PeriodActivationService.php",
+      "source_location": "L141",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_services_periodactivationservice_periodactivationservice_close",
       "target": "backend_app_models_lksperiod_lksperiod",
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L109",
+      "source_location": "L141",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_services_periodactivationservice",
+      "target": "backend_app_services_periodactivationservice_closure_4",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Services/PeriodActivationService.php",
+      "source_location": "L145",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_services_periodactivationservice_closure_4",
+      "target": "backend_app_models_lksperiod_lksperiod",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Services/PeriodActivationService.php",
+      "source_location": "L145",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast"
@@ -14261,7 +14570,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L132",
+      "source_location": "L168",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14271,7 +14580,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L132",
+      "source_location": "L168",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -14282,7 +14591,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L139",
+      "source_location": "L175",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14292,7 +14601,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L139",
+      "source_location": "L175",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -14303,7 +14612,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L148",
+      "source_location": "L184",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -14313,7 +14622,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L148",
+      "source_location": "L184",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -14324,7 +14633,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L148",
+      "source_location": "L184",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -14335,7 +14644,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L148",
+      "source_location": "L184",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast"
@@ -14407,13 +14716,24 @@
       "_origin": "ast"
     },
     {
-      "source": "backend_app_services_periodactivationservice_periodactivationservice_close",
+      "source": "backend_app_services_periodactivationservice_periodactivationservice_removeparticipant",
       "target": "backend_app_services_periodactivationservice_periodactivationservice_ensureadmin",
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Services/PeriodActivationService.php",
       "source_location": "L107",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_services_periodactivationservice_periodactivationservice_close",
+      "target": "backend_app_services_periodactivationservice_periodactivationservice_ensureadmin",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Services/PeriodActivationService.php",
+      "source_location": "L143",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -17475,7 +17795,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/routes/web.php",
-      "source_location": "L49",
+      "source_location": "L52",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -20294,7 +20614,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L793",
+      "source_location": "L794",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -20304,7 +20624,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L797",
+      "source_location": "L798",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -20314,7 +20634,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L803",
+      "source_location": "L804",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -20324,7 +20644,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L810",
+      "source_location": "L811",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -20334,7 +20654,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L814",
+      "source_location": "L815",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -20344,7 +20664,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L910",
+      "source_location": "L916",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -20354,7 +20674,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L958",
+      "source_location": "L976",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -20364,7 +20684,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1042",
+      "source_location": "L1061",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -20374,7 +20694,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1056",
+      "source_location": "L1075",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -20384,7 +20704,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1063",
+      "source_location": "L1082",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -20394,7 +20714,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1068",
+      "source_location": "L1087",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -20404,7 +20724,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1073",
+      "source_location": "L1092",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -20414,7 +20734,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1115",
+      "source_location": "L1134",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -20424,7 +20744,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1304",
+      "source_location": "L1343",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -21835,7 +22155,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L794",
+      "source_location": "L795",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -21846,7 +22166,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L811",
+      "source_location": "L812",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -21857,7 +22177,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L817",
+      "source_location": "L818",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -21868,7 +22188,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L846",
+      "source_location": "L847",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -21879,7 +22199,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L853",
+      "source_location": "L854",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -21890,7 +22210,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L884",
+      "source_location": "L888",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -21901,7 +22221,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L911",
+      "source_location": "L917",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -21912,7 +22232,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L926",
+      "source_location": "L932",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -21923,7 +22243,18 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L927",
+      "source_location": "L933",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "frontend_app_loadadminview",
+      "target": "frontend_app_apierror",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L952",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -21934,7 +22265,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L949",
+      "source_location": "L967",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -21945,7 +22276,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L954",
+      "source_location": "L972",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -21956,7 +22287,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1009",
+      "source_location": "L1027",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -21967,7 +22298,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1020",
+      "source_location": "L1038",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -21978,7 +22309,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1021",
+      "source_location": "L1039",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -21989,7 +22320,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1024",
+      "source_location": "L1042",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22000,7 +22331,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1025",
+      "source_location": "L1043",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22011,7 +22342,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1028",
+      "source_location": "L1046",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22022,7 +22353,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1034",
+      "source_location": "L1053",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22033,7 +22364,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1044",
+      "source_location": "L1063",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22044,7 +22375,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1049",
+      "source_location": "L1068",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22055,7 +22386,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1049",
+      "source_location": "L1068",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22066,7 +22397,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1049",
+      "source_location": "L1068",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22077,7 +22408,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1049",
+      "source_location": "L1068",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22088,7 +22419,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1052",
+      "source_location": "L1071",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22099,7 +22430,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1065",
+      "source_location": "L1084",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22110,7 +22441,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1070",
+      "source_location": "L1089",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22121,7 +22452,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1074",
+      "source_location": "L1093",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22132,7 +22463,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1078",
+      "source_location": "L1097",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22143,7 +22474,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1088",
+      "source_location": "L1107",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22154,7 +22485,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1090",
+      "source_location": "L1109",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22165,7 +22496,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1093",
+      "source_location": "L1112",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22176,7 +22507,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1103",
+      "source_location": "L1122",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22187,7 +22518,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1138",
+      "source_location": "L1160",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22198,7 +22529,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1141",
+      "source_location": "L1163",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22209,7 +22540,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1162",
+      "source_location": "L1184",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22220,7 +22551,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1174",
+      "source_location": "L1196",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22231,7 +22562,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1191",
+      "source_location": "L1213",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22242,7 +22573,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1198",
+      "source_location": "L1220",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22253,18 +22584,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1209",
-      "weight": 1.0,
-      "_origin": "ast"
-    },
-    {
-      "source": "frontend_app",
-      "target": "frontend_app_setbuttonbusy",
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "frontend/app.js",
-      "source_location": "L1223",
+      "source_location": "L1231",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22275,7 +22595,18 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1233",
+      "source_location": "L1249",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "frontend_app",
+      "target": "frontend_app_setbuttonbusy",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/app.js",
+      "source_location": "L1251",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22286,7 +22617,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1238",
+      "source_location": "L1254",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22297,7 +22628,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1291",
+      "source_location": "L1330",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22308,7 +22639,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1297",
+      "source_location": "L1336",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22319,7 +22650,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1305",
+      "source_location": "L1344",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22330,7 +22661,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1309",
+      "source_location": "L1348",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22341,7 +22672,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1310",
+      "source_location": "L1349",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22352,7 +22683,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1312",
+      "source_location": "L1351",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22363,7 +22694,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1313",
+      "source_location": "L1352",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -22374,7 +22705,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "frontend/app.js",
-      "source_location": "L1315",
+      "source_location": "L1354",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -23998,7 +24329,19 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L119",
+      "source_location": "L125",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_services_periodactivationservice_closure_4",
+      "target": "backend_app_models_auditlog_auditlog",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app/Services/PeriodActivationService.php",
+      "source_location": "L155",
       "weight": 1.0,
       "_origin": "ast"
     },

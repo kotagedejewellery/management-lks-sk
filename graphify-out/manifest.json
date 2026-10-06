@@ -456,9 +456,9 @@
     "semantic_hash": ""
   },
   "backend/routes/web.php": {
-    "mtime": 1791270409.526524,
-    "seen": 1791270454.2602634,
-    "ast_hash": "092be46ae40e75931995992f2cb4354b",
+    "mtime": 1791279664.6061873,
+    "seen": 1791280383.3090005,
+    "ast_hash": "e04c4861bc6c26f5be9ecbc556407972",
     "semantic_hash": ""
   },
   "backend/tests/Feature/Auth/AuthenticationTest.php": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1791275773.0600028,
-    "seen": 1791275785.4454281,
-    "ast_hash": "4210e5415a6c017ae305eed96d44c8bf",
+    "mtime": 1791280103.2006755,
+    "seen": 1791280383.3090298,
+    "ast_hash": "ba8fb4dfc8a1ef9e11cabf2762d65222",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -762,9 +762,9 @@
     "semantic_hash": ""
   },
   "backend/app/Services/PeriodActivationService.php": {
-    "mtime": 1791253469.0056279,
-    "seen": 1791253558.1753445,
-    "ast_hash": "0712717191bf658489dc67ee5029f6fe",
+    "mtime": 1791279664.6061873,
+    "seen": 1791280383.3088648,
+    "ast_hash": "8c1041fef739159e8508336d1d47e26b",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/ChecklistController.php": {
@@ -780,9 +780,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodController.php": {
-    "mtime": 1790909849.6751332,
-    "seen": 1790910004.229596,
-    "ast_hash": "2c9e812796ac773022905f1fcf00b3ec",
+    "mtime": 1791279664.6041884,
+    "seen": 1791280383.3088145,
+    "ast_hash": "d98cd23f614a42fe0b04d19e097b0b39",
     "semantic_hash": ""
   },
   "backend/app/Http/Requests/Lks/ActivatePeriodRequest.php": {

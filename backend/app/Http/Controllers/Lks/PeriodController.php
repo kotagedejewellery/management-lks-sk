@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Lks\ActivatePeriodRequest;
 use App\Http\Requests\Lks\AddPeriodParticipantRequest;
 use App\Models\LksPeriod;
+use App\Models\PeriodParticipantSnapshot;
 use App\Models\SantriProfile;
 use App\Services\PeriodActivationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class PeriodController extends Controller
 {
@@ -40,6 +42,51 @@ class PeriodController extends Controller
             'user_id' => $participant->user_id,
             'participation_start_date' => $participant->participation_start_date->toDateString(),
         ]], $participant->wasRecentlyCreated ? 201 : 200);
+    }
+
+    public function participants(Request $request, LksPeriod $period): JsonResponse
+    {
+        abort_unless($request->user()->isAdmin(), 403);
+
+        $search = trim((string) $request->query('search', ''));
+        $participants = $period->participants()
+            ->withCount('checklists')
+            ->when($search !== '', fn ($query) => $query->where(function ($query) use ($search) {
+                $query->where('participant_name_snapshot', 'ilike', "%{$search}%")
+                    ->orWhere('department_name_snapshot', 'ilike', "%{$search}%")
+                    ->orWhere('team_name_snapshot', 'ilike', "%{$search}%");
+            }))
+            ->orderBy('participant_name_snapshot')
+            ->paginate(25);
+
+        return response()->json(['data' => [
+            'participants' => collect($participants->items())->map(fn (PeriodParticipantSnapshot $participant) => [
+                'id' => $participant->getKey(),
+                'user_id' => $participant->user_id,
+                'name' => $participant->participant_name_snapshot,
+                'department' => $participant->department_name_snapshot,
+                'team' => $participant->team_name_snapshot,
+                'participation_start_date' => $participant->participation_start_date->toDateString(),
+                'checklists_count' => $participant->checklists_count,
+            ])->values(),
+            'pagination' => [
+                'current_page' => $participants->currentPage(),
+                'last_page' => $participants->lastPage(),
+                'per_page' => $participants->perPage(),
+                'total' => $participants->total(),
+            ],
+        ]]);
+    }
+
+    public function removeParticipant(
+        Request $request,
+        LksPeriod $period,
+        PeriodParticipantSnapshot $participant,
+        PeriodActivationService $service,
+    ): Response {
+        $service->removeParticipant($request->user(), $period, $participant);
+
+        return response()->noContent();
     }
 
     public function close(
