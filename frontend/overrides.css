@@ -18,6 +18,8 @@
 .status,
 .person-initials,
 .score-box span,
+[hidden] { display: none !important; }
+
 .score-box small,
 .date-chip span,
 .date-chip i,
@@ -70,9 +72,6 @@
 .confirm-dialog form { padding: 28px; }
 .confirm-dialog h2 { margin: 0 0 10px; font-size: 27px; }
 .confirm-dialog p { margin: 0; color: var(--ink-soft, #53645a); font-size: 14px; line-height: 1.6; }
-.confirm-phrase { display: grid; gap: 7px; margin-top: 18px; color: var(--ink-soft, #53645a); font-size: 13px; font-weight: 700; }
-.confirm-phrase input { min-height: 44px; width: 100%; border: 1px solid var(--line-dark, #c5d0c8); border-radius: 9px; background: var(--surface, #fffefa); color: var(--ink, #203329); padding: 9px 11px; }
-.confirm-phrase input:focus { outline: 0; border-color: var(--evergreen, #25705b); box-shadow: 0 0 0 3px rgba(37,112,91,.12); }
 .confirm-dialog-actions { display: flex; justify-content: flex-end; align-items: center; gap: 16px; margin-top: 26px; }
 .admin-form-dialog { width: min(520px, calc(100vw - 36px)); padding: 0; border: 0; border-radius: 14px; background: var(--surface, #fffefa); color: var(--ink, #203329); box-shadow: 0 24px 60px rgba(25, 52, 44, .2); }
 .admin-form-dialog::backdrop { background: rgba(23, 49, 58, .35); backdrop-filter: blur(3px); }

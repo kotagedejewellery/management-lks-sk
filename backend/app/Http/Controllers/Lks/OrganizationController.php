@@ -12,6 +12,7 @@ use App\Models\Team;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -131,7 +132,7 @@ class OrganizationController extends Controller
         return response()->json(['data' => $team->refresh()]);
     }
 
-    public function destroyDepartment(Request $request, Department $department): JsonResponse
+    public function destroyDepartment(Request $request, Department $department): Response
     {
         $this->ensureAdmin($request);
         if ($department->teams()->exists() || $department->santriProfiles()->exists()
@@ -148,7 +149,7 @@ class OrganizationController extends Controller
         return response()->noContent();
     }
 
-    public function destroyTeam(Request $request, Team $team): JsonResponse
+    public function destroyTeam(Request $request, Team $team): Response
     {
         $this->ensureAdmin($request);
         if ($team->santriProfiles()->exists()
@@ -286,7 +287,7 @@ class OrganizationController extends Controller
         return response()->json(['data' => $profile->load(['user:id,name,email,is_active', 'user.roles:id,code', 'department:id,name', 'team:id,name', 'leader:id,name'])]);
     }
 
-    public function destroySantri(Request $request, User $user): JsonResponse
+    public function destroySantri(Request $request, User $user): Response
     {
         $this->ensureAdmin($request);
         $profile = SantriProfile::query()->where('user_id', $user->getKey())->first();

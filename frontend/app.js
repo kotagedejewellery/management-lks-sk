@@ -26,13 +26,36 @@ let selectedChecklistDate = todayIso();
 let activePeriodActivities = [];
 let accountData = null;
 
-function openView(name) {
+function canOpenView(name, roles) {
+  if (!hasConfiguredRole(roles)) return ['dashboard', 'account'].includes(name);
+  return canView(name, roles);
+}
+
+function storedViewKey() {
+  return viewer?.id ? `lks.active-view.${viewer.id}` : null;
+}
+
+function savedView() {
+  const key = storedViewKey();
+  if (!key) return null;
+  try { return sessionStorage.getItem(key); } catch { return null; }
+}
+
+function saveView(name) {
+  const key = storedViewKey();
+  if (!key) return;
+  try { sessionStorage.setItem(key, name); } catch { /* Browser storage is optional. */ }
+}
+
+function openView(name, { persist = true, scroll = true } = {}) {
+  if (!viewLabels[name] || (viewer && !canOpenView(name, viewer.roles ?? []))) name = 'dashboard';
   viewPanels.forEach((panel) => panel.classList.toggle('is-active', panel.dataset.viewPanel === name));
   navButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.view === name));
   const [trail, title] = viewLabels[name];
   pageTitle.textContent = title;
   breadcrumb.textContent = trail;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (persist) saveView(name);
+  if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
   if (['settings', 'organization', 'people', 'periods', 'activities'].includes(name)) loadAdminView(name);
   if (['recap', 'department'].includes(name)) loadRecap();
   if (['dashboard', 'lks'].includes(name)) loadDashboard({ showProgress: true, reloadRecap: false });
@@ -118,30 +141,18 @@ function setFormError(form, message = '') {
   feedback.textContent = message;
 }
 
-function confirmAction({ title, message, confirmLabel, tone = 'default', requireText = '' }) {
+function confirmAction({ title, message, confirmLabel, tone = 'default' }) {
   confirmDialog.querySelector('[data-confirm-title]').textContent = title;
   confirmDialog.querySelector('[data-confirm-message]').textContent = message;
   const confirmButton = confirmDialog.querySelector('[value="confirm"]');
-  const phraseWrap = confirmDialog.querySelector('[data-confirm-phrase-wrap]');
-  const phrase = confirmDialog.querySelector('[data-confirm-phrase]');
-  const phraseInput = confirmDialog.querySelector('[data-confirm-phrase-input]');
   confirmButton.textContent = confirmLabel;
   confirmDialog.dataset.tone = tone;
   confirmDialog.returnValue = '';
-  phraseWrap.hidden = !requireText;
-  phrase.textContent = requireText;
-  phraseInput.value = '';
-  phraseInput.required = Boolean(requireText);
-  const syncConfirmation = () => { confirmButton.disabled = Boolean(requireText) && phraseInput.value.trim() !== requireText; };
-  phraseInput.oninput = syncConfirmation;
-  syncConfirmation();
   return new Promise((resolve) => {
     confirmDialog.addEventListener('close', () => {
-      phraseInput.oninput = null;
       resolve(confirmDialog.returnValue === 'confirm');
     }, { once: true });
     confirmDialog.showModal();
-    if (requireText) phraseInput.focus();
   });
 }
 
@@ -574,11 +585,15 @@ function canView(view, roles) {
   return {
     dashboard: true,
     account: true,
-    lks: hasPersonalLks,
+    lks: isAdmin || hasPersonalLks,
     recap: isAdmin || isLeader,
     department: isAdmin,
-    history: hasPersonalLks,
+    history: isAdmin || hasPersonalLks,
     settings: isAdmin,
+    organization: isAdmin,
+    people: isAdmin,
+    periods: isAdmin,
+    activities: isAdmin,
   }[view] ?? false;
 }
 
@@ -608,8 +623,15 @@ function applyViewerIdentity(currentViewer) {
   historyRecapData = null;
   renderHistory();
 
+  const restoredView = savedView();
+  if (restoredView && canOpenView(restoredView, roles)) {
+    openView(restoredView, { persist: false, scroll: false });
+    return;
+  }
+  if (restoredView) saveView('dashboard');
+
   const activeNavigation = [...navButtons].find((button) => button.classList.contains('is-active'));
-  if (activeNavigation?.hidden) openView('dashboard');
+  if (activeNavigation?.hidden || !canOpenView(activeNavigation?.dataset.view ?? 'dashboard', roles)) openView('dashboard');
 }
 
 async function logout() {
@@ -821,9 +843,9 @@ function renderAdminView(name) {
     const hasOrganizationSearch = Boolean(adminListState.organization.search);
     const showOrganizationEmpty = organizationMeta.total === 0 && !hasOrganizationSearch;
     const hierarchyRows = departments.map((department) => {
-      const departmentActions = `<button class="text-button organization-row-action" type="button" data-open-admin-modal="department-edit" data-organization-id="${escapeHtml(department.id)}">Edit</button><button class="text-button organization-row-action" type="button" data-open-admin-modal="team" data-department-id="${escapeHtml(department.id)}"${department.is_active ? '' : ' disabled'}>Tambah tim</button>${department.is_active ? `<button class="text-button organization-row-action organization-archive-action" type="button" data-archive-organization="department" data-organization-id="${escapeHtml(department.id)}" data-organization-name="${escapeHtml(department.name)}">Arsipkan</button>` : ''}${department.teams.length === 0 && department.santri_profiles_count === 0 ? `<button class="text-button organization-row-action" type="button" data-delete-resource="department" data-resource-id="${escapeHtml(department.id)}" data-resource-name="${escapeHtml(department.name)}" data-confirm-phrase="${escapeHtml(department.code)}">Hapus</button>` : ''}`;
+      const departmentActions = `<button class="text-button organization-row-action" type="button" data-open-admin-modal="department-edit" data-organization-id="${escapeHtml(department.id)}">Edit</button><button class="text-button organization-row-action" type="button" data-open-admin-modal="team" data-department-id="${escapeHtml(department.id)}"${department.is_active ? '' : ' disabled'}>Tambah tim</button>${department.is_active ? `<button class="text-button organization-row-action organization-archive-action" type="button" data-archive-organization="department" data-organization-id="${escapeHtml(department.id)}" data-organization-name="${escapeHtml(department.name)}">Arsipkan</button>` : ''}${department.teams.length === 0 && department.santri_profiles_count === 0 ? `<button class="text-button organization-row-action" type="button" data-delete-resource="department" data-resource-id="${escapeHtml(department.id)}" data-resource-name="${escapeHtml(department.name)}">Hapus</button>` : ''}`;
       const departmentRow = `<div class="organization-hierarchy-row organization-department-row" role="row"><span role="cell"><strong>${escapeHtml(department.name)}</strong><small>${department.teams.length} tim</small></span><span class="organization-code" role="cell">${escapeHtml(department.code)}</span><span role="cell">${department.santri_profiles_count} Santri Karya</span><span role="cell">${department.is_active ? 'Aktif' : 'Diarsipkan'}</span><span class="organization-row-actions" role="cell">${departmentActions}</span></div>`;
-      const teamRows = department.teams.map((team) => `<div class="organization-hierarchy-row organization-team-child-row" role="row"><span role="cell"><strong>${escapeHtml(team.name)}</strong><small>Tim · ${escapeHtml(department.name)}</small></span><span class="organization-code" role="cell">${escapeHtml(team.code)}</span><span role="cell">${team.santri_profiles_count} Santri Karya</span><span role="cell">${team.is_active ? 'Aktif' : 'Diarsipkan'}</span><span class="organization-row-actions" role="cell"><button class="text-button organization-row-action" type="button" data-open-admin-modal="team-edit" data-organization-id="${escapeHtml(team.id)}">Edit</button>${team.is_active ? `<button class="text-button organization-row-action organization-archive-action" type="button" data-archive-organization="team" data-organization-id="${escapeHtml(team.id)}" data-organization-name="${escapeHtml(team.name)}">Arsipkan</button>` : ''}${team.santri_profiles_count === 0 ? `<button class="text-button organization-row-action" type="button" data-delete-resource="team" data-resource-id="${escapeHtml(team.id)}" data-resource-name="${escapeHtml(team.name)}" data-confirm-phrase="${escapeHtml(team.code)}">Hapus</button>` : ''}</span></div>`).join('');
+      const teamRows = department.teams.map((team) => `<div class="organization-hierarchy-row organization-team-child-row" role="row"><span role="cell"><strong>${escapeHtml(team.name)}</strong><small>Tim · ${escapeHtml(department.name)}</small></span><span class="organization-code" role="cell">${escapeHtml(team.code)}</span><span role="cell">${team.santri_profiles_count} Santri Karya</span><span role="cell">${team.is_active ? 'Aktif' : 'Diarsipkan'}</span><span class="organization-row-actions" role="cell"><button class="text-button organization-row-action" type="button" data-open-admin-modal="team-edit" data-organization-id="${escapeHtml(team.id)}">Edit</button>${team.is_active ? `<button class="text-button organization-row-action organization-archive-action" type="button" data-archive-organization="team" data-organization-id="${escapeHtml(team.id)}" data-organization-name="${escapeHtml(team.name)}">Arsipkan</button>` : ''}${team.santri_profiles_count === 0 ? `<button class="text-button organization-row-action" type="button" data-delete-resource="team" data-resource-id="${escapeHtml(team.id)}" data-resource-name="${escapeHtml(team.name)}">Hapus</button>` : ''}</span></div>`).join('');
       return `${departmentRow}${teamRows || '<div class="organization-no-team">Belum ada tim. Tambahkan tim dari baris departemen di atas.</div>'}`;
     }).join('');
     const hierarchyContent = showOrganizationEmpty
@@ -838,7 +860,7 @@ function renderAdminView(name) {
     const people = organization.santri;
     const hasPeopleSearch = Boolean(adminListState.people.search);
     const showPeopleEmpty = hasTeams && peopleMeta.total === 0 && !hasPeopleSearch;
-    const peopleRows = people.map((profile) => `<div class="admin-record-row people-record-row" role="row"><span role="cell"><strong>${escapeHtml(profile.user.name)}</strong><small>${escapeHtml(profile.user.email)}</small></span><span role="cell">${escapeHtml(profile.team?.name ?? 'Tanpa tim')} · ${escapeHtml(profile.department?.name ?? 'Tanpa departemen')}</span><span role="cell">${profile.status === 'active' ? 'Aktif' : 'Nonaktif'}${profile.user.roles?.some((role) => role.code === 'leader') ? ' · Leader' : ''}</span><span role="cell"><button class="text-button organization-row-action" type="button" data-open-admin-modal="santri-edit" data-santri-id="${escapeHtml(profile.user_id)}">Edit</button><button class="text-button organization-row-action" type="button" data-delete-resource="santri" data-resource-id="${escapeHtml(profile.user_id)}" data-resource-name="${escapeHtml(profile.user.name)}" data-confirm-phrase="${escapeHtml(profile.user.email)}">Hapus</button></span></div>`).join('');
+    const peopleRows = people.map((profile) => `<div class="admin-record-row people-record-row" role="row"><span role="cell"><strong>${escapeHtml(profile.user.name)}</strong><small>${escapeHtml(profile.user.email)}</small></span><span role="cell">${escapeHtml(profile.team?.name ?? 'Tanpa tim')} · ${escapeHtml(profile.department?.name ?? 'Tanpa departemen')}</span><span role="cell">${profile.status === 'active' ? 'Aktif' : 'Nonaktif'}${profile.user.roles?.some((role) => role.code === 'leader') ? ' · Leader' : ''}</span><span role="cell"><button class="text-button organization-row-action" type="button" data-open-admin-modal="santri-edit" data-santri-id="${escapeHtml(profile.user_id)}">Edit</button><button class="text-button organization-row-action" type="button" data-delete-resource="santri" data-resource-id="${escapeHtml(profile.user_id)}" data-resource-name="${escapeHtml(profile.user.name)}">Hapus</button></span></div>`).join('');
     const peopleContent = !hasTeams
       ? `<section class="organization-empty-state" aria-labelledby="people-prerequisite-title"><h3 id="people-prerequisite-title">Siapkan tim terlebih dahulu</h3><p>Santri Karya perlu ditempatkan di dalam tim. Buat departemen dan tim sebelum membuat akun Santri Karya.</p><button class="primary-button" type="button" data-go="organization">Kelola struktur organisasi</button></section>`
       : !showPeopleEmpty
@@ -855,7 +877,7 @@ function renderAdminView(name) {
     const periodRows = configuration.periods.map((period) => {
       const activeActivityCount = period.period_activities.filter((activity) => activity.is_active).length;
       const periodAction = period.status === 'draft'
-        ? `<button class="text-button organization-row-action" type="button" data-open-admin-modal="period-edit" data-period-id="${escapeHtml(period.id)}">Edit</button><button class="text-button organization-row-action" type="button" data-open-admin-modal="period-config" data-period-id="${escapeHtml(period.id)}">Atur aktivitas</button><button class="text-button organization-row-action" type="button" data-activate-period="${escapeHtml(period.id)}">Aktifkan</button><button class="text-button organization-row-action" type="button" data-delete-resource="period" data-resource-id="${escapeHtml(period.id)}" data-resource-name="${escapeHtml(period.name)}" data-confirm-phrase="${escapeHtml(period.name)}">Hapus draft</button>`
+        ? `<button class="text-button organization-row-action" type="button" data-open-admin-modal="period-edit" data-period-id="${escapeHtml(period.id)}">Edit</button><button class="text-button organization-row-action" type="button" data-open-admin-modal="period-config" data-period-id="${escapeHtml(period.id)}">Atur aktivitas</button><button class="text-button organization-row-action" type="button" data-activate-period="${escapeHtml(period.id)}">Aktifkan</button><button class="text-button organization-row-action" type="button" data-delete-resource="period" data-resource-id="${escapeHtml(period.id)}" data-resource-name="${escapeHtml(period.name)}">Hapus draft</button>`
         : period.status === 'active'
           ? `<span class="status status-active">Aktif</span><button class="text-button organization-row-action organization-archive-action" type="button" data-close-period="${escapeHtml(period.id)}" data-period-name="${escapeHtml(period.name)}">Tutup periode</button>`
           : '<span class="status status-closed">Ditutup</span>';
@@ -876,7 +898,7 @@ function renderAdminView(name) {
     const periodSummary = assignments.length
       ? `<span><strong>Dipakai di ${assignments.length} periode</strong><small>Target dan status diatur dari Periode LKS.</small></span>`
       : '<span><small>Belum digunakan di periode mana pun.</small></span>';
-    return `<div class="admin-record-row activity-record-row" role="row"><span role="cell"><strong>${escapeHtml(activity.name)}</strong><small>${escapeHtml(activity.code)} · ${activity.is_active ? 'Aktif' : 'Nonaktif'}</small></span><span class="activity-period-summary" role="cell">${periodSummary}</span><span role="cell"><button class="text-button organization-row-action" type="button" data-open-admin-modal="activity-edit" data-activity-id="${escapeHtml(activity.id)}">Edit</button><button class="text-button organization-row-action" type="button" data-go="periods">Atur periode</button>${assignments.length === 0 ? `<button class="text-button organization-row-action" type="button" data-delete-resource="activity" data-resource-id="${escapeHtml(activity.id)}" data-resource-name="${escapeHtml(activity.name)}" data-confirm-phrase="${escapeHtml(activity.code)}">Hapus</button>` : ''}</span></div>`;
+    return `<div class="admin-record-row activity-record-row" role="row"><span role="cell"><strong>${escapeHtml(activity.name)}</strong><small>${escapeHtml(activity.code)} · ${activity.is_active ? 'Aktif' : 'Nonaktif'}</small></span><span class="activity-period-summary" role="cell">${periodSummary}</span><span role="cell"><button class="text-button organization-row-action" type="button" data-open-admin-modal="activity-edit" data-activity-id="${escapeHtml(activity.id)}">Edit</button><button class="text-button organization-row-action" type="button" data-go="periods">Atur periode</button>${assignments.length === 0 ? `<button class="text-button organization-row-action" type="button" data-delete-resource="activity" data-resource-id="${escapeHtml(activity.id)}" data-resource-name="${escapeHtml(activity.name)}">Hapus</button>` : ''}</span></div>`;
   }).join('');
   const activityContent = !showActivityEmpty
     ? `<section class="admin-record-section" aria-labelledby="activity-list-title"><div class="organization-section-head"><div><h3 id="activity-list-title">Daftar Aktivitas</h3><p>${hasActivitySearch ? `${activityMeta.total} aktivitas ditemukan.` : `${activityMeta.total} aktivitas master tersimpan.`}</p></div></div><form class="admin-list-search" data-admin-list-search="activities"><label class="sr-only" for="activity-search">Cari aktivitas LKS</label><input id="activity-search" name="search" value="${escapeHtml(adminListState.activities.search)}" placeholder="Cari nama atau kode aktivitas" autocomplete="off"></form>${configuration.activities.length ? `<div class="admin-record-table activity-record-table" role="table" aria-label="Daftar aktivitas LKS"><div class="admin-record-head" role="row"><span role="columnheader">Aktivitas</span><span role="columnheader">Pemakaian</span><span role="columnheader">Aksi</span></div>${activityRows}</div>${paginationControls(activityMeta, 'activities')}` : '<p class="admin-empty">Tidak ada aktivitas yang sesuai dengan pencarian.</p>'}${drafts.length ? '<p class="admin-context-note">Gunakan “Tambahkan ke periode” untuk menetapkan target pertama kali. Untuk mengubah target atau status aktif, buka periode draft lalu pilih “Atur aktivitas”.</p>' : '<p class="admin-context-note">Buat periode draft terlebih dahulu sebelum memasukkan aktivitas ke periode.</p>'}</section>`
@@ -1208,7 +1230,7 @@ document.addEventListener('click', async (event) => {
     const viewByResource = { department: 'organization', team: 'organization', santri: 'people', activity: 'activities', period: 'periods' };
     const endpoints = { department: 'departments', team: 'teams', santri: 'santri', activity: 'activities', period: 'periods' };
     const label = labels[resource];
-    const confirmed = await confirmAction({ title: `Hapus ${label}?`, message: `${deletion.dataset.resourceName} akan dihapus permanen. Tindakan ini hanya berhasil bila data belum memiliki riwayat pemakaian.`, confirmLabel: `Hapus ${label}`, tone: 'danger', requireText: deletion.dataset.confirmPhrase });
+    const confirmed = await confirmAction({ title: `Hapus ${label}?`, message: `${deletion.dataset.resourceName} akan dihapus permanen. Tindakan ini hanya berhasil bila data belum memiliki riwayat pemakaian.`, confirmLabel: `Hapus ${label}`, tone: 'danger' });
     if (!confirmed) return;
     setButtonBusy(deletion, true, 'Menghapus…');
     try {

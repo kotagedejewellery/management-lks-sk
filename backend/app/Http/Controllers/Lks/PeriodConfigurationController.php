@@ -9,6 +9,7 @@ use App\Models\LksPeriod;
 use App\Models\PeriodActivity;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -111,7 +112,7 @@ class PeriodConfigurationController extends Controller
         return response()->json(['data' => $activity->refresh()]);
     }
 
-    public function destroyPeriod(Request $request, LksPeriod $period): JsonResponse
+    public function destroyPeriod(Request $request, LksPeriod $period): Response
     {
         $this->ensureAdmin($request);
         if ($period->status !== 'draft') {
@@ -131,7 +132,7 @@ class PeriodConfigurationController extends Controller
         return response()->noContent();
     }
 
-    public function destroyActivity(Request $request, LksActivity $activity): JsonResponse
+    public function destroyActivity(Request $request, LksActivity $activity): Response
     {
         $this->ensureAdmin($request);
         if ($activity->periodActivities()->exists()) {
