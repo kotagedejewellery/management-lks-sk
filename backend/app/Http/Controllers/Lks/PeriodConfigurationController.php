@@ -60,7 +60,34 @@ class PeriodConfigurationController extends Controller
         ]);
         $data['created_by'] = $request->user()->getKey();
 
-        return response()->json(['data' => LksPeriod::create($data)], 201);
+        $period = DB::transaction(function () use ($data): LksPeriod {
+            $period = LksPeriod::create($data);
+
+            LksActivity::query()
+                ->where('is_active', true)
+                ->whereNotNull('default_target_count')
+                ->orderBy('sort_order')
+                ->each(function (LksActivity $activity) use ($period): void {
+                    PeriodActivity::create([
+                        'period_id' => $period->getKey(),
+                        'activity_id' => $activity->getKey(),
+                        'activity_code_snapshot' => $activity->code,
+                        'activity_name_snapshot' => $activity->name,
+                        'target_count' => $activity->default_target_count,
+                        'minimum_target_count' => $activity->default_minimum_target_count,
+                        'max_per_week' => $activity->default_max_per_week,
+                        'allowed_weekdays' => $activity->default_allowed_weekdays,
+                        'applicable_genders' => $activity->default_applicable_genders,
+                        'applicable_levels' => $activity->default_applicable_levels,
+                        'weight' => 1,
+                        'sort_order' => $activity->sort_order,
+                    ]);
+                });
+
+            return $period;
+        });
+
+        return response()->json(['data' => $period->load('periodActivities')], 201);
     }
 
     public function storeActivity(Request $request): JsonResponse
@@ -158,10 +185,18 @@ class PeriodConfigurationController extends Controller
         $data = $request->validate([
             'activity_id' => ['required', 'uuid', 'exists:lks_activities,id'],
             'target_count' => ['required', 'integer', 'min:1'],
+            'minimum_target_count' => ['nullable', 'integer', 'min:1'],
+            'max_per_week' => ['nullable', 'integer', 'min:1'],
             'allowed_weekdays' => ['nullable', 'array'],
             'allowed_weekdays.*' => ['integer', 'between:1,7', 'distinct'],
+            'applicable_genders' => ['nullable', 'array', 'min:1'],
+            'applicable_genders.*' => ['in:ikhwan,akhwat', 'distinct'],
+            'applicable_levels' => ['nullable', 'array', 'min:1'],
+            'applicable_levels.*' => ['in:leader,staff', 'distinct'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:32767'],
         ]);
+        $data['minimum_target_count'] ??= $data['target_count'];
+        $this->ensureMinimumDoesNotExceedTarget($data['minimum_target_count'], $data['target_count']);
         $activity = LksActivity::query()->findOrFail($data['activity_id']);
 
         if ($period->periodActivities()->where('activity_code_snapshot', $activity->code)->exists()) {
@@ -174,8 +209,16 @@ class PeriodConfigurationController extends Controller
             'activity_code_snapshot' => $activity->code,
             'activity_name_snapshot' => $activity->name,
             'target_count' => $data['target_count'],
+            'minimum_target_count' => $data['minimum_target_count'],
+            'max_per_week' => $data['max_per_week'] ?? null,
             'allowed_weekdays' => isset($data['allowed_weekdays'])
                 ? '{'.implode(',', $data['allowed_weekdays']).'}'
+                : null,
+            'applicable_genders' => isset($data['applicable_genders'])
+                ? '{'.implode(',', $data['applicable_genders']).'}'
+                : null,
+            'applicable_levels' => isset($data['applicable_levels'])
+                ? '{'.implode(',', $data['applicable_levels']).'}'
                 : null,
             'weight' => 1,
             'sort_order' => $data['sort_order'] ?? 0,
@@ -195,9 +238,15 @@ class PeriodConfigurationController extends Controller
             'activities' => ['required', 'array', 'min:1'],
             'activities.*.id' => ['required', 'uuid', 'distinct'],
             'activities.*.target_count' => ['required', 'integer', 'min:1'],
+            'activities.*.minimum_target_count' => ['required', 'integer', 'min:1'],
+            'activities.*.max_per_week' => ['nullable', 'integer', 'min:1'],
             'activities.*.is_active' => ['required', 'boolean'],
             'activities.*.allowed_weekdays' => ['nullable', 'array'],
             'activities.*.allowed_weekdays.*' => ['integer', 'between:1,7', 'distinct'],
+            'activities.*.applicable_genders' => ['required', 'array', 'min:1'],
+            'activities.*.applicable_genders.*' => ['in:ikhwan,akhwat', 'distinct'],
+            'activities.*.applicable_levels' => ['required', 'array', 'min:1'],
+            'activities.*.applicable_levels.*' => ['in:leader,staff', 'distinct'],
         ]);
 
         $periodActivities = $period->periodActivities()->whereIn('id', collect($data['activities'])->pluck('id'))->get()->keyBy('id');
@@ -207,17 +256,26 @@ class PeriodConfigurationController extends Controller
         $before = $periodActivities->map(fn (PeriodActivity $activity) => [
             'id' => $activity->getKey(),
             'target_count' => $activity->target_count,
+            'minimum_target_count' => $activity->minimum_target_count,
+            'max_per_week' => $activity->max_per_week,
             'is_active' => $activity->is_active,
             'allowed_weekdays' => $activity->allowedWeekdays(),
+            'applicable_genders' => $activity->applicableGenders(),
+            'applicable_levels' => $activity->applicableLevels(),
         ])->values()->all();
 
         foreach ($data['activities'] as $activity) {
+            $this->ensureMinimumDoesNotExceedTarget($activity['minimum_target_count'], $activity['target_count']);
             $periodActivities[$activity['id']]->update([
                 'target_count' => $activity['target_count'],
+                'minimum_target_count' => $activity['minimum_target_count'],
+                'max_per_week' => $activity['max_per_week'] ?? null,
                 'is_active' => $activity['is_active'],
                 'allowed_weekdays' => isset($activity['allowed_weekdays'])
                     ? '{'.implode(',', $activity['allowed_weekdays']).'}'
                     : null,
+                'applicable_genders' => '{'.implode(',', $activity['applicable_genders']).'}',
+                'applicable_levels' => '{'.implode(',', $activity['applicable_levels']).'}',
             ]);
         }
 
@@ -247,5 +305,12 @@ class PeriodConfigurationController extends Controller
     private function ensureAdmin(Request $request): void
     {
         abort_unless($request->user()?->isAdmin(), 403);
+    }
+
+    private function ensureMinimumDoesNotExceedTarget(int $minimum, int $target): void
+    {
+        if ($minimum > $target) {
+            throw ValidationException::withMessages(['minimum_target_count' => 'Target minimal tidak boleh melebihi target periode.']);
+        }
     }
 }

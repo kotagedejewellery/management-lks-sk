@@ -70,6 +70,7 @@ class DashboardController extends Controller
             ->where('is_active', true)
             ->orderBy('sort_order')
             ->get()
+            ->filter(fn ($activity) => $participant === null || $activity->appliesTo($participant))
             ->map(function ($activity) use ($participant): array {
                 $checklist = $participant?->checklists->firstWhere('period_activity_id', $activity->getKey());
 
@@ -78,6 +79,8 @@ class DashboardController extends Controller
                     'code' => $activity->activity_code_snapshot,
                     'name' => $activity->activity_name_snapshot,
                     'target_count' => $activity->target_count,
+                    'minimum_target_count' => $activity->minimum_target_count,
+                    'max_per_week' => $activity->max_per_week,
                     'is_completed' => $checklist?->is_completed ?? false,
                     'allowed_weekdays' => $activity->allowedWeekdays(),
                 ];
@@ -91,6 +94,7 @@ class DashboardController extends Controller
                 'name' => $period->name,
                 'start_date' => $period->start_date->toDateString(),
                 'end_date' => $period->end_date->toDateString(),
+                'group_achievement_threshold' => $period->group_achievement_threshold,
                 'is_open' => true,
             ],
             'participant' => $participant === null ? null : [

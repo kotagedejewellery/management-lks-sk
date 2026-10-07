@@ -202,7 +202,7 @@ function renderFullCheck(activity) {
   const complete = activity.is_completed ?? activity.is_completed_today;
   return `<div class="checklist-item${complete ? ' is-done' : ''}">
     <button class="square-check" data-activity-id="${escapeHtml(activity.id)}" aria-label="${complete ? 'Batalkan catatan' : 'Catat'} ${escapeHtml(activity.name)}" aria-pressed="${complete}">${checkIcon()}</button>
-    <div><strong>${escapeHtml(activity.name)}</strong><small>Target periode: ${escapeHtml(activity.target_count)} kali</small></div>
+    <div><strong>${escapeHtml(activity.name)}</strong><small>${escapeHtml(activityRuleLabel(activity))}</small></div>
     <span class="item-note">${complete ? 'Dicatat' : 'Belum dicatat'}</span>
   </div>`;
 }
@@ -360,7 +360,7 @@ function statusBadge(status) {
 function renderActivityProgress(activity) {
   const progress = Math.min(Math.max(Number(activity.percentage) || 0, 0), 100);
   const complete = activity.status === 'tuntas';
-  return `<article class="activity-row"><div class="activity-name"><span class="activity-dot${complete ? ' completed' : ''}"></span><strong>${escapeHtml(activity.name)}</strong><small>${escapeHtml(activity.completed_count)} dari target ${escapeHtml(activity.target_count)} kali</small></div><div class="activity-track"><span style="width:${progress}%"></span></div><strong class="activity-value">${percentage(progress)}</strong>${statusBadge(activity.status)}</article>`;
+  return `<article class="activity-row"><div class="activity-name"><span class="activity-dot${complete ? ' completed' : ''}"></span><strong>${escapeHtml(activity.name)}</strong><small>${escapeHtml(activity.completed_count)} dari ${escapeHtml(activity.target_count)} kali · tuntas mulai ${escapeHtml(activity.minimum_target_count)} kali</small></div><div class="activity-track"><span style="width:${progress}%"></span></div><strong class="activity-value">${percentage(progress)}</strong>${statusBadge(activity.status)}</article>`;
 }
 
 function renderPersonalSummary(personal) {
@@ -493,6 +493,12 @@ function renderRecapViews() {
   const periodOptions = recapPeriods.map((item) => `<option value="${escapeHtml(item.id)}"${item.id === period.id ? ' selected' : ''}>${escapeHtml(item.name)}${item.status === 'closed' ? ' · Ditutup' : ' · Aktif'}</option>`).join('');
 
   recapPanel.innerHTML = `<div class="page-intro recap-intro"><div><h2>Perkembangan anggota</h2><p>${escapeHtml(period.name)} · ${summary.participant_count} peserta dalam cakupan akses Anda.</p></div><label class="report-period-control">Periode<select data-recap-period>${periodOptions}</select></label></div><div class="filter-bar"><label class="search-field"><svg aria-hidden="true"><use href="#icon-search"/></svg><span class="sr-only">Cari anggota</span><input id="member-search" type="search" aria-label="Cari anggota" placeholder="Cari nama anggota" /></label><button class="filter-pill is-on" type="button" data-recap-filter="all">Semua status</button><button class="filter-pill" type="button" data-recap-filter="belum_tuntas">Belum tuntas</button><button class="filter-pill" type="button" data-recap-filter="tuntas">Tuntas</button><button class="filter-pill is-on" type="button" data-recap-gender="all">Semua gender</button><button class="filter-pill" type="button" data-recap-gender="ikhwan">Ikhwan</button><button class="filter-pill" type="button" data-recap-gender="akhwat">Akhwat</button></div><section class="recap-table" aria-label="Rekap anggota"><div class="table-head"><span>Santri Karya</span><span>Departemen</span><span>Nilai</span><span>Status</span><span>${canCorrect ? 'Aksi' : ''}</span></div><div id="recap-rows">${recapRows || '<p class="empty-search">Belum ada peserta pada periode ini.</p>'}</div></section><p class="empty-search" id="empty-search" hidden>Tidak ada anggota yang sesuai dengan pencarian atau filter tersebut.</p>`;
+
+  if (viewer?.roles?.some((role) => role === 'admin' || role === 'leader')) {
+    const threshold = Number(period.group_achievement_threshold ?? 85);
+    const recommendation = summary.group_status === 'achieve' ? 'ACHIEVE' : 'NOT ACHIEVE';
+    recapPanel.querySelector('.recap-intro p').textContent += ` Rekomendasi kelompok: ${recommendation} (ambang ${threshold}%).`;
+  }
 
   if (!viewer?.roles?.includes('admin')) {
     departmentPanel.innerHTML = `<div class="page-intro"><div><h2>Capaian departemen</h2><p>Ringkasan lintas departemen tersedia untuk Admin.</p></div></div><p class="empty-search">Gunakan akun Admin untuk melihat perbandingan capaian tiap departemen.</p>`;
@@ -822,6 +828,30 @@ function weekdayPicker(selected = []) {
   return `<fieldset class="weekday-picker"><legend>Jadwal pencatatan</legend><small>Kosongkan semua bila aktivitas dapat dicatat setiap hari.</small><span>${days.map(([value, label]) => `<label><input type="checkbox" name="allowed_weekdays" value="${value}"${activeDays.includes(value) ? ' checked' : ''}> ${label}</label>`).join('')}</span></fieldset>`;
 }
 
+function ruleList(value, fallback) {
+  if (Array.isArray(value)) return value.map(String);
+  if (typeof value !== 'string' || value === '') return fallback;
+  return value.replace(/[{}]/g, '').split(',').filter(Boolean);
+}
+
+function activityRuleLabel(activity) {
+  const minimum = activity.minimum_target_count ?? activity.target_count;
+  const weekly = activity.max_per_week ? ` · maksimal ${activity.max_per_week} kali/pekan` : '';
+  return `Target ${minimum}–${activity.target_count} kali${weekly}`;
+}
+
+function activityAudience(activity) {
+  const genders = ruleList(activity.applicable_genders_list ?? activity.applicable_genders, ['ikhwan', 'akhwat']).map((value) => value === 'ikhwan' ? 'Ikhwan' : 'Akhwat').join(', ');
+  const levels = ruleList(activity.applicable_levels_list ?? activity.applicable_levels, ['leader', 'staff']).map((value) => value === 'leader' ? 'Leader' : 'Staff').join(', ');
+  return `${genders} · ${levels}`;
+}
+
+function audiencePicker(genders = ['ikhwan', 'akhwat'], levels = ['leader', 'staff']) {
+  const selectedGenders = ruleList(genders, ['ikhwan', 'akhwat']);
+  const selectedLevels = ruleList(levels, ['leader', 'staff']);
+  return `<fieldset class="activity-audience-picker"><legend>Berlaku untuk</legend><span><label><input type="checkbox" name="applicable_genders" value="ikhwan"${selectedGenders.includes('ikhwan') ? ' checked' : ''}> Ikhwan</label><label><input type="checkbox" name="applicable_genders" value="akhwat"${selectedGenders.includes('akhwat') ? ' checked' : ''}> Akhwat</label></span><span><label><input type="checkbox" name="applicable_levels" value="leader"${selectedLevels.includes('leader') ? ' checked' : ''}> Leader</label><label><input type="checkbox" name="applicable_levels" value="staff"${selectedLevels.includes('staff') ? ' checked' : ''}> Staff</label></span></fieldset>`;
+}
+
 function paginationControls(meta, list) {
   if (!meta || meta.last_page <= 1) return '';
   const from = ((meta.current_page - 1) * meta.per_page) + 1;
@@ -910,6 +940,10 @@ function renderAdminView(name) {
       ? `<section class="admin-record-section period-participant-section" aria-labelledby="participant-list-title"><div class="organization-section-head"><div><h3 id="participant-list-title">Peserta periode</h3><p>${participantMeta.total} peserta terdaftar pada ${escapeHtml(period.name)}.</p></div><button class="primary-button" type="button" data-open-admin-modal="participant" data-period-id="${escapeHtml(period.id)}">Tambah peserta</button></div><p class="admin-context-note">Peserta baru dapat mencatat sejak dimasukkan. Peserta tanpa checklist masih dapat dikeluarkan.</p><form class="admin-list-search" data-admin-list-search="participants"><label class="sr-only" for="participant-search">Cari peserta periode</label><input id="participant-search" name="search" value="${escapeHtml(adminListState.participants.search)}" placeholder="Cari nama, tim, atau departemen" autocomplete="off"></form>${participantData.participants.length ? `<div class="admin-record-table participant-record-table" role="table" aria-label="Peserta ${escapeHtml(period.name)}"><div class="admin-record-head" role="row"><span role="columnheader">Santri Karya</span><span role="columnheader">Penempatan</span><span role="columnheader">Checklist</span><span role="columnheader">Aksi</span></div>${participantRows}</div>${paginationControls(participantMeta, 'participants')}` : `<p class="admin-empty">${adminListState.participants.search ? 'Tidak ada peserta yang sesuai dengan pencarian.' : 'Belum ada peserta pada periode ini.'}</p>`}</section>`
       : '';
     panel.innerHTML = adminPanel(`Kelola periode · ${period.name}`, 'Tinjau konfigurasi dan kelola peserta pada periode ini.', `<nav class="admin-back-link" aria-label="Navigasi pengaturan"><button class="text-button" type="button" data-go="periods">Kembali ke daftar periode</button></nav><section class="period-overview"><div><span class="status status-${escapeHtml(period.status === 'active' ? 'active' : period.status === 'closed' ? 'closed' : 'waiting')}">${escapeHtml(period.status === 'active' ? 'Aktif' : period.status === 'closed' ? 'Ditutup' : 'Draft')}</span><h3>${escapeHtml(period.name)}</h3><p>${escapeHtml(formatDate(period.start_date, true))} — ${escapeHtml(formatDate(period.end_date, true))}</p></div><dl><div><dt>Batas tuntas</dt><dd>${escapeHtml(period.final_passing_threshold)}%</dd></div><div><dt>Aktivitas aktif</dt><dd>${activities.filter((activity) => activity.is_active).length}</dd></div><div><dt>Peserta</dt><dd>${period.status === 'active' ? participantMeta.total : '—'}</dd></div></dl><div class="period-overview-action">${lifecycleAction}</div></section><section class="period-activity-summary" aria-labelledby="period-activity-title"><div class="organization-section-head"><div><h3 id="period-activity-title">Aktivitas periode</h3><p>Konfigurasi aktivitas terkunci setelah periode diaktifkan.</p></div></div>${activityRows ? `<ul>${activityRows}</ul>` : '<p class="admin-empty">Belum ada aktivitas pada periode ini.</p>'}</section>${participantSection}`, '', true);
+    document.querySelectorAll('.period-activity-summary li span').forEach((summary, index) => {
+      const activity = activities[index];
+      summary.textContent = `${activityRuleLabel(activity)} · ${activityAudience(activity)} · ${activity.is_active ? 'Aktif' : 'Nonaktif'}`;
+    });
     return;
   }
   if (name === 'periods') {
@@ -1047,10 +1081,21 @@ async function submitAdminForm(form) {
   if (type === 'period-config') {
     endpoint = `/admin/periods/${form.dataset.periodId}/activities`;
     method = 'PATCH';
-    payload = { activities: [...form.querySelectorAll('[data-period-activity-id]')].map((row) => ({ id: row.dataset.periodActivityId, target_count: Number(row.querySelector('[data-target-count]').value), is_active: row.querySelector('[data-is-active]').checked, allowed_weekdays: [...row.querySelectorAll('[name="allowed_weekdays"]:checked')].map((input) => Number(input.value)) })) };
+    payload = { activities: [...form.querySelectorAll('[data-period-activity-id]')].map((row) => ({
+      id: row.dataset.periodActivityId,
+      target_count: Number(row.querySelector('[data-target-count]').value),
+      minimum_target_count: Number(row.querySelector('[data-minimum-target-count]').value),
+      max_per_week: row.querySelector('[data-max-per-week]').value === '' ? null : Number(row.querySelector('[data-max-per-week]').value),
+      is_active: row.querySelector('[data-is-active]').checked,
+      allowed_weekdays: [...row.querySelectorAll('[name="allowed_weekdays"]:checked')].map((input) => Number(input.value)),
+      applicable_genders: [...row.querySelectorAll('[name="applicable_genders"]:checked')].map((input) => input.value),
+      applicable_levels: [...row.querySelectorAll('[name="applicable_levels"]:checked')].map((input) => input.value),
+    })) };
   }
   if (type === 'period-activity') {
     payload.allowed_weekdays = [...form.querySelectorAll('[name="allowed_weekdays"]:checked')].map((input) => Number(input.value));
+    payload.applicable_genders = [...form.querySelectorAll('[name="applicable_genders"]:checked')].map((input) => input.value);
+    payload.applicable_levels = [...form.querySelectorAll('[name="applicable_levels"]:checked')].map((input) => input.value);
   }
   if (type === 'period-activity' || type === 'participant') { delete payload.period_id; delete payload.profile_id; }
   if (['final_passing_threshold', 'sort_order', 'target_count'].some((key) => key in payload)) Object.keys(payload).forEach((key) => { if (['final_passing_threshold', 'sort_order', 'target_count'].includes(key)) payload[key] = Number(payload[key]); });
@@ -1239,6 +1284,14 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
       fields: `<input type="hidden" name="period_id" value="${escapeHtml(selectedParticipantPeriod?.id ?? '')}"><label>Santri Karya<select name="profile_id" required>${adminOptions(availableParticipants)}</select></label><p class="admin-form-note">Pilih akun yang dibuat setelah periode aktif dimulai atau yang belum tercatat sebagai peserta.</p>`,
     },
   };
+  if (type === 'period-activity') {
+    definitions['period-activity'].fields = `<label>Periode draft<select name="period_id" required>${adminOptions(drafts)}</select></label><label>Aktivitas<select name="activity_id" required>${adminOptions(activeActivityOptions)}</select></label><div class="admin-modal-inline-fields"><label>Target maksimum<input type="number" name="target_count" min="1" required></label><label>Target minimal tuntas<input type="number" name="minimum_target_count" min="1" required></label></div><label>Maksimal per pekan<input type="number" name="max_per_week" min="1"><small>Kosongkan bila tidak ada batas mingguan.</small></label>${weekdayPicker()}${audiencePicker()}`;
+    definitions['period-activity'].description = 'Tentukan target maksimum, batas tuntas, jadwal, dan sasaran aktivitas pada periode draft.';
+  }
+  if (type === 'period-config' && configuredPeriod) {
+    definitions['period-config'].fields = `<div class="period-config-list">${configuredPeriod.period_activities.map((activity) => `<fieldset class="period-config-row" data-period-activity-id="${escapeHtml(activity.id)}"><div><strong>${escapeHtml(activity.activity_name_snapshot)}</strong><small>Nilai berdasarkan checklist ÷ target maksimum, dibatasi 100%. Tuntas saat target minimal tercapai.</small></div><label>Target maksimum<input type="number" min="1" value="${activity.target_count}" data-target-count required></label><label>Target minimal<input type="number" min="1" max="${activity.target_count}" value="${activity.minimum_target_count ?? activity.target_count}" data-minimum-target-count required></label><label>Maksimal per pekan<input type="number" min="1" value="${activity.max_per_week ?? ''}" data-max-per-week><small>Kosongkan bila tidak dibatasi.</small></label><label class="admin-modal-checkbox"><input type="checkbox" data-is-active${activity.is_active ? ' checked' : ''}> Aktif</label><div class="period-weekday-control">${weekdayPicker(activity.allowed_weekdays)}</div>${audiencePicker(activity.applicable_genders_list ?? activity.applicable_genders, activity.applicable_levels_list ?? activity.applicable_levels)}</fieldset>`).join('') || '<p class="admin-form-note">Tambahkan aktivitas ke periode ini terlebih dahulu dari halaman Aktivitas LKS.</p>'}</div>`;
+    definitions['period-config'].description = `Nilai aktivitas dibatasi 100%. Nilai akhir adalah rata-rata aktivitas yang berlaku untuk peserta; batas tuntas individu ${configuredPeriod.final_passing_threshold}%.`;
+  }
   const definition = definitions[type];
   if (!definition) return;
   const disableSubmit = (type === 'period-config' && configuredPeriod.period_activities.length === 0) || (type === 'participant' && (!selectedParticipantPeriod || availableParticipants.length === 0));

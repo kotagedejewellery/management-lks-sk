@@ -11,9 +11,12 @@ class PeriodActivity extends Model
 {
     use HasUuids;
 
+    protected $appends = ['applicable_genders_list', 'applicable_levels_list'];
+
     protected $fillable = [
         'period_id', 'activity_id', 'activity_code_snapshot', 'activity_name_snapshot',
-        'target_count', 'weight', 'allowed_weekdays', 'is_active', 'sort_order',
+        'target_count', 'minimum_target_count', 'max_per_week', 'weight', 'allowed_weekdays',
+        'applicable_genders', 'applicable_levels', 'is_active', 'sort_order',
     ];
 
     protected function casts(): array
@@ -49,5 +52,47 @@ class PeriodActivity extends Model
         return $this->allowed_weekdays === null
             ? []
             : array_map('intval', array_filter(explode(',', trim((string) $this->allowed_weekdays, '{}'))));
+    }
+
+    /** @return list<string> */
+    public function applicableGenders(): array
+    {
+        return $this->stringArray($this->applicable_genders, ['ikhwan', 'akhwat']);
+    }
+
+    /** @return list<string> */
+    public function applicableLevels(): array
+    {
+        return $this->stringArray($this->applicable_levels, ['leader', 'staff']);
+    }
+
+    public function appliesTo(PeriodParticipantSnapshot $participant): bool
+    {
+        return in_array($participant->gender_snapshot, $this->applicableGenders(), true)
+            && in_array($participant->level_snapshot, $this->applicableLevels(), true);
+    }
+
+    /** @return list<string> */
+    public function getApplicableGendersListAttribute(): array
+    {
+        return $this->applicableGenders();
+    }
+
+    /** @return list<string> */
+    public function getApplicableLevelsListAttribute(): array
+    {
+        return $this->applicableLevels();
+    }
+
+    /** @param array<int, string> $fallback
+     *  @return list<string>
+     */
+    private function stringArray(mixed $value, array $fallback): array
+    {
+        if (is_array($value)) {
+            return array_values($value);
+        }
+
+        return $value === null ? $fallback : array_values(array_filter(explode(',', trim((string) $value, '{}'))));
     }
 }

@@ -42,13 +42,15 @@ class RecapController extends Controller
                 'start_date' => $period->start_date->toDateString(),
                 'end_date' => $period->end_date->toDateString(),
                 'closed_at' => $period->closed_at?->toIso8601String(),
+                'group_achievement_threshold' => $period->group_achievement_threshold,
             ],
             'participants' => $scores->values(),
             'summary' => [
                 'participant_count' => $scores->count(),
                 'average_percentage' => round($scores->avg('final_percentage') ?? 0, 2),
                 'tuntas_count' => $scores->where('final_status', 'tuntas')->count(),
-                'departments' => $viewer->isAdmin() ? $calculator->departmentSummary($scores) : [],
+                'group_status' => ($scores->avg('final_percentage') ?? 0) >= (float) $period->group_achievement_threshold ? 'achieve' : 'not_achieve',
+                'departments' => $viewer->isAdmin() ? $calculator->departmentSummary($scores, (float) $period->group_achievement_threshold) : [],
             ],
         ]]);
     }
@@ -72,7 +74,7 @@ class RecapController extends Controller
                         'start_date' => $period->start_date->toDateString(),
                         'end_date' => $period->end_date->toDateString(),
                     ],
-                    'departments' => $calculator->departmentSummary($scores)->values(),
+                    'departments' => $calculator->departmentSummary($scores, (float) $period->group_achievement_threshold)->values(),
                 ];
             })
             ->values();

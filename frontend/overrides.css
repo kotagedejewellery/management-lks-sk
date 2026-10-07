@@ -216,6 +216,10 @@
 .period-config-row small { display: block; margin-top: 4px; color: var(--ink-soft, #53645a); font-size: 12px; line-height: 1.45; }
 .period-config-row label { min-width: 0; }
 .period-config-row .admin-modal-checkbox { align-self: end; margin-bottom: 10px; white-space: nowrap; }
+.activity-audience-picker { display: grid; gap: 7px; margin: 0; padding: 0; border: 0; }
+.activity-audience-picker > span { display: flex; flex-wrap: wrap; gap: 12px; }
+.activity-audience-picker label { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }
+.period-config-row .activity-audience-picker, .period-config-row .period-weekday-control { grid-column: 1 / -1; }
 .period-record-row > span:last-child { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 10px; }
 .status-closed { color: var(--ink-soft, #53645a); background: transparent; border: 1px solid var(--line-dark, #c5d0c8); }
 .history-layout { display: grid; grid-template-columns: minmax(220px, .8fr) minmax(0, 1.6fr); gap: 34px; margin-top: 28px; border-top: 1px solid var(--line-dark, #c5d0c8); }

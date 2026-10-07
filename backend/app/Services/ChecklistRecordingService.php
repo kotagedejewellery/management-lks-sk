@@ -30,7 +30,7 @@ class ChecklistRecordingService
             $activity = PeriodActivity::query()->lockForUpdate()->findOrFail($activity->getKey());
             $date = Carbon::parse($checklistDate)->startOfDay();
 
-            $this->validateRecord($participant, $activity, $date);
+            $this->validateRecord($participant, $activity, $date, $isCompleted);
 
             $checklist = LksChecklist::query()
                 ->where('period_participant_id', $participant->getKey())
@@ -79,7 +79,7 @@ class ChecklistRecordingService
         }
     }
 
-    private function validateRecord(PeriodParticipantSnapshot $participant, PeriodActivity $activity, Carbon $date): void
+    private function validateRecord(PeriodParticipantSnapshot $participant, PeriodActivity $activity, Carbon $date, bool $isCompleted): void
     {
         $period = $participant->period;
 
@@ -98,6 +98,24 @@ class ChecklistRecordingService
         $allowedWeekdays = $activity->allowedWeekdays();
         if ($allowedWeekdays !== [] && ! in_array($date->isoWeekday(), $allowedWeekdays, true)) {
             throw ValidationException::withMessages(['checklist_date' => 'Aktivitas tidak dijadwalkan pada hari tersebut.']);
+        }
+
+        if (! $activity->appliesTo($participant)) {
+            throw ValidationException::withMessages(['checklist' => 'Aktivitas ini tidak berlaku untuk kategori peserta tersebut.']);
+        }
+
+        if ($isCompleted && $activity->max_per_week !== null) {
+            $weeklyCount = LksChecklist::query()
+                ->where('period_participant_id', $participant->getKey())
+                ->where('period_activity_id', $activity->getKey())
+                ->where('is_completed', true)
+                ->whereBetween('checklist_date', [$date->copy()->startOfWeek(), $date->copy()->endOfWeek()])
+                ->whereDate('checklist_date', '!=', $date)
+                ->count();
+
+            if ($weeklyCount >= $activity->max_per_week) {
+                throw ValidationException::withMessages(['checklist' => 'Batas pencatatan aktivitas untuk pekan ini sudah tercapai.']);
+            }
         }
     }
 

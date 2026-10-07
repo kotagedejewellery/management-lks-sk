@@ -16,7 +16,9 @@ class LksScoreCalculator
         $activities = $participant->period->periodActivities()
             ->where('is_active', true)
             ->orderBy('sort_order')
-            ->get();
+            ->get()
+            ->filter(fn ($activity) => $activity->appliesTo($participant))
+            ->values();
         $completed = LksChecklist::query()
             ->where('period_participant_id', $participant->getKey())
             ->where('is_completed', true)
@@ -38,9 +40,10 @@ class LksScoreCalculator
                 'id' => $activity->getKey(),
                 'name' => $activity->activity_name_snapshot,
                 'target_count' => $activity->target_count,
+                'minimum_target_count' => $activity->minimum_target_count,
                 'completed_count' => $count,
                 'percentage' => round($percentage, 2),
-                'status' => $count >= $activity->target_count ? 'tuntas' : 'belum_tuntas',
+                'status' => $count >= $activity->minimum_target_count ? 'tuntas' : 'belum_tuntas',
             ];
         })->values();
 
@@ -78,9 +81,9 @@ class LksScoreCalculator
     /** @param Collection<int, array<string, mixed>> $scores
      * @return Collection<int, array<string, mixed>>
      */
-    public function departmentSummary(Collection $scores): Collection
+    public function departmentSummary(Collection $scores, float $groupThreshold = 85): Collection
     {
-        return $scores->groupBy('department')->map(function (Collection $departmentScores, ?string $department): array {
+        return $scores->groupBy('department')->map(function (Collection $departmentScores, ?string $department) use ($groupThreshold): array {
             $average = $departmentScores->avg('final_percentage') ?? 0;
 
             return [
@@ -88,6 +91,7 @@ class LksScoreCalculator
                 'participant_count' => $departmentScores->count(),
                 'average_percentage' => round($average, 2),
                 'tuntas_count' => $departmentScores->where('final_status', 'tuntas')->count(),
+                'group_status' => $average >= $groupThreshold ? 'achieve' : 'not_achieve',
             ];
         })->values();
     }

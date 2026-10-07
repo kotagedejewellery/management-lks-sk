@@ -10,7 +10,11 @@ class LksActivity extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['code', 'name', 'description', 'is_active', 'sort_order'];
+    protected $fillable = [
+        'code', 'name', 'description', 'default_target_count', 'default_minimum_target_count',
+        'default_max_per_week', 'default_allowed_weekdays', 'default_applicable_genders',
+        'default_applicable_levels', 'is_active', 'sort_order',
+    ];
 
     protected function casts(): array
     {
