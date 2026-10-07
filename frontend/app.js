@@ -23,6 +23,7 @@ let historyData = null;
 let historyRecapData = null;
 let recapPeriods = [];
 let departmentTrendData = [];
+let selectedReportDimension = 'department';
 let selectedChecklistDate = todayIso();
 let activePeriodActivities = [];
 let accountData = null;
@@ -382,7 +383,7 @@ function renderPersonalSummary(personal) {
   const status = personal.final_status === 'tuntas' ? 'Tuntas' : 'Belum tuntas';
   const scoreBox = document.querySelector('.score-box');
   scoreBox.hidden = false;
-  scoreBox.innerHTML = `<span>Nilai sementara</span><strong>${score}</strong><small>${status}</small>`;
+  scoreBox.innerHTML = `<span>Nilai sementara</span><strong>${score}</strong><small>${status} · ambang ${percentage(personal.passing_threshold)}</small>`;
 
   const jobLevel = viewer.identity?.level === 'leader' ? 'Leader' : viewer.identity?.level === 'staff' ? 'Staff' : null;
   const details = [
@@ -409,15 +410,15 @@ function renderRoleDashboard() {
 
   if (role === 'leader') {
     const needingAttention = participants.filter((participant) => participant.final_status !== 'tuntas');
-    const rows = needingAttention.slice(0, 5).map((participant, index) => `<div class="member-row"><span class="person-initials tone-${['one', 'two', 'three', 'four'][index % 4]}">${escapeHtml(initials(participant.name))}</span><div><strong>${escapeHtml(participant.name)}</strong><small>${escapeHtml(participant.department ?? 'Tanpa departemen')} · ${percentage(participant.final_percentage)} capaian</small></div>${statusBadge(participant.final_status)}</div>`).join('');
+    const rows = needingAttention.slice(0, 5).map((participant, index) => `<div class="member-row"><span class="person-initials tone-${['one', 'two', 'three', 'four'][index % 4]}">${escapeHtml(initials(participant.name))}</span><div><strong>${escapeHtml(participant.name)}</strong><small>${escapeHtml(participant.department ?? 'Tanpa departemen')} · ${percentage(participant.final_percentage)} capaian · ambang ${percentage(participant.passing_threshold)}</small></div>${statusBadge(participant.final_status)}</div>`).join('');
     dashboard.innerHTML = `${dashboardNotice('Ringkasan anggota', `${period.name} · mulai dari anggota yang masih membutuhkan perhatian.`, '<button class="primary-button" type="button" data-go="recap">Buka rekap</button>')}<section class="leader-overview"><article><p>Anggota aktif</p><strong>${summary.participant_count}</strong><small>Dalam bimbingan Anda</small></article><article><p>Sudah tuntas</p><strong>${summary.tuntas_count}</strong><small>${summary.participant_count ? percentage((summary.tuntas_count / summary.participant_count) * 100) : '0%'} anggota</small></article><article><p>Perlu perhatian</p><strong>${needingAttention.length}</strong><small>Belum mencapai ambang tuntas</small></article></section><section class="priority-panel"><div class="section-head"><div><h2>Perlu perhatian</h2></div></div><div class="member-list">${rows || '<p class="muted">Semua anggota sudah tuntas pada periode ini.</p>'}</div></section>`;
     return;
   }
 
   if (role === 'admin') {
-    const departments = summary.departments ?? [];
-    const departmentRows = departments.map((department) => `<div><span>${escapeHtml(department.department)}</span><div class="bar-rail"><i style="width:${Math.min(Math.max(Number(department.average_percentage) || 0, 0), 100)}%"></i></div><strong>${percentage(department.average_percentage)}</strong></div>`).join('');
-    dashboard.innerHTML = `${dashboardNotice('Capaian LKS organisasi', `${period.name} · tinjau kondisi periode sebelum mengubah konfigurasi.`, '<button class="primary-button" type="button" data-go="settings">Kelola LKS</button>')}<section class="admin-metrics"><article><p>Peserta aktif</p><strong>${summary.participant_count}</strong><span>Peserta periode ini</span></article><article><p>Rata-rata capaian</p><strong>${percentage(summary.average_percentage)}</strong><span>Perhitungan periode aktif</span></article><article><p>Sudah tuntas</p><strong>${summary.tuntas_count}</strong><span>Peserta mencapai ambang</span></article><article><p>Belum tuntas</p><strong>${Math.max(summary.participant_count - summary.tuntas_count, 0)}</strong><span>Perlu tindak lanjut</span></article></section><section class="department-snapshot"><div class="section-head"><div><h2>Capaian departemen</h2></div><button class="text-button" type="button" data-go="department">Lihat laporan</button></div><div class="department-bars">${departmentRows || '<p class="muted">Belum ada data departemen pada periode ini.</p>'}</div></section>`;
+    const departments = [...(summary.departments ?? [])].sort((left, right) => Number(right.average_percentage) - Number(left.average_percentage));
+    const departmentRows = departments.map((department) => `<div class="dashboard-department-bar"><span><strong>${escapeHtml(department.department)}</strong><small>${escapeHtml(department.tuntas_count)} dari ${escapeHtml(department.participant_count)} tuntas</small></span><div class="bar-rail" role="progressbar" aria-label="Capaian ${escapeHtml(department.department)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(Math.max(Number(department.average_percentage) || 0, 0), 100)}"><i style="width:${Math.min(Math.max(Number(department.average_percentage) || 0, 0), 100)}%"></i></div><strong>${percentage(department.average_percentage)}</strong></div>`).join('');
+    dashboard.innerHTML = `${dashboardNotice('Capaian LKS organisasi', `${period.name} · tinjau kondisi periode sebelum mengubah konfigurasi.`, '<button class="primary-button" type="button" data-go="department">Buka laporan</button>')}<section class="admin-metrics"><article><p>Peserta aktif</p><strong>${summary.participant_count}</strong><span>Peserta periode ini</span></article><article><p>Rata-rata capaian</p><strong>${percentage(summary.average_percentage)}</strong><span>Perhitungan periode aktif</span></article><article><p>Sudah tuntas</p><strong>${summary.tuntas_count}</strong><span>Peserta mencapai ambang</span></article><article><p>Belum tuntas</p><strong>${Math.max(summary.participant_count - summary.tuntas_count, 0)}</strong><span>Perlu tindak lanjut</span></article></section><section class="department-snapshot"><div class="section-head"><div><h2>Capaian seluruh departemen</h2></div><button class="text-button" type="button" data-go="department">Lihat laporan</button></div><div class="department-bars" role="list">${departmentRows || '<p class="muted">Belum ada data departemen pada periode ini.</p>'}</div></section>`;
   }
 }
 
@@ -451,7 +452,7 @@ function renderHistory() {
 function renderHistoryDetail(data) {
   const { period, participants, summary } = data;
   const personal = canUsePersonalLks(viewer?.roles ?? []) ? participants.find((participant) => participant.user_id === viewer?.id) : null;
-  const score = personal ? `<div class="history-score"><span>Nilai akhir</span><strong>${percentage(personal.final_percentage)}</strong>${statusBadge(personal.final_status)}</div>` : `<div class="history-score"><span>Peserta sesuai akses</span><strong>${summary.participant_count}</strong><small>${summary.tuntas_count} tuntas · Rata-rata ${percentage(summary.average_percentage)}</small></div>`;
+  const score = personal ? `<div class="history-score"><span>Nilai akhir</span><strong>${percentage(personal.final_percentage)}</strong><small>Ambang tuntas ${percentage(personal.passing_threshold)}</small>${statusBadge(personal.final_status)}</div>` : `<div class="history-score"><span>Peserta sesuai akses</span><strong>${summary.participant_count}</strong><small>${summary.tuntas_count} tuntas · ${summary.belum_tuntas_count} belum tuntas · Rata-rata ${percentage(summary.average_percentage)}</small></div>`;
   const activities = personal?.activities?.map((activity) => `<li><span>${escapeHtml(activity.name)}</span><strong>${activity.completed_count}/${activity.target_count} · ${percentage(activity.percentage)}</strong></li>`).join('');
   return `<div class="history-detail-head"><span class="status status-closed">Ditutup</span><h3>${escapeHtml(period.name)}</h3><p>${formatDate(period.start_date, true)} — ${formatDate(period.end_date, true)}</p></div>${score}${activities ? `<ul class="history-activity-list">${activities}</ul>` : '<p class="history-empty-detail">Ringkasan ini menampilkan hasil peserta yang berada dalam cakupan akses Anda.</p>'}`;
 }
@@ -491,6 +492,48 @@ function renderRecapUnavailable(message) {
   document.querySelector('[data-view-panel="department"]').innerHTML = `<div class="page-intro"><div><h2>Capaian departemen</h2><p>${safeMessage}</p></div></div><p class="empty-search">Coba lagi setelah periode dan peserta tersedia.</p>`;
 }
 
+function reportDimensionLabel(dimension) {
+  return { department: 'Departemen', leader: 'Leader', gender: 'Ikhwan dan Akhwat' }[dimension] ?? 'Laporan';
+}
+
+function reportGroups(participants, dimension) {
+  const labels = { ikhwan: 'Ikhwan', akhwat: 'Akhwat' };
+  const groups = new Map();
+  participants.forEach((participant) => {
+    const label = dimension === 'department'
+      ? participant.department ?? 'Tanpa departemen'
+      : dimension === 'leader'
+        ? participant.leader ?? 'Belum ditetapkan'
+        : labels[participant.gender] ?? 'Tidak dicatat';
+    const group = groups.get(label) ?? { name: label, participantCount: 0, totalPercentage: 0, tuntasCount: 0 };
+    group.participantCount += 1;
+    group.totalPercentage += Number(participant.final_percentage) || 0;
+    group.tuntasCount += participant.final_status === 'tuntas' ? 1 : 0;
+    groups.set(label, group);
+  });
+
+  return [...groups.values()]
+    .map((group) => ({ ...group, averagePercentage: group.participantCount ? group.totalPercentage / group.participantCount : 0 }))
+    .sort((left, right) => right.averagePercentage - left.averagePercentage || left.name.localeCompare(right.name, 'id'));
+}
+
+function renderReportBars(groups, label) {
+  if (!groups.length) return '<p class="empty-search">Belum ada peserta pada periode ini.</p>';
+  return `<div class="report-bar-list" role="list" aria-label="Capaian berdasarkan ${escapeHtml(label)}">${groups.map((group) => {
+    const value = Math.min(Math.max(group.averagePercentage, 0), 100);
+    return `<article class="report-bar-row" role="listitem"><div><strong>${escapeHtml(group.name)}</strong><small>${group.tuntasCount} dari ${group.participantCount} tuntas</small></div><div class="report-bar-meter" role="progressbar" aria-label="Rata-rata capaian ${escapeHtml(group.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${value}"><i style="width:${value}%"></i></div><strong>${percentage(value)}</strong></article>`;
+  }).join('')}</div>`;
+}
+
+function renderReportRankings(groups) {
+  const count = Math.floor(groups.length / 2);
+  if (!count) return '';
+  const list = (items) => `<ol>${items.map((group) => `<li><span>${escapeHtml(group.name)}</span><strong>${percentage(group.averagePercentage)}</strong><small>${group.tuntasCount}/${group.participantCount} tuntas</small></li>`).join('')}</ol>`;
+  const rankCount = Math.min(3, count);
+  const rankLabel = rankCount === 1 ? 'Capaian' : `${rankCount} capaian`;
+  return `<section class="report-rankings" aria-label="Peringkat capaian"><div><h3>${rankLabel} tertinggi</h3>${list(groups.slice(0, rankCount))}</div><div><h3>${rankLabel} terendah</h3>${list(groups.slice(-rankCount).reverse())}</div></section>`;
+}
+
 function renderRecapViews() {
   const recapPanel = document.querySelector('[data-view-panel="recap"]');
   const departmentPanel = document.querySelector('[data-view-panel="department"]');
@@ -498,29 +541,26 @@ function renderRecapViews() {
 
   const { period, participants, summary } = recapData;
   const canCorrect = viewer?.roles?.includes('admin') && period.status === 'active';
-  const recapRows = participants.map((participant, index) => `<div class="table-row" data-member="${escapeHtml(`${participant.name} ${participant.department ?? ''}`)}" data-status="${escapeHtml(participant.final_status)}" data-gender="${escapeHtml(participant.gender)}"><div class="member-cell"><span class="person-initials tone-${['one', 'two', 'three', 'four'][index % 4]}">${escapeHtml(initials(participant.name))}</span><div><strong>${escapeHtml(participant.name)}</strong><small>${escapeHtml(participant.team ?? 'Tanpa tim')} · Leader: ${escapeHtml(participant.leader ?? 'Belum ditetapkan')}</small></div></div><span>${escapeHtml(participant.department ?? 'Tanpa departemen')}</span><strong>${percentage(participant.final_percentage)}</strong>${statusBadge(participant.final_status)}${canCorrect ? `<button class="text-button organization-row-action" type="button" data-open-checklist-correction="${escapeHtml(participant.participant_id)}">Koreksi</button>` : '<span aria-hidden="true"></span>'}</div>`).join('');
+  const recapRows = participants.map((participant, index) => `<div class="table-row" data-member="${escapeHtml(`${participant.name} ${participant.department ?? ''}`)}" data-status="${escapeHtml(participant.final_status)}" data-gender="${escapeHtml(participant.gender)}"><div class="member-cell"><span class="person-initials tone-${['one', 'two', 'three', 'four'][index % 4]}">${escapeHtml(initials(participant.name))}</span><div><strong>${escapeHtml(participant.name)}</strong><small>${escapeHtml(participant.team ?? 'Tanpa tim')} · Leader: ${escapeHtml(participant.leader ?? 'Belum ditetapkan')}</small></div></div><span>${escapeHtml(participant.department ?? 'Tanpa departemen')}</span><strong>${percentage(participant.final_percentage)}</strong><span class="recap-status">${statusBadge(participant.final_status)}<small>Ambang ${percentage(participant.passing_threshold)}</small></span>${canCorrect ? `<button class="text-button organization-row-action" type="button" data-open-checklist-correction="${escapeHtml(participant.participant_id)}">Koreksi</button>` : '<span aria-hidden="true"></span>'}</div>`).join('');
   const periodOptions = recapPeriods.map((item) => `<option value="${escapeHtml(item.id)}"${item.id === period.id ? ' selected' : ''}>${escapeHtml(item.name)}${item.status === 'closed' ? ' · Ditutup' : ' · Aktif'}</option>`).join('');
 
   recapPanel.innerHTML = `<div class="page-intro recap-intro"><div><h2>Perkembangan anggota</h2><p>${escapeHtml(period.name)} · ${summary.participant_count} peserta dalam cakupan akses Anda.</p></div><label class="report-period-control">Periode<select data-recap-period>${periodOptions}</select></label></div><div class="filter-bar"><label class="search-field"><svg aria-hidden="true"><use href="#icon-search"/></svg><span class="sr-only">Cari anggota</span><input id="member-search" type="search" aria-label="Cari anggota" placeholder="Cari nama anggota" /></label><button class="filter-pill is-on" type="button" data-recap-filter="all">Semua status</button><button class="filter-pill" type="button" data-recap-filter="belum_tuntas">Belum tuntas</button><button class="filter-pill" type="button" data-recap-filter="tuntas">Tuntas</button><button class="filter-pill is-on" type="button" data-recap-gender="all">Semua gender</button><button class="filter-pill" type="button" data-recap-gender="ikhwan">Ikhwan</button><button class="filter-pill" type="button" data-recap-gender="akhwat">Akhwat</button></div><section class="recap-table" aria-label="Rekap anggota"><div class="table-head"><span>Santri Karya</span><span>Departemen</span><span>Nilai</span><span>Status</span><span>${canCorrect ? 'Aksi' : ''}</span></div><div id="recap-rows">${recapRows || '<p class="empty-search">Belum ada peserta pada periode ini.</p>'}</div></section><p class="empty-search" id="empty-search" hidden>Tidak ada anggota yang sesuai dengan pencarian atau filter tersebut.</p>`;
 
-  if (viewer?.roles?.some((role) => role === 'admin' || role === 'leader')) {
-    const threshold = Number(period.group_achievement_threshold ?? 85);
-    const recommendation = summary.group_status === 'achieve' ? 'ACHIEVE' : 'NOT ACHIEVE';
-    recapPanel.querySelector('.recap-intro p').textContent += ` Rekomendasi kelompok: ${recommendation} (ambang ${threshold}%).`;
-  }
+  recapPanel.querySelector('.recap-intro p').textContent += ` ${summary.tuntas_count} tuntas · ${summary.belum_tuntas_count} belum tuntas · rata-rata ${percentage(summary.average_percentage)}. Ambang individu: Leader ${percentage(period.leader_passing_threshold)}, Staff ${percentage(period.staff_passing_threshold)}.`;
 
   if (!viewer?.roles?.includes('admin')) {
     departmentPanel.innerHTML = `<div class="page-intro"><div><h2>Capaian departemen</h2><p>Ringkasan lintas departemen tersedia untuk Admin.</p></div></div><p class="empty-search">Gunakan akun Admin untuk melihat perbandingan capaian tiap departemen.</p>`;
     return;
   }
 
-  const departments = summary.departments ?? [];
-  const departmentBars = departments.map((department) => `<div class="chart-group"><div class="bars"><i class="now" style="height:${Math.min(Math.max(Number(department.average_percentage) || 0, 0), 100)}%"></i></div><strong>${escapeHtml(department.department)}</strong></div>`).join('');
-  const departmentRows = departments.map((department) => `<div class="department-row"><strong>${escapeHtml(department.department)}</strong><span>${percentage(department.average_percentage)} capaian</span><span class="trend up">${escapeHtml(department.tuntas_count)} dari ${escapeHtml(department.participant_count)} tuntas</span></div>`).join('');
+  const reportGroupsForDimension = reportGroups(participants, selectedReportDimension);
+  const reportLabel = reportDimensionLabel(selectedReportDimension);
   const trendPeriods = departmentTrendData.slice(-3);
   const departmentNames = [...new Set(departmentTrendData.flatMap((item) => item.departments.map((department) => department.department)))];
   const trendRows = departmentNames.map((name) => `<div class="department-history-row"><strong>${escapeHtml(name)}</strong>${trendPeriods.map((item) => `<span><small>${escapeHtml(item.period.name)}</small>${percentage(item.departments.find((department) => department.department === name)?.average_percentage ?? 0)}</span>`).join('')}</div>`).join('');
-  departmentPanel.innerHTML = `<div class="page-intro"><div><h2>Capaian departemen</h2><p>${escapeHtml(period.name)} · Rekap periode dapat dipilih dan dibandingkan dengan riwayat yang tersedia.</p></div><label class="report-period-control">Periode<select data-recap-period>${periodOptions}</select></label></div><section class="chart-panel"><div class="chart-legend"><span><i class="legend-mark now"></i>Rata-rata ${escapeHtml(period.name)}</span></div><div class="bar-chart" role="img" aria-label="Grafik capaian rata-rata per departemen"><div class="chart-scale"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div><div class="chart-groups">${departmentBars}</div></div></section><section class="department-table"><div class="section-head"><div><h2>Rincian per departemen</h2></div></div>${departmentRows || '<p class="empty-search">Belum ada data departemen pada periode ini.</p>'}</section>${trendRows ? `<section class="department-history"><div class="section-head"><div><h2>Perbandingan riwayat</h2><p>Tiga periode terakhir yang tersedia.</p></div></div>${trendRows}</section>` : ''}`;
+  const tabs = ['department', 'leader', 'gender'].map((dimension) => `<button class="report-tab${selectedReportDimension === dimension ? ' is-active' : ''}" type="button" role="tab" aria-selected="${selectedReportDimension === dimension}" data-report-dimension="${dimension}">${reportDimensionLabel(dimension)}</button>`).join('');
+  const history = selectedReportDimension === 'department' && trendRows ? `<section class="department-history"><div class="section-head"><div><h2>Perbandingan riwayat departemen</h2><p>Tiga periode terakhir yang tersedia.</p></div></div>${trendRows}</section>` : '';
+  departmentPanel.innerHTML = `<div class="page-intro"><div><h2>Laporan periode</h2><p>${escapeHtml(period.name)} · Bandingkan capaian dari data snapshot periode yang dipilih.</p></div><label class="report-period-control">Periode<select data-recap-period>${periodOptions}</select></label></div><nav class="report-tabs" role="tablist" aria-label="Dimensi laporan">${tabs}</nav><section class="report-overview" aria-live="polite"><div class="section-head"><div><h2>Capaian ${escapeHtml(reportLabel)}</h2><p>Rata-rata nilai akhir per kelompok.</p></div></div>${renderReportBars(reportGroupsForDimension, reportLabel)}</section>${renderReportRankings(reportGroupsForDimension)}${history}`;
 }
 
 async function loadRecap(periodId = '', { showProgress = true } = {}) {
@@ -809,6 +849,12 @@ function filterRecapRows() {
 }
 
 document.addEventListener('click', (event) => {
+  const reportTab = event.target.closest('[data-report-dimension]');
+  if (reportTab) {
+    selectedReportDimension = reportTab.dataset.reportDimension;
+    renderRecapViews();
+    return;
+  }
   const pill = event.target.closest('[data-recap-filter]');
   if (pill) {
     document.querySelectorAll('[data-recap-filter]').forEach((item) => item.classList.toggle('is-on', item === pill));
@@ -967,7 +1013,7 @@ function renderAdminView(name) {
       : '';
     const holidayActions = period.status === 'draft' ? `<button class="primary-button" type="button" data-open-admin-modal="period-holiday" data-period-id="${escapeHtml(period.id)}">Tambah hari libur</button><button class="text-button admin-add-team" type="button" data-open-admin-modal="period-holiday-import" data-period-id="${escapeHtml(period.id)}">Impor daftar</button><button class="text-button admin-add-team" type="button" data-import-period-calendar="${escapeHtml(period.id)}">Salin kalender referensi</button>` : '';
     const holidaySection = `<section class="admin-record-section period-holiday-section" aria-labelledby="period-holiday-title"><div class="organization-section-head"><div><h3 id="period-holiday-title">Hari efektif dan libur</h3><p>${period.status === 'draft' ? 'Atur hanya tanggal dalam rentang periode ini sebelum periode diaktifkan.' : 'Snapshot hari libur periode ini sudah terkunci untuk menjaga perhitungan.'}</p></div>${holidayActions}</div>${holidays.length ? `<div class="admin-record-table period-holiday-record-table" role="table" aria-label="Hari efektif dan libur ${escapeHtml(period.name)}"><div class="admin-record-head" role="row"><span role="columnheader">Tanggal</span><span role="columnheader">Keterangan</span><span role="columnheader">Dampak</span><span role="columnheader">Aksi</span></div>${holidayRows}</div>` : `<p class="admin-empty">${period.status === 'draft' ? 'Belum ada hari libur. Tambahkan atau impor daftar agar target periode dihitung dari hari efektif.' : 'Tidak ada hari libur yang dicatat pada periode ini.'}</p>`}</section>`;
-    panel.innerHTML = adminPanel(`Kelola periode · ${period.name}`, 'Tinjau konfigurasi dan kelola peserta pada periode ini.', `<nav class="admin-back-link" aria-label="Navigasi pengaturan"><button class="text-button" type="button" data-go="periods">Kembali ke daftar periode</button></nav><section class="period-overview"><div><span class="status status-${escapeHtml(period.status === 'active' ? 'active' : period.status === 'closed' ? 'closed' : 'waiting')}">${escapeHtml(period.status === 'active' ? 'Aktif' : period.status === 'closed' ? 'Ditutup' : 'Draft')}</span><h3>${escapeHtml(period.name)}</h3><p>${escapeHtml(formatDate(period.start_date, true))} — ${escapeHtml(formatDate(period.end_date, true))}</p></div><dl><div><dt>Batas tuntas</dt><dd>${escapeHtml(period.final_passing_threshold)}%</dd></div><div><dt>Aktivitas aktif</dt><dd>${activities.filter((activity) => activity.is_active).length}</dd></div><div><dt>Hari libur</dt><dd>${holidays.length}</dd></div></dl><div class="period-overview-action">${lifecycleAction}</div></section><section class="period-activity-summary" aria-labelledby="period-activity-title"><div class="organization-section-head"><div><h3 id="period-activity-title">Aktivitas periode</h3><p>Konfigurasi aktivitas terkunci setelah periode diaktifkan.</p></div></div>${activityRows ? `<ul>${activityRows}</ul>` : '<p class="admin-empty">Belum ada aktivitas pada periode ini.</p>'}</section>${holidaySection}${participantSection}`, '', true);
+    panel.innerHTML = adminPanel(`Kelola periode · ${period.name}`, 'Tinjau konfigurasi dan kelola peserta pada periode ini.', `<nav class="admin-back-link" aria-label="Navigasi pengaturan"><button class="text-button" type="button" data-go="periods">Kembali ke daftar periode</button></nav><section class="period-overview"><div><span class="status status-${escapeHtml(period.status === 'active' ? 'active' : period.status === 'closed' ? 'closed' : 'waiting')}">${escapeHtml(period.status === 'active' ? 'Aktif' : period.status === 'closed' ? 'Ditutup' : 'Draft')}</span><h3>${escapeHtml(period.name)}</h3><p>${escapeHtml(formatDate(period.start_date, true))} — ${escapeHtml(formatDate(period.end_date, true))}</p></div><dl><div><dt>Ambang Leader</dt><dd>${escapeHtml(period.final_passing_threshold)}%</dd></div><div><dt>Ambang Staff</dt><dd>${escapeHtml(period.staff_passing_threshold ?? 85)}%</dd></div><div><dt>Aktivitas aktif</dt><dd>${activities.filter((activity) => activity.is_active).length}</dd></div><div><dt>Hari libur</dt><dd>${holidays.length}</dd></div></dl><div class="period-overview-action">${lifecycleAction}</div></section><section class="period-activity-summary" aria-labelledby="period-activity-title"><div class="organization-section-head"><div><h3 id="period-activity-title">Aktivitas periode</h3><p>Konfigurasi aktivitas terkunci setelah periode diaktifkan.</p></div></div>${activityRows ? `<ul>${activityRows}</ul>` : '<p class="admin-empty">Belum ada aktivitas pada periode ini.</p>'}</section>${holidaySection}${participantSection}`, '', true);
     document.querySelectorAll('.period-activity-summary li span').forEach((summary, index) => {
       const activity = activities[index];
       summary.textContent = `${activityRuleLabel(activity)} · ${activityAudience(activity)} · ${activity.is_active ? 'Aktif' : 'Nonaktif'}`;
@@ -983,7 +1029,7 @@ function renderAdminView(name) {
         ? `<button class="text-button organization-row-action" type="button" data-open-period-detail="${escapeHtml(period.id)}">Kelola draft</button><button class="text-button organization-row-action" type="button" data-activate-period="${escapeHtml(period.id)}">Aktifkan</button><button class="text-button organization-row-action" type="button" data-delete-resource="period" data-resource-id="${escapeHtml(period.id)}" data-resource-name="${escapeHtml(period.name)}">Hapus draft</button>`
         : `<button class="text-button organization-row-action" type="button" data-open-period-detail="${escapeHtml(period.id)}">${period.status === 'active' ? 'Kelola periode' : 'Lihat periode'}</button>`;
       const periodStatus = period.status === 'active' ? '<span class="status status-active">Aktif</span>' : period.status === 'closed' ? '<span class="status status-closed">Ditutup</span>' : '<span class="status status-waiting">Draft</span>';
-      return `<div class="admin-record-row period-record-row" role="row"><span role="cell"><strong>${escapeHtml(period.name)}</strong><small>Batas tuntas ${period.final_passing_threshold}%</small></span><span role="cell">${escapeHtml(formatDate(period.start_date, true))} — ${escapeHtml(formatDate(period.end_date, true))}<small>${period.period_activities.length} aktivitas · ${activeActivityCount} aktif</small></span><span role="cell">${periodStatus}</span><span role="cell">${periodAction}</span></div>`;
+      return `<div class="admin-record-row period-record-row" role="row"><span role="cell"><strong>${escapeHtml(period.name)}</strong><small>Leader ${period.final_passing_threshold}% · Staff ${period.staff_passing_threshold ?? 85}%</small></span><span role="cell">${escapeHtml(formatDate(period.start_date, true))} — ${escapeHtml(formatDate(period.end_date, true))}<small>${period.period_activities.length} aktivitas · ${activeActivityCount} aktif</small></span><span role="cell">${periodStatus}</span><span role="cell">${periodAction}</span></div>`;
     }).join('');
     const periodContent = !showPeriodEmpty
       ? `<section class="admin-record-section" aria-labelledby="period-list-title"><div class="organization-section-head"><div><h3 id="period-list-title">Daftar Periode</h3><p>${hasPeriodSearch ? `${periodMeta.total} periode ditemukan.` : `${periodMeta.total} periode tersimpan.`}</p></div></div><form class="admin-list-search" data-admin-list-search="periods"><label class="sr-only" for="period-search">Cari periode LKS</label><input id="period-search" name="search" value="${escapeHtml(adminListState.periods.search)}" placeholder="Cari nama atau status periode" autocomplete="off"></form>${configurationData.periods.length ? `<div class="admin-record-table period-record-table" role="table" aria-label="Daftar periode LKS"><div class="admin-record-head" role="row"><span role="columnheader">Periode</span><span role="columnheader">Rentang dan aktivitas</span><span role="columnheader">Status</span><span role="columnheader">Aksi</span></div>${periodRows}</div>${paginationControls(periodMeta, 'periods')}` : '<p class="admin-empty">Tidak ada periode yang sesuai dengan pencarian.</p>'}</section>`
@@ -1161,7 +1207,7 @@ async function submitAdminForm(form) {
     payload.applicable_levels = [...form.querySelectorAll('[name="applicable_levels"]:checked')].map((input) => input.value);
   }
   if (type === 'period-activity' || type === 'participant') { delete payload.period_id; delete payload.profile_id; }
-  if (['final_passing_threshold', 'sort_order', 'target_count'].some((key) => key in payload)) Object.keys(payload).forEach((key) => { if (['final_passing_threshold', 'sort_order', 'target_count'].includes(key)) payload[key] = Number(payload[key]); });
+  if (['final_passing_threshold', 'staff_passing_threshold', 'sort_order', 'target_count'].some((key) => key in payload)) Object.keys(payload).forEach((key) => { if (['final_passing_threshold', 'staff_passing_threshold', 'sort_order', 'target_count'].includes(key)) payload[key] = Number(payload[key]); });
   if (type === 'participant') {
     const periodName = form.dataset.periodName || 'periode aktif';
     const participantName = form.elements.profile_id.selectedOptions[0]?.textContent ?? 'Santri Karya ini';
@@ -1320,11 +1366,11 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
     } : null,
     period: {
       title: 'Tambah periode LKS', description: 'Periode dibuat sebagai draft agar aktivitas dapat disiapkan sebelum diaktifkan.', submitLabel: 'Simpan periode draft',
-      fields: '<label>Nama periode<input name="name" placeholder="Oktober 2026" maxlength="100" required></label><div class="admin-modal-inline-fields"><label>Tanggal mulai<input type="date" name="start_date" required></label><label>Tanggal selesai<input type="date" name="end_date" required></label></div><label>Batas tuntas periode (%)<input type="number" name="final_passing_threshold" min="0" max="100" value="90" required><small>Nilai akhir yang sama dengan atau melebihi batas ini berstatus Tuntas.</small></label>',
+      fields: '<label>Nama periode<input name="name" placeholder="Oktober 2026" maxlength="100" required></label><div class="admin-modal-inline-fields"><label>Tanggal mulai<input type="date" name="start_date" required></label><label>Tanggal selesai<input type="date" name="end_date" required></label></div><div class="admin-modal-inline-fields"><label>Ambang Leader (%)<input type="number" name="final_passing_threshold" min="0" max="100" value="90" required></label><label>Ambang Staff (%)<input type="number" name="staff_passing_threshold" min="0" max="100" value="85" required></label></div><p class="admin-form-note">Nilai akhir dibandingkan dengan ambang sesuai level jabatan peserta.</p>',
     },
     'period-edit': configuredPeriod ? {
       title: `Kelola periode · ${escapeHtml(configuredPeriod.name)}`, description: 'Periode draft dapat disesuaikan sebelum diaktifkan. Setelah aktif, rentang dan ambang nilai dikunci untuk menjaga konsistensi perhitungan.', submitLabel: 'Simpan perubahan',
-      fields: `<label>Nama periode<input name="name" maxlength="100" value="${escapeHtml(configuredPeriod.name)}" required></label><div class="admin-modal-inline-fields"><label>Tanggal mulai<input type="date" name="start_date" value="${escapeHtml(dateInputValue(configuredPeriod.start_date))}" required></label><label>Tanggal selesai<input type="date" name="end_date" value="${escapeHtml(dateInputValue(configuredPeriod.end_date))}" required></label></div><label>Batas tuntas periode (%)<input type="number" name="final_passing_threshold" min="0" max="100" value="${escapeHtml(configuredPeriod.final_passing_threshold)}" required></label>`,
+      fields: `<label>Nama periode<input name="name" maxlength="100" value="${escapeHtml(configuredPeriod.name)}" required></label><div class="admin-modal-inline-fields"><label>Tanggal mulai<input type="date" name="start_date" value="${escapeHtml(dateInputValue(configuredPeriod.start_date))}" required></label><label>Tanggal selesai<input type="date" name="end_date" value="${escapeHtml(dateInputValue(configuredPeriod.end_date))}" required></label></div><div class="admin-modal-inline-fields"><label>Ambang Leader (%)<input type="number" name="final_passing_threshold" min="0" max="100" value="${escapeHtml(configuredPeriod.final_passing_threshold)}" required></label><label>Ambang Staff (%)<input type="number" name="staff_passing_threshold" min="0" max="100" value="${escapeHtml(configuredPeriod.staff_passing_threshold ?? 85)}" required></label></div>`,
     } : null,
     activity: {
       title: 'Tambah aktivitas LKS', description: 'Aktivitas master dapat dipakai kembali pada periode draft berikutnya.', submitLabel: 'Simpan aktivitas',
@@ -1353,7 +1399,7 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
   }
   if (type === 'period-config' && configuredPeriod) {
     definitions['period-config'].fields = `<div class="period-config-list">${configuredPeriod.period_activities.map((activity) => `<fieldset class="period-config-row" data-period-activity-id="${escapeHtml(activity.id)}"><div><strong>${escapeHtml(activity.activity_name_snapshot)}</strong><small>Nilai berdasarkan checklist ÷ target maksimum, dibatasi 100%. Tuntas saat target minimal tercapai.</small></div><label>Target maksimum<input type="number" min="1" value="${activity.target_count}" data-target-count required></label><label>Target minimal<input type="number" min="1" max="${activity.target_count}" value="${activity.minimum_target_count ?? activity.target_count}" data-minimum-target-count required></label><label>Maksimal per pekan<input type="number" min="1" value="${activity.max_per_week ?? ''}" data-max-per-week><small>Kosongkan bila tidak dibatasi.</small></label><label class="admin-modal-checkbox"><input type="checkbox" data-is-active${activity.is_active ? ' checked' : ''}> Aktif</label><div class="period-weekday-control">${weekdayPicker(activity.allowed_weekdays)}</div>${audiencePicker(activity.applicable_genders_list ?? activity.applicable_genders, activity.applicable_levels_list ?? activity.applicable_levels)}</fieldset>`).join('') || '<p class="admin-form-note">Tambahkan aktivitas ke periode ini terlebih dahulu dari halaman Aktivitas LKS.</p>'}</div>`;
-    definitions['period-config'].description = `Nilai aktivitas dibatasi 100%. Nilai akhir adalah rata-rata aktivitas yang berlaku untuk peserta; batas tuntas individu ${configuredPeriod.final_passing_threshold}%.`;
+    definitions['period-config'].description = `Nilai aktivitas dibatasi 100%. Nilai akhir adalah rata-rata aktivitas yang berlaku untuk peserta; ambang Leader ${configuredPeriod.final_passing_threshold}% dan Staff ${configuredPeriod.staff_passing_threshold ?? 85}%.`;
   }
   if (type === 'activity') {
     definitions.activity.fields = `<label>Kode<input name="code" maxlength="50" autocomplete="off" required></label><label>Nama aktivitas<input name="name" maxlength="150" required></label>${masterActivityRuleFields()}`;

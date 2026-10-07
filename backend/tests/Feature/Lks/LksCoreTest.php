@@ -165,6 +165,28 @@ class LksCoreTest extends TestCase
         $this->assertSame(50.0, $score['activities'][1]['percentage']);
     }
 
+    public function test_final_status_uses_the_participants_job_level_threshold(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $leader = $this->userWithRole('leader');
+        $staff = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active', 'final_passing_threshold' => 90, 'staff_passing_threshold' => 85]);
+        $activity = $this->periodActivity($period, 20);
+        $leaderParticipant = $this->participant($period, $leader, level: 'leader');
+        $staffParticipant = $this->participant($period, $staff);
+
+        foreach (range(1, 17) as $day) {
+            $date = now()->subDays($day)->toDateString();
+            $this->checklist($leaderParticipant, $activity, $leader, $date);
+            $this->checklist($staffParticipant, $activity, $staff, $date);
+        }
+
+        $calculator = app(LksScoreCalculator::class);
+        $this->assertSame(85.0, $calculator->calculate($leaderParticipant)['final_percentage']);
+        $this->assertSame('belum_tuntas', $calculator->calculate($leaderParticipant)['final_status']);
+        $this->assertSame('tuntas', $calculator->calculate($staffParticipant)['final_status']);
+    }
+
     public function test_recap_scope_matches_the_viewers_role(): void
     {
         $admin = $this->userWithRole('admin');
@@ -249,13 +271,14 @@ class LksCoreTest extends TestCase
             'activity_code_snapshot' => $activity->code,
             'activity_name_snapshot' => $activity->name,
             'target_count' => $target,
+            'minimum_target_count' => $target,
             'weight' => 1,
             'is_active' => true,
             'sort_order' => $sequence,
         ]);
     }
 
-    private function participant(LksPeriod $period, User $user, ?User $leader = null): PeriodParticipantSnapshot
+    private function participant(LksPeriod $period, User $user, ?User $leader = null, string $level = 'staff'): PeriodParticipantSnapshot
     {
         return PeriodParticipantSnapshot::query()->create([
             'period_id' => $period->id,
@@ -264,6 +287,7 @@ class LksCoreTest extends TestCase
             'gender_snapshot' => 'ikhwan',
             'leader_user_id_snapshot' => $leader?->id,
             'leader_name_snapshot' => $leader?->name,
+            'level_snapshot' => $level,
             'participation_start_date' => $period->start_date->toDateString(),
         ]);
     }

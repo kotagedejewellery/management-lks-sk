@@ -1,17 +1,17 @@
 # Graph Report - lks-santri-karya  (2026-10-07)
 
 ## Corpus Check
-- 145 files · ~53,687 words
+- 147 files · ~55,145 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 28 file(s) not represented in the graph (top: (none) 18, .css 5, .example 1)
 
 ## Summary
-- 960 nodes · 1803 edges · 106 communities (48 shown, 58 thin omitted)
+- 980 nodes · 1842 edges · 109 communities (49 shown, 60 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 20 edges (avg confidence: 0.89)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `386bbeea`
+- Built from commit: `2912b128`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -19,7 +19,7 @@
 - frontend/app.js
 - FortifyServiceProvider.php
 - TestCase
-- PeriodActivity
+- Tech Stack — LKS Santri Karya
 - package.json
 - User
 - Product Requirements Document
@@ -32,17 +32,17 @@
 - Architecture System — LKS Santri Karya
 - multiselect
 - bootstrap/app.php
-- OrganizationController.php
+- Referensi Rumus LKS
 - PeriodParticipantSnapshot
-- Illuminate\Foundation\Testing\RefreshDatabase
+- OrganizationController.php
 - Illuminate\Database\Schema\Blueprint
 - Illuminate\Http\JsonResponse
-- OrganizationController
+- UserFactory.php
 - AuditLog
-- Tech Stack — LKS Santri Karya
+- LksChecklist
 - ActivatePeriodRequest
-- LksCoreTest
-- AuthenticationTest
+- SecurityTest
+- OrganizationController
 - LksScoreCalculator
 - scripts
 - Product
@@ -52,13 +52,13 @@
 - settings.php
 - EmailVerificationTest
 - PasswordResetTest.php
-- web.php
+- 2026_09_29_000001_create_lks_configuration_tables.php
 - require
 - artisan
-- 2025_08_14_170933_add_two_factor_columns_to_users_table.php
+- Illuminate\Support\Facades\Schema
 - ⚡security.blade.php
-- SecurityTest
 - LksPeriod
+- 2026_10_07_030000_add_staff_passing_threshold_to_lks_periods.php
 - config
 - 2026_09_29_000003_apply_approved_lks_policy_schema.php
 - 2026-09-29T06-52-35Z__frontend-index-html.md
@@ -66,13 +66,15 @@
 - 0001_01_01_000000_create_users_table.php
 - 0001_01_01_000002_create_jobs_table.php
 - Illuminate\Database\Migrations\Migration
-- 2026_09_29_000002_create_lks_records_and_audit_tables.php
+- LksCoreTest
+- PeriodActivity
 - Frontend Design — LKS Santri Karya
 - Frontend Design — LKS Santri Karya
 - psr-4
 - laravel
 - logging.php
-- Illuminate\Support\Facades\Schema
+- 0001_01_01_000001_create_cache_table.php
+- web.php
 - 2026_10_07_010000_assign_leader_to_teams.php
 - 2026_10_07_030000_add_lks_work_calendar.php
 - Panduan Brevo untuk Email Reset Password
@@ -88,16 +90,17 @@
 - ⚡appearance.blade.php
 - ⚡delete-user-form.blade.php
 - ⚡recovery-codes.blade.php
+- ProfileUpdateTest
 
 ## God Nodes (most connected - your core abstractions)
 1. `User` - 80 edges
 2. `LksPeriod` - 54 edges
-3. `PeriodParticipantSnapshot` - 37 edges
+3. `PeriodParticipantSnapshot` - 38 edges
 4. `AuditLog` - 33 edges
 5. `PeriodActivity` - 28 edges
 6. `TestCase` - 28 edges
 7. `PeriodConfigurationController` - 25 edges
-8. `escapeHtml()` - 23 edges
+8. `escapeHtml()` - 25 edges
 9. `Product Requirements Document` - 22 edges
 10. `SantriProfile` - 20 edges
 
@@ -106,57 +109,57 @@
   docs/Architecture System.md → backend/app/Services/LksScoreCalculator.php
 - `7. Rumus perhitungan` --references--> `LksScoreCalculator`  [INFERRED]
   docs/Database Design.md → backend/app/Services/LksScoreCalculator.php
+- `Supporting Evidence` --references--> `todayIso()`  [INFERRED]
+  .impeccable/critique/2026-09-29T06-52-35Z__frontend-index-html.md → frontend/app.js
 - `1. Keputusan utama` --references--> `PrototypeDashboardController`  [INFERRED]
   docs/Tech Stack.md → backend/app/Http/Controllers/PrototypeDashboardController.php
 - `3. Paket dan kemampuan platform` --references--> `AuditLog`  [INFERRED]
   docs/Tech Stack.md → backend/app/Models/AuditLog.php
-- `3. Paket dan kemampuan platform` --references--> `LksScoreCalculator`  [INFERRED]
-  docs/Tech Stack.md → backend/app/Services/LksScoreCalculator.php
 
 ## Import Cycles
 - None detected.
 
-## Communities (106 total, 58 thin omitted)
+## Communities (109 total, 60 thin omitted)
 
 ### Community 0 - "frontend/app.js"
-Cohesion: 0.06
-Nodes (98): accountPasswordField(), activePeriodActivities, activityAudience(), activityRuleLabel(), adminFormDialog, adminFormDialogContent, adminFormSnapshot(), adminListState (+90 more)
+Cohesion: 0.05
+Nodes (101): accountPasswordField(), activePeriodActivities, activityAudience(), activityRuleLabel(), adminFormDialog, adminFormDialogContent, adminFormSnapshot(), adminListState (+93 more)
 
 ### Community 1 - "FortifyServiceProvider.php"
 Cohesion: 0.06
-Nodes (30): CreateNewUser, ResetUserPassword, PasswordValidationRules, ProfileValidationRules, AppServiceProvider, {closure#1}(), {closure#1}(), {closure#10}() (+22 more)
+Nodes (29): CreateNewUser, ResetUserPassword, PasswordValidationRules, ProfileValidationRules, AppServiceProvider, {closure#1}(), {closure#1}(), {closure#10}() (+21 more)
 
 ### Community 2 - "TestCase"
-Cohesion: 0.14
-Nodes (6): RegistrationTest, TwoFactorChallengeTest, TestCase, Illuminate\Foundation\Testing\TestCase, Laravel\Fortify\Features, Livewire\Livewire
+Cohesion: 0.10
+Nodes (10): PasswordConfirmationTest, RegistrationTest, TwoFactorChallengeTest, DashboardTest, ExampleTest, TestCase, Illuminate\Foundation\Testing\RefreshDatabase, Illuminate\Foundation\Testing\TestCase (+2 more)
 
-### Community 3 - "PeriodActivity"
-Cohesion: 0.18
-Nodes (3): {closure#12}(), PeriodActivity, PeriodActivityRuleTest
+### Community 3 - "Tech Stack — LKS Santri Karya"
+Cohesion: 0.14
+Nodes (13): 2. Mengapa stack ini, 3. Paket dan kemampuan platform, 4. Standar engineering, 5. Lingkungan lokal, 6. Deployment awal, 7. Batas evolusi, Backend, CSS kustom + grafik HTML (+5 more)
 
 ### Community 4 - "package.json"
 Cohesion: 0.06
 Nodes (30): dependencies, concurrently, @laravel/passkeys, laravel-vite-plugin, tailwindcss, @tailwindcss/vite, vite, vite-plus (+22 more)
 
 ### Community 5 - "User"
-Cohesion: 0.11
-Nodes (13): User, LksPeriodPolicy, ProfileUpdateTest, 4.2 `roles`, Illuminate\Database\Eloquent\Attributes\Fillable, Illuminate\Database\Eloquent\Attributes\Hidden, Illuminate\Database\Eloquent\Factories\HasFactory, Illuminate\Database\Eloquent\Relations\HasOne (+5 more)
+Cohesion: 0.10
+Nodes (13): User, LksPeriodPolicy, AuthenticationTest, 4.2 `roles`, Illuminate\Database\Eloquent\Attributes\Fillable, Illuminate\Database\Eloquent\Attributes\Hidden, Illuminate\Database\Eloquent\Factories\HasFactory, Illuminate\Database\Eloquent\Relations\HasOne (+5 more)
 
 ### Community 6 - "Product Requirements Document"
 Cohesion: 0.07
 Nodes (29): 10. Halaman LKS individu, 11. Rekap, 12. Alur utama, 13. Functional requirements, 14. Business rules, 15. Halaman minimum, 16. Dashboard, 17. Non-functional requirements (+21 more)
 
 ### Community 7 - "Illuminate\Database\Eloquent\Concerns\HasUuids"
-Cohesion: 0.12
-Nodes (10): {closure#6}(), CalendarHoliday, Department, LksActivity, PeriodHolidaySnapshot, Role, Illuminate\Database\Eloquent\Concerns\HasUuids, Illuminate\Database\Eloquent\Model (+2 more)
+Cohesion: 0.09
+Nodes (13): {closure#6}(), CalendarHoliday, Department, LksActivity, PeriodHolidaySnapshot, Role, Team, 4.5 `teams` (+5 more)
 
 ### Community 9 - "Illuminate\Support\Str"
-Cohesion: 0.13
-Nodes (9): UserFactory, DatabaseSeeder, Illuminate\Database\Console\Seeds\WithoutModelEvents, Illuminate\Database\Eloquent\Factories\Factory, Illuminate\Database\Seeder, Illuminate\Support\Facades\Hash, Illuminate\Support\Str, Pdo\Mysql (+1 more)
+Cohesion: 0.24
+Nodes (5): DatabaseSeeder, Illuminate\Database\Console\Seeds\WithoutModelEvents, Illuminate\Database\Seeder, Illuminate\Support\Str, Pdo\Mysql
 
 ### Community 11 - "Database Design — LKS Santri Karya"
-Cohesion: 0.08
-Nodes (23): 10. Kebijakan integritas dan penghapusan, 11. Keputusan kebijakan yang disetujui, 1. Tujuan desain, 2. ERD, 3. Aturan relasi dan snapshot, 4.1 `users`, 4.3 `user_roles`, 4.4 `departments` (+15 more)
+Cohesion: 0.09
+Nodes (22): 10. Kebijakan integritas dan penghapusan, 11. Keputusan kebijakan yang disetujui, 1. Tujuan desain, 2. ERD, 3. Aturan relasi dan snapshot, 4.1 `users`, 4.3 `user_roles`, 4.4 `departments` (+14 more)
 
 ### Community 13 - "Architecture System — LKS Santri Karya"
 Cohesion: 0.09
@@ -166,17 +169,17 @@ Nodes (21): 10. Batas evolusi, 1. Ringkasan arsitektur, 2. Prinsip arsitektur, 3
 Cohesion: 0.13
 Nodes (14): EnsureUserIsActive, Logout, {closure#1}(), {closure#2}(), {closure#3}(), Closure, Illuminate\Foundation\Application, Illuminate\Foundation\Configuration\Exceptions (+6 more)
 
-### Community 16 - "OrganizationController.php"
-Cohesion: 0.12
-Nodes (5): {closure#10}(), {closure#13}(), {closure#8}(), {closure#9}(), Team
+### Community 16 - "Referensi Rumus LKS"
+Cohesion: 0.22
+Nodes (8): Aktivitas dan rumus matriks, Catatan validasi spreadsheet, Parameter aktivitas dan cakupan kelompok, Penerapan pada sistem, Referensi Rumus LKS, Rumus lembar kendali individu, Rumus rekap organisasi, Struktur spreadsheet
 
 ### Community 17 - "PeriodParticipantSnapshot"
 Cohesion: 0.15
-Nodes (7): PeriodParticipantSnapshot, PeriodParticipantSnapshotPolicy, ChecklistRecordingService, {closure#1}(), {closure#7}(), Carbon\CarbonInterface, Illuminate\Validation\ValidationException
+Nodes (6): PeriodParticipantSnapshot, PeriodParticipantSnapshotPolicy, {closure#7}(), ExampleTest, PeriodActivityRuleTest, PHPUnit\Framework\TestCase
 
-### Community 18 - "Illuminate\Foundation\Testing\RefreshDatabase"
-Cohesion: 0.14
-Nodes (6): PasswordConfirmationTest, DashboardTest, ExampleTest, ExampleTest, Illuminate\Foundation\Testing\RefreshDatabase, PHPUnit\Framework\TestCase
+### Community 18 - "OrganizationController.php"
+Cohesion: 0.13
+Nodes (5): {closure#10}(), {closure#13}(), {closure#8}(), {closure#9}(), Illuminate\Validation\Rule
 
 ### Community 19 - "Illuminate\Database\Schema\Blueprint"
 Cohesion: 0.18
@@ -186,13 +189,17 @@ Nodes (12): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}(), {closure
 Cohesion: 0.17
 Nodes (6): Controller, AccountController, ChecklistController, {closure#3}(), RecapController, Illuminate\Http\JsonResponse
 
+### Community 21 - "UserFactory.php"
+Cohesion: 0.31
+Nodes (3): UserFactory, Illuminate\Database\Eloquent\Factories\Factory, static
+
 ### Community 22 - "AuditLog"
 Cohesion: 0.13
-Nodes (13): {closure#10}(), {closure#11}(), {closure#5}(), {closure#7}(), {closure#8}(), {closure#9}(), AuditLog, {closure#1}() (+5 more)
+Nodes (12): {closure#10}(), {closure#11}(), {closure#5}(), {closure#7}(), {closure#8}(), {closure#9}(), AuditLog, {closure#1}() (+4 more)
 
-### Community 23 - "Tech Stack — LKS Santri Karya"
-Cohesion: 0.14
-Nodes (13): 2. Mengapa stack ini, 3. Paket dan kemampuan platform, 4. Standar engineering, 5. Lingkungan lokal, 6. Deployment awal, 7. Batas evolusi, Backend, CSS kustom + grafik HTML (+5 more)
+### Community 23 - "LksChecklist"
+Cohesion: 0.18
+Nodes (6): LksChecklist, ChecklistRecordingService, {closure#1}(), Carbon\CarbonInterface, Illuminate\Auth\Access\AuthorizationException, Illuminate\Validation\ValidationException
 
 ### Community 24 - "ActivatePeriodRequest"
 Cohesion: 0.19
@@ -211,8 +218,8 @@ Cohesion: 0.15
 Nodes (12): Accessibility & Inclusion, Brand Commitments, Capabilities and Constraints, Evidence on Hand, Operating Context, Platform, Positioning, Product (+4 more)
 
 ### Community 30 - "Illuminate\Database\Eloquent\Relations\BelongsTo"
-Cohesion: 0.16
-Nodes (5): {closure#11}(), {closure#12}(), LksChecklist, SantriProfile, Illuminate\Database\Eloquent\Relations\BelongsTo
+Cohesion: 0.27
+Nodes (4): {closure#11}(), {closure#12}(), SantriProfile, Illuminate\Database\Eloquent\Relations\BelongsTo
 
 ### Community 31 - "composer.json"
 Cohesion: 0.17
@@ -230,19 +237,23 @@ Nodes (4): EmailVerificationTest, Illuminate\Auth\Events\Verified, Illuminate\Su
 Cohesion: 0.18
 Nodes (3): PasswordResetTest, Illuminate\Auth\Notifications\ResetPassword, Illuminate\Support\Facades\Notification
 
-### Community 36 - "web.php"
-Cohesion: 0.18
-Nodes (5): PrototypeDashboardController, {closure#1}(), 1. Keputusan utama, Illuminate\Http\Response, Illuminate\Support\Facades\File
+### Community 36 - "2026_09_29_000001_create_lks_configuration_tables.php"
+Cohesion: 0.33
+Nodes (3): {closure#1}(), {closure#2}(), {closure#3}()
 
 ### Community 37 - "require"
 Cohesion: 0.22
 Nodes (9): require, laravel/chisel, laravel/fortify, laravel/framework, laravel/tinker, livewire/blaze, livewire/flux, livewire/livewire (+1 more)
 
+### Community 39 - "Illuminate\Support\Facades\Schema"
+Cohesion: 0.20
+Nodes (4): {closure#1}(), {closure#1}(), {closure#2}(), Illuminate\Support\Facades\Schema
+
 ### Community 40 - "⚡security.blade.php"
 Cohesion: 0.25
 Nodes (7): pages, partials.settings-heading, closeDeleteModal, confirmDelete({{ $passkey[, deletePasskey, disable, $dispatch(
 
-### Community 42 - "LksPeriod"
+### Community 41 - "LksPeriod"
 Cohesion: 0.19
 Nodes (4): {closure#3}(), {closure#6}(), PeriodController, LksPeriod
 
@@ -255,8 +266,8 @@ Cohesion: 0.29
 Nodes (4): {closure#1}(), {closure#2}(), {closure#3}(), {closure#4}()
 
 ### Community 45 - "2026-09-29T06-52-35Z__frontend-index-html.md"
-Cohesion: 0.33
-Nodes (5): Design Health Score, Design Specificity Verdict, Persona Red Flags, Priority Issues, Proposed Direction
+Cohesion: 0.29
+Nodes (6): Design Health Score, Design Specificity Verdict, Persona Red Flags, Priority Issues, Proposed Direction, Supporting Evidence
 
 ### Community 47 - "0001_01_01_000000_create_users_table.php"
 Cohesion: 0.33
@@ -269,10 +280,6 @@ Nodes (3): {closure#1}(), {closure#2}(), {closure#3}()
 ### Community 49 - "Illuminate\Database\Migrations\Migration"
 Cohesion: 0.16
 Nodes (5): {closure#1}(), {closure#2}(), {closure#3}(), Illuminate\Database\Migrations\Migration, Illuminate\Support\Facades\DB
-
-### Community 50 - "2026_09_29_000002_create_lks_records_and_audit_tables.php"
-Cohesion: 0.33
-Nodes (3): {closure#1}(), {closure#2}(), {closure#3}()
 
 ### Community 52 - "Frontend Design — LKS Santri Karya"
 Cohesion: 0.33
@@ -294,9 +301,9 @@ Nodes (5): extra, laravel, post-create-project, dont-discover, installer
 Cohesion: 0.40
 Nodes (4): Monolog\Handler\NullHandler, Monolog\Handler\StreamHandler, Monolog\Handler\SyslogUdpHandler, Monolog\Processor\PsrLogMessageProcessor
 
-### Community 57 - "Illuminate\Support\Facades\Schema"
-Cohesion: 0.20
-Nodes (4): {closure#1}(), {closure#2}(), {closure#1}(), Illuminate\Support\Facades\Schema
+### Community 58 - "web.php"
+Cohesion: 0.18
+Nodes (5): PrototypeDashboardController, {closure#1}(), 1. Keputusan utama, Illuminate\Http\Response, Illuminate\Support\Facades\File
 
 ### Community 61 - "Panduan Brevo untuk Email Reset Password"
 Cohesion: 0.40
@@ -311,24 +318,24 @@ Cohesion: 0.50
 Nodes (3): confirmTwoFactor, resetVerification, showVerificationIfNecessary
 
 ## Knowledge Gaps
-- **208 isolated node(s):** `$schema`, `name`, `type`, `description`, `keywords` (+203 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 399 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **58 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **215 isolated node(s):** `$schema`, `name`, `type`, `description`, `keywords` (+210 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 409 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **60 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `User` connect `User` to `FortifyServiceProvider.php`, `TestCase`, `EmailVerificationTest`, `PasswordResetTest.php`, `Illuminate\Database\Eloquent\Concerns\HasUuids`, `Illuminate\Support\Str`, `SecurityTest`, `PeriodActivationService`, `OrganizationController.php`, `PeriodParticipantSnapshot`, `Illuminate\Foundation\Testing\RefreshDatabase`, `OrganizationController`, `AuditLog`, `LksCoreTest`, `AuthenticationTest`?**
-  _High betweenness centrality (0.118) - this node is a cross-community bridge._
-- **Why does `LksScoreCalculator` connect `LksScoreCalculator` to `Illuminate\Database\Eloquent\Concerns\HasUuids`, `Database Design — LKS Santri Karya`, `Architecture System — LKS Santri Karya`, `PeriodParticipantSnapshot`, `Illuminate\Http\JsonResponse`, `Tech Stack — LKS Santri Karya`?**
-  _High betweenness centrality (0.057) - this node is a cross-community bridge._
-- **Why does `LksPeriod` connect `LksPeriod` to `User`, `Illuminate\Database\Eloquent\Concerns\HasUuids`, `Illuminate\Http\Request`, `PeriodActivationService`, `PeriodParticipantSnapshot`, `Illuminate\Http\JsonResponse`, `AuditLog`, `LksCoreTest`, `LksScoreCalculator`, `Illuminate\Database\Eloquent\Relations\BelongsTo`?**
-  _High betweenness centrality (0.047) - this node is a cross-community bridge._
+- **Why does `User` connect `User` to `FortifyServiceProvider.php`, `TestCase`, `EmailVerificationTest`, `PasswordResetTest.php`, `Illuminate\Database\Eloquent\Concerns\HasUuids`, `ProfileUpdateTest`, `PeriodActivationService`, `PeriodParticipantSnapshot`, `OrganizationController.php`, `LksCoreTest`, `UserFactory.php`, `AuditLog`, `LksChecklist`, `SecurityTest`, `OrganizationController`?**
+  _High betweenness centrality (0.115) - this node is a cross-community bridge._
+- **Why does `LksScoreCalculator` connect `LksScoreCalculator` to `Tech Stack — LKS Santri Karya`, `Illuminate\Database\Eloquent\Concerns\HasUuids`, `Database Design — LKS Santri Karya`, `Architecture System — LKS Santri Karya`, `PeriodParticipantSnapshot`, `Illuminate\Http\JsonResponse`?**
+  _High betweenness centrality (0.056) - this node is a cross-community bridge._
+- **Why does `LksPeriod` connect `LksPeriod` to `User`, `Illuminate\Database\Eloquent\Concerns\HasUuids`, `Illuminate\Http\Request`, `PeriodActivationService`, `PeriodParticipantSnapshot`, `LksCoreTest`, `Illuminate\Http\JsonResponse`, `AuditLog`, `LksScoreCalculator`, `Illuminate\Database\Eloquent\Relations\BelongsTo`?**
+  _High betweenness centrality (0.046) - this node is a cross-community bridge._
 - **What connects `$schema`, `name`, `type` to the rest of the system?**
-  _208 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _215 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `frontend/app.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.05595959595959596 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0548258138206739 - nodes in this community are weakly interconnected._
 - **Should `FortifyServiceProvider.php` be split into smaller, more focused modules?**
-  _Cohesion score 0.05587808417997097 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05803921568627451 - nodes in this community are weakly interconnected._
 - **Should `TestCase` be split into smaller, more focused modules?**
-  _Cohesion score 0.14210526315789473 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.10160427807486631 - nodes in this community are weakly interconnected._

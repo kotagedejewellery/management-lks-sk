@@ -56,6 +56,7 @@ class LksScoreCalculator
         })->values();
 
         $finalPercentage = $totalWeight === 0.0 ? 0.0 : $weightedScore / $totalWeight;
+        $passingThreshold = $this->passingThreshold($participant);
 
         return [
             'participant_id' => $participant->getKey(),
@@ -68,7 +69,8 @@ class LksScoreCalculator
             'leader' => $participant->leader_name_snapshot,
             'activities' => $activityScores,
             'final_percentage' => round($finalPercentage, 2),
-            'final_status' => $finalPercentage >= (float) $participant->period->final_passing_threshold ? 'tuntas' : 'belum_tuntas',
+            'passing_threshold' => $passingThreshold,
+            'final_status' => $finalPercentage >= $passingThreshold ? 'tuntas' : 'belum_tuntas',
         ];
     }
 
@@ -89,9 +91,9 @@ class LksScoreCalculator
     /** @param Collection<int, array<string, mixed>> $scores
      * @return Collection<int, array<string, mixed>>
      */
-    public function departmentSummary(Collection $scores, float $groupThreshold = 85): Collection
+    public function departmentSummary(Collection $scores): Collection
     {
-        return $scores->groupBy('department')->map(function (Collection $departmentScores, ?string $department) use ($groupThreshold): array {
+        return $scores->groupBy('department')->map(function (Collection $departmentScores, ?string $department): array {
             $average = $departmentScores->avg('final_percentage') ?? 0;
 
             return [
@@ -99,9 +101,16 @@ class LksScoreCalculator
                 'participant_count' => $departmentScores->count(),
                 'average_percentage' => round($average, 2),
                 'tuntas_count' => $departmentScores->where('final_status', 'tuntas')->count(),
-                'group_status' => $average >= $groupThreshold ? 'achieve' : 'not_achieve',
+                'belum_tuntas_count' => $departmentScores->where('final_status', 'belum_tuntas')->count(),
             ];
         })->values();
+    }
+
+    private function passingThreshold(PeriodParticipantSnapshot $participant): float
+    {
+        return (float) ($participant->level_snapshot === 'leader'
+            ? $participant->period->final_passing_threshold
+            : $participant->period->staff_passing_threshold ?? 85);
     }
 
     /** @return list<string> */

@@ -100,7 +100,8 @@ class DashboardController extends Controller
                 'name' => $period->name,
                 'start_date' => $period->start_date->toDateString(),
                 'end_date' => $period->end_date->toDateString(),
-                'group_achievement_threshold' => $period->group_achievement_threshold,
+                'leader_passing_threshold' => $period->final_passing_threshold,
+                'staff_passing_threshold' => $period->staff_passing_threshold,
                 'is_open' => true,
             ],
             'participant' => $participant === null ? null : [
