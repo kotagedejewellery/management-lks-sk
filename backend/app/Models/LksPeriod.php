@@ -44,4 +44,10 @@ class LksPeriod extends Model
     {
         return $this->hasMany(PeriodParticipantSnapshot::class, 'period_id');
     }
+
+    /** @return HasMany<PeriodHolidaySnapshot, $this> */
+    public function holidaySnapshots(): HasMany
+    {
+        return $this->hasMany(PeriodHolidaySnapshot::class, 'period_id');
+    }
 }

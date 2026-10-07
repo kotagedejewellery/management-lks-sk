@@ -57,7 +57,7 @@ class PeriodActivationService
                 'event' => 'period.activated',
                 'auditable_type' => $period->getMorphClass(),
                 'auditable_id' => $period->getKey(),
-                'after_data' => ['status' => 'active', 'participant_count' => $profiles->count()],
+                'after_data' => ['status' => 'active', 'participant_count' => $profiles->count(), 'holiday_count' => $period->holidaySnapshots()->count()],
             ]);
 
             return $period->refresh();

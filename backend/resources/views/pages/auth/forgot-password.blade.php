@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Pulihkan akses akun LKS Santri Karya.">
     <title>Lupa Password — LKS Santri Karya</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('brand/favicon-32.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('brand/apple-touch-icon.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
@@ -37,7 +39,7 @@
     <main class="auth-shell">
         <section class="auth-intro" aria-labelledby="auth-intro-title">
             <a class="auth-brand" href="{{ route('home') }}" aria-label="LKS Santri Karya">
-                <span class="auth-mark" aria-hidden="true">L</span>
+                <img class="auth-mark" src="{{ asset('brand/yayasan-rji-mark.png') }}" alt="">
                 <span><strong>LKS</strong><small>Santri Karya</small></span>
             </a>
             <div class="auth-intro-copy">

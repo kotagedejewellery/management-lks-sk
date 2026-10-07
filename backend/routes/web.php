@@ -64,9 +64,16 @@ Route::middleware(['auth', 'active-user'])->group(function () {
             Route::post('periods', [PeriodConfigurationController::class, 'storePeriod'])->name('periods.store');
             Route::patch('periods/{period}', [PeriodConfigurationController::class, 'updatePeriod'])->name('periods.update');
             Route::delete('periods/{period}', [PeriodConfigurationController::class, 'destroyPeriod'])->name('periods.destroy');
+            Route::post('periods/{period}/holidays', [PeriodConfigurationController::class, 'storePeriodHoliday'])->name('periods.holidays.store');
+            Route::post('periods/{period}/holidays/import', [PeriodConfigurationController::class, 'importPeriodHolidays'])->name('periods.holidays.import');
+            Route::post('periods/{period}/holidays/import-reference', [PeriodConfigurationController::class, 'importReferenceCalendar'])->name('periods.holidays.import-reference');
+            Route::delete('periods/{period}/holidays/{holiday}', [PeriodConfigurationController::class, 'destroyPeriodHoliday'])->name('periods.holidays.destroy');
             Route::post('activities', [PeriodConfigurationController::class, 'storeActivity'])->name('activities.store');
             Route::patch('activities/{activity}', [PeriodConfigurationController::class, 'updateActivity'])->name('activities.update');
             Route::delete('activities/{activity}', [PeriodConfigurationController::class, 'destroyActivity'])->name('activities.destroy');
+            Route::post('calendar-holidays', [PeriodConfigurationController::class, 'storeCalendarHoliday'])->name('calendar-holidays.store');
+            Route::post('calendar-holidays/import', [PeriodConfigurationController::class, 'importCalendarHolidays'])->name('calendar-holidays.import');
+            Route::delete('calendar-holidays/{holiday}', [PeriodConfigurationController::class, 'destroyCalendarHoliday'])->name('calendar-holidays.destroy');
             Route::post('periods/{period}/activities', [PeriodConfigurationController::class, 'storePeriodActivity'])
                 ->name('periods.activities.store');
             Route::patch('periods/{period}/activities', [PeriodConfigurationController::class, 'updatePeriodActivities'])

@@ -384,15 +384,15 @@
     "semantic_hash": ""
   },
   "backend/resources/views/pages/auth/forgot-password.blade.php": {
-    "mtime": 1791278140.5074,
-    "seen": 1791278250.869003,
-    "ast_hash": "3740a273fea1efe3469bf0ba60e83737",
+    "mtime": 1791362082.9043398,
+    "seen": 1791362249.022756,
+    "ast_hash": "f5aff0446b070eaba6e1a20926b5c6ff",
     "semantic_hash": ""
   },
   "backend/resources/views/pages/auth/login.blade.php": {
-    "mtime": 1790756640.8806987,
-    "seen": 1790756663.6204474,
-    "ast_hash": "0a5cb8a3a646caf247d1033d20ae11b1",
+    "mtime": 1791362082.9033403,
+    "seen": 1791362249.022758,
+    "ast_hash": "c9507d98ef8f8102c4579ce37b762c78",
     "semantic_hash": ""
   },
   "backend/resources/views/pages/auth/register.blade.php": {
@@ -426,9 +426,9 @@
     "semantic_hash": ""
   },
   "backend/resources/views/partials/head.blade.php": {
-    "mtime": 1789960738.0,
-    "seen": 1790581887.5535874,
-    "ast_hash": "b9c90b3eb08c898d9a7be8918164db21",
+    "mtime": 1791362082.9057019,
+    "seen": 1791362249.0227828,
+    "ast_hash": "0c9d228b2a56bcb271645e4ed1b44802",
     "semantic_hash": ""
   },
   "backend/resources/views/partials/settings-heading.blade.php": {
@@ -438,9 +438,9 @@
     "semantic_hash": ""
   },
   "backend/resources/views/welcome.blade.php": {
-    "mtime": 1790582047.8349245,
-    "seen": 1790584154.2908566,
-    "ast_hash": "92e02dae2cd3faa43ddc191559fac95b",
+    "mtime": 1791362082.9062097,
+    "seen": 1791362249.0227854,
+    "ast_hash": "1975e701c39df9d5d9aecbb187347cfc",
     "semantic_hash": ""
   },
   "backend/routes/console.php": {
@@ -456,9 +456,9 @@
     "semantic_hash": ""
   },
   "backend/routes/web.php": {
-    "mtime": 1791279664.6061873,
-    "seen": 1791280383.3090005,
-    "ast_hash": "e04c4861bc6c26f5be9ecbc556407972",
+    "mtime": 1791359784.4693005,
+    "seen": 1791359840.5189986,
+    "ast_hash": "4f035ef91da3623190b19d50b71bf4c4",
     "semantic_hash": ""
   },
   "backend/tests/Feature/Auth/AuthenticationTest.php": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1791355012.9119217,
-    "seen": 1791355453.3612533,
-    "ast_hash": "7c8bff9484e312c2eb2ee277b16c0ad7",
+    "mtime": 1791362585.3908226,
+    "seen": 1791362621.4105308,
+    "ast_hash": "08d6c0d4c995a41df1cd778f660c764b",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -576,9 +576,9 @@
     "semantic_hash": ""
   },
   "frontend/index.html": {
-    "mtime": 1791343459.0191543,
-    "seen": 1791345069.380848,
-    "ast_hash": "3b0fb867b87e932cd30089dbf76e0c0b",
+    "mtime": 1791362082.9023376,
+    "seen": 1791362249.0228417,
+    "ast_hash": "8a8c3af7c10a17d2a3e74e44ba41fee2",
     "semantic_hash": ""
   },
   "backend/public/apple-touch-icon.png": {
@@ -708,9 +708,9 @@
     "semantic_hash": ""
   },
   "backend/app/Models/LksPeriod.php": {
-    "mtime": 1790648629.6237717,
-    "seen": 1790649139.6200645,
-    "ast_hash": "c2c5bb3924149bb8901da0ffa0736288",
+    "mtime": 1791356876.3088286,
+    "seen": 1791358473.7810738,
+    "ast_hash": "33ec1c7f09f96b23fd0a10607d248d0e",
     "semantic_hash": ""
   },
   "backend/app/Models/PeriodActivity.php": {
@@ -762,9 +762,9 @@
     "semantic_hash": ""
   },
   "backend/app/Services/PeriodActivationService.php": {
-    "mtime": 1791346085.19395,
-    "seen": 1791346788.4083319,
-    "ast_hash": "a0aee4c7968b34932090fc39ea145886",
+    "mtime": 1791359208.8530922,
+    "seen": 1791359700.0233002,
+    "ast_hash": "21dc6a2b41dc7a4b3410bd48382cab8a",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/ChecklistController.php": {
@@ -774,9 +774,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/DashboardController.php": {
-    "mtime": 1791353220.4402928,
-    "seen": 1791353565.7872066,
-    "ast_hash": "70f5eaa07bafa3d82ce36827b907c57b",
+    "mtime": 1791357147.4666657,
+    "seen": 1791358473.7810435,
+    "ast_hash": "89ad1f9e4e719d9659de6a8759e2e361",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodController.php": {
@@ -810,9 +810,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php": {
-    "mtime": 1791353170.8270805,
-    "seen": 1791353565.7872136,
-    "ast_hash": "b2b66eaed11393496bdf159995c116a7",
+    "mtime": 1791359773.7580469,
+    "seen": 1791359840.5188243,
+    "ast_hash": "a95d01bf860a2777926dc0a11bc740d1",
     "semantic_hash": ""
   },
   ".impeccable/config.json": {
@@ -828,9 +828,9 @@
     "semantic_hash": ""
   },
   "backend/app/Services/LksScoreCalculator.php": {
-    "mtime": 1791353810.0616724,
-    "seen": 1791355453.3610983,
-    "ast_hash": "5e715a5300cec3db8f5d777ca91f3d36",
+    "mtime": 1791357147.4656672,
+    "seen": 1791358473.7810967,
+    "ast_hash": "72892f8fd17b47f7de0007208c29dde8",
     "semantic_hash": ""
   },
   ".impeccable/critique/2026-09-29T06-52-35Z__frontend-index-html.md": {
@@ -897,6 +897,54 @@
     "mtime": 1791355116.2086928,
     "seen": 1791355453.3612497,
     "ast_hash": "cc2aae3cbbfb9b6a77a36b087d568fb7",
+    "semantic_hash": ""
+  },
+  "backend/app/Models/CalendarHoliday.php": {
+    "mtime": 1791356876.3067994,
+    "seen": 1791358473.7810662,
+    "ast_hash": "7092ee31cbb6b48db6cc6aa7949efa50",
+    "semantic_hash": ""
+  },
+  "backend/app/Models/PeriodHolidaySnapshot.php": {
+    "mtime": 1791356876.3077986,
+    "seen": 1791358473.781077,
+    "ast_hash": "5250bf06c404d6633e4aad6a39322f0b",
+    "semantic_hash": ""
+  },
+  "backend/database/migrations/2026_10_07_030000_add_lks_work_calendar.php": {
+    "mtime": 1791356876.305801,
+    "seen": 1791358473.7811494,
+    "ast_hash": "f52318df13a43d45eb66ac616f18ce55",
+    "semantic_hash": ""
+  },
+  "backend/tests/Unit/EffectiveActivityTargetTest.php": {
+    "mtime": 1791358287.2900834,
+    "seen": 1791358473.7812593,
+    "ast_hash": "ef43ebd247bb4eb1b9d1c8ccf9ad27eb",
+    "semantic_hash": ""
+  },
+  "backend/public/brand/apple-touch-icon.png": {
+    "mtime": 1791362145.335704,
+    "seen": 1791362249.0228462,
+    "ast_hash": "2f5372188631191694bacdc0a4627466",
+    "semantic_hash": ""
+  },
+  "backend/public/brand/favicon-32.png": {
+    "mtime": 1791362145.332088,
+    "seen": 1791362249.0228477,
+    "ast_hash": "920cfdbf6d3c645ec2007db14aac1422",
+    "semantic_hash": ""
+  },
+  "backend/public/brand/yayasan-riyadhul-jannah.png": {
+    "mtime": 1791361122.9443934,
+    "seen": 1791362249.022849,
+    "ast_hash": "031c9a70319ce996269f1aad62c43b84",
+    "semantic_hash": ""
+  },
+  "backend/public/brand/yayasan-rji-mark.png": {
+    "mtime": 1791362145.3082883,
+    "seen": 1791362249.0228503,
+    "ast_hash": "fd05d3379370c98898014c57a01b45e6",
     "semantic_hash": ""
   }
 }

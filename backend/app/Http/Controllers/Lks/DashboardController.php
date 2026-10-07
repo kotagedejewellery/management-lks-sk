@@ -65,26 +65,32 @@ class DashboardController extends Controller
             ->where('user_id', $request->user()->getKey())
             ->with(['checklists' => fn ($query) => $query->whereDate('checklist_date', $selectedDate)])
             ->first();
+        $holiday = $period->holidaySnapshots()->whereDate('holiday_date', $selectedDate)->first();
+        $holidayDates = $calculator->periodHolidayDates($period);
 
         $activities = $period->periodActivities()
             ->where('is_active', true)
             ->orderBy('sort_order')
             ->get()
             ->filter(fn ($activity) => $participant === null || $activity->appliesTo($participant))
-            ->map(function ($activity) use ($participant): array {
+            ->map(function ($activity) use ($participant, $calculator, $period, $holidayDates, $holiday): array {
                 $checklist = $participant?->checklists->firstWhere('period_activity_id', $activity->getKey());
+                $rule = $calculator->effectiveTargets($activity, $period, $holidayDates);
 
                 return [
                     'id' => $activity->getKey(),
                     'code' => $activity->activity_code_snapshot,
                     'name' => $activity->activity_name_snapshot,
-                    'target_count' => $activity->target_count,
-                    'minimum_target_count' => $activity->minimum_target_count,
+                    'target_count' => $rule['target_count'],
+                    'minimum_target_count' => $rule['minimum_target_count'],
                     'max_per_week' => $activity->max_per_week,
                     'is_completed' => $checklist?->is_completed ?? false,
                     'allowed_weekdays' => $activity->allowedWeekdays(),
+                    'is_optional_today' => $holiday !== null,
+                    'holiday_name' => $holiday?->name,
                 ];
             })
+            ->filter(fn (array $activity): bool => $activity['target_count'] > 0)
             ->values();
 
         return response()->json(['data' => [

@@ -6,6 +6,7 @@ use App\Models\LksChecklist;
 use App\Models\LksPeriod;
 use App\Models\PeriodParticipantSnapshot;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Carbon;
 
 class LksScoreCalculator
 {
@@ -19,19 +20,26 @@ class LksScoreCalculator
             ->get()
             ->filter(fn ($activity) => $activity->appliesTo($participant))
             ->values();
+        $holidayDates = $this->periodHolidayDates($participant->period);
+        $effectiveTargets = $activities
+            ->mapWithKeys(fn ($activity): array => [$activity->getKey() => $this->effectiveTargets($activity, $participant->period, $holidayDates)])
+            ->filter(fn (array $rule): bool => $rule['target_count'] > 0);
+        $activities = $activities->filter(fn ($activity): bool => $effectiveTargets->has($activity->getKey()))->values();
         $completed = LksChecklist::query()
             ->where('period_participant_id', $participant->getKey())
             ->where('is_completed', true)
             ->whereIn('period_activity_id', $activities->modelKeys())
+            ->when($holidayDates !== [], fn ($query) => $query->whereNotIn('checklist_date', $holidayDates))
             ->groupBy('period_activity_id')
             ->selectRaw('period_activity_id, count(*) as total')
             ->pluck('total', 'period_activity_id');
 
         $totalWeight = 0.0;
         $weightedScore = 0.0;
-        $activityScores = $activities->map(function ($activity) use ($completed, &$totalWeight, &$weightedScore): array {
+        $activityScores = $activities->map(function ($activity) use ($completed, $effectiveTargets, &$totalWeight, &$weightedScore): array {
             $count = (int) ($completed[$activity->getKey()] ?? 0);
-            $percentage = min($count / $activity->target_count, 1) * 100;
+            $rule = $effectiveTargets[$activity->getKey()];
+            $percentage = min($count / $rule['target_count'], 1) * 100;
             $weight = (float) $activity->weight;
             $totalWeight += $weight;
             $weightedScore += $percentage * $weight;
@@ -39,11 +47,11 @@ class LksScoreCalculator
             return [
                 'id' => $activity->getKey(),
                 'name' => $activity->activity_name_snapshot,
-                'target_count' => $activity->target_count,
-                'minimum_target_count' => $activity->minimum_target_count,
+                'target_count' => $rule['target_count'],
+                'minimum_target_count' => $rule['minimum_target_count'],
                 'completed_count' => $count,
                 'percentage' => round($percentage, 2),
-                'status' => $count >= $activity->minimum_target_count ? 'tuntas' : 'belum_tuntas',
+                'status' => $count >= $rule['minimum_target_count'] ? 'tuntas' : 'belum_tuntas',
             ];
         })->values();
 
@@ -94,5 +102,47 @@ class LksScoreCalculator
                 'group_status' => $average >= $groupThreshold ? 'achieve' : 'not_achieve',
             ];
         })->values();
+    }
+
+    /** @return list<string> */
+    public function periodHolidayDates(LksPeriod $period): array
+    {
+        $period->loadMissing('holidaySnapshots');
+
+        return $period->holidaySnapshots
+            ->map(fn ($holiday): string => $holiday->holiday_date->toDateString())
+            ->all();
+    }
+
+    /** @param list<string> $holidayDates
+     *  @return array{target_count: int, minimum_target_count: int}
+     */
+    public function effectiveTargets($activity, LksPeriod $period, array $holidayDates = []): array
+    {
+        $target = (int) $activity->target_count;
+        $minimum = (int) $activity->minimum_target_count;
+        $weekdays = $activity->allowedWeekdays();
+
+        if ($weekdays === []) {
+            return ['target_count' => $target, 'minimum_target_count' => $minimum];
+        }
+
+        $holidays = array_fill_keys($holidayDates, true);
+        $effectiveDays = 0;
+        $date = Carbon::parse($period->start_date)->startOfDay();
+        $endDate = Carbon::parse($period->end_date)->startOfDay();
+        while ($date->lte($endDate)) {
+            if (in_array($date->isoWeekday(), $weekdays, true) && ! isset($holidays[$date->toDateString()])) {
+                $effectiveDays++;
+            }
+            $date->addDay();
+        }
+
+        $effectiveTarget = min($target, $effectiveDays);
+
+        return [
+            'target_count' => $effectiveTarget,
+            'minimum_target_count' => $effectiveTarget === 0 ? 0 : (int) ceil($minimum / $target * $effectiveTarget),
+        ];
     }
 }
