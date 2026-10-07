@@ -24,7 +24,7 @@ class OrganizationController extends Controller
         $this->ensureAdmin($request);
         $search = trim((string) $request->query('people_search'));
         $santriQuery = SantriProfile::query()
-            ->with(['user:id,name,email,is_active', 'user.roles:id,code', 'department:id,name', 'team:id,name', 'leader:id,name'])
+            ->with(['user:id,name,email,is_active', 'user.roles:id,code', 'department:id,name', 'team:id,name,leader_user_id', 'team.leader:id,name'])
             ->when($search !== '', fn ($query) => $query->whereHas('user', fn ($userQuery) => $userQuery
                 ->where('name', 'ilike', "%{$search}%")
                 ->orWhere('email', 'ilike', "%{$search}%")))
@@ -32,7 +32,7 @@ class OrganizationController extends Controller
         $santri = $santriQuery->paginate(25, ['*'], 'people_page');
         $organizationSearch = trim((string) $request->query('organization_search'));
         $departments = Department::query()
-            ->with(['teams' => fn ($query) => $query->withCount('santriProfiles')->orderBy('name')])
+            ->with(['teams' => fn ($query) => $query->with(['leader:id,name'])->withCount('santriProfiles')->orderBy('name')])
             ->withCount('santriProfiles')
             ->when($organizationSearch !== '', fn ($query) => $query->where(fn ($organizationQuery) => $organizationQuery
                 ->where('name', 'ilike', "%{$organizationSearch}%")
@@ -46,8 +46,8 @@ class OrganizationController extends Controller
         return response()->json(['data' => [
             'departments' => $departments->items(),
             'department_pagination' => $this->pagination($departments),
-            'department_options' => Department::query()->with('teams:id,department_id,code,name,is_active')->orderBy('name')->get(),
-            'leaders' => User::query()->whereHas('roles', fn ($query) => $query->where('code', 'leader'))->orderBy('name')->get(['id', 'name']),
+            'department_options' => Department::query()->with(['teams' => fn ($query) => $query->with('leader:id,name')->select('id', 'department_id', 'leader_user_id', 'code', 'name', 'is_active')])->orderBy('name')->get(),
+            'team_leader_options' => SantriProfile::query()->where('status', 'active')->where('level', 'leader')->with('user:id,name')->orderBy('created_at')->get(['user_id', 'team_id']),
             'santri' => $santri->items(),
             'santri_pagination' => $this->pagination($santri),
             'santri_options' => SantriProfile::query()->where('status', 'active')->with('user:id,name')->orderBy('created_at', 'desc')->get(),
@@ -117,6 +117,7 @@ class OrganizationController extends Controller
         $data = $request->validate([
             'code' => ['sometimes', 'required', 'string', 'max:30', Rule::unique('teams', 'code')->ignore($team)],
             'name' => ['sometimes', 'required', 'string', 'max:100'],
+            'leader_user_id' => ['nullable', 'uuid', 'exists:users,id'],
             'is_active' => ['sometimes', 'boolean'],
         ]);
 
@@ -124,10 +125,22 @@ class OrganizationController extends Controller
             throw ValidationException::withMessages(['is_active' => 'Pindahkan atau nonaktifkan seluruh Santri Karya aktif di tim ini terlebih dahulu.']);
         }
 
-        $team->update($data);
-        if (array_key_exists('is_active', $data) && $wasActive !== $team->is_active) {
-            AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => $team->is_active ? 'team.reactivated' : 'team.archived', 'auditable_type' => $team->getMorphClass(), 'auditable_id' => $team->getKey(), 'before_data' => ['is_active' => $wasActive], 'after_data' => ['is_active' => $team->is_active]]);
+        $previousLeader = $team->leader_user_id;
+        if (array_key_exists('leader_user_id', $data)) {
+            $this->ensureTeamLeader($team, $data['leader_user_id']);
         }
+        $leaderChanged = array_key_exists('leader_user_id', $data) && $previousLeader !== $data['leader_user_id'];
+
+        DB::transaction(function () use ($request, $team, $data, $leaderChanged, $previousLeader, $wasActive): void {
+            $team->update($data);
+            if ($leaderChanged) {
+                $this->syncProfilesToTeamLeader($team);
+                AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => 'team.leader_changed', 'auditable_type' => $team->getMorphClass(), 'auditable_id' => $team->getKey(), 'before_data' => ['leader_user_id' => $previousLeader], 'after_data' => ['leader_user_id' => $team->leader_user_id]]);
+            }
+            if (array_key_exists('is_active', $data) && $wasActive !== $team->is_active) {
+                AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => $team->is_active ? 'team.reactivated' : 'team.archived', 'auditable_type' => $team->getMorphClass(), 'auditable_id' => $team->getKey(), 'before_data' => ['is_active' => $wasActive], 'after_data' => ['is_active' => $team->is_active]]);
+            }
+        });
 
         return response()->json(['data' => $team->refresh()]);
     }
@@ -175,24 +188,11 @@ class OrganizationController extends Controller
             'temporary_password' => ['required', 'string', 'min:8', 'max:255'],
             'gender' => ['required', 'in:ikhwan,akhwat'],
             'team_id' => ['required', 'uuid', 'exists:teams,id'],
-            'leader_user_id' => ['nullable', 'uuid', 'exists:users,id'],
-            'category' => ['nullable', 'string', 'max:100'],
-            'level' => ['nullable', 'string', 'max:100'],
-            'is_leader' => ['nullable', 'boolean'],
+            'level' => ['required', Rule::in(['staff', 'leader'])],
         ]);
-        $data['is_leader'] = $request->boolean('is_leader');
 
         $team = Team::query()->findOrFail($data['team_id']);
-        if (isset($data['leader_user_id']) && ! User::query()->whereKey($data['leader_user_id'])
-            ->whereHas('roles', fn ($query) => $query->where('code', 'leader'))->exists()) {
-            throw ValidationException::withMessages(['leader_user_id' => 'Pengguna yang dipilih belum memiliki role Leader.']);
-        }
-
-        $roleCodes = ['santri'];
-        if ($data['is_leader']) {
-            $roleCodes[] = 'leader';
-        }
-        $roleIds = $this->requiredRoleIds($roleCodes);
+        $roleIds = $this->requiredRoleIds(['santri', 'leader']);
 
         $profile = DB::transaction(function () use ($data, $team, $roleIds): SantriProfile {
             $user = new User([
@@ -203,16 +203,17 @@ class OrganizationController extends Controller
             $user->email_verified_at = now();
             $user->save();
 
-            $user->roles()->sync(array_values($roleIds));
+            $user->roles()->sync($data['level'] === 'leader'
+                ? [$roleIds['santri'], $roleIds['leader']]
+                : [$roleIds['santri']]);
 
             return SantriProfile::create([
                 'user_id' => $user->getKey(),
                 'gender' => $data['gender'],
                 'department_id' => $team->department_id,
                 'team_id' => $team->getKey(),
-                'leader_user_id' => $data['leader_user_id'] ?? null,
-                'category' => $data['category'] ?? null,
-                'level' => $data['level'] ?? null,
+                'leader_user_id' => $team->leader_user_id,
+                'level' => $data['level'],
                 'status' => 'active',
             ]);
         });
@@ -229,26 +230,25 @@ class OrganizationController extends Controller
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($profile->getKey())],
             'gender' => ['required', 'in:ikhwan,akhwat'],
             'team_id' => ['required', 'uuid', 'exists:teams,id'],
-            'leader_user_id' => ['nullable', 'uuid', 'exists:users,id'],
-            'category' => ['nullable', 'string', 'max:100'],
-            'level' => ['nullable', 'string', 'max:100'],
-            'is_leader' => ['required', 'boolean'],
+            'level' => ['required', Rule::in(['staff', 'leader'])],
             'status' => ['required', 'in:active,inactive'],
         ]);
-        $data['is_leader'] = $request->boolean('is_leader');
 
         $team = Team::query()->where('is_active', true)->find($data['team_id']);
         if ($team === null) {
             throw ValidationException::withMessages(['team_id' => 'Pilih tim yang masih aktif untuk penempatan Santri Karya.']);
         }
 
-        if (($data['leader_user_id'] ?? null) === $profile->getKey()) {
-            throw ValidationException::withMessages(['leader_user_id' => 'Santri Karya tidak dapat menjadi leader untuk dirinya sendiri.']);
+        if ($data['level'] === 'staff' && Team::query()->where('leader_user_id', $profile->getKey())->exists()) {
+            throw ValidationException::withMessages(['level' => 'Pilih Leader Tim pengganti sebelum mengubah level jabatan menjadi Staff.']);
         }
 
-        if (isset($data['leader_user_id']) && ! User::query()->whereKey($data['leader_user_id'])
-            ->whereHas('roles', fn ($query) => $query->where('code', 'leader'))->exists()) {
-            throw ValidationException::withMessages(['leader_user_id' => 'Pengguna yang dipilih belum memiliki role Leader.']);
+        if ($data['status'] === 'inactive' && Team::query()->where('leader_user_id', $profile->getKey())->exists()) {
+            throw ValidationException::withMessages(['status' => 'Pilih Leader Tim pengganti sebelum menonaktifkan akun ini.']);
+        }
+
+        if (Team::query()->where('leader_user_id', $profile->getKey())->where('id', '!=', $team->getKey())->exists()) {
+            throw ValidationException::withMessages(['team_id' => 'Pilih Leader Tim pengganti sebelum memindahkan akun ini ke tim lain.']);
         }
 
         $roleIds = $this->requiredRoleIds(['santri', 'leader']);
@@ -264,15 +264,14 @@ class OrganizationController extends Controller
                 'gender' => $data['gender'],
                 'department_id' => $team->department_id,
                 'team_id' => $team->getKey(),
-                'leader_user_id' => $data['leader_user_id'] ?? null,
-                'category' => $data['category'] ?? null,
-                'level' => $data['level'] ?? null,
+                'leader_user_id' => $team->leader_user_id === $profile->getKey() ? null : $team->leader_user_id,
+                'level' => $data['level'],
                 'status' => $data['status'],
             ]);
 
             $profile->user->roles()->syncWithoutDetaching([$roleIds['santri']]);
 
-            if ($data['is_leader']) {
+            if ($data['level'] === 'leader') {
                 $profile->user->roles()->syncWithoutDetaching([$roleIds['leader']]);
             } else {
                 $profile->user->roles()->detach($roleIds['leader']);
@@ -300,8 +299,8 @@ class OrganizationController extends Controller
         if (PeriodParticipantSnapshot::query()->where('user_id', $user->getKey())->exists()) {
             throw ValidationException::withMessages(['santri' => 'Santri Karya yang sudah memiliki riwayat periode tidak dapat dihapus. Nonaktifkan akun ini sebagai gantinya.']);
         }
-        if (SantriProfile::query()->where('leader_user_id', $user->getKey())->exists()) {
-            throw ValidationException::withMessages(['santri' => 'Pindahkan anggota yang dipimpin oleh akun ini sebelum menghapusnya.']);
+        if (Team::query()->where('leader_user_id', $user->getKey())->exists()) {
+            throw ValidationException::withMessages(['santri' => 'Pilih Leader Tim pengganti sebelum menghapus akun ini.']);
         }
 
         $before = ['user_id' => $user->getKey(), 'name' => $user->name, 'email' => $user->email];
@@ -334,5 +333,34 @@ class OrganizationController extends Controller
     private function ensureAdmin(Request $request): void
     {
         abort_unless($request->user()?->isAdmin(), 403);
+    }
+
+    private function ensureTeamLeader(Team $team, ?string $leaderUserId): void
+    {
+        if ($leaderUserId === null) {
+            return;
+        }
+
+        $isEligible = $team->santriProfiles()
+            ->where('user_id', $leaderUserId)
+            ->where('status', 'active')
+            ->where('level', 'leader')
+            ->exists();
+
+        if (! $isEligible) {
+            throw ValidationException::withMessages(['leader_user_id' => 'Pilih Santri Karya aktif dengan level jabatan Leader dari tim ini.']);
+        }
+    }
+
+    private function syncProfilesToTeamLeader(Team $team): void
+    {
+        $profiles = $team->santriProfiles();
+        if ($team->leader_user_id === null) {
+            $profiles->update(['leader_user_id' => null]);
+            return;
+        }
+
+        $profiles->where('user_id', '!=', $team->leader_user_id)->update(['leader_user_id' => $team->leader_user_id]);
+        $team->santriProfiles()->where('user_id', $team->leader_user_id)->update(['leader_user_id' => null]);
     }
 }

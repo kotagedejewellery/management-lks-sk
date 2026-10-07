@@ -1,4 +1,4 @@
-const viewLabels = { dashboard: ['Ruang pribadi', 'Dashboard'], lks: ['Catatan pribadi', 'LKS Saya'], recap: ['Pemantauan', 'Rekap'], department: ['Laporan organisasi', 'Departemen'], history: ['Catatan pribadi', 'Riwayat'], account: ['Akun', 'Akun Saya'], settings: ['Administrasi', 'Pengaturan'], organization: ['Pengaturan', 'Struktur Organisasi'], people: ['Pengaturan', 'Data Santri Karya'], periods: ['Pengaturan', 'Periode LKS'], activities: ['Pengaturan', 'Aktivitas LKS'] };
+const viewLabels = { dashboard: ['Ruang pribadi', 'Dashboard'], lks: ['Catatan pribadi', 'LKS Saya'], recap: ['Pemantauan', 'Rekap'], department: ['Laporan organisasi', 'Departemen'], history: ['Catatan pribadi', 'Riwayat'], account: ['Akun', 'Akun Saya'], settings: ['Administrasi', 'Pengaturan'], organization: ['Pengaturan', 'Struktur Organisasi'], people: ['Pengaturan', 'Data Santri Karya'], periods: ['Pengaturan', 'Periode LKS'], 'period-detail': ['Pengaturan', 'Kelola Periode'], activities: ['Pengaturan', 'Aktivitas LKS'] };
 const navButtons = document.querySelectorAll('[data-view]');
 const viewPanels = document.querySelectorAll('[data-view-panel]');
 const pageTitle = document.querySelector('#page-title');
@@ -25,6 +25,7 @@ let departmentTrendData = [];
 let selectedChecklistDate = todayIso();
 let activePeriodActivities = [];
 let accountData = null;
+let selectedPeriodId = null;
 
 function canOpenView(name, roles) {
   if (!hasConfiguredRole(roles)) return ['dashboard', 'account'].includes(name);
@@ -33,6 +34,10 @@ function canOpenView(name, roles) {
 
 function storedViewKey() {
   return viewer?.id ? `lks.active-view.${viewer.id}` : null;
+}
+
+function storedPeriodKey() {
+  return viewer?.id ? `lks.selected-period.${viewer.id}` : null;
 }
 
 function savedView() {
@@ -44,7 +49,10 @@ function savedView() {
 function saveView(name) {
   const key = storedViewKey();
   if (!key) return;
-  try { sessionStorage.setItem(key, name); } catch { /* Browser storage is optional. */ }
+  try {
+    sessionStorage.setItem(key, name);
+    if (name === 'period-detail' && selectedPeriodId) sessionStorage.setItem(storedPeriodKey(), selectedPeriodId);
+  } catch { /* Browser storage is optional. */ }
 }
 
 function openView(name, { persist = true, scroll = true } = {}) {
@@ -56,7 +64,7 @@ function openView(name, { persist = true, scroll = true } = {}) {
   breadcrumb.textContent = trail;
   if (persist) saveView(name);
   if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (['settings', 'organization', 'people', 'periods', 'activities'].includes(name)) loadAdminView(name);
+  if (['settings', 'organization', 'people', 'periods', 'period-detail', 'activities'].includes(name)) loadAdminView(name);
   if (['recap', 'department'].includes(name)) loadRecap();
   if (['dashboard', 'lks'].includes(name)) loadDashboard({ showProgress: true, reloadRecap: false });
   if (name === 'history') loadHistory({ showProgress: true });
@@ -240,7 +248,9 @@ function setChecklistEmpty(message, title = 'Catatan LKS belum tersedia') {
 }
 
 function setChecklistReady() {
-  document.querySelector('.full-checklist .section-head h2').textContent = 'Catatan hari ini';
+  document.querySelector('.full-checklist .section-head h2').textContent = selectedChecklistDate === todayIso()
+    ? 'Catatan hari ini'
+    : `Catatan ${formatDate(selectedChecklistDate, true)}`;
   document.querySelector('.full-checklist .save-state').hidden = false;
 }
 
@@ -263,6 +273,15 @@ function applyDashboard(data) {
   viewer = data.viewer;
   if (viewerChanged) applyViewerIdentity(data.viewer);
   if (!hasConfiguredRole(data.viewer.roles ?? [])) return;
+  if (data.period) {
+    document.querySelector('#sidebar-period-name').textContent = data.period.name;
+    document.querySelector('#dashboard-period-name').textContent = data.period.name;
+    document.querySelector('#sidebar-period-end').textContent = `Berakhir ${formatDate(data.period.end_date)}`;
+  } else {
+    document.querySelector('#sidebar-period-name').textContent = 'Belum ada periode aktif';
+    document.querySelector('#sidebar-period-end').textContent = 'Aktifkan periode untuk mulai mencatat';
+  }
+
   if (!canUsePersonalLks(data.viewer.roles ?? [])) {
     participantId = null;
     activePeriodActivities = [];
@@ -288,10 +307,6 @@ function applyDashboard(data) {
     return;
   }
 
-  document.querySelector('#sidebar-period-name').textContent = data.period.name;
-  document.querySelector('#dashboard-period-name').textContent = data.period.name;
-  document.querySelector('#sidebar-period-end').textContent = `Berakhir ${formatDate(data.period.end_date)}`;
-
   if (data.period.is_open === false) {
     participantId = null;
     document.querySelector('.date-rail').innerHTML = `<p class="date-note">Periode ini telah disiapkan dan pencatatan akan dibuka pada ${formatDate(data.period.start_date)}.</p>`;
@@ -312,7 +327,7 @@ function applyDashboard(data) {
 
   participantId = data.participant.id;
   const maxDate = [todayIso(), dateInputValue(data.period.end_date)].sort()[0];
-  document.querySelector('.date-rail').innerHTML = `<label class="checklist-date-control">Tanggal pencatatan<input type="date" data-checklist-date value="${escapeHtml(selectedChecklistDate)}" min="${escapeHtml(dateInputValue(data.participant.participation_start_date))}" max="${escapeHtml(maxDate)}"></label><p class="date-note">Checklist tersimpan berdasarkan tanggal yang dipilih.</p>`;
+  document.querySelector('.date-rail').innerHTML = `<label class="checklist-date-control">Tanggal pencatatan<input type="date" data-checklist-date value="${escapeHtml(selectedChecklistDate)}" min="${escapeHtml(dateInputValue(data.participant.participation_start_date))}" max="${escapeHtml(maxDate)}"></label><p class="date-note">Checklist tersimpan untuk ${escapeHtml(formatDate(selectedChecklistDate, true))}.</p>`;
   quickChecks.innerHTML = data.activities.slice(0, 4).map(renderQuickCheck).join('');
   fullChecklist.innerHTML = data.activities.map(renderFullCheck).join('');
   setChecklistReady();
@@ -360,10 +375,11 @@ function renderPersonalSummary(personal) {
   scoreBox.hidden = false;
   scoreBox.innerHTML = `<span>Nilai sementara</span><strong>${score}</strong><small>${status}</small>`;
 
+  const jobLevel = viewer.identity?.level === 'leader' ? 'Leader' : viewer.identity?.level === 'staff' ? 'Staff' : null;
   const details = [
-    ['Tim', viewer.identity?.team], ['Leader', viewer.identity?.leader], ['Departemen', viewer.identity?.department], ['Kategori', viewer.identity?.category], ['Level', viewer.identity?.level],
+    ['Tim', viewer.identity?.team], ['Leader', viewer.identity?.leader], ['Departemen', viewer.identity?.department], ['Level jabatan', jobLevel],
   ].filter(([, value]) => value).map(([label, value]) => `<li><span>${escapeHtml(label.slice(0, 1))}</span><div><small>${escapeHtml(label)}</small><strong>${escapeHtml(value)}</strong></div></li>`).join('');
-  document.querySelector('.period-summary').innerHTML = `<h3>${personal.final_status === 'tuntas' ? 'Target periode tercapai.' : 'Masih ada ruang untuk bertumbuh.'}</h3><div class="summary-score"><strong>${score}</strong><span>Nilai sementara</span></div>${details ? `<ul>${details}</ul>` : ''}<button class="text-action" type="button" data-go="history">Lihat riwayat <svg><use href="#icon-arrow"/></svg></button>`;
+  document.querySelector('.period-summary').innerHTML = `<h3>${personal.final_status === 'tuntas' ? 'Target periode tercapai.' : 'Masih ada ruang untuk bertumbuh.'}</h3>${details ? `<ul>${details}</ul>` : ''}<button class="text-action" type="button" data-go="history">Lihat riwayat <svg><use href="#icon-arrow"/></svg></button>`;
 }
 
 function renderPersonalRecap() {
@@ -547,6 +563,7 @@ async function persistChecklist(button) {
     if (!response.ok) throw new Error(await apiError(response));
 
     syncChecklist(activityId, complete);
+    await loadDashboard({ date: selectedChecklistDate, reloadRecap: false });
     showToast(complete ? 'Amalan dicatat' : 'Catatan diperbarui');
   } catch (error) {
     showToast(error.message || 'Perubahan belum tersimpan. Periksa koneksi lalu coba lagi.', 'error');
@@ -593,6 +610,7 @@ function canView(view, roles) {
     organization: isAdmin,
     people: isAdmin,
     periods: isAdmin,
+    'period-detail': isAdmin,
     activities: isAdmin,
   }[view] ?? false;
 }
@@ -624,6 +642,9 @@ function applyViewerIdentity(currentViewer) {
   renderHistory();
 
   const restoredView = savedView();
+  if (restoredView === 'period-detail') {
+    try { selectedPeriodId = sessionStorage.getItem(storedPeriodKey()); } catch { selectedPeriodId = null; }
+  }
   if (restoredView && canOpenView(restoredView, roles)) {
     openView(restoredView, { persist: false, scroll: false });
     return;
@@ -819,13 +840,13 @@ function renderAdminView(name) {
     return;
   }
   const needsOrganization = ['settings', 'organization', 'people'].includes(name);
-  const needsConfiguration = ['settings', 'periods', 'activities'].includes(name);
+  const needsConfiguration = ['settings', 'periods', 'period-detail', 'activities'].includes(name);
   if ((needsOrganization && organizationData === null) || (needsConfiguration && configurationData === null)) {
     panel.innerHTML = adminPanel('Memuat konfigurasi', 'Data administrasi sedang disiapkan.', '<p class="admin-empty" role="status">Memuat data…</p>');
     return;
   }
 
-  const organization = organizationData ?? { departments: [], department_options: [], santri: [], santri_options: [], leaders: [] };
+  const organization = organizationData ?? { departments: [], department_options: [], santri: [], santri_options: [], team_leader_options: [] };
   const configuration = configurationData ?? { periods: [], period_options: [], activities: [], activity_options: [] };
   const departmentOptions = organization.department_options ?? organization.departments;
   const teams = departmentOptions.flatMap((department) => department.teams.map((team) => ({ ...team, name: `${department.name} — ${team.name}`, teamName: team.name, departmentName: department.name })));
@@ -845,13 +866,13 @@ function renderAdminView(name) {
     const showOrganizationEmpty = organizationMeta.total === 0 && !hasOrganizationSearch;
     const hierarchyRows = departments.map((department) => {
       const departmentActions = `<button class="text-button organization-row-action" type="button" data-open-admin-modal="department-edit" data-organization-id="${escapeHtml(department.id)}">Edit</button><button class="text-button organization-row-action" type="button" data-open-admin-modal="team" data-department-id="${escapeHtml(department.id)}"${department.is_active ? '' : ' disabled'}>Tambah tim</button>${department.is_active ? `<button class="text-button organization-row-action organization-archive-action" type="button" data-archive-organization="department" data-organization-id="${escapeHtml(department.id)}" data-organization-name="${escapeHtml(department.name)}">Arsipkan</button>` : ''}${department.teams.length === 0 && department.santri_profiles_count === 0 ? `<button class="text-button organization-row-action" type="button" data-delete-resource="department" data-resource-id="${escapeHtml(department.id)}" data-resource-name="${escapeHtml(department.name)}">Hapus</button>` : ''}`;
-      const departmentRow = `<div class="organization-hierarchy-row organization-department-row" role="row"><span role="cell"><strong>${escapeHtml(department.name)}</strong><small>${department.teams.length} tim</small></span><span class="organization-code" role="cell">${escapeHtml(department.code)}</span><span role="cell">${department.santri_profiles_count} Santri Karya</span><span role="cell">${department.is_active ? 'Aktif' : 'Diarsipkan'}</span><span class="organization-row-actions" role="cell">${departmentActions}</span></div>`;
-      const teamRows = department.teams.map((team) => `<div class="organization-hierarchy-row organization-team-child-row" role="row"><span role="cell"><strong>${escapeHtml(team.name)}</strong><small>Tim · ${escapeHtml(department.name)}</small></span><span class="organization-code" role="cell">${escapeHtml(team.code)}</span><span role="cell">${team.santri_profiles_count} Santri Karya</span><span role="cell">${team.is_active ? 'Aktif' : 'Diarsipkan'}</span><span class="organization-row-actions" role="cell"><button class="text-button organization-row-action" type="button" data-open-admin-modal="team-edit" data-organization-id="${escapeHtml(team.id)}">Edit</button>${team.is_active ? `<button class="text-button organization-row-action organization-archive-action" type="button" data-archive-organization="team" data-organization-id="${escapeHtml(team.id)}" data-organization-name="${escapeHtml(team.name)}">Arsipkan</button>` : ''}${team.santri_profiles_count === 0 ? `<button class="text-button organization-row-action" type="button" data-delete-resource="team" data-resource-id="${escapeHtml(team.id)}" data-resource-name="${escapeHtml(team.name)}">Hapus</button>` : ''}</span></div>`).join('');
+      const departmentRow = `<div class="organization-hierarchy-row organization-department-row" role="row"><span role="cell"><strong>${escapeHtml(department.name)}</strong><small>${department.teams.length} tim</small></span><span class="organization-code" role="cell">${escapeHtml(department.code)}</span><span role="cell">${department.santri_profiles_count} Santri Karya</span><span role="cell">—</span><span role="cell">${department.is_active ? 'Aktif' : 'Diarsipkan'}</span><span class="organization-row-actions" role="cell">${departmentActions}</span></div>`;
+      const teamRows = department.teams.map((team) => `<div class="organization-hierarchy-row organization-team-child-row" role="row"><span role="cell"><strong>${escapeHtml(team.name)}</strong><small>Tim · ${escapeHtml(department.name)}</small></span><span class="organization-code" role="cell">${escapeHtml(team.code)}</span><span role="cell">${team.santri_profiles_count} Santri Karya</span><span role="cell">${escapeHtml(team.leader?.name ?? 'Belum ditetapkan')}</span><span role="cell">${team.is_active ? 'Aktif' : 'Diarsipkan'}</span><span class="organization-row-actions" role="cell"><button class="text-button organization-row-action" type="button" data-open-admin-modal="team-edit" data-organization-id="${escapeHtml(team.id)}">Edit</button>${team.is_active ? `<button class="text-button organization-row-action organization-archive-action" type="button" data-archive-organization="team" data-organization-id="${escapeHtml(team.id)}" data-organization-name="${escapeHtml(team.name)}">Arsipkan</button>` : ''}${team.santri_profiles_count === 0 ? `<button class="text-button organization-row-action" type="button" data-delete-resource="team" data-resource-id="${escapeHtml(team.id)}" data-resource-name="${escapeHtml(team.name)}">Hapus</button>` : ''}</span></div>`).join('');
       return `${departmentRow}${teamRows || '<div class="organization-no-team">Belum ada tim. Tambahkan tim dari baris departemen di atas.</div>'}`;
     }).join('');
     const hierarchyContent = showOrganizationEmpty
       ? `<section class="organization-empty-state" aria-labelledby="department-empty-title"><h3 id="department-empty-title">Belum ada departemen</h3><p>Mulai dengan membuat departemen sebagai dasar struktur organisasi. Setelah itu, Anda dapat menambahkan tim di dalamnya.</p><button class="primary-button" type="button" data-open-admin-modal="department">Tambah departemen</button></section>`
-      : `<section class="admin-record-section organization-hierarchy-section" aria-labelledby="organization-list-title"><div class="organization-section-head"><div><h3 id="organization-list-title">Struktur Departemen dan Tim</h3><p>${organizationMeta.total} departemen · ${teams.length} tim.</p></div></div><form class="admin-list-search" data-admin-list-search="organization"><label class="sr-only" for="organization-search">Cari departemen atau tim</label><input id="organization-search" name="search" value="${escapeHtml(adminListState.organization.search)}" placeholder="Cari nama atau kode departemen/tim" autocomplete="off"></form>${departments.length ? `<div class="organization-hierarchy-table" role="table" aria-label="Struktur organisasi"><div class="organization-hierarchy-head" role="row"><span role="columnheader">Unit</span><span role="columnheader">Kode</span><span role="columnheader">Santri Karya</span><span role="columnheader">Status</span><span role="columnheader">Aksi</span></div>${hierarchyRows}</div>${paginationControls(organizationMeta, 'organization')}` : '<p class="admin-empty">Tidak ada unit yang sesuai dengan pencarian.</p>'}</section>`;
+      : `<section class="admin-record-section organization-hierarchy-section" aria-labelledby="organization-list-title"><div class="organization-section-head"><div><h3 id="organization-list-title">Struktur Departemen dan Tim</h3><p>${organizationMeta.total} departemen · ${teams.length} tim.</p></div></div><form class="admin-list-search" data-admin-list-search="organization"><label class="sr-only" for="organization-search">Cari departemen atau tim</label><input id="organization-search" name="search" value="${escapeHtml(adminListState.organization.search)}" placeholder="Cari nama atau kode departemen/tim" autocomplete="off"></form>${departments.length ? `<div class="organization-hierarchy-table" role="table" aria-label="Struktur organisasi"><div class="organization-hierarchy-head" role="row"><span role="columnheader">Unit</span><span role="columnheader">Kode</span><span role="columnheader">Santri Karya</span><span role="columnheader">Leader Tim</span><span role="columnheader">Status</span><span role="columnheader">Aksi</span></div>${hierarchyRows}</div>${paginationControls(organizationMeta, 'organization')}` : '<p class="admin-empty">Tidak ada unit yang sesuai dengan pencarian.</p>'}</section>`;
     const organizationActions = !showOrganizationEmpty ? '<button class="primary-button" type="button" data-open-admin-modal="department">Tambah departemen</button>' : '';
     panel.innerHTML = adminPanel('Struktur Organisasi', 'Atur departemen dan tim sebagai dasar penempatan Santri Karya.', hierarchyContent, organizationActions, !showOrganizationEmpty);
     return;
@@ -861,7 +882,7 @@ function renderAdminView(name) {
     const people = organization.santri;
     const hasPeopleSearch = Boolean(adminListState.people.search);
     const showPeopleEmpty = hasTeams && peopleMeta.total === 0 && !hasPeopleSearch;
-    const peopleRows = people.map((profile) => `<div class="admin-record-row people-record-row" role="row"><span role="cell"><strong>${escapeHtml(profile.user.name)}</strong><small>${escapeHtml(profile.user.email)}</small></span><span role="cell">${escapeHtml(profile.team?.name ?? 'Tanpa tim')} · ${escapeHtml(profile.department?.name ?? 'Tanpa departemen')}</span><span role="cell">${profile.status === 'active' ? 'Aktif' : 'Nonaktif'}${profile.user.roles?.some((role) => role.code === 'leader') ? ' · Leader' : ''}</span><span role="cell"><button class="text-button organization-row-action" type="button" data-open-admin-modal="santri-edit" data-santri-id="${escapeHtml(profile.user_id)}">Edit</button><button class="text-button organization-row-action" type="button" data-delete-resource="santri" data-resource-id="${escapeHtml(profile.user_id)}" data-resource-name="${escapeHtml(profile.user.name)}">Hapus</button></span></div>`).join('');
+    const peopleRows = people.map((profile) => `<div class="admin-record-row people-record-row" role="row"><span role="cell"><strong>${escapeHtml(profile.user.name)}</strong><small>${escapeHtml(profile.user.email)}</small></span><span role="cell">${escapeHtml(profile.team?.name ?? 'Tanpa tim')} · ${escapeHtml(profile.department?.name ?? 'Tanpa departemen')}</span><span role="cell">${profile.status === 'active' ? 'Aktif' : 'Nonaktif'} · ${profile.level === 'leader' ? 'Leader' : 'Staff'}</span><span role="cell"><button class="text-button organization-row-action" type="button" data-open-admin-modal="santri-edit" data-santri-id="${escapeHtml(profile.user_id)}">Edit</button><button class="text-button organization-row-action" type="button" data-delete-resource="santri" data-resource-id="${escapeHtml(profile.user_id)}" data-resource-name="${escapeHtml(profile.user.name)}">Hapus</button></span></div>`).join('');
     const peopleContent = !hasTeams
       ? `<section class="organization-empty-state" aria-labelledby="people-prerequisite-title"><h3 id="people-prerequisite-title">Siapkan tim terlebih dahulu</h3><p>Santri Karya perlu ditempatkan di dalam tim. Buat departemen dan tim sebelum membuat akun Santri Karya.</p><button class="primary-button" type="button" data-go="organization">Kelola struktur organisasi</button></section>`
       : !showPeopleEmpty
@@ -871,29 +892,42 @@ function renderAdminView(name) {
     panel.innerHTML = adminPanel('Data Santri Karya', 'Buat akun dan tetapkan penempatan organisasinya. Peserta periode dikelola dari Periode LKS.', `<nav class="admin-back-link" aria-label="Navigasi pengaturan"><button class="text-button" type="button" data-go="settings">Kembali ke Pengaturan</button></nav>${peopleContent}`, peopleActions, !showPeopleEmpty && hasTeams);
     return;
   }
-  if (name === 'periods') {
-    const activePeriods = periodOptions.filter((period) => period.status === 'active');
-    const activePeriod = activePeriods[0] ?? null;
+  if (name === 'period-detail') {
+    const period = periodOptions.find((item) => item.id === selectedPeriodId);
+    if (!period) {
+      panel.innerHTML = adminPanel('Periode tidak ditemukan', 'Pilih periode dari daftar untuk melanjutkan.', '<button class="primary-button" type="button" data-go="periods">Kembali ke daftar periode</button>', '', false);
+      return;
+    }
     const participantData = activePeriodParticipants ?? { participants: [], pagination: { total: 0, current_page: 1, last_page: 1, per_page: 25 } };
     const participantMeta = participantData.pagination;
+    const activities = period.period_activities ?? [];
+    const participantRows = participantData.participants.map((participant) => `<div class="admin-record-row participant-record-row" role="row"><span role="cell"><strong>${escapeHtml(participant.name)}</strong><small>Mulai ${escapeHtml(formatDate(participant.participation_start_date, true))}</small></span><span role="cell">${escapeHtml(participant.team ?? 'Tanpa tim')}<small>${escapeHtml(participant.department ?? 'Tanpa departemen')}</small></span><span role="cell">${participant.checklists_count ? `${participant.checklists_count} checklist tercatat` : 'Belum ada checklist'}</span><span role="cell">${participant.checklists_count ? '<small>Riwayat tercatat</small>' : `<button class="text-button organization-row-action organization-archive-action" type="button" data-remove-period-participant="${escapeHtml(participant.id)}" data-period-id="${escapeHtml(period.id)}" data-participant-name="${escapeHtml(participant.name)}">Keluarkan</button>`}</span></div>`).join('');
+    const activityRows = activities.map((activity) => `<li><strong>${escapeHtml(activity.activity_name_snapshot)}</strong><span>Target ${escapeHtml(activity.target_count)} kali · ${activity.is_active ? 'Aktif' : 'Nonaktif'}</span></li>`).join('');
+    const lifecycleAction = period.status === 'active'
+      ? `<button class="text-button organization-archive-action" type="button" data-close-period="${escapeHtml(period.id)}" data-period-name="${escapeHtml(period.name)}">Tutup periode</button>`
+      : `<span class="status status-${escapeHtml(period.status === 'closed' ? 'closed' : 'waiting')}">${period.status === 'closed' ? 'Ditutup' : 'Draft'}</span>`;
+    const participantSection = period.status === 'active'
+      ? `<section class="admin-record-section period-participant-section" aria-labelledby="participant-list-title"><div class="organization-section-head"><div><h3 id="participant-list-title">Peserta periode</h3><p>${participantMeta.total} peserta terdaftar pada ${escapeHtml(period.name)}.</p></div><button class="primary-button" type="button" data-open-admin-modal="participant" data-period-id="${escapeHtml(period.id)}">Tambah peserta</button></div><p class="admin-context-note">Peserta baru dapat mencatat sejak dimasukkan. Peserta tanpa checklist masih dapat dikeluarkan.</p><form class="admin-list-search" data-admin-list-search="participants"><label class="sr-only" for="participant-search">Cari peserta periode</label><input id="participant-search" name="search" value="${escapeHtml(adminListState.participants.search)}" placeholder="Cari nama, tim, atau departemen" autocomplete="off"></form>${participantData.participants.length ? `<div class="admin-record-table participant-record-table" role="table" aria-label="Peserta ${escapeHtml(period.name)}"><div class="admin-record-head" role="row"><span role="columnheader">Santri Karya</span><span role="columnheader">Penempatan</span><span role="columnheader">Checklist</span><span role="columnheader">Aksi</span></div>${participantRows}</div>${paginationControls(participantMeta, 'participants')}` : `<p class="admin-empty">${adminListState.participants.search ? 'Tidak ada peserta yang sesuai dengan pencarian.' : 'Belum ada peserta pada periode ini.'}</p>`}</section>`
+      : '';
+    panel.innerHTML = adminPanel(`Kelola periode · ${period.name}`, 'Tinjau konfigurasi dan kelola peserta pada periode ini.', `<nav class="admin-back-link" aria-label="Navigasi pengaturan"><button class="text-button" type="button" data-go="periods">Kembali ke daftar periode</button></nav><section class="period-overview"><div><span class="status status-${escapeHtml(period.status === 'active' ? 'active' : period.status === 'closed' ? 'closed' : 'waiting')}">${escapeHtml(period.status === 'active' ? 'Aktif' : period.status === 'closed' ? 'Ditutup' : 'Draft')}</span><h3>${escapeHtml(period.name)}</h3><p>${escapeHtml(formatDate(period.start_date, true))} — ${escapeHtml(formatDate(period.end_date, true))}</p></div><dl><div><dt>Batas tuntas</dt><dd>${escapeHtml(period.final_passing_threshold)}%</dd></div><div><dt>Aktivitas aktif</dt><dd>${activities.filter((activity) => activity.is_active).length}</dd></div><div><dt>Peserta</dt><dd>${period.status === 'active' ? participantMeta.total : '—'}</dd></div></dl><div class="period-overview-action">${lifecycleAction}</div></section><section class="period-activity-summary" aria-labelledby="period-activity-title"><div class="organization-section-head"><div><h3 id="period-activity-title">Aktivitas periode</h3><p>Konfigurasi aktivitas terkunci setelah periode diaktifkan.</p></div></div>${activityRows ? `<ul>${activityRows}</ul>` : '<p class="admin-empty">Belum ada aktivitas pada periode ini.</p>'}</section>${participantSection}`, '', true);
+    return;
+  }
+  if (name === 'periods') {
     const hasPeriodSearch = Boolean(adminListState.periods.search);
     const showPeriodEmpty = periodMeta.total === 0 && !hasPeriodSearch;
     const periodRows = configuration.periods.map((period) => {
       const activeActivityCount = period.period_activities.filter((activity) => activity.is_active).length;
       const periodAction = period.status === 'draft'
         ? `<button class="text-button organization-row-action" type="button" data-open-admin-modal="period-edit" data-period-id="${escapeHtml(period.id)}">Edit</button><button class="text-button organization-row-action" type="button" data-open-admin-modal="period-config" data-period-id="${escapeHtml(period.id)}">Atur aktivitas</button><button class="text-button organization-row-action" type="button" data-activate-period="${escapeHtml(period.id)}">Aktifkan</button><button class="text-button organization-row-action" type="button" data-delete-resource="period" data-resource-id="${escapeHtml(period.id)}" data-resource-name="${escapeHtml(period.name)}">Hapus draft</button>`
-        : period.status === 'active'
-          ? `<span class="status status-active">Aktif</span><button class="text-button organization-row-action" type="button" data-focus-period-participants>Kelola peserta</button><button class="text-button organization-row-action organization-archive-action" type="button" data-close-period="${escapeHtml(period.id)}" data-period-name="${escapeHtml(period.name)}">Tutup periode</button>`
-          : '<span class="status status-closed">Ditutup</span>';
-      return `<div class="admin-record-row period-record-row" role="row"><span role="cell"><strong>${escapeHtml(period.name)}</strong><small>Batas tuntas ${period.final_passing_threshold}%</small></span><span role="cell">${escapeHtml(formatDate(period.start_date, true))} — ${escapeHtml(formatDate(period.end_date, true))}<small>${period.period_activities.length} aktivitas · ${activeActivityCount} aktif</small></span><span role="cell">${periodAction}</span></div>`;
+        : `<button class="text-button organization-row-action" type="button" data-open-period-detail="${escapeHtml(period.id)}">${period.status === 'active' ? 'Kelola periode' : 'Lihat periode'}</button>`;
+      const periodStatus = period.status === 'active' ? '<span class="status status-active">Aktif</span>' : period.status === 'closed' ? '<span class="status status-closed">Ditutup</span>' : '<span class="status status-waiting">Draft</span>';
+      return `<div class="admin-record-row period-record-row" role="row"><span role="cell"><strong>${escapeHtml(period.name)}</strong><small>Batas tuntas ${period.final_passing_threshold}%</small></span><span role="cell">${escapeHtml(formatDate(period.start_date, true))} — ${escapeHtml(formatDate(period.end_date, true))}<small>${period.period_activities.length} aktivitas · ${activeActivityCount} aktif</small></span><span role="cell">${periodStatus}</span><span role="cell">${periodAction}</span></div>`;
     }).join('');
     const periodContent = !showPeriodEmpty
-      ? `<section class="admin-record-section" aria-labelledby="period-list-title"><div class="organization-section-head"><div><h3 id="period-list-title">Daftar Periode</h3><p>${hasPeriodSearch ? `${periodMeta.total} periode ditemukan.` : `${periodMeta.total} periode tersimpan.`}</p></div></div><form class="admin-list-search" data-admin-list-search="periods"><label class="sr-only" for="period-search">Cari periode LKS</label><input id="period-search" name="search" value="${escapeHtml(adminListState.periods.search)}" placeholder="Cari nama atau status periode" autocomplete="off"></form>${configurationData.periods.length ? `<div class="admin-record-table period-record-table" role="table" aria-label="Daftar periode LKS"><div class="admin-record-head" role="row"><span role="columnheader">Periode</span><span role="columnheader">Rentang dan aktivitas</span><span role="columnheader">Status dan aksi</span></div>${periodRows}</div>${paginationControls(periodMeta, 'periods')}` : '<p class="admin-empty">Tidak ada periode yang sesuai dengan pencarian.</p>'}</section>`
+      ? `<section class="admin-record-section" aria-labelledby="period-list-title"><div class="organization-section-head"><div><h3 id="period-list-title">Daftar Periode</h3><p>${hasPeriodSearch ? `${periodMeta.total} periode ditemukan.` : `${periodMeta.total} periode tersimpan.`}</p></div></div><form class="admin-list-search" data-admin-list-search="periods"><label class="sr-only" for="period-search">Cari periode LKS</label><input id="period-search" name="search" value="${escapeHtml(adminListState.periods.search)}" placeholder="Cari nama atau status periode" autocomplete="off"></form>${configurationData.periods.length ? `<div class="admin-record-table period-record-table" role="table" aria-label="Daftar periode LKS"><div class="admin-record-head" role="row"><span role="columnheader">Periode</span><span role="columnheader">Rentang dan aktivitas</span><span role="columnheader">Status</span><span role="columnheader">Aksi</span></div>${periodRows}</div>${paginationControls(periodMeta, 'periods')}` : '<p class="admin-empty">Tidak ada periode yang sesuai dengan pencarian.</p>'}</section>`
       : `<section class="organization-empty-state" aria-labelledby="period-empty-title"><h3 id="period-empty-title">Belum ada periode LKS</h3><p>Buat periode draft terlebih dahulu, lalu tambahkan aktivitas dan aktifkan ketika pengaturan sudah siap.</p><button class="primary-button" type="button" data-open-admin-modal="period">Tambah periode</button></section>`;
-    const participantRows = participantData.participants.map((participant) => `<div class="admin-record-row participant-record-row" role="row"><span role="cell"><strong>${escapeHtml(participant.name)}</strong><small>Mulai ${escapeHtml(formatDate(participant.participation_start_date, true))}</small></span><span role="cell">${escapeHtml(participant.team ?? 'Tanpa tim')}<small>${escapeHtml(participant.department ?? 'Tanpa departemen')}</small></span><span role="cell">${participant.checklists_count ? `${participant.checklists_count} checklist tercatat` : 'Belum ada checklist'}</span><span role="cell">${participant.checklists_count ? '<small>Riwayat tercatat</small>' : `<button class="text-button organization-row-action organization-archive-action" type="button" data-remove-period-participant="${escapeHtml(participant.id)}" data-period-id="${escapeHtml(activePeriod?.id ?? '')}" data-participant-name="${escapeHtml(participant.name)}">Keluarkan</button>`}</span></div>`).join('');
-    const participantContent = activePeriod ? `<section id="period-participants" class="admin-record-section period-participant-section" aria-labelledby="participant-list-title"><div class="organization-section-head"><div><h3 id="participant-list-title">Peserta periode aktif</h3><p>${escapeHtml(activePeriod.name)} · ${participantMeta.total} peserta terdaftar.</p></div><button class="primary-button" type="button" data-open-admin-modal="participant" data-period-id="${escapeHtml(activePeriod.id)}">Tambah peserta</button></div><p class="admin-context-note">Saat periode diaktifkan, semua Santri Karya aktif dimasukkan otomatis. Tambahkan peserta hanya untuk akun yang dibuat setelah periode berjalan. Peserta tanpa checklist dapat dikeluarkan.</p><form class="admin-list-search" data-admin-list-search="participants"><label class="sr-only" for="participant-search">Cari peserta periode</label><input id="participant-search" name="search" value="${escapeHtml(adminListState.participants.search)}" placeholder="Cari nama, tim, atau departemen" autocomplete="off"></form>${participantData.participants.length ? `<div class="admin-record-table participant-record-table" role="table" aria-label="Peserta periode aktif"><div class="admin-record-head" role="row"><span role="columnheader">Santri Karya</span><span role="columnheader">Penempatan</span><span role="columnheader">Checklist</span><span role="columnheader">Aksi</span></div>${participantRows}</div>${paginationControls(participantMeta, 'participants')}` : `<p class="admin-empty">${adminListState.participants.search ? 'Tidak ada peserta yang sesuai dengan pencarian.' : 'Belum ada peserta pada periode aktif ini.'}</p>`}</section>` : '';
     const periodActions = !showPeriodEmpty ? '<button class="primary-button" type="button" data-open-admin-modal="period">Tambah periode</button>' : '';
-    panel.innerHTML = adminPanel('Periode LKS', 'Buat periode draft, atur aktivitasnya, lalu aktifkan saat siap.', `<nav class="admin-back-link" aria-label="Navigasi pengaturan"><button class="text-button" type="button" data-go="settings">Kembali ke Pengaturan</button></nav>${periodContent}${participantContent}`, periodActions, !showPeriodEmpty);
+    panel.innerHTML = adminPanel('Periode LKS', 'Buat, siapkan, dan pantau setiap periode LKS dari satu daftar.', `<nav class="admin-back-link" aria-label="Navigasi pengaturan"><button class="text-button" type="button" data-go="settings">Kembali ke Pengaturan</button></nav>${periodContent}`, periodActions, !showPeriodEmpty);
     return;
   }
   const drafts = periodOptions.filter((period) => period.status === 'draft');
@@ -944,11 +978,11 @@ async function loadAdminView(name, { dataOnly = false } = {}) {
     if (requestId !== latestAdminRequest) return;
     if (organizationPayload) organizationData = organizationPayload.data;
     if (configurationPayload) configurationData = configurationPayload.data;
-    if (name === 'periods') {
-      const activePeriod = (configurationPayload?.data?.period_options ?? []).find((period) => period.status === 'active');
-      if (activePeriod) {
+    if (name === 'period-detail') {
+      const period = (configurationPayload?.data?.period_options ?? []).find((item) => item.id === selectedPeriodId);
+      if (period?.status === 'active') {
         const participantQuery = new URLSearchParams({ search: adminListState.participants.search, page: String(adminListState.participants.page) });
-        const response = await fetch(`${apiBase}/periods/${activePeriod.id}/participants?${participantQuery}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+        const response = await fetch(`${apiBase}/periods/${period.id}/participants?${participantQuery}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
         if (!response.ok) throw new Error(await apiError(response));
         activePeriodParticipants = (await response.json()).data;
       } else {
@@ -957,7 +991,7 @@ async function loadAdminView(name, { dataOnly = false } = {}) {
     }
     if (requestId !== latestAdminRequest) return;
     const requiresOrganization = ['settings', 'organization', 'people'].includes(name);
-    const requiresConfiguration = ['settings', 'periods', 'activities'].includes(name);
+    const requiresConfiguration = ['settings', 'periods', 'period-detail', 'activities'].includes(name);
     if ((requiresOrganization && !organizationPayload) || (requiresConfiguration && !configurationPayload)) {
       throw new Error('Data untuk halaman ini belum dapat dimuat. Coba lagi.');
     }
@@ -978,7 +1012,6 @@ async function submitAdminForm(form) {
   const type = form.dataset.adminForm;
   let payload = Object.fromEntries(formData.entries());
   let method = 'POST';
-  if (type === 'santri' || type === 'santri-edit') payload.is_leader = form.elements.is_leader.checked;
   const endpoints = { department: '/admin/departments', team: '/admin/teams', santri: '/admin/santri', period: '/admin/periods', activity: '/admin/activities' };
   let endpoint = type === 'period-activity' ? `/admin/periods/${payload.period_id}/activities` : type === 'participant' ? `/periods/${payload.period_id}/participants/${payload.profile_id}` : endpoints[type];
   if (type === 'department-edit' || type === 'team-edit') {
@@ -1119,7 +1152,7 @@ document.addEventListener('input', (event) => {
   adminSearchTimer = setTimeout(() => {
     adminListState[list].search = event.target.value.trim();
     adminListState[list].page = 1;
-    loadAdminView(list === 'participants' ? 'periods' : list, { dataOnly: true });
+    loadAdminView(list === 'participants' ? 'period-detail' : list, { dataOnly: true });
   }, 280);
 });
 document.addEventListener('submit', (event) => {
@@ -1129,10 +1162,10 @@ document.addEventListener('submit', (event) => {
   clearTimeout(adminSearchTimer);
   adminListState[list].search = event.target.elements.search.value.trim();
   adminListState[list].page = 1;
-  loadAdminView(list === 'participants' ? 'periods' : list, { dataOnly: true });
+  loadAdminView(list === 'participants' ? 'period-detail' : list, { dataOnly: true });
 });
 function openAdminFormModal(type, departmentId = '', returnView = '') {
-  const organization = organizationData ?? { departments: [], department_options: [], santri: [], santri_options: [], leaders: [] };
+  const organization = organizationData ?? { departments: [], department_options: [], santri: [], santri_options: [], team_leader_options: [] };
   const configuration = configurationData ?? { periods: [], period_options: [], activities: [], activity_options: [] };
   const departmentOptions = organization.department_options ?? organization.departments;
   const teams = departmentOptions.flatMap((department) => department.teams.map((team) => ({ ...team, name: `${department.name} — ${team.name}` })));
@@ -1147,7 +1180,9 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
   const enrolledParticipantIds = new Set((activePeriodParticipants?.participants ?? []).map((participant) => participant.user_id));
   const availableParticipants = participants.filter((participant) => !enrolledParticipantIds.has(participant.id));
   const configuredPeriod = periodOptions.find((period) => period.id === departmentId);
-  const selectedProfile = (organizationData.santri ?? []).find((profile) => profile.user_id === departmentId);
+  const selectedProfile = (organization.santri ?? []).find((profile) => profile.user_id === departmentId);
+  const teamLeaderOptions = (organization.team_leader_options ?? []).filter((profile) => profile.team_id === selectedTeam?.id).map((profile) => ({ id: profile.user_id, name: profile.user.name }));
+  const selectedJobLevel = selectedProfile?.level === 'leader' ? 'leader' : 'staff';
   const selectedActivity = activityOptions.find((activity) => activity.id === departmentId);
   const activeActivityOptions = activityOptions.filter((activity) => activity.is_active);
   const definitions = {
@@ -1156,7 +1191,7 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
       fields: '<label>Kode<input name="code" maxlength="30" autocomplete="off" required></label><label>Nama departemen<input name="name" maxlength="100" autocomplete="organization" required></label>',
     },
     team: {
-      title: 'Tambah tim', description: 'Pilih departemen induk sebelum menyimpan tim baru.', submitLabel: 'Simpan tim',
+      title: 'Tambah tim', description: 'Pilih departemen induk sebelum menyimpan tim baru. Leader Tim dapat dipilih setelah akun Leader dibuat.', submitLabel: 'Simpan tim',
       fields: `<label>Departemen<select name="department_id" required>${adminOptions(departmentOptions.filter((department) => department.is_active), departmentId)}</select></label><label>Kode<input name="code" maxlength="30" autocomplete="off" required></label><label>Nama tim<input name="name" maxlength="100" autocomplete="organization" required></label>`,
     },
     'department-edit': selectedDepartment ? {
@@ -1164,16 +1199,16 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
       fields: `<label>Kode<input name="code" maxlength="30" value="${escapeHtml(selectedDepartment.code)}" required></label><label>Nama departemen<input name="name" maxlength="100" value="${escapeHtml(selectedDepartment.name)}" required></label><label class="admin-modal-checkbox"><input type="checkbox" name="is_active"${selectedDepartment.is_active ? ' checked' : ''}> Departemen aktif</label>`,
     } : null,
     'team-edit': selectedTeam ? {
-      title: `Kelola tim · ${escapeHtml(selectedTeam.name)}`, description: 'Tim hanya dapat diarsipkan setelah seluruh Santri Karya aktifnya dipindahkan atau dinonaktifkan.', submitLabel: 'Simpan perubahan',
-      fields: `<label>Kode<input name="code" maxlength="30" value="${escapeHtml(selectedTeam.code)}" required></label><label>Nama tim<input name="name" maxlength="100" value="${escapeHtml(selectedTeam.name)}" required></label><label class="admin-modal-checkbox"><input type="checkbox" name="is_active"${selectedTeam.is_active ? ' checked' : ''}> Tim aktif</label>`,
+      title: `Kelola tim · ${escapeHtml(selectedTeam.name)}`, description: 'Pilih satu Leader Tim agar seluruh anggota mengikuti akses dan catatan LKS yang sama. Tim hanya dapat diarsipkan setelah seluruh Santri Karya aktifnya dipindahkan atau dinonaktifkan.', submitLabel: 'Simpan perubahan',
+      fields: `<label>Kode<input name="code" maxlength="30" value="${escapeHtml(selectedTeam.code)}" required></label><label>Nama tim<input name="name" maxlength="100" value="${escapeHtml(selectedTeam.name)}" required></label><label>Leader Tim<select name="leader_user_id">${adminOptions(teamLeaderOptions, selectedTeam.leader_user_id ?? '')}</select><small>Pilih Santri Karya aktif dengan level jabatan Leader dari tim ini.</small></label><label class="admin-modal-checkbox"><input type="checkbox" name="is_active"${selectedTeam.is_active ? ' checked' : ''}> Tim aktif</label>`,
     } : null,
     santri: {
-      title: 'Tambah Santri Karya', description: 'Admin menetapkan password sementara dan penempatan organisasi akun baru.', submitLabel: 'Buat akun Santri',
-      fields: `<label>Nama<input name="name" maxlength="150" autocomplete="name" required></label><label>Email<input type="email" name="email" autocomplete="email" required></label><label>Password sementara<input type="password" name="temporary_password" minlength="8" autocomplete="new-password" required></label><div class="admin-modal-inline-fields"><label>Gender<select name="gender" required><option value="ikhwan">Ikhwan</option><option value="akhwat">Akhwat</option></select></label><label>Tim<select name="team_id" required>${adminOptions(teams)}</select></label></div><label>Leader<select name="leader_user_id">${adminOptions(organization.leaders)}</select></label><div class="admin-modal-inline-fields"><label>Kategori (opsional)<input name="category" maxlength="100"></label><label>Level (opsional)<input name="level" maxlength="100"></label></div><label class="admin-modal-checkbox"><input type="checkbox" name="is_leader"> Jadikan Leader</label>`,
+      title: 'Tambah Santri Karya', description: 'Admin menetapkan password sementara dan penempatan organisasi akun baru. Leader Tim ditentukan dari pengaturan Tim.', submitLabel: 'Buat akun Santri',
+      fields: `<label>Nama<input name="name" maxlength="150" autocomplete="name" required></label><label>Email<input type="email" name="email" autocomplete="email" required></label><label>Password sementara<input type="password" name="temporary_password" minlength="8" autocomplete="new-password" required></label><div class="admin-modal-inline-fields"><label>Gender<select name="gender" required><option value="ikhwan">Ikhwan</option><option value="akhwat">Akhwat</option></select></label><label>Tim<select name="team_id" required>${adminOptions(teams)}</select></label></div><label>Level jabatan<select name="level" required><option value="staff" selected>Staff</option><option value="leader">Leader</option></select><small>Setelah akun Leader dibuat, pilih akun tersebut sebagai Leader Tim dari pengaturan Tim.</small></label>`,
     },
     'santri-edit': selectedProfile ? {
-      title: `Kelola Santri Karya · ${escapeHtml(selectedProfile.user.name)}`, description: 'Perubahan penempatan berlaku untuk data berikutnya. Riwayat periode yang sudah berjalan tetap menggunakan snapshot sebelumnya.', submitLabel: 'Simpan perubahan',
-      fields: `<label>Nama<input name="name" maxlength="150" autocomplete="name" value="${escapeHtml(selectedProfile.user.name)}" required></label><label>Email<input type="email" name="email" autocomplete="email" value="${escapeHtml(selectedProfile.user.email)}" required></label><div class="admin-modal-inline-fields"><label>Gender<select name="gender" required><option value="ikhwan"${selectedProfile.gender === 'ikhwan' ? ' selected' : ''}>Ikhwan</option><option value="akhwat"${selectedProfile.gender === 'akhwat' ? ' selected' : ''}>Akhwat</option></select></label><label>Tim<select name="team_id" required>${adminOptions(teams.filter((team) => team.is_active), selectedProfile.team_id)}</select></label></div><label>Leader<select name="leader_user_id">${adminOptions(organization.leaders, selectedProfile.leader_user_id ?? '')}</select></label><div class="admin-modal-inline-fields"><label>Kategori<input name="category" maxlength="100" value="${escapeHtml(selectedProfile.category ?? '')}"></label><label>Level<input name="level" maxlength="100" value="${escapeHtml(selectedProfile.level ?? '')}"></label></div><label>Status akun<select name="status" required><option value="active"${selectedProfile.status === 'active' ? ' selected' : ''}>Aktif</option><option value="inactive"${selectedProfile.status === 'inactive' ? ' selected' : ''}>Nonaktif</option></select></label><label class="admin-modal-checkbox"><input type="checkbox" name="is_leader"${selectedProfile.user.roles?.some((role) => role.code === 'leader') ? ' checked' : ''}> Jadikan Leader</label>`,
+      title: `Kelola Santri Karya · ${escapeHtml(selectedProfile.user.name)}`, description: 'Perubahan penempatan berlaku untuk data berikutnya. Riwayat periode yang sudah berjalan tetap menggunakan snapshot sebelumnya. Leader mengikuti Tim yang dipilih.', submitLabel: 'Simpan perubahan',
+      fields: `<label>Nama<input name="name" maxlength="150" autocomplete="name" value="${escapeHtml(selectedProfile.user.name)}" required></label><label>Email<input type="email" name="email" autocomplete="email" value="${escapeHtml(selectedProfile.user.email)}" required></label><div class="admin-modal-inline-fields"><label>Gender<select name="gender" required><option value="ikhwan"${selectedProfile.gender === 'ikhwan' ? ' selected' : ''}>Ikhwan</option><option value="akhwat"${selectedProfile.gender === 'akhwat' ? ' selected' : ''}>Akhwat</option></select></label><label>Tim<select name="team_id" required>${adminOptions(teams.filter((team) => team.is_active), selectedProfile.team_id)}</select><small>Leader Tim diatur dari pengaturan Tim.</small></label></div><label>Level jabatan<select name="level" required><option value="staff"${selectedJobLevel === 'staff' ? ' selected' : ''}>Staff</option><option value="leader"${selectedJobLevel === 'leader' ? ' selected' : ''}>Leader</option></select></label><label>Status akun<select name="status" required><option value="active"${selectedProfile.status === 'active' ? ' selected' : ''}>Aktif</option><option value="inactive"${selectedProfile.status === 'inactive' ? ' selected' : ''}>Nonaktif</option></select></label>`,
     } : null,
     period: {
       title: 'Tambah periode LKS', description: 'Periode dibuat sebagai draft agar aktivitas dapat disiapkan sebelum diaktifkan.', submitLabel: 'Simpan periode draft',
@@ -1237,11 +1272,15 @@ document.addEventListener('click', async (event) => {
     const nextPage = Number(page.dataset.page);
     if (!page.disabled && adminListState[list] && nextPage > 0) {
       adminListState[list].page = nextPage;
-      return loadAdminView(list === 'participants' ? 'periods' : list, { dataOnly: true });
+      return loadAdminView(list === 'participants' ? 'period-detail' : list, { dataOnly: true });
     }
   }
-  if (event.target.closest('[data-focus-period-participants]')) {
-    document.querySelector('#period-participants')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const periodDetail = event.target.closest('[data-open-period-detail]');
+  if (periodDetail) {
+    selectedPeriodId = periodDetail.dataset.openPeriodDetail;
+    adminListState.participants = { page: 1, search: '' };
+    activePeriodParticipants = null;
+    openView('period-detail');
     return;
   }
   const participantRemoval = event.target.closest('[data-remove-period-participant]');
@@ -1254,7 +1293,7 @@ document.addEventListener('click', async (event) => {
       if (!response.ok) throw new Error(await apiError(response));
       showToast('Peserta dikeluarkan dari periode');
       activePeriodParticipants = null;
-      return loadAdminView('periods', { dataOnly: true });
+      return loadAdminView('period-detail', { dataOnly: true });
     } catch (error) { showToast(error.message || 'Peserta belum dapat dikeluarkan.', 'error'); } finally { setButtonBusy(participantRemoval, false); }
   }
   const refresh = event.target.closest('[data-admin-refresh]');
@@ -1326,7 +1365,7 @@ document.addEventListener('click', async (event) => {
       configurationData = null;
       historyData = null;
       historyRecapData = null;
-      loadAdminView('periods', { dataOnly: true });
+      openView('periods');
       loadHistory();
     } catch (error) { showToast(error.message, 'error'); } finally { setButtonBusy(closePeriod, false); }
     return;

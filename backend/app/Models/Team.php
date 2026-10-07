@@ -11,7 +11,7 @@ class Team extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['department_id', 'code', 'name', 'is_active'];
+    protected $fillable = ['department_id', 'leader_user_id', 'code', 'name', 'is_active'];
 
     protected function casts(): array
     {
@@ -22,6 +22,12 @@ class Team extends Model
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function leader(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'leader_user_id');
     }
 
     /** @return HasMany<SantriProfile, $this> */

@@ -18,7 +18,7 @@ class DashboardController extends Controller
         $selectedDate = Carbon::parse($request->validate(['date' => ['nullable', 'date']])['date'] ?? now())->startOfDay();
         $profile = SantriProfile::query()
             ->where('user_id', $viewer->getKey())
-            ->with(['department:id,name', 'team:id,name', 'leader:id,name'])
+            ->with(['department:id,name', 'team:id,name,leader_user_id', 'team.leader:id,name'])
             ->first();
         $viewerData = [
             'id' => $viewer->getKey(),
@@ -26,9 +26,8 @@ class DashboardController extends Controller
             'roles' => $viewer->roles->pluck('code')->values(),
             'identity' => $profile === null ? null : [
                 'team' => $profile->team?->name,
-                'leader' => $profile->leader?->name,
+                'leader' => $profile->team?->leader?->name,
                 'department' => $profile->department?->name,
-                'category' => $profile->category,
                 'level' => $profile->level,
             ],
         ];

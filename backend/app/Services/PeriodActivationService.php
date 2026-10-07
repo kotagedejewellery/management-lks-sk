@@ -40,7 +40,7 @@ class PeriodActivationService
 
             $profiles = SantriProfile::query()
                 ->where('status', 'active')
-                ->with(['user', 'department', 'team', 'leader'])
+                ->with(['user', 'department', 'team.leader'])
                 ->get();
 
             foreach ($profiles as $profile) {
@@ -80,7 +80,7 @@ class PeriodActivationService
                 throw ValidationException::withMessages(['period' => 'Tanggal penambahan peserta berada di luar periode.']);
             }
 
-            $profile->loadMissing(['user', 'department', 'team', 'leader']);
+            $profile->loadMissing(['user', 'department', 'team.leader']);
             if ($profile->status !== 'active') {
                 throw ValidationException::withMessages(['santri' => 'Hanya Santri Karya aktif yang dapat menjadi peserta.']);
             }
@@ -192,8 +192,8 @@ class PeriodActivationService
                 'department_name_snapshot' => $profile->department?->name,
                 'team_id_snapshot' => $profile->team?->getKey(),
                 'team_name_snapshot' => $profile->team?->name,
-                'leader_user_id_snapshot' => $profile->leader?->getKey(),
-                'leader_name_snapshot' => $profile->leader?->name,
+                'leader_user_id_snapshot' => $profile->team?->leader?->getKey(),
+                'leader_name_snapshot' => $profile->team?->leader?->name,
                 'category_snapshot' => $profile->category,
                 'level_snapshot' => $profile->level,
                 'participation_start_date' => $participationStartDate,
