@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1791435123.6571784,
-    "seen": 1791435678.3519967,
-    "ast_hash": "b4e7e01a39932ca61c549ec37ab04422",
+    "mtime": 1791440785.0759404,
+    "seen": 1791441049.7636309,
+    "ast_hash": "62b1dc9f50a4806806f677637dd74902",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -810,9 +810,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php": {
-    "mtime": 1791435591.8596983,
-    "seen": 1791435678.3516054,
-    "ast_hash": "2dd44caf7cfd952eb5b61c974d8d2e72",
+    "mtime": 1791440785.0731225,
+    "seen": 1791441049.7631552,
+    "ast_hash": "05cd7b81c904ce7ececdcfdb5606d016",
     "semantic_hash": ""
   },
   ".impeccable/config.json": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1791435418.1746902,
-    "seen": 1791435678.3519716,
-    "ast_hash": "27be15e8f9b7ac650557f99619676ec3",
+    "mtime": 1791440977.2039766,
+    "seen": 1791441049.7636003,
+    "ast_hash": "66cf040335b726d6d70f79a54a7234d9",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {

@@ -82,32 +82,6 @@
       "source_location": "L16"
     },
     {
-      "id": "backend_app_http_controllers_lks_documentsignatorycontroller_documentsignatorycontroller",
-      "label": "DocumentSignatoryController",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 110,
-      "community_name": "DocumentSignatory",
-      "file_type": "code",
-      "norm_label": "documentsignatorycontroller",
-      "source_file": "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php",
-      "source_location": "L14"
-    },
-    {
-      "id": "backend_app_models_documentsignatory_documentsignatory",
-      "label": "DocumentSignatory",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 110,
-      "community_name": "DocumentSignatory",
-      "file_type": "code",
-      "norm_label": "documentsignatory",
-      "source_file": "backend/app/Models/DocumentSignatory.php",
-      "source_location": "L8"
-    },
-    {
       "id": "backend_app_services_periodactivationservice_periodactivationservice",
       "label": "PeriodActivationService",
       "_callable": true,
@@ -158,19 +132,6 @@
       "norm_label": "lkscoretest",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
       "source_location": "L23"
-    },
-    {
-      "id": "backend_app_models_santriprofile_santriprofile",
-      "label": "SantriProfile",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
-      "file_type": "code",
-      "norm_label": "santriprofile",
-      "source_file": "backend/app/Models/SantriProfile.php",
-      "source_location": "L8"
     },
     {
       "id": "backend_tests_feature_auth_passwordconfirmationtest_passwordconfirmationtest",
@@ -251,17 +212,43 @@
       "source_location": "L8"
     },
     {
+      "id": "backend_tests_unit_exampletest_exampletest",
+      "label": "ExampleTest",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "TestCase",
+      "file_type": "code",
+      "norm_label": "exampletest",
+      "source_file": "backend/tests/Unit/ExampleTest.php",
+      "source_location": "L8"
+    },
+    {
       "id": "backend_app_models_lkschecklist_lkschecklist",
       "label": "LksChecklist",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 20,
-      "community_name": "LksChecklist",
+      "community_name": "PeriodParticipantSnapshot",
       "file_type": "code",
       "norm_label": "lkschecklist",
       "source_file": "backend/app/Models/LksChecklist.php",
       "source_location": "L9"
+    },
+    {
+      "id": "backend_app_models_periodparticipantsnapshot_periodparticipantsnapshot",
+      "label": "PeriodParticipantSnapshot",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "PeriodParticipantSnapshot",
+      "file_type": "code",
+      "norm_label": "periodparticipantsnapshot",
+      "source_file": "backend/app/Models/PeriodParticipantSnapshot.php",
+      "source_location": "L10"
     },
     {
       "id": "backend_app_services_checklistrecordingservice_checklistrecordingservice",
@@ -270,37 +257,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 20,
-      "community_name": "LksChecklist",
+      "community_name": "PeriodParticipantSnapshot",
       "file_type": "code",
       "norm_label": "checklistrecordingservice",
       "source_file": "backend/app/Services/ChecklistRecordingService.php",
       "source_location": "L16"
-    },
-    {
-      "id": "backend_app_models_periodparticipantsnapshot_periodparticipantsnapshot",
-      "label": "PeriodParticipantSnapshot",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "PeriodParticipantSnapshot",
-      "file_type": "code",
-      "norm_label": "periodparticipantsnapshot",
-      "source_file": "backend/app/Models/PeriodParticipantSnapshot.php",
-      "source_location": "L10"
-    },
-    {
-      "id": "backend_app_policies_periodparticipantsnapshotpolicy_periodparticipantsnapshotpolicy",
-      "label": "PeriodParticipantSnapshotPolicy",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "PeriodParticipantSnapshot",
-      "file_type": "code",
-      "norm_label": "periodparticipantsnapshotpolicy",
-      "source_file": "backend/app/Policies/PeriodParticipantSnapshotPolicy.php",
-      "source_location": "L8"
     },
     {
       "id": "backend_app_models_auditlog_auditlog",
@@ -308,7 +269,7 @@
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
-      "community": 22,
+      "community": 21,
       "community_name": "AuditLog",
       "file_type": "code",
       "norm_label": "auditlog",
@@ -322,7 +283,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 22,
-      "community_name": "AuditLog",
+      "community_name": "PeriodConfigurationController.php",
       "file_type": "code",
       "norm_label": "calendarholiday",
       "source_file": "backend/app/Models/CalendarHoliday.php",
@@ -381,19 +342,6 @@
       "source_location": "L7"
     },
     {
-      "id": "backend_tests_feature_settings_securitytest_securitytest",
-      "label": "SecurityTest",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "SecurityTest",
-      "file_type": "code",
-      "norm_label": "securitytest",
-      "source_file": "backend/tests/Feature/Settings/SecurityTest.php",
-      "source_location": "L12"
-    },
-    {
       "id": "backend_app_http_controllers_lks_lksexportcontroller_lksexportcontroller",
       "label": "LksExportController",
       "_callable": true,
@@ -431,6 +379,19 @@
       "norm_label": "effectiveactivitytargettest",
       "source_file": "backend/tests/Unit/EffectiveActivityTargetTest.php",
       "source_location": "L10"
+    },
+    {
+      "id": "backend_app_models_santriprofile_santriprofile",
+      "label": "SantriProfile",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "OrganizationController.php",
+      "file_type": "code",
+      "norm_label": "santriprofile",
+      "source_file": "backend/app/Models/SantriProfile.php",
+      "source_location": "L8"
     },
     {
       "id": "backend_app_models_team_team",
@@ -498,6 +459,32 @@
       "source_location": "L8"
     },
     {
+      "id": "backend_app_policies_periodparticipantsnapshotpolicy_periodparticipantsnapshotpolicy",
+      "label": "PeriodParticipantSnapshotPolicy",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "User",
+      "file_type": "code",
+      "norm_label": "periodparticipantsnapshotpolicy",
+      "source_file": "backend/app/Policies/PeriodParticipantSnapshotPolicy.php",
+      "source_location": "L8"
+    },
+    {
+      "id": "backend_tests_feature_auth_authenticationtest_authenticationtest",
+      "label": "AuthenticationTest",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "User",
+      "file_type": "code",
+      "norm_label": "authenticationtest",
+      "source_file": "backend/tests/Feature/Auth/AuthenticationTest.php",
+      "source_location": "L10"
+    },
+    {
       "id": "backend_tests_feature_settings_profileupdatetest_profileupdatetest",
       "label": "ProfileUpdateTest",
       "_callable": true,
@@ -509,6 +496,19 @@
       "norm_label": "profileupdatetest",
       "source_file": "backend/tests/Feature/Settings/ProfileUpdateTest.php",
       "source_location": "L10"
+    },
+    {
+      "id": "backend_tests_feature_settings_securitytest_securitytest",
+      "label": "SecurityTest",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "User",
+      "file_type": "code",
+      "norm_label": "securitytest",
+      "source_file": "backend/tests/Feature/Settings/SecurityTest.php",
+      "source_location": "L12"
     },
     {
       "id": "backend_app_models_periodactivity_periodactivity",
@@ -524,19 +524,6 @@
       "source_location": "L10"
     },
     {
-      "id": "backend_tests_unit_exampletest_exampletest",
-      "label": "ExampleTest",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 50,
-      "community_name": "PeriodActivity",
-      "file_type": "code",
-      "norm_label": "exampletest",
-      "source_file": "backend/tests/Unit/ExampleTest.php",
-      "source_location": "L8"
-    },
-    {
       "id": "backend_tests_unit_periodactivityruletest_periodactivityruletest",
       "label": "PeriodActivityRuleTest",
       "_callable": true,
@@ -550,19 +537,6 @@
       "source_location": "L9"
     },
     {
-      "id": "backend_tests_feature_auth_authenticationtest_authenticationtest",
-      "label": "AuthenticationTest",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 51,
-      "community_name": "AuthenticationTest",
-      "file_type": "code",
-      "norm_label": "authenticationtest",
-      "source_file": "backend/tests/Feature/Auth/AuthenticationTest.php",
-      "source_location": "L10"
-    },
-    {
       "id": "backend_app_models_department_department",
       "label": "Department",
       "_callable": true,
@@ -574,6 +548,19 @@
       "norm_label": "department",
       "source_file": "backend/app/Models/Department.php",
       "source_location": "L9"
+    },
+    {
+      "id": "backend_app_models_documentsignatory_documentsignatory",
+      "label": "DocumentSignatory",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "Illuminate\\Database\\Eloquent\\Concerns\\HasUuids",
+      "file_type": "code",
+      "norm_label": "documentsignatory",
+      "source_file": "backend/app/Models/DocumentSignatory.php",
+      "source_location": "L8"
     },
     {
       "id": "backend_app_models_lksactivity_lksactivity",
@@ -665,6 +652,19 @@
       "norm_label": "dashboardcontroller",
       "source_file": "backend/app/Http/Controllers/Lks/DashboardController.php",
       "source_location": "L13"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_documentsignatorycontroller_documentsignatorycontroller",
+      "label": "DocumentSignatoryController",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "Illuminate\\Http\\Request",
+      "file_type": "code",
+      "norm_label": "documentsignatorycontroller",
+      "source_file": "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php",
+      "source_location": "L14"
     },
     {
       "id": "backend_app_http_controllers_lks_organizationcontroller_organizationcontroller",
@@ -803,7 +803,7 @@
       "file_type": "code",
       "norm_label": "adminformsnapshot()",
       "source_file": "frontend/app.js",
-      "source_location": "L1357"
+      "source_location": "L1382"
     },
     {
       "id": "frontend_app_adminoptions",
@@ -827,7 +827,7 @@
       "file_type": "code",
       "norm_label": "adminpanel()",
       "source_file": "frontend/app.js",
-      "source_location": "L983"
+      "source_location": "L1010"
     },
     {
       "id": "frontend_app_apierror",
@@ -1043,7 +1043,7 @@
       "file_type": "code",
       "norm_label": "hasunsavedadminformchanges()",
       "source_file": "frontend/app.js",
-      "source_location": "L1369"
+      "source_location": "L1394"
     },
     {
       "id": "frontend_app_hidepageprogress",
@@ -1091,7 +1091,7 @@
       "file_type": "code",
       "norm_label": "loadadminview()",
       "source_file": "frontend/app.js",
-      "source_location": "L1138"
+      "source_location": "L1165"
     },
     {
       "id": "frontend_app_loadchecklistcorrectioncontext",
@@ -1103,7 +1103,7 @@
       "file_type": "code",
       "norm_label": "loadchecklistcorrectioncontext()",
       "source_file": "frontend/app.js",
-      "source_location": "L1322"
+      "source_location": "L1347"
     },
     {
       "id": "frontend_app_loaddashboard",
@@ -1115,7 +1115,7 @@
       "file_type": "code",
       "norm_label": "loaddashboard()",
       "source_file": "frontend/app.js",
-      "source_location": "L1749"
+      "source_location": "L1774"
     },
     {
       "id": "frontend_app_loadhistory",
@@ -1175,7 +1175,7 @@
       "file_type": "code",
       "norm_label": "markadminformpristine()",
       "source_file": "frontend/app.js",
-      "source_location": "L1364"
+      "source_location": "L1389"
     },
     {
       "id": "frontend_app_masteractivityrulefields",
@@ -1187,7 +1187,7 @@
       "file_type": "code",
       "norm_label": "masteractivityrulefields()",
       "source_file": "frontend/app.js",
-      "source_location": "L969"
+      "source_location": "L996"
     },
     {
       "id": "frontend_app_openadminformmodal",
@@ -1199,7 +1199,7 @@
       "file_type": "code",
       "norm_label": "openadminformmodal()",
       "source_file": "frontend/app.js",
-      "source_location": "L1416"
+      "source_location": "L1441"
     },
     {
       "id": "frontend_app_openchecklistcorrection",
@@ -1211,7 +1211,7 @@
       "file_type": "code",
       "norm_label": "openchecklistcorrection()",
       "source_file": "frontend/app.js",
-      "source_location": "L1341"
+      "source_location": "L1366"
     },
     {
       "id": "frontend_app_openview",
@@ -1235,7 +1235,19 @@
       "file_type": "code",
       "norm_label": "paginationcontrols()",
       "source_file": "frontend/app.js",
-      "source_location": "L976"
+      "source_location": "L1003"
+    },
+    {
+      "id": "frontend_app_parseholidayimportentries",
+      "label": "parseHolidayImportEntries()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "frontend/app.js",
+      "file_type": "code",
+      "norm_label": "parseholidayimportentries()",
+      "source_file": "frontend/app.js",
+      "source_location": "L959"
     },
     {
       "id": "frontend_app_percentage",
@@ -1259,7 +1271,7 @@
       "file_type": "code",
       "norm_label": "periodactivityconfigurationfields()",
       "source_file": "frontend/app.js",
-      "source_location": "L959"
+      "source_location": "L986"
     },
     {
       "id": "frontend_app_persistchecklist",
@@ -1307,7 +1319,7 @@
       "file_type": "code",
       "norm_label": "renderadminview()",
       "source_file": "frontend/app.js",
-      "source_location": "L987"
+      "source_location": "L1014"
     },
     {
       "id": "frontend_app_renderfullcheck",
@@ -1511,7 +1523,7 @@
       "file_type": "code",
       "norm_label": "requestadminformclose()",
       "source_file": "frontend/app.js",
-      "source_location": "L1374"
+      "source_location": "L1399"
     },
     {
       "id": "frontend_app_requestlogout",
@@ -1727,7 +1739,7 @@
       "file_type": "code",
       "norm_label": "submitadminform()",
       "source_file": "frontend/app.js",
-      "source_location": "L1203"
+      "source_location": "L1230"
     },
     {
       "id": "frontend_app_syncchecklist",
@@ -2162,126 +2174,6 @@
       "source_location": "L12"
     },
     {
-      "id": "backend_app_http_controllers_lks_documentsignatorycontroller_closure_1",
-      "label": "{closure#1}()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 110,
-      "community_name": "DocumentSignatory",
-      "file_type": "code",
-      "norm_label": "{closure#1}()",
-      "source_file": "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php",
-      "source_location": "L23"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_documentsignatorycontroller_closure_2",
-      "label": "{closure#2}()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 110,
-      "community_name": "DocumentSignatory",
-      "file_type": "code",
-      "norm_label": "{closure#2}()",
-      "source_file": "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php",
-      "source_location": "L41"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_documentsignatorycontroller_documentsignatorycontroller_ensureadmin",
-      "label": ".ensureAdmin()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 110,
-      "community_name": "DocumentSignatory",
-      "file_type": "code",
-      "norm_label": ".ensureadmin()",
-      "source_file": "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php",
-      "source_location": "L89"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_documentsignatorycontroller_documentsignatorycontroller_index",
-      "label": ".index()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 110,
-      "community_name": "DocumentSignatory",
-      "file_type": "code",
-      "norm_label": ".index()",
-      "source_file": "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php",
-      "source_location": "L16"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_documentsignatorycontroller_documentsignatorycontroller_payload",
-      "label": ".payload()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 110,
-      "community_name": "DocumentSignatory",
-      "file_type": "code",
-      "norm_label": ".payload()",
-      "source_file": "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php",
-      "source_location": "L76"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_documentsignatorycontroller_documentsignatorycontroller_signature",
-      "label": ".signature()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 110,
-      "community_name": "DocumentSignatory",
-      "file_type": "code",
-      "norm_label": ".signature()",
-      "source_file": "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php",
-      "source_location": "L65"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_documentsignatorycontroller_documentsignatorycontroller_update",
-      "label": ".update()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 110,
-      "community_name": "DocumentSignatory",
-      "file_type": "code",
-      "norm_label": ".update()",
-      "source_file": "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php",
-      "source_location": "L27"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_lksexportcontroller_closure_5",
-      "label": "{closure#5}()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 110,
-      "community_name": "DocumentSignatory",
-      "file_type": "code",
-      "norm_label": "{closure#5}()",
-      "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L131"
-    },
-    {
-      "id": "backend_app_services_periodactivationservice_closure_2",
-      "label": "{closure#2}()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 110,
-      "community_name": "DocumentSignatory",
-      "file_type": "code",
-      "norm_label": "{closure#2}()",
-      "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L63"
-    },
-    {
-      "id": "backend_app_services_periodactivationservice_periodactivationservice_snapshotsignatory",
-      "label": ".snapshotSignatory()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 110,
-      "community_name": "DocumentSignatory",
-      "file_type": "code",
-      "norm_label": ".snapshotsignatory()",
-      "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L222"
-    },
-    {
       "id": "backend_app_services_periodactivationservice_periodactivationservice_activate",
       "label": ".activate()",
       "_callable": true,
@@ -2471,7 +2363,7 @@
       "file_type": "code",
       "norm_label": ".checklist()",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L409"
+      "source_location": "L428"
     },
     {
       "id": "backend_tests_feature_lks_lkscoretest_lkscoretest_participant",
@@ -2483,7 +2375,7 @@
       "file_type": "code",
       "norm_label": ".participant()",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L395"
+      "source_location": "L414"
     },
     {
       "id": "backend_tests_feature_lks_lkscoretest_lkscoretest_period",
@@ -2495,7 +2387,7 @@
       "file_type": "code",
       "norm_label": ".period()",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L360"
+      "source_location": "L379"
     },
     {
       "id": "backend_tests_feature_lks_lkscoretest_lkscoretest_periodactivity",
@@ -2507,7 +2399,7 @@
       "file_type": "code",
       "norm_label": ".periodactivity()",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L372"
+      "source_location": "L391"
     },
     {
       "id": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_admin_can_activate_a_draft_period_and_snapshot_active_santri",
@@ -2532,6 +2424,18 @@
       "norm_label": ".test_admin_can_close_an_active_period_before_its_end_date()",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
       "source_location": "L27"
+    },
+    {
+      "id": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_admin_can_import_calendar_holidays",
+      "label": ".test_admin_can_import_calendar_holidays()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 17,
+      "community_name": "LksCoreTest",
+      "file_type": "code",
+      "norm_label": ".test_admin_can_import_calendar_holidays()",
+      "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
+      "source_location": "L351"
     },
     {
       "id": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_admin_can_manage_a_private_digital_document_signature",
@@ -2663,79 +2567,55 @@
       "file_type": "code",
       "norm_label": ".userwithrole()",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L351"
+      "source_location": "L370"
     },
     {
-      "id": "backend_app_models_lksperiod_lksperiod_creator",
-      "label": ".creator()",
+      "id": "backend_app_models_role_role_users",
+      "label": ".users()",
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community_name": "4. Tabel master identitas dan organisasi",
       "file_type": "code",
-      "norm_label": ".creator()",
-      "source_file": "backend/app/Models/LksPeriod.php",
-      "source_location": "L33"
+      "norm_label": ".users()",
+      "source_file": "backend/app/Models/Role.php",
+      "source_location": "L18"
     },
     {
-      "id": "backend_app_models_periodholidaysnapshot_periodholidaysnapshot_period",
-      "label": ".period()",
+      "id": "backend_app_models_user_user_hasrole",
+      "label": ".hasRole()",
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community_name": "4. Tabel master identitas dan organisasi",
       "file_type": "code",
-      "norm_label": ".period()",
-      "source_file": "backend/app/Models/PeriodHolidaySnapshot.php",
-      "source_location": "L23"
+      "norm_label": ".hasrole()",
+      "source_file": "backend/app/Models/User.php",
+      "source_location": "L65"
     },
     {
-      "id": "backend_app_models_santriprofile_santriprofile_department",
-      "label": ".department()",
+      "id": "backend_app_models_user_user_isadmin",
+      "label": ".isAdmin()",
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community_name": "4. Tabel master identitas dan organisasi",
       "file_type": "code",
-      "norm_label": ".department()",
-      "source_file": "backend/app/Models/SantriProfile.php",
-      "source_location": "L28"
+      "norm_label": ".isadmin()",
+      "source_file": "backend/app/Models/User.php",
+      "source_location": "L70"
     },
     {
-      "id": "backend_app_models_santriprofile_santriprofile_leader",
-      "label": ".leader()",
+      "id": "backend_app_models_user_user_roles",
+      "label": ".roles()",
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community_name": "4. Tabel master identitas dan organisasi",
       "file_type": "code",
-      "norm_label": ".leader()",
-      "source_file": "backend/app/Models/SantriProfile.php",
-      "source_location": "L40"
-    },
-    {
-      "id": "backend_app_models_santriprofile_santriprofile_team",
-      "label": ".team()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
-      "file_type": "code",
-      "norm_label": ".team()",
-      "source_file": "backend/app/Models/SantriProfile.php",
-      "source_location": "L34"
-    },
-    {
-      "id": "backend_app_models_santriprofile_santriprofile_user",
-      "label": ".user()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
-      "file_type": "code",
-      "norm_label": ".user()",
-      "source_file": "backend/app/Models/SantriProfile.php",
-      "source_location": "L22"
+      "norm_label": ".roles()",
+      "source_file": "backend/app/Models/User.php",
+      "source_location": "L54"
     },
     {
       "id": "backend_database_migrations_2026_09_29_000000_create_lks_identity_and_organization_tables_closure_1",
@@ -3074,12 +2954,24 @@
       "source_location": "L10"
     },
     {
+      "id": "backend_tests_unit_exampletest_exampletest_test_that_true_is_true",
+      "label": ".test_that_true_is_true()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "TestCase",
+      "file_type": "code",
+      "norm_label": ".test_that_true_is_true()",
+      "source_file": "backend/tests/Unit/ExampleTest.php",
+      "source_location": "L12"
+    },
+    {
       "id": "backend_app_http_controllers_lks_checklistcontroller_closure_1",
       "label": "{closure#1}()",
       "_callable": true,
       "_origin": "ast",
       "community": 20,
-      "community_name": "LksChecklist",
+      "community_name": "PeriodParticipantSnapshot",
       "file_type": "code",
       "norm_label": "{closure#1}()",
       "source_file": "backend/app/Http/Controllers/Lks/ChecklistController.php",
@@ -3091,7 +2983,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 20,
-      "community_name": "LksChecklist",
+      "community_name": "PeriodParticipantSnapshot",
       "file_type": "code",
       "norm_label": "{closure#2}()",
       "source_file": "backend/app/Http/Controllers/Lks/ChecklistController.php",
@@ -3103,7 +2995,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 20,
-      "community_name": "LksChecklist",
+      "community_name": "PeriodParticipantSnapshot",
       "file_type": "code",
       "norm_label": "{closure#3}()",
       "source_file": "backend/app/Http/Controllers/Lks/ChecklistController.php",
@@ -3115,7 +3007,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 20,
-      "community_name": "LksChecklist",
+      "community_name": "PeriodParticipantSnapshot",
       "file_type": "code",
       "norm_label": "{closure#4}()",
       "source_file": "backend/app/Http/Controllers/Lks/ChecklistController.php",
@@ -3127,7 +3019,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 20,
-      "community_name": "LksChecklist",
+      "community_name": "PeriodParticipantSnapshot",
       "file_type": "code",
       "norm_label": ".casts()",
       "source_file": "backend/app/Models/LksChecklist.php",
@@ -3139,102 +3031,18 @@
       "_callable": true,
       "_origin": "ast",
       "community": 20,
-      "community_name": "LksChecklist",
+      "community_name": "PeriodParticipantSnapshot",
       "file_type": "code",
       "norm_label": ".participant()",
       "source_file": "backend/app/Models/LksChecklist.php",
       "source_location": "L24"
     },
     {
-      "id": "backend_app_models_lkschecklist_lkschecklist_periodactivity",
-      "label": ".periodActivity()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "LksChecklist",
-      "file_type": "code",
-      "norm_label": ".periodactivity()",
-      "source_file": "backend/app/Models/LksChecklist.php",
-      "source_location": "L30"
-    },
-    {
-      "id": "backend_app_models_lkschecklist_lkschecklist_recordedby",
-      "label": ".recordedBy()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "LksChecklist",
-      "file_type": "code",
-      "norm_label": ".recordedby()",
-      "source_file": "backend/app/Models/LksChecklist.php",
-      "source_location": "L36"
-    },
-    {
-      "id": "backend_app_services_checklistrecordingservice_checklistrecordingservice_auditdata",
-      "label": ".auditData()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "LksChecklist",
-      "file_type": "code",
-      "norm_label": ".auditdata()",
-      "source_file": "backend/app/Services/ChecklistRecordingService.php",
-      "source_location": "L123"
-    },
-    {
-      "id": "backend_app_services_checklistrecordingservice_checklistrecordingservice_ensurecanrecord",
-      "label": ".ensureCanRecord()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "LksChecklist",
-      "file_type": "code",
-      "norm_label": ".ensurecanrecord()",
-      "source_file": "backend/app/Services/ChecklistRecordingService.php",
-      "source_location": "L75"
-    },
-    {
-      "id": "backend_app_services_checklistrecordingservice_checklistrecordingservice_record",
-      "label": ".record()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "LksChecklist",
-      "file_type": "code",
-      "norm_label": ".record()",
-      "source_file": "backend/app/Services/ChecklistRecordingService.php",
-      "source_location": "L18"
-    },
-    {
-      "id": "backend_app_services_checklistrecordingservice_checklistrecordingservice_validaterecord",
-      "label": ".validateRecord()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "LksChecklist",
-      "file_type": "code",
-      "norm_label": ".validaterecord()",
-      "source_file": "backend/app/Services/ChecklistRecordingService.php",
-      "source_location": "L82"
-    },
-    {
-      "id": "backend_app_services_checklistrecordingservice_closure_1",
-      "label": "{closure#1}()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 20,
-      "community_name": "LksChecklist",
-      "file_type": "code",
-      "norm_label": "{closure#1}()",
-      "source_file": "backend/app/Services/ChecklistRecordingService.php",
-      "source_location": "L28"
-    },
-    {
       "id": "backend_app_models_periodparticipantsnapshot_periodparticipantsnapshot_casts",
       "label": ".casts()",
       "_callable": true,
       "_origin": "ast",
-      "community": 21,
+      "community": 20,
       "community_name": "PeriodParticipantSnapshot",
       "file_type": "code",
       "norm_label": ".casts()",
@@ -3242,11 +3050,23 @@
       "source_location": "L23"
     },
     {
+      "id": "backend_app_models_periodparticipantsnapshot_periodparticipantsnapshot_checklists",
+      "label": ".checklists()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "PeriodParticipantSnapshot",
+      "file_type": "code",
+      "norm_label": ".checklists()",
+      "source_file": "backend/app/Models/PeriodParticipantSnapshot.php",
+      "source_location": "L41"
+    },
+    {
       "id": "backend_app_models_periodparticipantsnapshot_periodparticipantsnapshot_period",
       "label": ".period()",
       "_callable": true,
       "_origin": "ast",
-      "community": 21,
+      "community": 20,
       "community_name": "PeriodParticipantSnapshot",
       "file_type": "code",
       "norm_label": ".period()",
@@ -3258,7 +3078,7 @@
       "label": ".user()",
       "_callable": true,
       "_origin": "ast",
-      "community": 21,
+      "community": 20,
       "community_name": "PeriodParticipantSnapshot",
       "file_type": "code",
       "norm_label": ".user()",
@@ -3266,71 +3086,71 @@
       "source_location": "L35"
     },
     {
-      "id": "backend_app_policies_periodparticipantsnapshotpolicy_periodparticipantsnapshotpolicy_record",
+      "id": "backend_app_services_checklistrecordingservice_checklistrecordingservice_auditdata",
+      "label": ".auditData()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "PeriodParticipantSnapshot",
+      "file_type": "code",
+      "norm_label": ".auditdata()",
+      "source_file": "backend/app/Services/ChecklistRecordingService.php",
+      "source_location": "L123"
+    },
+    {
+      "id": "backend_app_services_checklistrecordingservice_checklistrecordingservice_ensurecanrecord",
+      "label": ".ensureCanRecord()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "PeriodParticipantSnapshot",
+      "file_type": "code",
+      "norm_label": ".ensurecanrecord()",
+      "source_file": "backend/app/Services/ChecklistRecordingService.php",
+      "source_location": "L75"
+    },
+    {
+      "id": "backend_app_services_checklistrecordingservice_checklistrecordingservice_record",
       "label": ".record()",
       "_callable": true,
       "_origin": "ast",
-      "community": 21,
+      "community": 20,
       "community_name": "PeriodParticipantSnapshot",
       "file_type": "code",
       "norm_label": ".record()",
-      "source_file": "backend/app/Policies/PeriodParticipantSnapshotPolicy.php",
-      "source_location": "L17"
+      "source_file": "backend/app/Services/ChecklistRecordingService.php",
+      "source_location": "L18"
     },
     {
-      "id": "backend_app_services_periodactivationservice_closure_1",
+      "id": "backend_app_services_checklistrecordingservice_checklistrecordingservice_validaterecord",
+      "label": ".validateRecord()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "PeriodParticipantSnapshot",
+      "file_type": "code",
+      "norm_label": ".validaterecord()",
+      "source_file": "backend/app/Services/ChecklistRecordingService.php",
+      "source_location": "L82"
+    },
+    {
+      "id": "backend_app_services_checklistrecordingservice_closure_1",
       "label": "{closure#1}()",
       "_callable": true,
       "_origin": "ast",
-      "community": 21,
+      "community": 20,
       "community_name": "PeriodParticipantSnapshot",
       "file_type": "code",
       "norm_label": "{closure#1}()",
-      "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L25"
-    },
-    {
-      "id": "backend_app_services_periodactivationservice_closure_3",
-      "label": "{closure#3}()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "PeriodParticipantSnapshot",
-      "file_type": "code",
-      "norm_label": "{closure#3}()",
-      "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L84"
-    },
-    {
-      "id": "backend_app_services_periodactivationservice_closure_4",
-      "label": "{closure#4}()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "PeriodParticipantSnapshot",
-      "file_type": "code",
-      "norm_label": "{closure#4}()",
-      "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L122"
-    },
-    {
-      "id": "backend_app_services_periodactivationservice_closure_5",
-      "label": "{closure#5}()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "PeriodParticipantSnapshot",
-      "file_type": "code",
-      "norm_label": "{closure#5}()",
-      "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L158"
+      "source_file": "backend/app/Services/ChecklistRecordingService.php",
+      "source_location": "L28"
     },
     {
       "id": "backend_app_services_periodactivationservice_closure_6",
       "label": "{closure#6}()",
       "_callable": true,
       "_origin": "ast",
-      "community": 21,
+      "community": 20,
       "community_name": "PeriodParticipantSnapshot",
       "file_type": "code",
       "norm_label": "{closure#6}()",
@@ -3338,179 +3158,11 @@
       "source_location": "L165"
     },
     {
-      "id": "backend_app_services_periodactivationservice_periodactivationservice_assertprofileorganization",
-      "label": ".assertProfileOrganization()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "PeriodParticipantSnapshot",
-      "file_type": "code",
-      "norm_label": ".assertprofileorganization()",
-      "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L192"
-    },
-    {
-      "id": "backend_app_services_periodactivationservice_periodactivationservice_snapshot",
-      "label": ".snapshot()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "PeriodParticipantSnapshot",
-      "file_type": "code",
-      "norm_label": ".snapshot()",
-      "source_file": "backend/app/Services/PeriodActivationService.php",
-      "source_location": "L201"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_organizationcontroller_closure_13",
-      "label": "{closure#13}()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "AuditLog",
-      "file_type": "code",
-      "norm_label": "{closure#13}()",
-      "source_file": "backend/app/Http/Controllers/Lks/OrganizationController.php",
-      "source_location": "L307"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_1",
-      "label": "{closure#1}()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "AuditLog",
-      "file_type": "code",
-      "norm_label": "{closure#1}()",
-      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L30"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_10",
-      "label": "{closure#10}()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "AuditLog",
-      "file_type": "code",
-      "norm_label": "{closure#10}()",
-      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L309"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_11",
-      "label": "{closure#11}()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "AuditLog",
-      "file_type": "code",
-      "norm_label": "{closure#11}()",
-      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L326"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_2",
-      "label": "{closure#2}()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "AuditLog",
-      "file_type": "code",
-      "norm_label": "{closure#2}()",
-      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L30"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_3",
-      "label": "{closure#3}()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "AuditLog",
-      "file_type": "code",
-      "norm_label": "{closure#3}()",
-      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L38"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_4",
-      "label": "{closure#4}()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "AuditLog",
-      "file_type": "code",
-      "norm_label": "{closure#4}()",
-      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L38"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_5",
-      "label": "{closure#5}()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "AuditLog",
-      "file_type": "code",
-      "norm_label": "{closure#5}()",
-      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L74"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_7",
-      "label": "{closure#7}()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "AuditLog",
-      "file_type": "code",
-      "norm_label": "{closure#7}()",
-      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L200"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_8",
-      "label": "{closure#8}()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "AuditLog",
-      "file_type": "code",
-      "norm_label": "{closure#8}()",
-      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L253"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_9",
-      "label": "{closure#9}()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "AuditLog",
-      "file_type": "code",
-      "norm_label": "{closure#9}()",
-      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L272"
-    },
-    {
-      "id": "backend_app_models_auditlog_auditlog_actor",
-      "label": ".actor()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 22,
-      "community_name": "AuditLog",
-      "file_type": "code",
-      "norm_label": ".actor()",
-      "source_file": "backend/app/Models/AuditLog.php",
-      "source_location": "L27"
-    },
-    {
       "id": "backend_app_models_auditlog_auditlog_auditable",
       "label": ".auditable()",
       "_callable": true,
       "_origin": "ast",
-      "community": 22,
+      "community": 21,
       "community_name": "AuditLog",
       "file_type": "code",
       "norm_label": ".auditable()",
@@ -3522,7 +3174,7 @@
       "label": ".casts()",
       "_callable": true,
       "_origin": "ast",
-      "community": 22,
+      "community": 21,
       "community_name": "AuditLog",
       "file_type": "code",
       "norm_label": ".casts()",
@@ -3530,12 +3182,240 @@
       "source_location": "L21"
     },
     {
+      "id": "backend_app_services_periodactivationservice_closure_1",
+      "label": "{closure#1}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "AuditLog",
+      "file_type": "code",
+      "norm_label": "{closure#1}()",
+      "source_file": "backend/app/Services/PeriodActivationService.php",
+      "source_location": "L25"
+    },
+    {
+      "id": "backend_app_services_periodactivationservice_closure_3",
+      "label": "{closure#3}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "AuditLog",
+      "file_type": "code",
+      "norm_label": "{closure#3}()",
+      "source_file": "backend/app/Services/PeriodActivationService.php",
+      "source_location": "L84"
+    },
+    {
+      "id": "backend_app_services_periodactivationservice_closure_4",
+      "label": "{closure#4}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "AuditLog",
+      "file_type": "code",
+      "norm_label": "{closure#4}()",
+      "source_file": "backend/app/Services/PeriodActivationService.php",
+      "source_location": "L122"
+    },
+    {
+      "id": "backend_app_services_periodactivationservice_closure_5",
+      "label": "{closure#5}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "AuditLog",
+      "file_type": "code",
+      "norm_label": "{closure#5}()",
+      "source_file": "backend/app/Services/PeriodActivationService.php",
+      "source_location": "L158"
+    },
+    {
+      "id": "backend_app_services_periodactivationservice_periodactivationservice_assertprofileorganization",
+      "label": ".assertProfileOrganization()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "AuditLog",
+      "file_type": "code",
+      "norm_label": ".assertprofileorganization()",
+      "source_file": "backend/app/Services/PeriodActivationService.php",
+      "source_location": "L192"
+    },
+    {
+      "id": "backend_app_services_periodactivationservice_periodactivationservice_snapshot",
+      "label": ".snapshot()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "AuditLog",
+      "file_type": "code",
+      "norm_label": ".snapshot()",
+      "source_file": "backend/app/Services/PeriodActivationService.php",
+      "source_location": "L201"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_1",
+      "label": "{closure#1}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "PeriodConfigurationController.php",
+      "file_type": "code",
+      "norm_label": "{closure#1}()",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
+      "source_location": "L30"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_10",
+      "label": "{closure#10}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "PeriodConfigurationController.php",
+      "file_type": "code",
+      "norm_label": "{closure#10}()",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
+      "source_location": "L258"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_11",
+      "label": "{closure#11}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "PeriodConfigurationController.php",
+      "file_type": "code",
+      "norm_label": "{closure#11}()",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
+      "source_location": "L277"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_12",
+      "label": "{closure#12}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "PeriodConfigurationController.php",
+      "file_type": "code",
+      "norm_label": "{closure#12}()",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
+      "source_location": "L314"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_13",
+      "label": "{closure#13}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "PeriodConfigurationController.php",
+      "file_type": "code",
+      "norm_label": "{closure#13}()",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
+      "source_location": "L331"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_14",
+      "label": "{closure#14}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "PeriodConfigurationController.php",
+      "file_type": "code",
+      "norm_label": "{closure#14}()",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
+      "source_location": "L417"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_2",
+      "label": "{closure#2}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "PeriodConfigurationController.php",
+      "file_type": "code",
+      "norm_label": "{closure#2}()",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
+      "source_location": "L30"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_3",
+      "label": "{closure#3}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "PeriodConfigurationController.php",
+      "file_type": "code",
+      "norm_label": "{closure#3}()",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
+      "source_location": "L38"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_4",
+      "label": "{closure#4}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "PeriodConfigurationController.php",
+      "file_type": "code",
+      "norm_label": "{closure#4}()",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
+      "source_location": "L38"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_5",
+      "label": "{closure#5}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "PeriodConfigurationController.php",
+      "file_type": "code",
+      "norm_label": "{closure#5}()",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
+      "source_location": "L74"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_7",
+      "label": "{closure#7}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "PeriodConfigurationController.php",
+      "file_type": "code",
+      "norm_label": "{closure#7}()",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
+      "source_location": "L200"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_8",
+      "label": "{closure#8}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "PeriodConfigurationController.php",
+      "file_type": "code",
+      "norm_label": "{closure#8}()",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
+      "source_location": "L202"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_9",
+      "label": "{closure#9}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "PeriodConfigurationController.php",
+      "file_type": "code",
+      "norm_label": "{closure#9}()",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
+      "source_location": "L208"
+    },
+    {
       "id": "backend_app_models_calendarholiday_calendarholiday_casts",
       "label": ".casts()",
       "_callable": true,
       "_origin": "ast",
       "community": 22,
-      "community_name": "AuditLog",
+      "community_name": "PeriodConfigurationController.php",
       "file_type": "code",
       "norm_label": ".casts()",
       "source_file": "backend/app/Models/CalendarHoliday.php",
@@ -3674,88 +3554,16 @@
       "source_location": "L15"
     },
     {
-      "id": "backend_tests_feature_settings_securitytest_securitytest_setup",
-      "label": ".setUp()",
+      "id": "backend_app_models_user_user_santriprofile",
+      "label": ".santriProfile()",
       "_callable": true,
       "_origin": "ast",
       "community": 25,
-      "community_name": "SecurityTest",
+      "community_name": "User.php",
       "file_type": "code",
-      "norm_label": ".setup()",
-      "source_file": "backend/tests/Feature/Settings/SecurityTest.php",
-      "source_location": "L16"
-    },
-    {
-      "id": "backend_tests_feature_settings_securitytest_securitytest_test_correct_password_must_be_provided_to_update_password",
-      "label": ".test_correct_password_must_be_provided_to_update_password()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "SecurityTest",
-      "file_type": "code",
-      "norm_label": ".test_correct_password_must_be_provided_to_update_password()",
-      "source_file": "backend/tests/Feature/Settings/SecurityTest.php",
-      "source_location": "L115"
-    },
-    {
-      "id": "backend_tests_feature_settings_securitytest_securitytest_test_password_can_be_updated",
-      "label": ".test_password_can_be_updated()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "SecurityTest",
-      "file_type": "code",
-      "norm_label": ".test_password_can_be_updated()",
-      "source_file": "backend/tests/Feature/Settings/SecurityTest.php",
-      "source_location": "L96"
-    },
-    {
-      "id": "backend_tests_feature_settings_securitytest_securitytest_test_security_settings_page_can_be_rendered",
-      "label": ".test_security_settings_page_can_be_rendered()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "SecurityTest",
-      "file_type": "code",
-      "norm_label": ".test_security_settings_page_can_be_rendered()",
-      "source_file": "backend/tests/Feature/Settings/SecurityTest.php",
-      "source_location": "L31"
-    },
-    {
-      "id": "backend_tests_feature_settings_securitytest_securitytest_test_security_settings_page_renders_without_two_factor_when_feature_is_disabled",
-      "label": ".test_security_settings_page_renders_without_two_factor_when_feature_is_disabled()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "SecurityTest",
-      "file_type": "code",
-      "norm_label": ".test_security_settings_page_renders_without_two_factor_when_feature_is_disabled()",
-      "source_file": "backend/tests/Feature/Settings/SecurityTest.php",
-      "source_location": "L57"
-    },
-    {
-      "id": "backend_tests_feature_settings_securitytest_securitytest_test_security_settings_page_requires_password_confirmation_when_enabled",
-      "label": ".test_security_settings_page_requires_password_confirmation_when_enabled()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "SecurityTest",
-      "file_type": "code",
-      "norm_label": ".test_security_settings_page_requires_password_confirmation_when_enabled()",
-      "source_file": "backend/tests/Feature/Settings/SecurityTest.php",
-      "source_location": "L47"
-    },
-    {
-      "id": "backend_tests_feature_settings_securitytest_securitytest_test_two_factor_authentication_disabled_when_confirmation_abandoned_between_requests",
-      "label": ".test_two_factor_authentication_disabled_when_confirmation_abandoned_between_requests()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 25,
-      "community_name": "SecurityTest",
-      "file_type": "code",
-      "norm_label": ".test_two_factor_authentication_disabled_when_confirmation_abandoned_between_requests()",
-      "source_file": "backend/tests/Feature/Settings/SecurityTest.php",
-      "source_location": "L73"
+      "norm_label": ".santriprofile()",
+      "source_file": "backend/app/Models/User.php",
+      "source_location": "L60"
     },
     {
       "id": "backend_app_http_controllers_lks_lksexportcontroller_closure_1",
@@ -3804,6 +3612,18 @@
       "norm_label": "{closure#4}()",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
       "source_location": "L103"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_lksexportcontroller_closure_5",
+      "label": "{closure#5}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 27,
+      "community_name": "LksScoreCalculator",
+      "file_type": "code",
+      "norm_label": "{closure#5}()",
+      "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
+      "source_location": "L131"
     },
     {
       "id": "backend_app_http_controllers_lks_lksexportcontroller_closure_6",
@@ -4226,6 +4046,18 @@
       "source_location": "L256"
     },
     {
+      "id": "backend_app_http_controllers_lks_organizationcontroller_closure_13",
+      "label": "{closure#13}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "OrganizationController.php",
+      "file_type": "code",
+      "norm_label": "{closure#13}()",
+      "source_file": "backend/app/Http/Controllers/Lks/OrganizationController.php",
+      "source_location": "L307"
+    },
+    {
       "id": "backend_app_http_controllers_lks_organizationcontroller_closure_2",
       "label": "{closure#2}()",
       "_callable": true,
@@ -4332,6 +4164,126 @@
       "norm_label": ".syncprofilestoteamleader()",
       "source_file": "backend/app/Http/Controllers/Lks/OrganizationController.php",
       "source_location": "L355"
+    },
+    {
+      "id": "backend_app_models_auditlog_auditlog_actor",
+      "label": ".actor()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "OrganizationController.php",
+      "file_type": "code",
+      "norm_label": ".actor()",
+      "source_file": "backend/app/Models/AuditLog.php",
+      "source_location": "L27"
+    },
+    {
+      "id": "backend_app_models_lkschecklist_lkschecklist_periodactivity",
+      "label": ".periodActivity()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "OrganizationController.php",
+      "file_type": "code",
+      "norm_label": ".periodactivity()",
+      "source_file": "backend/app/Models/LksChecklist.php",
+      "source_location": "L30"
+    },
+    {
+      "id": "backend_app_models_lkschecklist_lkschecklist_recordedby",
+      "label": ".recordedBy()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "OrganizationController.php",
+      "file_type": "code",
+      "norm_label": ".recordedby()",
+      "source_file": "backend/app/Models/LksChecklist.php",
+      "source_location": "L36"
+    },
+    {
+      "id": "backend_app_models_lksperiod_lksperiod_creator",
+      "label": ".creator()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "OrganizationController.php",
+      "file_type": "code",
+      "norm_label": ".creator()",
+      "source_file": "backend/app/Models/LksPeriod.php",
+      "source_location": "L33"
+    },
+    {
+      "id": "backend_app_models_periodactivity_periodactivity_activity",
+      "label": ".activity()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "OrganizationController.php",
+      "file_type": "code",
+      "norm_label": ".activity()",
+      "source_file": "backend/app/Models/PeriodActivity.php",
+      "source_location": "L34"
+    },
+    {
+      "id": "backend_app_models_periodactivity_periodactivity_period",
+      "label": ".period()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "OrganizationController.php",
+      "file_type": "code",
+      "norm_label": ".period()",
+      "source_file": "backend/app/Models/PeriodActivity.php",
+      "source_location": "L28"
+    },
+    {
+      "id": "backend_app_models_santriprofile_santriprofile_department",
+      "label": ".department()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "OrganizationController.php",
+      "file_type": "code",
+      "norm_label": ".department()",
+      "source_file": "backend/app/Models/SantriProfile.php",
+      "source_location": "L28"
+    },
+    {
+      "id": "backend_app_models_santriprofile_santriprofile_leader",
+      "label": ".leader()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "OrganizationController.php",
+      "file_type": "code",
+      "norm_label": ".leader()",
+      "source_file": "backend/app/Models/SantriProfile.php",
+      "source_location": "L40"
+    },
+    {
+      "id": "backend_app_models_santriprofile_santriprofile_team",
+      "label": ".team()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "OrganizationController.php",
+      "file_type": "code",
+      "norm_label": ".team()",
+      "source_file": "backend/app/Models/SantriProfile.php",
+      "source_location": "L34"
+    },
+    {
+      "id": "backend_app_models_santriprofile_santriprofile_user",
+      "label": ".user()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "OrganizationController.php",
+      "file_type": "code",
+      "norm_label": ".user()",
+      "source_file": "backend/app/Models/SantriProfile.php",
+      "source_location": "L22"
     },
     {
       "id": "backend_app_models_team_team_casts",
@@ -5078,18 +5030,6 @@
       "source_location": "L45"
     },
     {
-      "id": "backend_app_models_user_user_hasrole",
-      "label": ".hasRole()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "User",
-      "file_type": "code",
-      "norm_label": ".hasrole()",
-      "source_file": "backend/app/Models/User.php",
-      "source_location": "L65"
-    },
-    {
       "id": "backend_app_models_user_user_initials",
       "label": ".initials()",
       "_callable": true,
@@ -5100,42 +5040,6 @@
       "norm_label": ".initials()",
       "source_file": "backend/app/Models/User.php",
       "source_location": "L78"
-    },
-    {
-      "id": "backend_app_models_user_user_isadmin",
-      "label": ".isAdmin()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "User",
-      "file_type": "code",
-      "norm_label": ".isadmin()",
-      "source_file": "backend/app/Models/User.php",
-      "source_location": "L70"
-    },
-    {
-      "id": "backend_app_models_user_user_roles",
-      "label": ".roles()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "User",
-      "file_type": "code",
-      "norm_label": ".roles()",
-      "source_file": "backend/app/Models/User.php",
-      "source_location": "L54"
-    },
-    {
-      "id": "backend_app_models_user_user_santriprofile",
-      "label": ".santriProfile()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "User",
-      "file_type": "code",
-      "norm_label": ".santriprofile()",
-      "source_file": "backend/app/Models/User.php",
-      "source_location": "L60"
     },
     {
       "id": "backend_app_policies_lksperiodpolicy_lksperiodpolicy_activate",
@@ -5160,6 +5064,90 @@
       "norm_label": ".close()",
       "source_file": "backend/app/Policies/LksPeriodPolicy.php",
       "source_location": "L15"
+    },
+    {
+      "id": "backend_app_policies_periodparticipantsnapshotpolicy_periodparticipantsnapshotpolicy_record",
+      "label": ".record()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "User",
+      "file_type": "code",
+      "norm_label": ".record()",
+      "source_file": "backend/app/Policies/PeriodParticipantSnapshotPolicy.php",
+      "source_location": "L17"
+    },
+    {
+      "id": "backend_tests_feature_auth_authenticationtest_authenticationtest_test_inactive_users_can_not_authenticate",
+      "label": ".test_inactive_users_can_not_authenticate()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "User",
+      "file_type": "code",
+      "norm_label": ".test_inactive_users_can_not_authenticate()",
+      "source_file": "backend/tests/Feature/Auth/AuthenticationTest.php",
+      "source_location": "L51"
+    },
+    {
+      "id": "backend_tests_feature_auth_authenticationtest_authenticationtest_test_login_screen_can_be_rendered",
+      "label": ".test_login_screen_can_be_rendered()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "User",
+      "file_type": "code",
+      "norm_label": ".test_login_screen_can_be_rendered()",
+      "source_file": "backend/tests/Feature/Auth/AuthenticationTest.php",
+      "source_location": "L14"
+    },
+    {
+      "id": "backend_tests_feature_auth_authenticationtest_authenticationtest_test_users_can_authenticate_using_the_login_screen",
+      "label": ".test_users_can_authenticate_using_the_login_screen()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "User",
+      "file_type": "code",
+      "norm_label": ".test_users_can_authenticate_using_the_login_screen()",
+      "source_file": "backend/tests/Feature/Auth/AuthenticationTest.php",
+      "source_location": "L21"
+    },
+    {
+      "id": "backend_tests_feature_auth_authenticationtest_authenticationtest_test_users_can_logout",
+      "label": ".test_users_can_logout()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "User",
+      "file_type": "code",
+      "norm_label": ".test_users_can_logout()",
+      "source_file": "backend/tests/Feature/Auth/AuthenticationTest.php",
+      "source_location": "L85"
+    },
+    {
+      "id": "backend_tests_feature_auth_authenticationtest_authenticationtest_test_users_can_not_authenticate_with_invalid_password",
+      "label": ".test_users_can_not_authenticate_with_invalid_password()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "User",
+      "file_type": "code",
+      "norm_label": ".test_users_can_not_authenticate_with_invalid_password()",
+      "source_file": "backend/tests/Feature/Auth/AuthenticationTest.php",
+      "source_location": "L37"
+    },
+    {
+      "id": "backend_tests_feature_auth_authenticationtest_authenticationtest_test_users_with_two_factor_enabled_are_redirected_to_two_factor_challenge",
+      "label": ".test_users_with_two_factor_enabled_are_redirected_to_two_factor_challenge()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "User",
+      "file_type": "code",
+      "norm_label": ".test_users_with_two_factor_enabled_are_redirected_to_two_factor_challenge()",
+      "source_file": "backend/tests/Feature/Auth/AuthenticationTest.php",
+      "source_location": "L65"
     },
     {
       "id": "backend_tests_feature_settings_profileupdatetest_profileupdatetest_test_correct_password_must_be_provided_to_delete_account",
@@ -5222,28 +5210,88 @@
       "source_location": "L57"
     },
     {
-      "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_12",
-      "label": "{closure#12}()",
+      "id": "backend_tests_feature_settings_securitytest_securitytest_setup",
+      "label": ".setUp()",
       "_callable": true,
       "_origin": "ast",
-      "community": 50,
-      "community_name": "PeriodActivity",
+      "community": 5,
+      "community_name": "User",
       "file_type": "code",
-      "norm_label": "{closure#12}()",
-      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L412"
+      "norm_label": ".setup()",
+      "source_file": "backend/tests/Feature/Settings/SecurityTest.php",
+      "source_location": "L16"
     },
     {
-      "id": "backend_app_models_periodactivity_periodactivity_activity",
-      "label": ".activity()",
+      "id": "backend_tests_feature_settings_securitytest_securitytest_test_correct_password_must_be_provided_to_update_password",
+      "label": ".test_correct_password_must_be_provided_to_update_password()",
       "_callable": true,
       "_origin": "ast",
-      "community": 50,
-      "community_name": "PeriodActivity",
+      "community": 5,
+      "community_name": "User",
       "file_type": "code",
-      "norm_label": ".activity()",
-      "source_file": "backend/app/Models/PeriodActivity.php",
-      "source_location": "L34"
+      "norm_label": ".test_correct_password_must_be_provided_to_update_password()",
+      "source_file": "backend/tests/Feature/Settings/SecurityTest.php",
+      "source_location": "L115"
+    },
+    {
+      "id": "backend_tests_feature_settings_securitytest_securitytest_test_password_can_be_updated",
+      "label": ".test_password_can_be_updated()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "User",
+      "file_type": "code",
+      "norm_label": ".test_password_can_be_updated()",
+      "source_file": "backend/tests/Feature/Settings/SecurityTest.php",
+      "source_location": "L96"
+    },
+    {
+      "id": "backend_tests_feature_settings_securitytest_securitytest_test_security_settings_page_can_be_rendered",
+      "label": ".test_security_settings_page_can_be_rendered()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "User",
+      "file_type": "code",
+      "norm_label": ".test_security_settings_page_can_be_rendered()",
+      "source_file": "backend/tests/Feature/Settings/SecurityTest.php",
+      "source_location": "L31"
+    },
+    {
+      "id": "backend_tests_feature_settings_securitytest_securitytest_test_security_settings_page_renders_without_two_factor_when_feature_is_disabled",
+      "label": ".test_security_settings_page_renders_without_two_factor_when_feature_is_disabled()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "User",
+      "file_type": "code",
+      "norm_label": ".test_security_settings_page_renders_without_two_factor_when_feature_is_disabled()",
+      "source_file": "backend/tests/Feature/Settings/SecurityTest.php",
+      "source_location": "L57"
+    },
+    {
+      "id": "backend_tests_feature_settings_securitytest_securitytest_test_security_settings_page_requires_password_confirmation_when_enabled",
+      "label": ".test_security_settings_page_requires_password_confirmation_when_enabled()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "User",
+      "file_type": "code",
+      "norm_label": ".test_security_settings_page_requires_password_confirmation_when_enabled()",
+      "source_file": "backend/tests/Feature/Settings/SecurityTest.php",
+      "source_location": "L47"
+    },
+    {
+      "id": "backend_tests_feature_settings_securitytest_securitytest_test_two_factor_authentication_disabled_when_confirmation_abandoned_between_requests",
+      "label": ".test_two_factor_authentication_disabled_when_confirmation_abandoned_between_requests()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "User",
+      "file_type": "code",
+      "norm_label": ".test_two_factor_authentication_disabled_when_confirmation_abandoned_between_requests()",
+      "source_file": "backend/tests/Feature/Settings/SecurityTest.php",
+      "source_location": "L73"
     },
     {
       "id": "backend_app_models_periodactivity_periodactivity_allowedweekdays",
@@ -5330,18 +5378,6 @@
       "source_location": "L82"
     },
     {
-      "id": "backend_app_models_periodactivity_periodactivity_period",
-      "label": ".period()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 50,
-      "community_name": "PeriodActivity",
-      "file_type": "code",
-      "norm_label": ".period()",
-      "source_file": "backend/app/Models/PeriodActivity.php",
-      "source_location": "L28"
-    },
-    {
       "id": "backend_app_models_periodactivity_periodactivity_stringarray",
       "label": ".stringArray()",
       "_callable": true,
@@ -5354,18 +5390,6 @@
       "source_location": "L90"
     },
     {
-      "id": "backend_tests_unit_exampletest_exampletest_test_that_true_is_true",
-      "label": ".test_that_true_is_true()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 50,
-      "community_name": "PeriodActivity",
-      "file_type": "code",
-      "norm_label": ".test_that_true_is_true()",
-      "source_file": "backend/tests/Unit/ExampleTest.php",
-      "source_location": "L12"
-    },
-    {
       "id": "backend_tests_unit_periodactivityruletest_periodactivityruletest_test_spreadsheet_activity_scopes_are_applied_by_gender_and_job_level",
       "label": ".test_spreadsheet_activity_scopes_are_applied_by_gender_and_job_level()",
       "_callable": true,
@@ -5376,78 +5400,6 @@
       "norm_label": ".test_spreadsheet_activity_scopes_are_applied_by_gender_and_job_level()",
       "source_file": "backend/tests/Unit/PeriodActivityRuleTest.php",
       "source_location": "L11"
-    },
-    {
-      "id": "backend_tests_feature_auth_authenticationtest_authenticationtest_test_inactive_users_can_not_authenticate",
-      "label": ".test_inactive_users_can_not_authenticate()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 51,
-      "community_name": "AuthenticationTest",
-      "file_type": "code",
-      "norm_label": ".test_inactive_users_can_not_authenticate()",
-      "source_file": "backend/tests/Feature/Auth/AuthenticationTest.php",
-      "source_location": "L51"
-    },
-    {
-      "id": "backend_tests_feature_auth_authenticationtest_authenticationtest_test_login_screen_can_be_rendered",
-      "label": ".test_login_screen_can_be_rendered()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 51,
-      "community_name": "AuthenticationTest",
-      "file_type": "code",
-      "norm_label": ".test_login_screen_can_be_rendered()",
-      "source_file": "backend/tests/Feature/Auth/AuthenticationTest.php",
-      "source_location": "L14"
-    },
-    {
-      "id": "backend_tests_feature_auth_authenticationtest_authenticationtest_test_users_can_authenticate_using_the_login_screen",
-      "label": ".test_users_can_authenticate_using_the_login_screen()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 51,
-      "community_name": "AuthenticationTest",
-      "file_type": "code",
-      "norm_label": ".test_users_can_authenticate_using_the_login_screen()",
-      "source_file": "backend/tests/Feature/Auth/AuthenticationTest.php",
-      "source_location": "L21"
-    },
-    {
-      "id": "backend_tests_feature_auth_authenticationtest_authenticationtest_test_users_can_logout",
-      "label": ".test_users_can_logout()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 51,
-      "community_name": "AuthenticationTest",
-      "file_type": "code",
-      "norm_label": ".test_users_can_logout()",
-      "source_file": "backend/tests/Feature/Auth/AuthenticationTest.php",
-      "source_location": "L85"
-    },
-    {
-      "id": "backend_tests_feature_auth_authenticationtest_authenticationtest_test_users_can_not_authenticate_with_invalid_password",
-      "label": ".test_users_can_not_authenticate_with_invalid_password()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 51,
-      "community_name": "AuthenticationTest",
-      "file_type": "code",
-      "norm_label": ".test_users_can_not_authenticate_with_invalid_password()",
-      "source_file": "backend/tests/Feature/Auth/AuthenticationTest.php",
-      "source_location": "L37"
-    },
-    {
-      "id": "backend_tests_feature_auth_authenticationtest_authenticationtest_test_users_with_two_factor_enabled_are_redirected_to_two_factor_challenge",
-      "label": ".test_users_with_two_factor_enabled_are_redirected_to_two_factor_challenge()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 51,
-      "community_name": "AuthenticationTest",
-      "file_type": "code",
-      "norm_label": ".test_users_with_two_factor_enabled_are_redirected_to_two_factor_challenge()",
-      "source_file": "backend/tests/Feature/Auth/AuthenticationTest.php",
-      "source_location": "L65"
     },
     {
       "id": "backend_database_migrations_2026_10_08_000000_create_document_signatories_table_closure_1",
@@ -5750,28 +5702,40 @@
       "source_location": "L17"
     },
     {
-      "id": "backend_app_models_periodparticipantsnapshot_periodparticipantsnapshot_checklists",
-      "label": ".checklists()",
+      "id": "backend_app_models_periodholidaysnapshot_periodholidaysnapshot_period",
+      "label": ".period()",
       "_callable": true,
       "_origin": "ast",
       "community": 7,
       "community_name": "Illuminate\\Database\\Eloquent\\Concerns\\HasUuids",
       "file_type": "code",
-      "norm_label": ".checklists()",
-      "source_file": "backend/app/Models/PeriodParticipantSnapshot.php",
-      "source_location": "L41"
+      "norm_label": ".period()",
+      "source_file": "backend/app/Models/PeriodHolidaySnapshot.php",
+      "source_location": "L23"
     },
     {
-      "id": "backend_app_models_role_role_users",
-      "label": ".users()",
+      "id": "backend_app_services_periodactivationservice_closure_2",
+      "label": "{closure#2}()",
       "_callable": true,
       "_origin": "ast",
       "community": 7,
       "community_name": "Illuminate\\Database\\Eloquent\\Concerns\\HasUuids",
       "file_type": "code",
-      "norm_label": ".users()",
-      "source_file": "backend/app/Models/Role.php",
-      "source_location": "L18"
+      "norm_label": "{closure#2}()",
+      "source_file": "backend/app/Services/PeriodActivationService.php",
+      "source_location": "L63"
+    },
+    {
+      "id": "backend_app_services_periodactivationservice_periodactivationservice_snapshotsignatory",
+      "label": ".snapshotSignatory()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "Illuminate\\Database\\Eloquent\\Concerns\\HasUuids",
+      "file_type": "code",
+      "norm_label": ".snapshotsignatory()",
+      "source_file": "backend/app/Services/PeriodActivationService.php",
+      "source_location": "L222"
     },
     {
       "id": "backend_app_http_controllers_lks_accountcontroller_accountcontroller_show",
@@ -5916,6 +5880,90 @@
       "norm_label": ".__invoke()",
       "source_file": "backend/app/Http/Controllers/Lks/DashboardController.php",
       "source_location": "L15"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_documentsignatorycontroller_closure_1",
+      "label": "{closure#1}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "Illuminate\\Http\\Request",
+      "file_type": "code",
+      "norm_label": "{closure#1}()",
+      "source_file": "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php",
+      "source_location": "L23"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_documentsignatorycontroller_closure_2",
+      "label": "{closure#2}()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "Illuminate\\Http\\Request",
+      "file_type": "code",
+      "norm_label": "{closure#2}()",
+      "source_file": "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php",
+      "source_location": "L41"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_documentsignatorycontroller_documentsignatorycontroller_ensureadmin",
+      "label": ".ensureAdmin()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "Illuminate\\Http\\Request",
+      "file_type": "code",
+      "norm_label": ".ensureadmin()",
+      "source_file": "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php",
+      "source_location": "L89"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_documentsignatorycontroller_documentsignatorycontroller_index",
+      "label": ".index()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "Illuminate\\Http\\Request",
+      "file_type": "code",
+      "norm_label": ".index()",
+      "source_file": "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php",
+      "source_location": "L16"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_documentsignatorycontroller_documentsignatorycontroller_payload",
+      "label": ".payload()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "Illuminate\\Http\\Request",
+      "file_type": "code",
+      "norm_label": ".payload()",
+      "source_file": "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php",
+      "source_location": "L76"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_documentsignatorycontroller_documentsignatorycontroller_signature",
+      "label": ".signature()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "Illuminate\\Http\\Request",
+      "file_type": "code",
+      "norm_label": ".signature()",
+      "source_file": "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php",
+      "source_location": "L65"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_documentsignatorycontroller_documentsignatorycontroller_update",
+      "label": ".update()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "Illuminate\\Http\\Request",
+      "file_type": "code",
+      "norm_label": ".update()",
+      "source_file": "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php",
+      "source_location": "L27"
     },
     {
       "id": "backend_app_http_controllers_lks_organizationcontroller_organizationcontroller_destroydepartment",
@@ -6095,7 +6143,7 @@
       "file_type": "code",
       "norm_label": ".destroyactivity()",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L318"
+      "source_location": "L323"
     },
     {
       "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_periodconfigurationcontroller_destroycalendarholiday",
@@ -6107,7 +6155,7 @@
       "file_type": "code",
       "norm_label": ".destroycalendarholiday()",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L210"
+      "source_location": "L215"
     },
     {
       "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_periodconfigurationcontroller_destroyperiod",
@@ -6119,7 +6167,7 @@
       "file_type": "code",
       "norm_label": ".destroyperiod()",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L298"
+      "source_location": "L303"
     },
     {
       "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_periodconfigurationcontroller_destroyperiodholiday",
@@ -6131,7 +6179,7 @@
       "file_type": "code",
       "norm_label": ".destroyperiodholiday()",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L285"
+      "source_location": "L290"
     },
     {
       "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_periodconfigurationcontroller_ensureadmin",
@@ -6143,7 +6191,7 @@
       "file_type": "code",
       "norm_label": ".ensureadmin()",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L461"
+      "source_location": "L466"
     },
     {
       "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_periodconfigurationcontroller_ensuredateiswithinperiod",
@@ -6155,7 +6203,7 @@
       "file_type": "code",
       "norm_label": ".ensuredateiswithinperiod()",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L473"
+      "source_location": "L478"
     },
     {
       "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_periodconfigurationcontroller_ensuredraftperiod",
@@ -6167,7 +6215,7 @@
       "file_type": "code",
       "norm_label": ".ensuredraftperiod()",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L466"
+      "source_location": "L471"
     },
     {
       "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_periodconfigurationcontroller_ensureminimumdoesnotexceedtarget",
@@ -6179,7 +6227,7 @@
       "file_type": "code",
       "norm_label": ".ensureminimumdoesnotexceedtarget()",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L480"
+      "source_location": "L485"
     },
     {
       "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_periodconfigurationcontroller_importcalendarholidays",
@@ -6203,7 +6251,7 @@
       "file_type": "code",
       "norm_label": ".importperiodholidays()",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L238"
+      "source_location": "L243"
     },
     {
       "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_periodconfigurationcontroller_importreferencecalendar",
@@ -6215,7 +6263,7 @@
       "file_type": "code",
       "norm_label": ".importreferencecalendar()",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L263"
+      "source_location": "L268"
     },
     {
       "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_periodconfigurationcontroller_index",
@@ -6239,7 +6287,7 @@
       "file_type": "code",
       "norm_label": ".pagination()",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L451"
+      "source_location": "L456"
     },
     {
       "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_periodconfigurationcontroller_serializemasterrules",
@@ -6251,7 +6299,7 @@
       "file_type": "code",
       "norm_label": ".serializemasterrules()",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L490"
+      "source_location": "L495"
     },
     {
       "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_periodconfigurationcontroller_storeactivity",
@@ -6299,7 +6347,7 @@
       "file_type": "code",
       "norm_label": ".storeperiodactivity()",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L334"
+      "source_location": "L339"
     },
     {
       "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_periodconfigurationcontroller_storeperiodholiday",
@@ -6311,7 +6359,7 @@
       "file_type": "code",
       "norm_label": ".storeperiodholiday()",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L222"
+      "source_location": "L227"
     },
     {
       "id": "backend_app_http_controllers_lks_periodconfigurationcontroller_periodconfigurationcontroller_updateactivity",
@@ -6347,7 +6395,7 @@
       "file_type": "code",
       "norm_label": ".updateperiodactivities()",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L386"
+      "source_location": "L391"
     },
     {
       "id": "backend_app_http_controllers_lks_periodcontroller_closure_1",
@@ -6882,6 +6930,18 @@
       "source_location": "L3"
     },
     {
+      "id": "impeccable_critique_2026_09_29t06_52_35z_frontend_index_html_supporting_evidence",
+      "label": "Supporting Evidence",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "frontend/app.js",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "supporting evidence",
+      "source_file": ".impeccable/critique/2026-09-29T06-52-35Z__frontend-index-html.md",
+      "source_location": "L42"
+    },
+    {
       "id": "backend_app_actions_fortify_createnewuser",
       "label": "CreateNewUser.php",
       "_origin": "ast",
@@ -6966,17 +7026,6 @@
       "community_name": "FortifyServiceProvider.php",
       "file_type": "code",
       "norm_label": "illuminate\\cache\\ratelimiting\\limit",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "illuminate_contracts_validation_validationrule",
-      "label": "Illuminate\\Contracts\\Validation\\ValidationRule",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "FortifyServiceProvider.php",
-      "file_type": "code",
-      "norm_label": "illuminate\\contracts\\validation\\validationrule",
       "source_file": "",
       "source_location": ""
     },
@@ -7240,66 +7289,6 @@
       "source_location": "L37"
     },
     {
-      "id": "docs_database_design_4_1_users",
-      "label": "4.1 `users`",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "Database Design \u2014 LKS Santri Karya",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "4.1 `users`",
-      "source_file": "docs/Database Design.md",
-      "source_location": "L49"
-    },
-    {
-      "id": "docs_database_design_4_3_user_roles",
-      "label": "4.3 `user_roles`",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "Database Design \u2014 LKS Santri Karya",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "4.3 `user_roles`",
-      "source_file": "docs/Database Design.md",
-      "source_location": "L72"
-    },
-    {
-      "id": "docs_database_design_4_4_departments",
-      "label": "4.4 `departments`",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "Database Design \u2014 LKS Santri Karya",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "4.4 `departments`",
-      "source_file": "docs/Database Design.md",
-      "source_location": "L83"
-    },
-    {
-      "id": "docs_database_design_4_6_santri_profiles",
-      "label": "4.6 `santri_profiles`",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "Database Design \u2014 LKS Santri Karya",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "4.6 `santri_profiles`",
-      "source_file": "docs/Database Design.md",
-      "source_location": "L104"
-    },
-    {
-      "id": "docs_database_design_4_tabel_master_identitas_dan_organisasi",
-      "label": "4. Tabel master identitas dan organisasi",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "Database Design \u2014 LKS Santri Karya",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "4. tabel master identitas dan organisasi",
-      "source_file": "docs/Database Design.md",
-      "source_location": "L47"
-    },
-    {
       "id": "docs_database_design_5_1_lks_periods",
       "label": "5.1 `lks_periods`",
       "_origin": "ast",
@@ -7442,50 +7431,6 @@
       "norm_label": "database design \u2014 lks santri karya",
       "source_file": "docs/Database Design.md",
       "source_location": "L1"
-    },
-    {
-      "id": "backend_app_http_controllers_lks_documentsignatorycontroller",
-      "label": "DocumentSignatoryController.php",
-      "_origin": "ast",
-      "community": 110,
-      "community_name": "DocumentSignatory",
-      "file_type": "code",
-      "norm_label": "documentsignatorycontroller.php",
-      "source_file": "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_app_models_documentsignatory",
-      "label": "DocumentSignatory.php",
-      "_origin": "ast",
-      "community": 110,
-      "community_name": "DocumentSignatory",
-      "file_type": "code",
-      "norm_label": "documentsignatory.php",
-      "source_file": "backend/app/Models/DocumentSignatory.php",
-      "source_location": "L1"
-    },
-    {
-      "id": "illuminate_support_facades_storage",
-      "label": "Illuminate\\Support\\Facades\\Storage",
-      "_origin": "ast",
-      "community": 110,
-      "community_name": "DocumentSignatory",
-      "file_type": "code",
-      "norm_label": "illuminate\\support\\facades\\storage",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "symfony_component_httpfoundation_binaryfileresponse",
-      "label": "Symfony\\Component\\HttpFoundation\\BinaryFileResponse",
-      "_origin": "ast",
-      "community": 110,
-      "community_name": "DocumentSignatory",
-      "file_type": "code",
-      "norm_label": "symfony\\component\\httpfoundation\\binaryfileresponse",
-      "source_file": "",
-      "source_location": ""
     },
     {
       "id": "backend_database_migrations_2026_10_08_010000_add_recommendation_snapshot_to_period_participant_snapshots",
@@ -8014,26 +7959,99 @@
       "source_location": "L9"
     },
     {
-      "id": "backend_app_models_santriprofile",
-      "label": "SantriProfile.php",
+      "id": "illuminate_database_eloquent_relations_belongstomany",
+      "label": "Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany",
       "_origin": "ast",
       "community": 18,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "community_name": "4. Tabel master identitas dan organisasi",
       "file_type": "code",
-      "norm_label": "santriprofile.php",
-      "source_file": "backend/app/Models/SantriProfile.php",
-      "source_location": "L1"
-    },
-    {
-      "id": "illuminate_database_eloquent_relations_belongsto",
-      "label": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
-      "file_type": "code",
-      "norm_label": "illuminate\\database\\eloquent\\relations\\belongsto",
+      "norm_label": "illuminate\\database\\eloquent\\relations\\belongstomany",
       "source_file": "",
       "source_location": ""
+    },
+    {
+      "id": "docs_database_design_4_1_users",
+      "label": "4.1 `users`",
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "4. Tabel master identitas dan organisasi",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4.1 `users`",
+      "source_file": "docs/Database Design.md",
+      "source_location": "L49"
+    },
+    {
+      "id": "docs_database_design_4_2_roles",
+      "label": "4.2 `roles`",
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "4. Tabel master identitas dan organisasi",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4.2 `roles`",
+      "source_file": "docs/Database Design.md",
+      "source_location": "L64"
+    },
+    {
+      "id": "docs_database_design_4_3_user_roles",
+      "label": "4.3 `user_roles`",
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "4. Tabel master identitas dan organisasi",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4.3 `user_roles`",
+      "source_file": "docs/Database Design.md",
+      "source_location": "L72"
+    },
+    {
+      "id": "docs_database_design_4_4_departments",
+      "label": "4.4 `departments`",
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "4. Tabel master identitas dan organisasi",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4.4 `departments`",
+      "source_file": "docs/Database Design.md",
+      "source_location": "L83"
+    },
+    {
+      "id": "docs_database_design_4_5_teams",
+      "label": "4.5 `teams`",
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "4. Tabel master identitas dan organisasi",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4.5 `teams`",
+      "source_file": "docs/Database Design.md",
+      "source_location": "L93"
+    },
+    {
+      "id": "docs_database_design_4_6_santri_profiles",
+      "label": "4.6 `santri_profiles`",
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "4. Tabel master identitas dan organisasi",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4.6 `santri_profiles`",
+      "source_file": "docs/Database Design.md",
+      "source_location": "L104"
+    },
+    {
+      "id": "docs_database_design_4_tabel_master_identitas_dan_organisasi",
+      "label": "4. Tabel master identitas dan organisasi",
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "4. Tabel master identitas dan organisasi",
+      "file_type": "document",
+      "node_kind": "heading",
+      "norm_label": "4. tabel master identitas dan organisasi",
+      "source_file": "docs/Database Design.md",
+      "source_location": "L47"
     },
     {
       "id": "backend_database_migrations_2026_09_29_000000_create_lks_identity_and_organization_tables",
@@ -8146,17 +8164,6 @@
       "source_location": "L1"
     },
     {
-      "id": "backend_tests_feature_settings_profileupdatetest",
-      "label": "ProfileUpdateTest.php",
-      "_origin": "ast",
-      "community": 2,
-      "community_name": "TestCase",
-      "file_type": "code",
-      "norm_label": "profileupdatetest.php",
-      "source_file": "backend/tests/Feature/Settings/ProfileUpdateTest.php",
-      "source_location": "L1"
-    },
-    {
       "id": "backend_tests_feature_settings_securitytest",
       "label": "SecurityTest.php",
       "_origin": "ast",
@@ -8190,6 +8197,17 @@
       "source_location": "L1"
     },
     {
+      "id": "backend_tests_unit_exampletest",
+      "label": "Unit/ExampleTest.php",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "TestCase",
+      "file_type": "code",
+      "norm_label": "unit/exampletest.php",
+      "source_file": "backend/tests/Unit/ExampleTest.php",
+      "source_location": "L1"
+    },
+    {
       "id": "illuminate_foundation_testing_refreshdatabase",
       "label": "Illuminate\\Foundation\\Testing\\RefreshDatabase",
       "_origin": "ast",
@@ -8208,6 +8226,17 @@
       "community_name": "TestCase",
       "file_type": "code",
       "norm_label": "illuminate\\foundation\\testing\\testcase",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "illuminate_support_facades_hash",
+      "label": "Illuminate\\Support\\Facades\\Hash",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "TestCase",
+      "file_type": "code",
+      "norm_label": "illuminate\\support\\facades\\hash",
       "source_file": "",
       "source_location": ""
     },
@@ -8234,11 +8263,22 @@
       "source_location": ""
     },
     {
+      "id": "phpunit_framework_testcase",
+      "label": "PHPUnit\\Framework\\TestCase",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "TestCase",
+      "file_type": "code",
+      "norm_label": "phpunit\\framework\\testcase",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
       "id": "backend_app_http_controllers_lks_checklistcontroller",
       "label": "ChecklistController.php",
       "_origin": "ast",
       "community": 20,
-      "community_name": "LksChecklist",
+      "community_name": "PeriodParticipantSnapshot",
       "file_type": "code",
       "norm_label": "checklistcontroller.php",
       "source_file": "backend/app/Http/Controllers/Lks/ChecklistController.php",
@@ -8249,7 +8289,7 @@
       "label": "ChecklistRecordingService.php",
       "_origin": "ast",
       "community": 20,
-      "community_name": "LksChecklist",
+      "community_name": "PeriodParticipantSnapshot",
       "file_type": "code",
       "norm_label": "checklistrecordingservice.php",
       "source_file": "backend/app/Services/ChecklistRecordingService.php",
@@ -8260,9 +8300,20 @@
       "label": "Carbon\\CarbonInterface",
       "_origin": "ast",
       "community": 20,
-      "community_name": "LksChecklist",
+      "community_name": "PeriodParticipantSnapshot",
       "file_type": "code",
       "norm_label": "carbon\\carboninterface",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "illuminate_auth_access_authorizationexception",
+      "label": "Illuminate\\Auth\\Access\\AuthorizationException",
+      "_origin": "ast",
+      "community": 20,
+      "community_name": "PeriodParticipantSnapshot",
+      "file_type": "code",
+      "norm_label": "illuminate\\auth\\access\\authorizationexception",
       "source_file": "",
       "source_location": ""
     },
@@ -8271,7 +8322,7 @@
       "label": "Illuminate\\Support\\Carbon",
       "_origin": "ast",
       "community": 20,
-      "community_name": "LksChecklist",
+      "community_name": "PeriodParticipantSnapshot",
       "file_type": "code",
       "norm_label": "illuminate\\support\\carbon",
       "source_file": "",
@@ -8282,21 +8333,21 @@
       "label": "Illuminate\\Validation\\ValidationException",
       "_origin": "ast",
       "community": 20,
-      "community_name": "LksChecklist",
+      "community_name": "PeriodParticipantSnapshot",
       "file_type": "code",
       "norm_label": "illuminate\\validation\\validationexception",
       "source_file": "",
       "source_location": ""
     },
     {
-      "id": "backend_app_policies_periodparticipantsnapshotpolicy",
-      "label": "PeriodParticipantSnapshotPolicy.php",
+      "id": "backend_app_models_auditlog",
+      "label": "AuditLog.php",
       "_origin": "ast",
       "community": 21,
-      "community_name": "PeriodParticipantSnapshot",
+      "community_name": "AuditLog",
       "file_type": "code",
-      "norm_label": "periodparticipantsnapshotpolicy.php",
-      "source_file": "backend/app/Policies/PeriodParticipantSnapshotPolicy.php",
+      "norm_label": "auditlog.php",
+      "source_file": "backend/app/Models/AuditLog.php",
       "source_location": "L1"
     },
     {
@@ -8304,42 +8355,75 @@
       "label": "PeriodActivationService.php",
       "_origin": "ast",
       "community": 21,
-      "community_name": "PeriodParticipantSnapshot",
+      "community_name": "AuditLog",
       "file_type": "code",
       "norm_label": "periodactivationservice.php",
       "source_file": "backend/app/Services/PeriodActivationService.php",
       "source_location": "L1"
     },
     {
-      "id": "illuminate_auth_access_authorizationexception",
-      "label": "Illuminate\\Auth\\Access\\AuthorizationException",
+      "id": "illuminate_database_eloquent_relations_morphto",
+      "label": "Illuminate\\Database\\Eloquent\\Relations\\MorphTo",
       "_origin": "ast",
       "community": 21,
-      "community_name": "PeriodParticipantSnapshot",
+      "community_name": "AuditLog",
       "file_type": "code",
-      "norm_label": "illuminate\\auth\\access\\authorizationexception",
+      "norm_label": "illuminate\\database\\eloquent\\relations\\morphto",
       "source_file": "",
       "source_location": ""
+    },
+    {
+      "id": "backend_app_concerns_profilevalidationrules",
+      "label": "ProfileValidationRules.php",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "PeriodConfigurationController.php",
+      "file_type": "code",
+      "norm_label": "profilevalidationrules.php",
+      "source_file": "backend/app/Concerns/ProfileValidationRules.php",
+      "source_location": "L1"
     },
     {
       "id": "backend_app_http_controllers_lks_periodconfigurationcontroller",
       "label": "PeriodConfigurationController.php",
       "_origin": "ast",
       "community": 22,
-      "community_name": "AuditLog",
+      "community_name": "PeriodConfigurationController.php",
       "file_type": "code",
       "norm_label": "periodconfigurationcontroller.php",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
       "source_location": "L1"
     },
     {
-      "id": "illuminate_database_eloquent_relations_morphto",
-      "label": "Illuminate\\Database\\Eloquent\\Relations\\MorphTo",
+      "id": "backend_app_models_calendarholiday",
+      "label": "CalendarHoliday.php",
       "_origin": "ast",
       "community": 22,
-      "community_name": "AuditLog",
+      "community_name": "PeriodConfigurationController.php",
       "file_type": "code",
-      "norm_label": "illuminate\\database\\eloquent\\relations\\morphto",
+      "norm_label": "calendarholiday.php",
+      "source_file": "backend/app/Models/CalendarHoliday.php",
+      "source_location": "L1"
+    },
+    {
+      "id": "illuminate_contracts_validation_validationrule",
+      "label": "Illuminate\\Contracts\\Validation\\ValidationRule",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "PeriodConfigurationController.php",
+      "file_type": "code",
+      "norm_label": "illuminate\\contracts\\validation\\validationrule",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "illuminate_validation_rule",
+      "label": "Illuminate\\Validation\\Rule",
+      "_origin": "ast",
+      "community": 22,
+      "community_name": "PeriodConfigurationController.php",
+      "file_type": "code",
+      "norm_label": "illuminate\\validation\\rule",
       "source_file": "",
       "source_location": ""
     },
@@ -8362,17 +8446,6 @@
       "community_name": "UserFactory.php",
       "file_type": "code",
       "norm_label": "illuminate\\database\\eloquent\\factories\\factory",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "illuminate_support_facades_hash",
-      "label": "Illuminate\\Support\\Facades\\Hash",
-      "_origin": "ast",
-      "community": 23,
-      "community_name": "UserFactory.php",
-      "file_type": "code",
-      "norm_label": "illuminate\\support\\facades\\hash",
       "source_file": "",
       "source_location": ""
     },
@@ -8428,6 +8501,116 @@
       "community_name": "ActivatePeriodRequest",
       "file_type": "code",
       "norm_label": "illuminate\\foundation\\http\\formrequest",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "backend_app_models_user",
+      "label": "User.php",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "User.php",
+      "file_type": "code",
+      "norm_label": "user.php",
+      "source_file": "backend/app/Models/User.php",
+      "source_location": "L1"
+    },
+    {
+      "id": "illuminate_database_eloquent_attributes_fillable",
+      "label": "Illuminate\\Database\\Eloquent\\Attributes\\Fillable",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "User.php",
+      "file_type": "code",
+      "norm_label": "illuminate\\database\\eloquent\\attributes\\fillable",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "illuminate_database_eloquent_attributes_hidden",
+      "label": "Illuminate\\Database\\Eloquent\\Attributes\\Hidden",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "User.php",
+      "file_type": "code",
+      "norm_label": "illuminate\\database\\eloquent\\attributes\\hidden",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "illuminate_database_eloquent_factories_hasfactory",
+      "label": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "User.php",
+      "file_type": "code",
+      "norm_label": "illuminate\\database\\eloquent\\factories\\hasfactory",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "illuminate_database_eloquent_relations_hasone",
+      "label": "Illuminate\\Database\\Eloquent\\Relations\\HasOne",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "User.php",
+      "file_type": "code",
+      "norm_label": "illuminate\\database\\eloquent\\relations\\hasone",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "illuminate_foundation_auth_user",
+      "label": "Illuminate\\Foundation\\Auth\\User",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "User.php",
+      "file_type": "code",
+      "norm_label": "illuminate\\foundation\\auth\\user",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "illuminate_notifications_notifiable",
+      "label": "Illuminate\\Notifications\\Notifiable",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "User.php",
+      "file_type": "code",
+      "norm_label": "illuminate\\notifications\\notifiable",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "laravel_fortify_contracts_passkeyuser",
+      "label": "Laravel\\Fortify\\Contracts\\PasskeyUser",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "User.php",
+      "file_type": "code",
+      "norm_label": "laravel\\fortify\\contracts\\passkeyuser",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "laravel_fortify_passkeyauthenticatable",
+      "label": "Laravel\\Fortify\\PasskeyAuthenticatable",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "User.php",
+      "file_type": "code",
+      "norm_label": "laravel\\fortify\\passkeyauthenticatable",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "laravel_fortify_twofactorauthenticatable",
+      "label": "Laravel\\Fortify\\TwoFactorAuthenticatable",
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "User.php",
+      "file_type": "code",
+      "norm_label": "laravel\\fortify\\twofactorauthenticatable",
       "source_file": "",
       "source_location": ""
     },
@@ -9014,17 +9197,6 @@
       "source_location": "L76"
     },
     {
-      "id": "backend_app_concerns_profilevalidationrules",
-      "label": "ProfileValidationRules.php",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "OrganizationController.php",
-      "file_type": "code",
-      "norm_label": "profilevalidationrules.php",
-      "source_file": "backend/app/Concerns/ProfileValidationRules.php",
-      "source_location": "L1"
-    },
-    {
       "id": "backend_app_http_controllers_lks_organizationcontroller",
       "label": "OrganizationController.php",
       "_origin": "ast",
@@ -9036,13 +9208,35 @@
       "source_location": "L1"
     },
     {
-      "id": "illuminate_validation_rule",
-      "label": "Illuminate\\Validation\\Rule",
+      "id": "backend_app_models_santriprofile",
+      "label": "SantriProfile.php",
       "_origin": "ast",
       "community": 30,
       "community_name": "OrganizationController.php",
       "file_type": "code",
-      "norm_label": "illuminate\\validation\\rule",
+      "norm_label": "santriprofile.php",
+      "source_file": "backend/app/Models/SantriProfile.php",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_app_models_team",
+      "label": "Team.php",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "OrganizationController.php",
+      "file_type": "code",
+      "norm_label": "team.php",
+      "source_file": "backend/app/Models/Team.php",
+      "source_location": "L1"
+    },
+    {
+      "id": "illuminate_database_eloquent_relations_belongsto",
+      "label": "Illuminate\\Database\\Eloquent\\Relations\\BelongsTo",
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "OrganizationController.php",
+      "file_type": "code",
+      "norm_label": "illuminate\\database\\eloquent\\relations\\belongsto",
       "source_file": "",
       "source_location": ""
     },
@@ -10220,18 +10414,6 @@
       "source_location": "L54"
     },
     {
-      "id": "impeccable_critique_2026_09_29t06_52_35z_frontend_index_html_supporting_evidence",
-      "label": "Supporting Evidence",
-      "_origin": "ast",
-      "community": 45,
-      "community_name": "2026-09-29T06-52-35Z__frontend-index-html.md",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "supporting evidence",
-      "source_file": ".impeccable/critique/2026-09-29T06-52-35Z__frontend-index-html.md",
-      "source_location": "L42"
-    },
-    {
       "id": "backend_resources_views_pdf_lks_individual_blade",
       "label": "lks-individual.blade.php",
       "_origin": "ast",
@@ -10320,17 +10502,6 @@
       "source_location": ""
     },
     {
-      "id": "backend_app_models_user",
-      "label": "User.php",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "User",
-      "file_type": "code",
-      "norm_label": "user.php",
-      "source_file": "backend/app/Models/User.php",
-      "source_location": "L1"
-    },
-    {
       "id": "backend_app_policies_lksperiodpolicy",
       "label": "LksPeriodPolicy.php",
       "_origin": "ast",
@@ -10339,6 +10510,17 @@
       "file_type": "code",
       "norm_label": "lksperiodpolicy.php",
       "source_file": "backend/app/Policies/LksPeriodPolicy.php",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_app_policies_periodparticipantsnapshotpolicy",
+      "label": "PeriodParticipantSnapshotPolicy.php",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "User",
+      "file_type": "code",
+      "norm_label": "periodparticipantsnapshotpolicy.php",
+      "source_file": "backend/app/Policies/PeriodParticipantSnapshotPolicy.php",
       "source_location": "L1"
     },
     {
@@ -10353,125 +10535,14 @@
       "source_location": "L1"
     },
     {
-      "id": "illuminate_database_eloquent_attributes_fillable",
-      "label": "Illuminate\\Database\\Eloquent\\Attributes\\Fillable",
+      "id": "backend_tests_feature_settings_profileupdatetest",
+      "label": "ProfileUpdateTest.php",
       "_origin": "ast",
       "community": 5,
       "community_name": "User",
       "file_type": "code",
-      "norm_label": "illuminate\\database\\eloquent\\attributes\\fillable",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "illuminate_database_eloquent_attributes_hidden",
-      "label": "Illuminate\\Database\\Eloquent\\Attributes\\Hidden",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "User",
-      "file_type": "code",
-      "norm_label": "illuminate\\database\\eloquent\\attributes\\hidden",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "illuminate_database_eloquent_factories_hasfactory",
-      "label": "Illuminate\\Database\\Eloquent\\Factories\\HasFactory",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "User",
-      "file_type": "code",
-      "norm_label": "illuminate\\database\\eloquent\\factories\\hasfactory",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "illuminate_database_eloquent_relations_hasone",
-      "label": "Illuminate\\Database\\Eloquent\\Relations\\HasOne",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "User",
-      "file_type": "code",
-      "norm_label": "illuminate\\database\\eloquent\\relations\\hasone",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "illuminate_foundation_auth_user",
-      "label": "Illuminate\\Foundation\\Auth\\User",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "User",
-      "file_type": "code",
-      "norm_label": "illuminate\\foundation\\auth\\user",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "illuminate_notifications_notifiable",
-      "label": "Illuminate\\Notifications\\Notifiable",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "User",
-      "file_type": "code",
-      "norm_label": "illuminate\\notifications\\notifiable",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "laravel_fortify_contracts_passkeyuser",
-      "label": "Laravel\\Fortify\\Contracts\\PasskeyUser",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "User",
-      "file_type": "code",
-      "norm_label": "laravel\\fortify\\contracts\\passkeyuser",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "laravel_fortify_passkeyauthenticatable",
-      "label": "Laravel\\Fortify\\PasskeyAuthenticatable",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "User",
-      "file_type": "code",
-      "norm_label": "laravel\\fortify\\passkeyauthenticatable",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "laravel_fortify_twofactorauthenticatable",
-      "label": "Laravel\\Fortify\\TwoFactorAuthenticatable",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "User",
-      "file_type": "code",
-      "norm_label": "laravel\\fortify\\twofactorauthenticatable",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
-      "id": "docs_database_design_4_2_roles",
-      "label": "4.2 `roles`",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "User",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "4.2 `roles`",
-      "source_file": "docs/Database Design.md",
-      "source_location": "L64"
-    },
-    {
-      "id": "backend_tests_unit_exampletest",
-      "label": "Unit/ExampleTest.php",
-      "_origin": "ast",
-      "community": 50,
-      "community_name": "PeriodActivity",
-      "file_type": "code",
-      "norm_label": "unit/exampletest.php",
-      "source_file": "backend/tests/Unit/ExampleTest.php",
+      "norm_label": "profileupdatetest.php",
+      "source_file": "backend/tests/Feature/Settings/ProfileUpdateTest.php",
       "source_location": "L1"
     },
     {
@@ -10484,17 +10555,6 @@
       "norm_label": "periodactivityruletest.php",
       "source_file": "backend/tests/Unit/PeriodActivityRuleTest.php",
       "source_location": "L1"
-    },
-    {
-      "id": "phpunit_framework_testcase",
-      "label": "PHPUnit\\Framework\\TestCase",
-      "_origin": "ast",
-      "community": 50,
-      "community_name": "PeriodActivity",
-      "file_type": "code",
-      "norm_label": "phpunit\\framework\\testcase",
-      "source_file": "",
-      "source_location": ""
     },
     {
       "id": "docs_frontend_design",
@@ -11577,28 +11637,6 @@
       "source_location": null
     },
     {
-      "id": "backend_app_models_auditlog",
-      "label": "AuditLog.php",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "Illuminate\\Database\\Eloquent\\Concerns\\HasUuids",
-      "file_type": "code",
-      "norm_label": "auditlog.php",
-      "source_file": "backend/app/Models/AuditLog.php",
-      "source_location": "L1"
-    },
-    {
-      "id": "backend_app_models_calendarholiday",
-      "label": "CalendarHoliday.php",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "Illuminate\\Database\\Eloquent\\Concerns\\HasUuids",
-      "file_type": "code",
-      "norm_label": "calendarholiday.php",
-      "source_file": "backend/app/Models/CalendarHoliday.php",
-      "source_location": "L1"
-    },
-    {
       "id": "backend_app_models_department",
       "label": "Department.php",
       "_origin": "ast",
@@ -11607,6 +11645,17 @@
       "file_type": "code",
       "norm_label": "department.php",
       "source_file": "backend/app/Models/Department.php",
+      "source_location": "L1"
+    },
+    {
+      "id": "backend_app_models_documentsignatory",
+      "label": "DocumentSignatory.php",
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "Illuminate\\Database\\Eloquent\\Concerns\\HasUuids",
+      "file_type": "code",
+      "norm_label": "documentsignatory.php",
+      "source_file": "backend/app/Models/DocumentSignatory.php",
       "source_location": "L1"
     },
     {
@@ -11687,17 +11736,6 @@
       "source_location": "L1"
     },
     {
-      "id": "backend_app_models_team",
-      "label": "Team.php",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "Illuminate\\Database\\Eloquent\\Concerns\\HasUuids",
-      "file_type": "code",
-      "norm_label": "team.php",
-      "source_file": "backend/app/Models/Team.php",
-      "source_location": "L1"
-    },
-    {
       "id": "backend_tests_feature_lks_lkscoretest",
       "label": "LksCoreTest.php",
       "_origin": "ast",
@@ -11731,17 +11769,6 @@
       "source_location": ""
     },
     {
-      "id": "illuminate_database_eloquent_relations_belongstomany",
-      "label": "Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "Illuminate\\Database\\Eloquent\\Concerns\\HasUuids",
-      "file_type": "code",
-      "norm_label": "illuminate\\database\\eloquent\\relations\\belongstomany",
-      "source_file": "",
-      "source_location": ""
-    },
-    {
       "id": "illuminate_database_eloquent_relations_hasmany",
       "label": "Illuminate\\Database\\Eloquent\\Relations\\HasMany",
       "_origin": "ast",
@@ -11762,18 +11789,6 @@
       "norm_label": "illuminate\\http\\uploadedfile",
       "source_file": "",
       "source_location": ""
-    },
-    {
-      "id": "docs_database_design_4_5_teams",
-      "label": "4.5 `teams`",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "Illuminate\\Database\\Eloquent\\Concerns\\HasUuids",
-      "file_type": "document",
-      "node_kind": "heading",
-      "norm_label": "4.5 `teams`",
-      "source_file": "docs/Database Design.md",
-      "source_location": "L93"
     },
     {
       "id": "backend_resources_views_layouts_auth_split_blade",
@@ -11963,6 +11978,17 @@
       "source_location": "L1"
     },
     {
+      "id": "backend_app_http_controllers_lks_documentsignatorycontroller",
+      "label": "DocumentSignatoryController.php",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "Illuminate\\Http\\Request",
+      "file_type": "code",
+      "norm_label": "documentsignatorycontroller.php",
+      "source_file": "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php",
+      "source_location": "L1"
+    },
+    {
       "id": "backend_app_http_controllers_lks_periodcontroller",
       "label": "PeriodController.php",
       "_origin": "ast",
@@ -12047,6 +12073,28 @@
       "community_name": "Illuminate\\Http\\Request",
       "file_type": "code",
       "norm_label": "illuminate\\support\\facades\\file",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "illuminate_support_facades_storage",
+      "label": "Illuminate\\Support\\Facades\\Storage",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "Illuminate\\Http\\Request",
+      "file_type": "code",
+      "norm_label": "illuminate\\support\\facades\\storage",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "symfony_component_httpfoundation_binaryfileresponse",
+      "label": "Symfony\\Component\\HttpFoundation\\BinaryFileResponse",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "Illuminate\\Http\\Request",
+      "file_type": "code",
+      "norm_label": "symfony\\component\\httpfoundation\\binaryfileresponse",
       "source_file": "",
       "source_location": ""
     },
@@ -13058,7 +13106,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L311",
+      "source_location": "L262",
       "weight": 1.0
     },
     {
@@ -13070,7 +13118,31 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L327",
+      "source_location": "L284",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_12",
+      "target": "backend_app_models_auditlog_auditlog",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
+      "source_location": "L316",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_13",
+      "target": "backend_app_models_auditlog_auditlog",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
+      "source_location": "L332",
       "weight": 1.0
     },
     {
@@ -13082,31 +13154,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L204",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_8",
-      "target": "backend_app_models_auditlog_auditlog",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L257",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_9",
-      "target": "backend_app_models_auditlog_auditlog",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L279",
+      "source_location": "L203",
       "weight": 1.0
     },
     {
@@ -13118,7 +13166,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L320",
+      "source_location": "L325",
       "weight": 1.0
     },
     {
@@ -13130,7 +13178,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L212",
+      "source_location": "L217",
       "weight": 1.0
     },
     {
@@ -13142,7 +13190,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L217",
+      "source_location": "L222",
       "weight": 1.0
     },
     {
@@ -13154,7 +13202,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L300",
+      "source_location": "L305",
       "weight": 1.0
     },
     {
@@ -13166,7 +13214,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L287",
+      "source_location": "L292",
       "weight": 1.0
     },
     {
@@ -13178,7 +13226,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L288",
+      "source_location": "L293",
       "weight": 1.0
     },
     {
@@ -13190,7 +13238,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L293",
+      "source_location": "L298",
       "weight": 1.0
     },
     {
@@ -13214,7 +13262,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L240",
+      "source_location": "L245",
       "weight": 1.0
     },
     {
@@ -13226,7 +13274,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L241",
+      "source_location": "L246",
       "weight": 1.0
     },
     {
@@ -13238,7 +13286,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L250",
+      "source_location": "L255",
       "weight": 1.0
     },
     {
@@ -13250,7 +13298,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L265",
+      "source_location": "L270",
       "weight": 1.0
     },
     {
@@ -13262,7 +13310,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L266",
+      "source_location": "L271",
       "weight": 1.0
     },
     {
@@ -13370,7 +13418,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L336",
+      "source_location": "L341",
       "weight": 1.0
     },
     {
@@ -13382,7 +13430,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L355",
+      "source_location": "L360",
       "weight": 1.0
     },
     {
@@ -13394,7 +13442,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L224",
+      "source_location": "L229",
       "weight": 1.0
     },
     {
@@ -13406,7 +13454,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L225",
+      "source_location": "L230",
       "weight": 1.0
     },
     {
@@ -13418,7 +13466,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L231",
+      "source_location": "L236",
       "weight": 1.0
     },
     {
@@ -13430,7 +13478,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L233",
+      "source_location": "L238",
       "weight": 1.0
     },
     {
@@ -13502,7 +13550,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L388",
+      "source_location": "L393",
       "weight": 1.0
     },
     {
@@ -13514,7 +13562,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L424",
+      "source_location": "L429",
       "weight": 1.0
     },
     {
@@ -13526,7 +13574,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L438",
+      "source_location": "L443",
       "weight": 1.0
     },
     {
@@ -14222,7 +14270,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L411",
+      "source_location": "L430",
       "weight": 1.0
     },
     {
@@ -14234,7 +14282,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L374",
+      "source_location": "L393",
       "weight": 1.0
     },
     {
@@ -14331,6 +14379,18 @@
       "context": "call",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
       "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_admin_can_import_calendar_holidays",
+      "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_userwithrole",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
+      "source_location": "L353",
       "weight": 1.0
     },
     {
@@ -14834,7 +14894,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L354",
+      "source_location": "L373",
       "weight": 1.0
     },
     {
@@ -15062,7 +15122,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L984",
+      "source_location": "L1011",
       "weight": 1.0
     },
     {
@@ -15446,7 +15506,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1371",
+      "source_location": "L1396",
       "weight": 1.0
     },
     {
@@ -15518,7 +15578,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1139",
+      "source_location": "L1166",
       "weight": 1.0
     },
     {
@@ -15530,7 +15590,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1155",
+      "source_location": "L1182",
       "weight": 1.0
     },
     {
@@ -15542,7 +15602,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1156",
+      "source_location": "L1183",
       "weight": 1.0
     },
     {
@@ -15554,7 +15614,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1179",
+      "source_location": "L1206",
       "weight": 1.0
     },
     {
@@ -15566,7 +15626,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1194",
+      "source_location": "L1221",
       "weight": 1.0
     },
     {
@@ -15578,7 +15638,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1199",
+      "source_location": "L1226",
       "weight": 1.0
     },
     {
@@ -15590,7 +15650,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1327",
+      "source_location": "L1352",
       "weight": 1.0
     },
     {
@@ -15602,7 +15662,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1329",
+      "source_location": "L1354",
       "weight": 1.0
     },
     {
@@ -15614,7 +15674,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1332",
+      "source_location": "L1357",
       "weight": 1.0
     },
     {
@@ -15626,7 +15686,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1750",
+      "source_location": "L1775",
       "weight": 1.0
     },
     {
@@ -15638,7 +15698,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1754",
+      "source_location": "L1779",
       "weight": 1.0
     },
     {
@@ -15650,7 +15710,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1755",
+      "source_location": "L1780",
       "weight": 1.0
     },
     {
@@ -15662,7 +15722,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1757",
+      "source_location": "L1782",
       "weight": 1.0
     },
     {
@@ -15674,7 +15734,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1759",
+      "source_location": "L1784",
       "weight": 1.0
     },
     {
@@ -15686,7 +15746,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1760",
+      "source_location": "L1785",
       "weight": 1.0
     },
     {
@@ -15698,7 +15758,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1762",
+      "source_location": "L1787",
       "weight": 1.0
     },
     {
@@ -15710,7 +15770,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1764",
+      "source_location": "L1789",
       "weight": 1.0
     },
     {
@@ -15974,7 +16034,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1366",
+      "source_location": "L1391",
       "weight": 1.0
     },
     {
@@ -15986,7 +16046,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L973",
+      "source_location": "L1000",
       "weight": 1.0
     },
     {
@@ -15998,7 +16058,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L973",
+      "source_location": "L1000",
       "weight": 1.0
     },
     {
@@ -16010,7 +16070,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L973",
+      "source_location": "L1000",
       "weight": 1.0
     },
     {
@@ -16022,7 +16082,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1447",
+      "source_location": "L1472",
       "weight": 1.0
     },
     {
@@ -16034,7 +16094,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1450",
+      "source_location": "L1475",
       "weight": 1.0
     },
     {
@@ -16046,7 +16106,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1475",
+      "source_location": "L1500",
       "weight": 1.0
     },
     {
@@ -16058,7 +16118,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1487",
+      "source_location": "L1512",
       "weight": 1.0
     },
     {
@@ -16070,7 +16130,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1487",
+      "source_location": "L1512",
       "weight": 1.0
     },
     {
@@ -16082,7 +16142,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1502",
+      "source_location": "L1527",
       "weight": 1.0
     },
     {
@@ -16094,7 +16154,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1506",
+      "source_location": "L1531",
       "weight": 1.0
     },
     {
@@ -16106,7 +16166,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1526",
+      "source_location": "L1551",
       "weight": 1.0
     },
     {
@@ -16118,7 +16178,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1536",
+      "source_location": "L1561",
       "weight": 1.0
     },
     {
@@ -16130,7 +16190,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1343",
+      "source_location": "L1368",
       "weight": 1.0
     },
     {
@@ -16142,7 +16202,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1347",
+      "source_location": "L1372",
       "weight": 1.0
     },
     {
@@ -16154,7 +16214,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1347",
+      "source_location": "L1372",
       "weight": 1.0
     },
     {
@@ -16166,7 +16226,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1354",
+      "source_location": "L1379",
       "weight": 1.0
     },
     {
@@ -16250,7 +16310,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L963",
+      "source_location": "L990",
       "weight": 1.0
     },
     {
@@ -16262,7 +16322,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L964",
+      "source_location": "L991",
       "weight": 1.0
     },
     {
@@ -16274,7 +16334,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L964",
+      "source_location": "L991",
       "weight": 1.0
     },
     {
@@ -16399,6 +16459,18 @@
     },
     {
       "source": "frontend_app_renderadminview",
+      "target": "frontend_app_adminpanel",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/app.js",
+      "source_location": "L1017",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_app_renderadminview",
       "target": "frontend_app_escapehtml",
       "relation": "calls",
       "_origin": "ast",
@@ -16406,7 +16478,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1014",
+      "source_location": "L1041",
       "weight": 1.0
     },
     {
@@ -16418,7 +16490,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1036",
+      "source_location": "L1063",
       "weight": 1.0
     },
     {
@@ -16430,7 +16502,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1067",
+      "source_location": "L1094",
       "weight": 1.0
     },
     {
@@ -16442,7 +16514,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1083",
+      "source_location": "L1110",
       "weight": 1.0
     },
     {
@@ -16454,19 +16526,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1083",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_app_renderadminview",
-      "target": "frontend_app_adminpanel",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/app.js",
-      "source_location": "L990",
+      "source_location": "L1110",
       "weight": 1.0
     },
     {
@@ -16970,7 +17030,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1375",
+      "source_location": "L1400",
       "weight": 1.0
     },
     {
@@ -16982,7 +17042,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1379",
+      "source_location": "L1404",
       "weight": 1.0
     },
     {
@@ -17179,6 +17239,18 @@
     },
     {
       "source": "frontend_app_submitadminform",
+      "target": "frontend_app_parseholidayimportentries",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/app.js",
+      "source_location": "L1265",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_app_submitadminform",
       "target": "frontend_app_setformerror",
       "relation": "calls",
       "_origin": "ast",
@@ -17186,7 +17258,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1240",
+      "source_location": "L1266",
       "weight": 1.0
     },
     {
@@ -17198,7 +17270,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1286",
+      "source_location": "L1311",
       "weight": 1.0
     },
     {
@@ -17210,7 +17282,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1298",
+      "source_location": "L1323",
       "weight": 1.0
     },
     {
@@ -17222,7 +17294,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1302",
+      "source_location": "L1327",
       "weight": 1.0
     },
     {
@@ -17234,7 +17306,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1303",
+      "source_location": "L1328",
       "weight": 1.0
     },
     {
@@ -17246,7 +17318,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1307",
+      "source_location": "L1332",
       "weight": 1.0
     },
     {
@@ -17258,7 +17330,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1315",
+      "source_location": "L1340",
       "weight": 1.0
     },
     {
@@ -17299,18 +17371,6 @@
     },
     {
       "source": "frontend_app",
-      "target": "frontend_app_loadadminview",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/app.js",
-      "source_location": "L1138",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_app",
       "target": "frontend_app_setbuttonbusy",
       "relation": "contains",
       "_origin": "ast",
@@ -17323,6 +17383,18 @@
     },
     {
       "source": "frontend_app",
+      "target": "frontend_app_loadadminview",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/app.js",
+      "source_location": "L1165",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_app",
       "target": "frontend_app_submitadminform",
       "relation": "contains",
       "_origin": "ast",
@@ -17330,7 +17402,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1203",
+      "source_location": "L1230",
       "weight": 1.0
     },
     {
@@ -17342,7 +17414,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1322",
+      "source_location": "L1347",
       "weight": 1.0
     },
     {
@@ -17354,7 +17426,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1341",
+      "source_location": "L1366",
       "weight": 1.0
     },
     {
@@ -17366,7 +17438,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1369",
+      "source_location": "L1394",
       "weight": 1.0
     },
     {
@@ -17378,7 +17450,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1374",
+      "source_location": "L1399",
       "weight": 1.0
     },
     {
@@ -17390,7 +17462,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1416",
+      "source_location": "L1441",
       "weight": 1.0
     },
     {
@@ -17414,7 +17486,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L1749",
+      "source_location": "L1774",
       "weight": 1.0
     },
     {
@@ -23190,7 +23262,7 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_12",
+      "source": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_14",
       "target": "backend_app_models_periodactivity_periodactivity",
       "relation": "references",
       "_origin": "ast",
@@ -23198,7 +23270,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L412",
+      "source_location": "L417",
       "weight": 1.0
     },
     {
@@ -23214,6 +23286,18 @@
       "weight": 1.0
     },
     {
+      "source": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_9",
+      "target": "backend_app_models_calendarholiday_calendarholiday",
+      "relation": "references",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "parameter_type",
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
+      "source_location": "L208",
+      "weight": 1.0
+    },
+    {
       "source": "backend_app_http_controllers_lks_periodconfigurationcontroller_periodconfigurationcontroller_destroyactivity",
       "target": "backend_app_models_lksactivity_lksactivity",
       "relation": "references",
@@ -23222,7 +23306,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L318",
+      "source_location": "L323",
       "weight": 1.0
     },
     {
@@ -23234,7 +23318,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L318",
+      "source_location": "L323",
       "weight": 1.0
     },
     {
@@ -23246,7 +23330,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L210",
+      "source_location": "L215",
       "weight": 1.0
     },
     {
@@ -23258,7 +23342,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L210",
+      "source_location": "L215",
       "weight": 1.0
     },
     {
@@ -23270,7 +23354,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L298",
+      "source_location": "L303",
       "weight": 1.0
     },
     {
@@ -23282,7 +23366,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L298",
+      "source_location": "L303",
       "weight": 1.0
     },
     {
@@ -23294,7 +23378,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L285",
+      "source_location": "L290",
       "weight": 1.0
     },
     {
@@ -23306,7 +23390,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L285",
+      "source_location": "L290",
       "weight": 1.0
     },
     {
@@ -23318,7 +23402,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L285",
+      "source_location": "L290",
       "weight": 1.0
     },
     {
@@ -23330,7 +23414,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L461",
+      "source_location": "L466",
       "weight": 1.0
     },
     {
@@ -23342,7 +23426,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L473",
+      "source_location": "L478",
       "weight": 1.0
     },
     {
@@ -23354,7 +23438,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L466",
+      "source_location": "L471",
       "weight": 1.0
     },
     {
@@ -23378,7 +23462,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L238",
+      "source_location": "L243",
       "weight": 1.0
     },
     {
@@ -23390,7 +23474,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L238",
+      "source_location": "L243",
       "weight": 1.0
     },
     {
@@ -23402,7 +23486,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L263",
+      "source_location": "L268",
       "weight": 1.0
     },
     {
@@ -23414,7 +23498,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L263",
+      "source_location": "L268",
       "weight": 1.0
     },
     {
@@ -23474,7 +23558,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L334",
+      "source_location": "L339",
       "weight": 1.0
     },
     {
@@ -23486,7 +23570,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L334",
+      "source_location": "L339",
       "weight": 1.0
     },
     {
@@ -23498,7 +23582,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L222",
+      "source_location": "L227",
       "weight": 1.0
     },
     {
@@ -23510,7 +23594,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L222",
+      "source_location": "L227",
       "weight": 1.0
     },
     {
@@ -23570,7 +23654,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L386",
+      "source_location": "L391",
       "weight": 1.0
     },
     {
@@ -23582,7 +23666,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L386",
+      "source_location": "L391",
       "weight": 1.0
     },
     {
@@ -25046,7 +25130,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L409",
+      "source_location": "L428",
       "weight": 1.0
     },
     {
@@ -25058,7 +25142,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L409",
+      "source_location": "L428",
       "weight": 1.0
     },
     {
@@ -25070,7 +25154,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L409",
+      "source_location": "L428",
       "weight": 1.0
     },
     {
@@ -25082,7 +25166,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L395",
+      "source_location": "L414",
       "weight": 1.0
     },
     {
@@ -25094,7 +25178,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L395",
+      "source_location": "L414",
       "weight": 1.0
     },
     {
@@ -25106,7 +25190,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L360",
+      "source_location": "L379",
       "weight": 1.0
     },
     {
@@ -25118,7 +25202,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L372",
+      "source_location": "L391",
       "weight": 1.0
     },
     {
@@ -25418,7 +25502,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L318",
+      "source_location": "L323",
       "weight": 1.0
     },
     {
@@ -25430,7 +25514,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L210",
+      "source_location": "L215",
       "weight": 1.0
     },
     {
@@ -25442,7 +25526,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L298",
+      "source_location": "L303",
       "weight": 1.0
     },
     {
@@ -25454,7 +25538,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L285",
+      "source_location": "L290",
       "weight": 1.0
     },
     {
@@ -25478,7 +25562,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L238",
+      "source_location": "L243",
       "weight": 1.0
     },
     {
@@ -25490,7 +25574,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L263",
+      "source_location": "L268",
       "weight": 1.0
     },
     {
@@ -25550,7 +25634,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L334",
+      "source_location": "L339",
       "weight": 1.0
     },
     {
@@ -25562,7 +25646,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L222",
+      "source_location": "L227",
       "weight": 1.0
     },
     {
@@ -25598,7 +25682,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L386",
+      "source_location": "L391",
       "weight": 1.0
     },
     {
@@ -26294,7 +26378,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L395",
+      "source_location": "L414",
       "weight": 1.0
     },
     {
@@ -26306,7 +26390,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L360",
+      "source_location": "L379",
       "weight": 1.0
     },
     {
@@ -26318,7 +26402,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L372",
+      "source_location": "L391",
       "weight": 1.0
     },
     {
@@ -26330,7 +26414,7 @@
       "confidence_score": 1.0,
       "context": "return_type",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L351",
+      "source_location": "L370",
       "weight": 1.0
     },
     {
@@ -26935,7 +27019,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L253",
+      "source_location": "L202",
       "weight": 1.0
     },
     {
@@ -26946,7 +27030,29 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L272",
+      "source_location": "L208",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodconfigurationcontroller",
+      "target": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_10",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
+      "source_location": "L258",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_http_controllers_lks_periodconfigurationcontroller",
+      "target": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_11",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
+      "source_location": "L277",
       "weight": 1.0
     },
     {
@@ -26973,24 +27079,24 @@
     },
     {
       "source": "backend_app_http_controllers_lks_periodconfigurationcontroller",
-      "target": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_10",
+      "target": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_12",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L309",
+      "source_location": "L314",
       "weight": 1.0
     },
     {
       "source": "backend_app_http_controllers_lks_periodconfigurationcontroller",
-      "target": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_11",
+      "target": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_13",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L326",
+      "source_location": "L331",
       "weight": 1.0
     },
     {
@@ -27017,13 +27123,13 @@
     },
     {
       "source": "backend_app_http_controllers_lks_periodconfigurationcontroller",
-      "target": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_12",
+      "target": "backend_app_http_controllers_lks_periodconfigurationcontroller_closure_14",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L412",
+      "source_location": "L417",
       "weight": 1.0
     },
     {
@@ -31131,6 +31237,39 @@
     },
     {
       "source": "frontend_app",
+      "target": "frontend_app_paginationcontrols",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/app.js",
+      "source_location": "L1003",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_app",
+      "target": "frontend_app_adminpanel",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/app.js",
+      "source_location": "L1010",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_app",
+      "target": "frontend_app_renderadminview",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/app.js",
+      "source_location": "L1014",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_app",
       "target": "frontend_app_quickchecks",
       "relation": "contains",
       "_origin": "ast",
@@ -31181,7 +31320,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app.js",
-      "source_location": "L1357",
+      "source_location": "L1382",
       "weight": 1.0
     },
     {
@@ -31192,7 +31331,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app.js",
-      "source_location": "L1364",
+      "source_location": "L1389",
       "weight": 1.0
     },
     {
@@ -31945,7 +32084,7 @@
     },
     {
       "source": "frontend_app",
-      "target": "frontend_app_periodactivityconfigurationfields",
+      "target": "frontend_app_parseholidayimportentries",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -31967,46 +32106,24 @@
     },
     {
       "source": "frontend_app",
+      "target": "frontend_app_periodactivityconfigurationfields",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "frontend/app.js",
+      "source_location": "L986",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_app",
       "target": "frontend_app_masteractivityrulefields",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app.js",
-      "source_location": "L969",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_app",
-      "target": "frontend_app_paginationcontrols",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "frontend/app.js",
-      "source_location": "L976",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_app",
-      "target": "frontend_app_adminpanel",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "frontend/app.js",
-      "source_location": "L983",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_app",
-      "target": "frontend_app_renderadminview",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "frontend/app.js",
-      "source_location": "L987",
+      "source_location": "L996",
       "weight": 1.0
     },
     {
@@ -33480,7 +33597,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L210",
+      "source_location": "L215",
       "weight": 1.0
     },
     {
@@ -33491,7 +33608,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L222",
+      "source_location": "L227",
       "weight": 1.0
     },
     {
@@ -33502,7 +33619,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L238",
+      "source_location": "L243",
       "weight": 1.0
     },
     {
@@ -33513,7 +33630,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L263",
+      "source_location": "L268",
       "weight": 1.0
     },
     {
@@ -33524,7 +33641,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L285",
+      "source_location": "L290",
       "weight": 1.0
     },
     {
@@ -33535,7 +33652,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L298",
+      "source_location": "L303",
       "weight": 1.0
     },
     {
@@ -33546,7 +33663,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L318",
+      "source_location": "L323",
       "weight": 1.0
     },
     {
@@ -33557,7 +33674,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L334",
+      "source_location": "L339",
       "weight": 1.0
     },
     {
@@ -33568,7 +33685,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L386",
+      "source_location": "L391",
       "weight": 1.0
     },
     {
@@ -33579,7 +33696,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L451",
+      "source_location": "L456",
       "weight": 1.0
     },
     {
@@ -33590,7 +33707,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L461",
+      "source_location": "L466",
       "weight": 1.0
     },
     {
@@ -33601,7 +33718,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L466",
+      "source_location": "L471",
       "weight": 1.0
     },
     {
@@ -33612,7 +33729,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L473",
+      "source_location": "L478",
       "weight": 1.0
     },
     {
@@ -33623,7 +33740,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L480",
+      "source_location": "L485",
       "weight": 1.0
     },
     {
@@ -33634,7 +33751,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L490",
+      "source_location": "L495",
       "weight": 1.0
     },
     {
@@ -35201,7 +35318,7 @@
     },
     {
       "source": "backend_tests_feature_lks_lkscoretest_lkscoretest",
-      "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_userwithrole",
+      "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_admin_can_import_calendar_holidays",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -35212,13 +35329,24 @@
     },
     {
       "source": "backend_tests_feature_lks_lkscoretest_lkscoretest",
+      "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_userwithrole",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
+      "source_location": "L370",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_feature_lks_lkscoretest_lkscoretest",
       "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_period",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L360",
+      "source_location": "L379",
       "weight": 1.0
     },
     {
@@ -35229,7 +35357,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L372",
+      "source_location": "L391",
       "weight": 1.0
     },
     {
@@ -35240,7 +35368,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L395",
+      "source_location": "L414",
       "weight": 1.0
     },
     {
@@ -35251,7 +35379,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L409",
+      "source_location": "L428",
       "weight": 1.0
     },
     {
@@ -35834,7 +35962,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php",
-      "source_location": "L204",
+      "source_location": "L206",
       "weight": 1.0
     },
     {

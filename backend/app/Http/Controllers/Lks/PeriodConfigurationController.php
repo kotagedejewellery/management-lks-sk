@@ -95,10 +95,19 @@ class PeriodConfigurationController extends Controller
                     ]);
                 });
 
+            CalendarHoliday::query()
+                ->whereBetween('holiday_date', [$period->start_date, $period->end_date])
+                ->orderBy('holiday_date')
+                ->each(fn (CalendarHoliday $holiday) => $period->holidaySnapshots()->create([
+                    'holiday_date' => $holiday->holiday_date,
+                    'name' => $holiday->name,
+                    'type' => $holiday->type,
+                ]));
+
             return $period;
         });
 
-        return response()->json(['data' => $period->load('periodActivities')], 201);
+        return response()->json(['data' => $period->load(['periodActivities', 'holidaySnapshots'])], 201);
     }
 
     public function storeActivity(Request $request): JsonResponse

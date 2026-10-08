@@ -367,6 +367,37 @@ class LksCoreTest extends TestCase
         $this->assertDatabaseHas('calendar_holidays', ['holiday_date' => '2026-01-16', 'type' => 'collective_leave']);
     }
 
+    public function test_new_draft_period_automatically_snapshots_work_calendar_holidays(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $this->withoutMiddleware();
+
+        $this->actingAs($admin)
+            ->postJson(route('api.lks.admin.calendar-holidays.store'), [
+                'holiday_date' => '2026-10-12',
+                'name' => 'Hari Libur Uji',
+                'type' => 'public_holiday',
+            ])
+            ->assertCreated();
+
+        $response = $this->actingAs($admin)
+            ->postJson(route('api.lks.admin.periods.store'), [
+                'name' => 'Oktober 2026',
+                'start_date' => '2026-10-01',
+                'end_date' => '2026-10-31',
+                'final_passing_threshold' => 90,
+                'staff_passing_threshold' => 85,
+            ])
+            ->assertCreated()
+            ->assertJsonPath('data.holiday_snapshots.0.name', 'Hari Libur Uji');
+
+        $this->assertDatabaseHas('period_holiday_snapshots', [
+            'period_id' => $response->json('data.id'),
+            'holiday_date' => '2026-10-12',
+            'name' => 'Hari Libur Uji',
+        ]);
+    }
+
     private function userWithRole(string $role, array $attributes = []): User
     {
         $user = User::factory()->create($attributes);
