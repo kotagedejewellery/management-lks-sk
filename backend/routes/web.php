@@ -44,6 +44,7 @@ Route::middleware(['auth', 'active-user'])->group(function () {
         Route::get('exports/personal/{period}', [LksExportController::class, 'personal'])->name('exports.personal');
         Route::get('periods/history', [PeriodController::class, 'history'])->name('periods.history');
         Route::put('checklists', [ChecklistController::class, 'store'])->name('checklists.store');
+        Route::post('checklists/bulk', [ChecklistController::class, 'storeBulk'])->name('checklists.bulk');
         Route::post('periods/{period}/activate', [PeriodController::class, 'activate'])->name('periods.activate');
         Route::post('periods/{period}/close', [PeriodController::class, 'close'])->name('periods.close');
         Route::get('periods/{period}/participants', [PeriodController::class, 'participants'])->name('periods.participants.index');

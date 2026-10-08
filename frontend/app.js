@@ -22,11 +22,14 @@ let documentSignatoriesData = null;
 let recapData = null;
 let historyData = null;
 let historyRecapData = null;
+let historyScope = 'personal';
 let recapPeriods = [];
 let departmentTrendData = [];
 let selectedReportDimension = 'department';
 let selectedChecklistDate = todayIso();
 let activePeriodActivities = [];
+let activePeriod = null;
+let activeParticipant = null;
 let correctionParticipantId = null;
 let accountData = null;
 let selectedPeriodId = null;
@@ -196,6 +199,10 @@ function dateInputValue(date) {
   return String(date ?? '').slice(0, 10);
 }
 
+function localDateValue(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
 }
@@ -216,9 +223,49 @@ function renderFullCheck(activity) {
   const optionalNote = activity.is_optional_today ? ` · Opsional${activity.holiday_name ? ` (${escapeHtml(activity.holiday_name)})` : ''}` : '';
   return `<div class="checklist-item${complete ? ' is-done' : ''}">
     <button class="square-check" data-activity-id="${escapeHtml(activity.id)}" aria-label="${complete ? 'Batalkan catatan' : 'Catat'} ${escapeHtml(activity.name)}" aria-pressed="${complete}">${checkIcon()}</button>
-    <div><strong>${escapeHtml(activity.name)}</strong><small>${escapeHtml(activityRuleLabel(activity))}${optionalNote}</small></div>
+    <div><strong>${escapeHtml(activity.name)}</strong><small>${escapeHtml(activityRuleLabel(activity))}${optionalNote}</small><button class="text-button bulk-checklist-trigger" type="button" data-open-bulk-checklist="${escapeHtml(activity.id)}">Isi beberapa tanggal</button></div>
     <span class="item-note">${complete ? 'Dicatat' : 'Belum dicatat'}</span>
   </div>`;
+}
+
+function bulkChecklistDates(activity) {
+  if (!activePeriod || !activeParticipant) return [];
+  const start = new Date(`${dateInputValue(activeParticipant.participation_start_date)}T00:00:00`);
+  const end = new Date(`${[todayIso(), dateInputValue(activePeriod.end_date)].sort()[0]}T00:00:00`);
+  const allowedWeekdays = activity.allowed_weekdays ?? [];
+  const holidays = new Map((activePeriod.holidays ?? []).map((holiday) => [dateInputValue(holiday.date), holiday.name]));
+  const dates = [];
+
+  for (const date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
+    const weekday = ((date.getDay() + 6) % 7) + 1;
+    if (allowedWeekdays.length && !allowedWeekdays.includes(weekday)) continue;
+    const value = localDateValue(date);
+    dates.push({ value, holidayName: holidays.get(value) ?? null });
+  }
+
+  return dates;
+}
+
+function updateBulkChecklistSelection(form) {
+  const selected = form.querySelectorAll('[data-bulk-checklist-date]:checked').length;
+  const summary = form.querySelector('[data-bulk-selection-summary]');
+  if (summary) summary.textContent = selected ? `${selected} tanggal akan diperiksa sebelum disimpan.` : 'Pilih satu atau beberapa tanggal.';
+}
+
+function openBulkChecklist(activityId) {
+  const activity = activePeriodActivities.find((item) => item.id === activityId);
+  const dates = activity ? bulkChecklistDates(activity) : [];
+  if (!activity || participantId === null || !dates.length) {
+    showToast('Belum ada tanggal yang dapat dipilih untuk aktivitas ini.', 'error');
+    return;
+  }
+
+  adminFormDialog.classList.remove('is-period-config');
+  adminFormDialog.dataset.returnView = '';
+  adminFormDialogContent.innerHTML = `<form class="admin-modal-form bulk-checklist-form" data-admin-form="bulk-checklist" data-activity-id="${escapeHtml(activity.id)}"><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">Isi beberapa tanggal</h2><p>${escapeHtml(activity.name)}. Hanya tanggal yang sesuai jadwal aktivitas ditampilkan.</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields"><p class="admin-form-note" data-bulk-selection-summary>Pilih satu atau beberapa tanggal.</p><section class="bulk-checklist-dates" aria-label="Tanggal pencatatan ${escapeHtml(activity.name)}">${dates.map((date) => `<label class="bulk-checklist-date${date.holidayName ? ' is-holiday' : ''}"><input type="checkbox" value="${escapeHtml(date.value)}" data-bulk-checklist-date><span><strong>${escapeHtml(formatDate(date.value, true))}</strong><small>${date.holidayName ? `Opsional · ${escapeHtml(date.holidayName)} · tidak dinilai` : 'Dapat dicatat'}</small></span></label>`).join('')}</section></div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit">Catat tanggal terpilih</button></div></form>`;
+  adminFormDialog.showModal();
+  markAdminFormPristine();
+  adminFormDialog.querySelector('[data-bulk-checklist-date]')?.focus();
 }
 
 function updateTodayProgress() {
@@ -285,6 +332,8 @@ function renderPersonalSummaryLoading() {
 function applyDashboard(data) {
   const viewerChanged = viewer?.id !== data.viewer.id;
   viewer = data.viewer;
+  activePeriod = data.period;
+  activeParticipant = data.participant;
   if (viewerChanged) applyViewerIdentity(data.viewer);
   if (!hasConfiguredRole(data.viewer.roles ?? [])) return;
   if (data.period) {
@@ -416,9 +465,20 @@ function renderRoleDashboard() {
   const { period, participants, summary } = recapData;
 
   if (role === 'leader') {
-    const needingAttention = participants.filter((participant) => participant.final_status !== 'tuntas');
-    const rows = needingAttention.slice(0, 5).map((participant, index) => `<div class="member-row"><span class="person-initials tone-${['one', 'two', 'three', 'four'][index % 4]}">${escapeHtml(initials(participant.name))}</span><div><strong>${escapeHtml(participant.name)}</strong><small>${escapeHtml(participant.department ?? 'Tanpa departemen')} · ${percentage(participant.final_percentage)} capaian · ambang ${percentage(participant.passing_threshold)}</small></div>${statusBadge(participant.final_status)}</div>`).join('');
-    dashboard.innerHTML = `${dashboardNotice('Ringkasan anggota', `${period.name} · mulai dari anggota yang masih membutuhkan perhatian.`, '<button class="primary-button" type="button" data-go="recap">Buka rekap</button>')}<section class="leader-overview"><article><p>Anggota aktif</p><strong>${summary.participant_count}</strong><small>Dalam bimbingan Anda</small></article><article><p>Sudah tuntas</p><strong>${summary.tuntas_count}</strong><small>${summary.participant_count ? percentage((summary.tuntas_count / summary.participant_count) * 100) : '0%'} anggota</small></article><article><p>Perlu perhatian</p><strong>${needingAttention.length}</strong><small>Belum mencapai ambang tuntas</small></article></section><section class="priority-panel"><div class="section-head"><div><h2>Perlu perhatian</h2></div></div><div class="member-list">${rows || '<p class="muted">Semua anggota sudah tuntas pada periode ini.</p>'}</div></section>`;
+    const teamNames = [...new Set(participants.map((participant) => participant.team).filter(Boolean))];
+    const teamLabel = teamNames.length ? `Tim ${teamNames.join(' · ')}` : 'Anggota dalam bimbingan Anda';
+    const needingAttention = participants.filter((participant) => participant.final_status !== 'tuntas')
+      .sort((left, right) => Number(left.final_percentage) - Number(right.final_percentage));
+    const memberRows = [...participants].sort((left, right) => Number(right.final_percentage) - Number(left.final_percentage)).map((participant) => {
+      const score = Math.min(Math.max(Number(participant.final_percentage) || 0, 0), 100);
+      const threshold = Math.min(Math.max(Number(participant.passing_threshold) || 0, 0), 100);
+      return `<div class="leader-team-row" role="listitem"><div><strong>${escapeHtml(participant.name)}</strong><small>${escapeHtml(participant.team ?? participant.department ?? 'Tanpa tim')}</small></div><div class="leader-team-bar" role="progressbar" aria-label="Capaian ${escapeHtml(participant.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${score}"><i style="width:${score}%"></i><b style="left:${threshold}%" aria-hidden="true"></b></div><div class="leader-team-score"><strong>${percentage(score)}</strong><small>Ambang ${percentage(threshold)}</small></div></div>`;
+    }).join('');
+    const priorityRows = needingAttention.slice(0, 5).map((participant, index) => {
+      const priorityNames = (participant.activities ?? []).filter((activity) => activity.status !== 'tuntas').sort((left, right) => Number(left.percentage) - Number(right.percentage)).slice(0, 2).map((activity) => activity.name).join(', ');
+      return `<button class="leader-priority-row" type="button" data-go="recap"><span class="person-initials tone-${['one', 'two', 'three', 'four'][index % 4]}">${escapeHtml(initials(participant.name))}</span><span><strong>${escapeHtml(participant.name)}</strong><small>${escapeHtml(priorityNames ? `Fokus: ${priorityNames}` : participant.team ?? 'Buka rekap untuk rincian')}</small></span><span class="leader-priority-score"><strong>${percentage(participant.final_percentage)}</strong><small>Ambang ${percentage(participant.passing_threshold)}</small></span>${statusBadge(participant.final_status)}</button>`;
+    }).join('');
+    dashboard.innerHTML = `${dashboardNotice('Ringkasan tim', `${period.name} · ${teamLabel}.`, '<button class="primary-button" type="button" data-go="recap">Buka rekap</button>')}<section class="leader-overview leader-overview-metrics"><article><p>Anggota aktif</p><strong>${summary.participant_count}</strong><small>Dalam bimbingan Anda</small></article><article><p>Rata-rata tim</p><strong>${percentage(summary.average_percentage)}</strong><small>Capaian seluruh anggota</small></article><article><p>Sudah tuntas</p><strong>${summary.tuntas_count}</strong><small>${summary.participant_count ? percentage((summary.tuntas_count / summary.participant_count) * 100) : '0%'} anggota</small></article><article><p>Perlu perhatian</p><strong>${needingAttention.length}</strong><small>Belum mencapai ambang</small></article></section><section class="leader-team-panel" aria-labelledby="leader-team-title"><div class="section-head"><div><h2 id="leader-team-title">Capaian anggota</h2><p class="supporting-copy">Garis penanda menunjukkan ambang pribadi setiap anggota.</p></div><button class="text-button" type="button" data-go="recap">Lihat rincian</button></div><div class="leader-team-list" role="list">${memberRows || '<p class="muted">Belum ada anggota dalam bimbingan Anda pada periode ini.</p>'}</div></section><section class="priority-panel"><div class="section-head"><div><h2>Perlu perhatian</h2><p class="supporting-copy">Urut dari capaian terendah agar tindak lanjut lebih terarah.</p></div></div><div class="leader-priority-list">${priorityRows || '<p class="muted">Semua anggota sudah tuntas pada periode ini.</p>'}</div></section>`;
     return;
   }
 
@@ -439,13 +499,23 @@ function renderUnavailableDashboard(message) {
 
 function renderHistory() {
   const panel = document.querySelector('[data-view-panel="history"]');
+  const isLeader = viewer?.roles?.includes('leader');
+  const viewingTeam = isLeader && historyScope === 'team';
+  const title = viewingTeam ? 'Riwayat tim' : 'Riwayat LKS saya';
+  const description = viewingTeam
+    ? 'Rekap periode tertutup untuk anggota dalam bimbingan Anda. Data dan aturan periode tetap tersimpan.'
+    : 'Rekap periode LKS Anda yang sudah ditutup tetap menggunakan data dan aturan saat periode tersebut berjalan.';
+  const scopeToggle = isLeader ? `<nav class="history-scope-toggle" aria-label="Cakupan riwayat"><button class="filter-pill${viewingTeam ? ' is-on' : ''}" type="button" data-history-scope="team" aria-pressed="${viewingTeam}">Riwayat tim</button><button class="filter-pill${viewingTeam ? '' : ' is-on'}" type="button" data-history-scope="personal" aria-pressed="${!viewingTeam}">LKS saya</button></nav>` : '';
   if (!historyData) {
     panel.innerHTML = `${dashboardNotice('Memuat riwayat', 'Riwayat periode tertutup sedang disiapkan.')} `;
     return;
   }
 
   if (!historyData.length) {
-    panel.innerHTML = `${dashboardNotice('Belum ada riwayat periode', 'Periode yang sudah ditutup akan tersimpan di sini dan tetap dapat ditinjau sesuai akses Anda.')}`;
+    const emptyMessage = viewingTeam
+      ? 'Belum ada periode tertutup yang memiliki anggota dalam bimbingan Anda.'
+      : 'Periode LKS Anda yang sudah ditutup akan tersimpan di sini.';
+    panel.innerHTML = `<div class="page-intro"><div><h2>Belum ada riwayat periode</h2><p>${emptyMessage}</p></div>${scopeToggle}</div>`;
     return;
   }
 
@@ -453,12 +523,12 @@ function renderHistory() {
   const periodRows = historyData.map((period) => `<button class="history-period-row${period.id === selected ? ' is-selected' : ''}" type="button" data-history-period="${escapeHtml(period.id)}"><span><strong>${escapeHtml(period.name)}</strong><small>${formatDate(period.start_date, true)} — ${formatDate(period.end_date, true)}</small></span><span>${period.id === selected ? 'Ditinjau' : 'Lihat rekap'}</span></button>`).join('');
   const detail = historyRecapData ? renderHistoryDetail(historyRecapData) : '<p class="history-empty-detail">Pilih periode untuk melihat rekap akhirnya.</p>';
 
-  panel.innerHTML = `<div class="page-intro"><div><h2>Riwayat periode</h2><p>Rekap periode yang sudah ditutup tetap menggunakan data dan aturan pada saat periode tersebut berjalan.</p></div><button class="text-button admin-refresh" type="button" data-history-refresh>Muat ulang data</button></div><section class="history-layout"><nav class="history-period-list" aria-label="Daftar periode tertutup">${periodRows}</nav><section class="history-detail" aria-live="polite">${detail}</section></section>`;
+  panel.innerHTML = `<div class="page-intro"><div><h2>${title}</h2><p>${description}</p></div><div class="history-page-actions">${scopeToggle}<button class="text-button admin-refresh" type="button" data-history-refresh>Muat ulang data</button></div></div><section class="history-layout"><nav class="history-period-list" aria-label="Daftar periode tertutup">${periodRows}</nav><section class="history-detail" aria-live="polite">${detail}</section></section>`;
 }
 
 function renderHistoryDetail(data) {
   const { period, participants, summary } = data;
-  const personal = canUsePersonalLks(viewer?.roles ?? []) ? participants.find((participant) => participant.user_id === viewer?.id) : null;
+  const personal = historyScope === 'personal' ? participants.find((participant) => participant.user_id === viewer?.id) : null;
   const score = personal ? `<div class="history-score"><span>Nilai akhir</span><strong>${percentage(personal.final_percentage)}</strong><small>Ambang tuntas ${percentage(personal.passing_threshold)}</small>${statusBadge(personal.final_status)}</div>` : `<div class="history-score"><span>Peserta sesuai akses</span><strong>${summary.participant_count}</strong><small>${summary.tuntas_count} tuntas · ${summary.belum_tuntas_count} belum tuntas · Rata-rata ${percentage(summary.average_percentage)}</small></div>`;
   const activities = personal?.activities?.map((activity) => `<li><span>${escapeHtml(activity.name)}</span><strong>${activity.completed_count}/${activity.target_count} · ${percentage(activity.percentage)}</strong></li>`).join('');
   const recommendation = personal?.recommendation ? `<section class="recommendation-summary"><h4>Rekomendasi akhir</h4><p>${escapeHtml(personal.recommendation)}</p></section>` : '';
@@ -468,7 +538,8 @@ function renderHistoryDetail(data) {
 async function loadHistory({ showProgress = false } = {}) {
   if (showProgress) showPageProgress('Memuat riwayat periode…');
   try {
-    const response = await fetch(`${apiBase}/periods/history`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+    const scope = viewer?.roles?.includes('leader') && historyScope === 'team' ? '?scope=team' : '?scope=personal';
+    const response = await fetch(`${apiBase}/periods/history${scope}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
     if (!response.ok) throw new Error(await apiError(response));
     historyData = (await response.json()).data;
     renderHistory();
@@ -482,7 +553,7 @@ async function loadHistory({ showProgress = false } = {}) {
 async function loadHistoryRecap(periodId, trigger) {
   setButtonBusy(trigger, true, 'Memuat…');
   try {
-    const scope = canUsePersonalLks(viewer?.roles ?? []) ? '&scope=personal' : '';
+    const scope = historyScope === 'personal' ? '&scope=personal' : '';
     const response = await fetch(`${apiBase}/recap?period_id=${encodeURIComponent(periodId)}${scope}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
     if (!response.ok) throw new Error(await apiError(response));
     historyRecapData = (await response.json()).data;
@@ -661,8 +732,18 @@ quickChecks.addEventListener('click', (event) => {
 });
 
 fullChecklist.addEventListener('click', (event) => {
+  const bulkChecklist = event.target.closest('[data-open-bulk-checklist]');
+  if (bulkChecklist) {
+    openBulkChecklist(bulkChecklist.dataset.openBulkChecklist);
+    return;
+  }
   const button = event.target.closest('.square-check[data-activity-id]');
   if (button) persistChecklist(button);
+});
+
+document.addEventListener('change', (event) => {
+  if (!event.target.matches('[data-bulk-checklist-date]')) return;
+  updateBulkChecklistSelection(event.target.form);
 });
 
 function displayRole(roles) {
@@ -723,6 +804,7 @@ function applyViewerIdentity(currentViewer) {
   document.querySelectorAll('.nav-admin, .admin-only').forEach((item) => { item.hidden = !roles.includes('admin'); });
   historyData = null;
   historyRecapData = null;
+  historyScope = roles.includes('leader') ? 'team' : 'personal';
   renderHistory();
 
   const restoredView = savedView();
@@ -1238,6 +1320,7 @@ async function loadAdminView(name, { dataOnly = false } = {}) {
 async function submitAdminForm(form) {
   const formData = new FormData(form);
   const type = form.dataset.adminForm;
+  if (type === 'bulk-checklist') return submitBulkChecklistForm(form);
   let payload = Object.fromEntries(formData.entries());
   let method = 'POST';
   const endpoints = { department: '/admin/departments', team: '/admin/teams', santri: '/admin/santri', period: '/admin/periods', activity: '/admin/activities', holiday: '/admin/calendar-holidays', 'holiday-import': '/admin/calendar-holidays/import' };
@@ -1350,6 +1433,31 @@ async function submitAdminForm(form) {
     const message = error.message || 'Data belum dapat disimpan. Coba lagi.';
     setFormError(form, message);
   } finally { setFormBusy(form, false); }
+}
+
+async function submitBulkChecklistForm(form) {
+  const checklistDates = [...form.querySelectorAll('[data-bulk-checklist-date]:checked')].map((input) => input.value);
+  if (!checklistDates.length) return setFormError(form, 'Pilih minimal satu tanggal untuk dicatat.');
+
+  setFormError(form);
+  setFormBusy(form, true, 'Mencatat…');
+  try {
+    const response = await fetch(`${apiBase}/checklists/bulk`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}) },
+      body: JSON.stringify({ period_activity_id: form.dataset.activityId, checklist_dates: checklistDates }),
+    });
+    if (!response.ok) throw new Error(await apiError(response));
+    const result = (await response.json()).data;
+    form.closest('dialog')?.close();
+    await loadDashboard({ date: selectedChecklistDate, reloadRecap: false });
+    showToast(`${result.recorded} tanggal dicatat${result.skipped ? ` · ${result.skipped} sudah tercatat` : ''}.`);
+  } catch (error) {
+    setFormError(form, error.message || 'Tanggal belum dapat dicatat. Coba lagi.');
+  } finally {
+    setFormBusy(form, false);
+  }
 }
 
 async function loadChecklistCorrectionContext(date) {
@@ -1785,6 +1893,13 @@ document.addEventListener('click', async (event) => {
 
   const historyPeriod = event.target.closest('[data-history-period]');
   if (historyPeriod) return loadHistoryRecap(historyPeriod.dataset.historyPeriod, historyPeriod);
+  const historyScopeButton = event.target.closest('[data-history-scope]');
+  if (historyScopeButton) {
+    historyScope = historyScopeButton.dataset.historyScope;
+    historyData = null;
+    historyRecapData = null;
+    return loadHistory({ showProgress: true });
+  }
   if (event.target.closest('[data-history-refresh]')) {
     historyRecapData = null;
     return loadHistory();

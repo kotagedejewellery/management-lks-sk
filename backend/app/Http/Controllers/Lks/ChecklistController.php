@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Lks;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Lks\StoreChecklistRequest;
+use App\Http\Requests\Lks\StoreBulkChecklistRequest;
 use App\Models\AuditLog;
 use App\Models\LksPeriod;
 use App\Models\LksChecklist;
@@ -48,6 +49,26 @@ class ChecklistController extends Controller
             'checklist_date' => $checklist->checklist_date->toDateString(),
             'is_completed' => $checklist->is_completed,
         ]]);
+    }
+
+    public function storeBulk(StoreBulkChecklistRequest $request, ChecklistRecordingService $service): JsonResponse
+    {
+        $data = $request->validated();
+        $actor = $request->user();
+        $activity = PeriodActivity::query()->findOrFail($data['period_activity_id']);
+        $participant = LksPeriod::query()
+            ->where('status', 'active')
+            ->firstOrFail()
+            ->participants()
+            ->where('user_id', $actor->getKey())
+            ->firstOrFail();
+
+        return response()->json(['data' => $service->recordBulk(
+            $actor,
+            $participant,
+            $activity,
+            $data['checklist_dates'],
+        )]);
     }
 
     public function correctionContext(Request $request, LksPeriod $period, PeriodParticipantSnapshot $participant): JsonResponse

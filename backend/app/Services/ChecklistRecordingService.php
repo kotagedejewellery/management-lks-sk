@@ -15,6 +15,57 @@ use Illuminate\Validation\ValidationException;
 
 class ChecklistRecordingService
 {
+    /**
+     * @param  array<int, string>  $checklistDates
+     * @return array{recorded: int, skipped: int}
+     */
+    public function recordBulk(User $actor, PeriodParticipantSnapshot $participant, PeriodActivity $activity, array $checklistDates): array
+    {
+        if ($actor->isAdmin()) {
+            throw new AuthorizationException('Pencatatan beberapa tanggal hanya tersedia untuk LKS pribadi.');
+        }
+
+        $this->ensureCanRecord($actor, $participant);
+
+        return DB::transaction(function () use ($participant, $activity, $checklistDates): array {
+            $participant = PeriodParticipantSnapshot::query()->with('period')->lockForUpdate()->findOrFail($participant->getKey());
+            $activity = PeriodActivity::query()->lockForUpdate()->findOrFail($activity->getKey());
+            $dates = collect($checklistDates)
+                ->map(fn (string $date): Carbon => Carbon::parse($date)->startOfDay())
+                ->unique(fn (Carbon $date): string => $date->toDateString())
+                ->sortBy(fn (Carbon $date): string => $date->toDateString());
+            $recorded = 0;
+            $skipped = 0;
+
+            foreach ($dates as $date) {
+                $checklist = LksChecklist::query()
+                    ->where('period_participant_id', $participant->getKey())
+                    ->where('period_activity_id', $activity->getKey())
+                    ->whereDate('checklist_date', $date)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($checklist?->is_completed) {
+                    $skipped++;
+                    continue;
+                }
+
+                $this->validateRecord($participant, $activity, $date, true);
+
+                $checklist ??= new LksChecklist([
+                    'period_participant_id' => $participant->getKey(),
+                    'period_activity_id' => $activity->getKey(),
+                    'checklist_date' => $date,
+                ]);
+                $checklist->fill(['is_completed' => true, 'recorded_by_user_id' => $participant->user_id]);
+                $checklist->save();
+                $recorded++;
+            }
+
+            return ['recorded' => $recorded, 'skipped' => $skipped];
+        });
+    }
+
     public function record(
         User $actor,
         PeriodParticipantSnapshot $participant,

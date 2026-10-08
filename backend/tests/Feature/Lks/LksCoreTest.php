@@ -146,6 +146,48 @@ class LksCoreTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_santri_can_bulk_record_personal_checklists_and_existing_dates_are_skipped(): void
+    {
+        $this->withoutMiddleware();
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active']);
+        $activity = $this->periodActivity($period, 4);
+        $participant = $this->participant($period, $santri);
+        $today = now()->toDateString();
+        $yesterday = now()->subDay()->toDateString();
+        $this->checklist($participant, $activity, $santri, $today);
+
+        $this->actingAs($santri)
+            ->postJson(route('api.lks.checklists.bulk'), [
+                'period_activity_id' => $activity->id,
+                'checklist_dates' => [$today, $yesterday],
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.recorded', 1)
+            ->assertJsonPath('data.skipped', 1);
+
+        $this->assertDatabaseHas('lks_checklists', [
+            'period_participant_id' => $participant->id,
+            'period_activity_id' => $activity->id,
+            'checklist_date' => $yesterday,
+            'is_completed' => true,
+        ]);
+    }
+
+    public function test_admin_cannot_use_personal_bulk_checklist(): void
+    {
+        $this->withoutMiddleware();
+        $admin = $this->userWithRole('admin');
+
+        $this->actingAs($admin)
+            ->postJson(route('api.lks.checklists.bulk'), [
+                'period_activity_id' => fake()->uuid(),
+                'checklist_dates' => [now()->toDateString()],
+            ])
+            ->assertForbidden();
+    }
+
     public function test_admin_correction_requires_a_reason_and_creates_an_audit_log(): void
     {
         $admin = $this->userWithRole('admin');
@@ -280,6 +322,7 @@ class LksCoreTest extends TestCase
         $other = $this->userWithRole('santri', ['name' => 'Anggota Lain']);
         $period = $this->period($admin, ['status' => 'active']);
         $this->periodActivity($period, 1);
+        $this->participant($period, $leader, $leader, 'leader');
         $this->participant($period, $member, $leader);
         $this->participant($period, $other);
 
@@ -292,7 +335,39 @@ class LksCoreTest extends TestCase
         $this->actingAs($admin)
             ->getJson(route('api.lks.recap'))
             ->assertOk()
-            ->assertJsonPath('data.summary.participant_count', 2);
+            ->assertJsonPath('data.summary.participant_count', 3);
+    }
+
+    public function test_history_scope_keeps_leader_team_and_personal_periods_separate(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $leader = $this->userWithRole('leader');
+        $member = $this->userWithRole('santri');
+        $other = $this->userWithRole('santri');
+        $teamPeriod = $this->period($admin, ['status' => 'closed', 'name' => 'Riwayat Tim']);
+        $personalPeriod = $this->period($admin, ['status' => 'closed', 'name' => 'Riwayat Pribadi']);
+        $otherPeriod = $this->period($admin, ['status' => 'closed', 'name' => 'Riwayat Lain']);
+        $this->participant($teamPeriod, $member, $leader);
+        $this->participant($personalPeriod, $leader);
+        $this->participant($otherPeriod, $other);
+
+        $this->actingAs($leader)
+            ->getJson(route('api.lks.periods.history', ['scope' => 'team']))
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $teamPeriod->id);
+
+        $this->actingAs($leader)
+            ->getJson(route('api.lks.periods.history', ['scope' => 'personal']))
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $personalPeriod->id);
+
+        $this->actingAs($member)
+            ->getJson(route('api.lks.periods.history'))
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $teamPeriod->id);
     }
 
     public function test_pdf_exports_follow_the_viewers_access_scope(): void

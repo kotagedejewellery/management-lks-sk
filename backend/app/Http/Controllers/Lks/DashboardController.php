@@ -103,6 +103,14 @@ class DashboardController extends Controller
                 'leader_passing_threshold' => $period->final_passing_threshold,
                 'staff_passing_threshold' => $period->staff_passing_threshold,
                 'is_open' => true,
+                'holidays' => $period->holidaySnapshots()
+                    ->orderBy('holiday_date')
+                    ->get(['holiday_date', 'name'])
+                    ->map(fn ($holiday): array => [
+                        'date' => $holiday->holiday_date->toDateString(),
+                        'name' => $holiday->name,
+                    ])
+                    ->values(),
             ],
             'participant' => $participant === null ? null : [
                 'id' => $participant->getKey(),

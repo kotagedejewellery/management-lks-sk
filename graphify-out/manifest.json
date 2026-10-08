@@ -456,9 +456,9 @@
     "semantic_hash": ""
   },
   "backend/routes/web.php": {
-    "mtime": 1791426382.7672389,
-    "seen": 1791427486.5787947,
-    "ast_hash": "dc471cfbc95089d7e3800d01d7f8b6cb",
+    "mtime": 1791445317.7505872,
+    "seen": 1791445778.0131428,
+    "ast_hash": "0c5d471cafbb6a51f9298a5dba9368d8",
     "semantic_hash": ""
   },
   "backend/tests/Feature/Auth/AuthenticationTest.php": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1791444327.2018383,
-    "seen": 1791444342.122336,
-    "ast_hash": "8f898cde06c57abb7c570fd0d63e47d3",
+    "mtime": 1791447439.246065,
+    "seen": 1791447520.9771638,
+    "ast_hash": "73144700b20acece4ea988a68d4894bc",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -756,9 +756,9 @@
     "semantic_hash": ""
   },
   "backend/app/Services/ChecklistRecordingService.php": {
-    "mtime": 1791424766.54704,
-    "seen": 1791424923.6041014,
-    "ast_hash": "00bbcbe86243bc6e579b4b9dd6c06ff6",
+    "mtime": 1791445317.748585,
+    "seen": 1791445778.0128055,
+    "ast_hash": "e70c3cc6b6917f257bf97b5647e8f871",
     "semantic_hash": ""
   },
   "backend/app/Services/PeriodActivationService.php": {
@@ -768,21 +768,21 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/ChecklistController.php": {
-    "mtime": 1791424790.094941,
-    "seen": 1791424923.6040373,
-    "ast_hash": "24fa5a864b9bf8420c72a314b0862957",
+    "mtime": 1791445317.749586,
+    "seen": 1791445778.0126672,
+    "ast_hash": "28641c7bcc434a9b2887c336d3afd128",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/DashboardController.php": {
-    "mtime": 1791365758.565499,
-    "seen": 1791365806.3714795,
-    "ast_hash": "eeee950567be43fcd21a6903de11d834",
+    "mtime": 1791445317.7525861,
+    "seen": 1791445778.0126739,
+    "ast_hash": "0f083cf3e0fb8450050896a4fc393a0e",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodController.php": {
-    "mtime": 1791279664.6041884,
-    "seen": 1791280383.3088145,
-    "ast_hash": "d98cd23f614a42fe0b04d19e097b0b39",
+    "mtime": 1791447439.238065,
+    "seen": 1791447520.9767928,
+    "ast_hash": "53a2c9fb715783913a3dfa621de4aab4",
     "semantic_hash": ""
   },
   "backend/app/Http/Requests/Lks/ActivatePeriodRequest.php": {
@@ -828,9 +828,9 @@
     "semantic_hash": ""
   },
   "backend/app/Services/LksScoreCalculator.php": {
-    "mtime": 1791433633.4229903,
-    "seen": 1791434006.6557367,
-    "ast_hash": "76512044a53ce6032af814191545ec33",
+    "mtime": 1791446933.1413994,
+    "seen": 1791447089.5045886,
+    "ast_hash": "871118c9cec893ce9c44e4053d985d98",
     "semantic_hash": ""
   },
   ".impeccable/critique/2026-09-29T06-52-35Z__frontend-index-html.md": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1791442823.0481527,
-    "seen": 1791442922.4537966,
-    "ast_hash": "19b5007dff5e7e3e3345e5d36babbea7",
+    "mtime": 1791447439.2405338,
+    "seen": 1791447520.9771404,
+    "ast_hash": "42043134a0fefd212cf764bd5e905b43",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {
@@ -1011,6 +1011,12 @@
     "mtime": 1791433633.4245772,
     "seen": 1791434006.6558044,
     "ast_hash": "8a6961a6285f45603db8e37b5ae74360",
+    "semantic_hash": ""
+  },
+  "backend/app/Http/Requests/Lks/StoreBulkChecklistRequest.php": {
+    "mtime": 1791445317.7475934,
+    "seen": 1791445778.0127237,
+    "ast_hash": "f3c44b52b4aa624fc970807bffa570a7",
     "semantic_hash": ""
   }
 }

@@ -106,12 +106,19 @@ class PeriodController extends Controller
     public function history(Request $request): JsonResponse
     {
         $viewer = $request->user();
+        $personalScope = $request->query('scope') === 'personal';
         $periods = LksPeriod::query()
             ->where('status', 'closed')
-            ->when(! $viewer->isAdmin(), fn ($query) => $query->whereHas(
-                'participants',
-                fn ($participants) => $participants->where('user_id', $viewer->getKey()),
-            ))
+            ->when(
+                ! $viewer->isAdmin() && ($personalScope || ! $viewer->hasRole('leader')),
+                fn ($query) => $query->whereHas('participants', fn ($participants) => $participants->where('user_id', $viewer->getKey())),
+            )
+            ->when(
+                ! $viewer->isAdmin() && ! $personalScope && $viewer->hasRole('leader'),
+                fn ($query) => $query->whereHas('participants', fn ($participants) => $participants
+                    ->where('leader_user_id_snapshot', $viewer->getKey())
+                    ->where('user_id', '!=', $viewer->getKey())),
+            )
             ->orderByDesc('end_date')
             ->get()
             ->map(fn (LksPeriod $period) => [

@@ -121,7 +121,9 @@ class LksScoreCalculator
     {
         $participants = $period->participants()->orderBy('participant_name_snapshot');
         if ($leaderUserId !== null) {
-            $participants->where('leader_user_id_snapshot', $leaderUserId);
+            $participants
+                ->where('leader_user_id_snapshot', $leaderUserId)
+                ->where('user_id', '!=', $leaderUserId);
         }
         if ($userId !== null) {
             $participants->where('user_id', $userId);
