@@ -225,49 +225,122 @@ function renderFullCheck(activity) {
   const optionalNote = activity.is_optional_today ? ` · Opsional${activity.holiday_name ? ` (${escapeHtml(activity.holiday_name)})` : ''}` : '';
   return `<div class="checklist-item${complete ? ' is-done' : ''}">
     <button class="square-check" data-activity-id="${escapeHtml(activity.id)}" aria-label="${complete ? 'Batalkan catatan' : 'Catat'} ${escapeHtml(activity.name)}" aria-pressed="${complete}">${checkIcon()}</button>
-    <div><strong>${escapeHtml(activity.name)}</strong><small>${escapeHtml(activityRuleLabel(activity))}${optionalNote}</small><button class="text-button bulk-checklist-trigger" type="button" data-open-bulk-checklist="${escapeHtml(activity.id)}">Isi beberapa tanggal</button></div>
+    <div><strong>${escapeHtml(activity.name)}</strong><small>${escapeHtml(activityRuleLabel(activity))}${optionalNote}</small><button class="text-button bulk-checklist-trigger" type="button" data-open-bulk-checklist="${escapeHtml(activity.id)}"><svg aria-hidden="true"><use href="#icon-calendar"/></svg>Catat beberapa tanggal</button></div>
     <span class="item-note">${complete ? 'Dicatat' : 'Belum dicatat'}</span>
   </div>`;
 }
 
-function bulkChecklistDates(activity) {
+function bulkChecklistMonths(activity) {
   if (!activePeriod || !activeParticipant) return [];
   const start = new Date(`${dateInputValue(activeParticipant.participation_start_date)}T00:00:00`);
   const end = new Date(`${[todayIso(), dateInputValue(activePeriod.end_date)].sort()[0]}T00:00:00`);
-  const allowedWeekdays = activity.allowed_weekdays ?? [];
+  if (start > end) return [];
+  const allowedWeekdays = new Set(activity.allowed_weekdays ?? []);
   const holidays = new Map((activePeriod.holidays ?? []).map((holiday) => [dateInputValue(holiday.date), holiday.name]));
-  const dates = [];
+  const recordedDates = new Set(activity.recorded_dates ?? []);
+  const recordedByWeek = new Map();
+  const months = new Map();
+
+  for (const date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
+    const value = localDateValue(date);
+    const weekStart = new Date(date);
+    weekStart.setDate(date.getDate() - ((date.getDay() + 6) % 7));
+    const weekKey = localDateValue(weekStart);
+    if (recordedDates.has(value)) recordedByWeek.set(weekKey, (recordedByWeek.get(weekKey) ?? 0) + 1);
+  }
 
   for (const date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
     const weekday = ((date.getDay() + 6) % 7) + 1;
-    if (allowedWeekdays.length && !allowedWeekdays.includes(weekday)) continue;
     const value = localDateValue(date);
-    dates.push({ value, holidayName: holidays.get(value) ?? null });
+    const monthKey = value.slice(0, 7);
+    if (!months.has(monthKey)) {
+      months.set(monthKey, {
+        key: monthKey,
+        label: new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' }).format(date),
+        days: [],
+      });
+    }
+    const weekStart = new Date(date);
+    weekStart.setDate(date.getDate() - ((date.getDay() + 6) % 7));
+    const weekKey = localDateValue(weekStart);
+    months.get(monthKey).days.push({
+      value,
+      day: date.getDate(),
+      selectable: allowedWeekdays.size === 0 || allowedWeekdays.has(weekday),
+      recorded: recordedDates.has(value),
+      holidayName: holidays.get(value) ?? null,
+      weekKey,
+      recordedInWeek: recordedByWeek.get(weekKey) ?? 0,
+    });
   }
 
-  return dates;
+  return [...months.values()];
 }
 
 function updateBulkChecklistSelection(form) {
-  const selected = form.querySelectorAll('[data-bulk-checklist-date]:checked').length;
+  const inputs = [...form.querySelectorAll('[data-bulk-checklist-date]')];
+  const selectedByWeek = new Map();
+  inputs.filter((input) => input.checked).forEach((input) => {
+    const weekKey = input.dataset.weekKey;
+    selectedByWeek.set(weekKey, (selectedByWeek.get(weekKey) ?? 0) + 1);
+  });
+  const weeklyLimit = Number(form.dataset.maxPerWeek) || 0;
+  inputs.forEach((input) => {
+    const reachedLimit = weeklyLimit > 0 && Number(input.dataset.recordedInWeek) + (selectedByWeek.get(input.dataset.weekKey) ?? 0) >= weeklyLimit;
+    input.disabled = !input.checked && reachedLimit;
+    input.closest('.bulk-calendar-day')?.classList.toggle('is-unavailable', input.disabled);
+  });
+  const selected = inputs.filter((input) => input.checked).length;
   const summary = form.querySelector('[data-bulk-selection-summary]');
-  if (summary) summary.textContent = selected ? `${selected} tanggal akan diperiksa sebelum disimpan.` : 'Pilih satu atau beberapa tanggal.';
+  const submit = form.querySelector('[data-bulk-submit]');
+  if (summary) summary.textContent = selected ? `${selected} tanggal dipilih.` : 'Pilih tanggal yang masih tersedia pada kalender.';
+  if (submit) {
+    submit.disabled = selected === 0;
+    submit.textContent = selected ? `Catat ${selected} tanggal` : 'Catat tanggal terpilih';
+  }
+}
+
+function renderBulkChecklistCalendar(months) {
+  const weekdays = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+  return months.map((month) => {
+    const firstDay = new Date(`${month.key}-01T00:00:00`);
+    const leadingDays = (firstDay.getDay() + 6) % 7;
+    const days = new Map(month.days.map((day) => [day.value, day]));
+    const lastDay = new Date(firstDay.getFullYear(), firstDay.getMonth() + 1, 0).getDate();
+    const cells = Array.from({ length: leadingDays + lastDay }, (_, index) => {
+      const day = days.get(`${month.key}-${String(index - leadingDays + 1).padStart(2, '0')}`);
+      if (!day) return '<span class="bulk-calendar-blank" aria-hidden="true"></span>';
+      if (day.recorded) return `<span class="bulk-calendar-day is-recorded" title="${escapeHtml(formatDate(day.value, true))} sudah dicatat"><span>${day.day}</span><svg aria-hidden="true"><use href="#icon-check"/></svg></span>`;
+      if (!day.selectable) return `<span class="bulk-calendar-day is-unavailable" title="${escapeHtml(formatDate(day.value, true))} tidak dijadwalkan"><span>${day.day}</span></span>`;
+      return `<label class="bulk-calendar-day${day.holidayName ? ' is-holiday' : ''}" title="${escapeHtml(day.holidayName ? `${formatDate(day.value, true)} · ${day.holidayName} (opsional)` : formatDate(day.value, true))}"><input type="checkbox" value="${escapeHtml(day.value)}" data-bulk-checklist-date data-week-key="${escapeHtml(day.weekKey)}" data-recorded-in-week="${day.recordedInWeek}" aria-label="${escapeHtml(`Catat ${formatDate(day.value, true)}${day.holidayName ? `, hari libur ${day.holidayName}` : ''}`)}"><span>${day.day}</span></label>`;
+    }).join('');
+    return `<section class="bulk-calendar-month" aria-label="${escapeHtml(month.label)}"><h3>${escapeHtml(month.label)}</h3><div class="bulk-calendar-weekdays" aria-hidden="true">${weekdays.map((weekday) => `<span>${weekday}</span>`).join('')}</div><div class="bulk-calendar-grid">${cells}</div></section>`;
+  }).join('');
+}
+
+function setAllBulkChecklistDates(form, checked) {
+  updateBulkChecklistSelection(form);
+  form.querySelectorAll('[data-bulk-checklist-date]').forEach((input) => {
+    if (!input.disabled) input.checked = checked;
+    updateBulkChecklistSelection(form);
+  });
 }
 
 function openBulkChecklist(activityId) {
   const activity = activePeriodActivities.find((item) => item.id === activityId);
-  const dates = activity ? bulkChecklistDates(activity) : [];
-  if (!activity || participantId === null || !dates.length) {
+  const months = activity ? bulkChecklistMonths(activity) : [];
+  if (!activity || participantId === null || !months.length) {
     showToast('Belum ada tanggal yang dapat dipilih untuk aktivitas ini.', 'error');
     return;
   }
 
   adminFormDialog.classList.remove('is-period-config');
   adminFormDialog.dataset.returnView = '';
-  adminFormDialogContent.innerHTML = `<form class="admin-modal-form bulk-checklist-form" data-admin-form="bulk-checklist" data-activity-id="${escapeHtml(activity.id)}"><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">Isi beberapa tanggal</h2><p>${escapeHtml(activity.name)}. Hanya tanggal yang sesuai jadwal aktivitas ditampilkan.</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields"><p class="admin-form-note" data-bulk-selection-summary>Pilih satu atau beberapa tanggal.</p><section class="bulk-checklist-dates" aria-label="Tanggal pencatatan ${escapeHtml(activity.name)}">${dates.map((date) => `<label class="bulk-checklist-date${date.holidayName ? ' is-holiday' : ''}"><input type="checkbox" value="${escapeHtml(date.value)}" data-bulk-checklist-date><span><strong>${escapeHtml(formatDate(date.value, true))}</strong><small>${date.holidayName ? `Opsional · ${escapeHtml(date.holidayName)} · tidak dinilai` : 'Dapat dicatat'}</small></span></label>`).join('')}</section></div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit">Catat tanggal terpilih</button></div></form>`;
+  adminFormDialogContent.innerHTML = `<form class="admin-modal-form bulk-checklist-form" data-admin-form="bulk-checklist" data-activity-id="${escapeHtml(activity.id)}" data-max-per-week="${Number(activity.max_per_week) || ''}"><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">Catat beberapa tanggal</h2><p>${escapeHtml(activity.name)}. Pilih tanggal pada kalender; tanggal yang telah tercatat dikunci.</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields"><div class="bulk-calendar-toolbar"><p class="admin-form-note" data-bulk-selection-summary>Pilih tanggal yang masih tersedia pada kalender.</p><div><button class="text-button" type="button" data-bulk-checklist-clear>Kosongkan</button><button class="text-button" type="button" data-bulk-checklist-select>Pilih tersedia</button></div></div><p class="bulk-calendar-legend"><span><i class="is-selectable"></i>Dapat dicatat</span><span><i class="is-recorded"></i>Sudah dicatat</span><span><i class="is-holiday"></i>Hari libur · opsional</span></p><div class="bulk-checklist-calendar" aria-label="Kalender pencatatan ${escapeHtml(activity.name)}">${renderBulkChecklistCalendar(months)}</div></div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit" data-bulk-submit disabled>Catat tanggal terpilih</button></div></form>`;
   adminFormDialog.showModal();
+  updateBulkChecklistSelection(adminFormDialog.querySelector('[data-admin-form="bulk-checklist"]'));
   markAdminFormPristine();
-  adminFormDialog.querySelector('[data-bulk-checklist-date]')?.focus();
+  adminFormDialog.querySelector('[data-bulk-checklist-date]:not(:disabled)')?.focus();
 }
 
 function updateTodayProgress() {
@@ -780,6 +853,13 @@ fullChecklist.addEventListener('click', (event) => {
 document.addEventListener('change', (event) => {
   if (!event.target.matches('[data-bulk-checklist-date]')) return;
   updateBulkChecklistSelection(event.target.form);
+});
+
+document.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-bulk-checklist-select], [data-bulk-checklist-clear]');
+  if (!button) return;
+  const form = button.closest('[data-admin-form="bulk-checklist"]');
+  if (form) setAllBulkChecklistDates(form, button.hasAttribute('data-bulk-checklist-select'));
 });
 
 function displayRole(roles) {

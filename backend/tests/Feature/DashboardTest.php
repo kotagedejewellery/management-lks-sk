@@ -32,6 +32,8 @@ class DashboardTest extends TestCase
         $this->get('/lks-prototype/app.js')
             ->assertOk()
             ->assertHeader('Content-Type', 'application/javascript; charset=UTF-8')
-            ->assertHeader('Cache-Control', 'public, max-age=31536000, immutable');
+            ->assertHeader('Cache-Control', 'public, max-age=31536000, immutable')
+            ->assertSee('data-open-bulk-checklist')
+            ->assertSee('Catat beberapa tanggal');
     }
 }

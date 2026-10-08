@@ -65,6 +65,18 @@ class DashboardController extends Controller
             ->where('user_id', $request->user()->getKey())
             ->with(['checklists' => fn ($query) => $query->whereDate('checklist_date', $selectedDate)])
             ->first();
+        $recordedDatesByActivity = $participant === null
+            ? collect()
+            : $participant->checklists()
+                ->where('is_completed', true)
+                ->whereBetween('checklist_date', [
+                    $participant->participation_start_date->copy()->startOfDay(),
+                    $period->end_date->isBefore(today()) ? $period->end_date->copy()->endOfDay() : today()->endOfDay(),
+                ])
+                ->orderBy('checklist_date')
+                ->get(['period_activity_id', 'checklist_date'])
+                ->groupBy('period_activity_id')
+                ->map(fn ($checklists) => $checklists->pluck('checklist_date')->map->toDateString()->values()->all());
         $holiday = $period->holidaySnapshots()->whereDate('holiday_date', $selectedDate)->first();
         $holidayDates = $calculator->periodHolidayDates($period);
 
@@ -73,7 +85,7 @@ class DashboardController extends Controller
             ->orderBy('sort_order')
             ->get()
             ->filter(fn ($activity) => $participant === null || $activity->appliesTo($participant))
-            ->map(function ($activity) use ($participant, $calculator, $period, $holidayDates, $holiday): array {
+            ->map(function ($activity) use ($participant, $calculator, $period, $holidayDates, $holiday, $recordedDatesByActivity): array {
                 $checklist = $participant?->checklists->firstWhere('period_activity_id', $activity->getKey());
                 $rule = $calculator->effectiveTargets($activity, $period, $holidayDates);
 
@@ -85,6 +97,7 @@ class DashboardController extends Controller
                     'minimum_target_count' => $rule['minimum_target_count'],
                     'max_per_week' => $activity->max_per_week,
                     'is_completed' => $checklist?->is_completed ?? false,
+                    'recorded_dates' => $recordedDatesByActivity->get($activity->getKey(), []),
                     'allowed_weekdays' => $activity->allowedWeekdays(),
                     'is_optional_today' => $holiday !== null,
                     'holiday_name' => $holiday?->name,

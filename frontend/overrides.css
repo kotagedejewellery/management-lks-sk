@@ -723,57 +723,114 @@ body.is-booting .page-progress { inset: 0; }
 
 .bulk-checklist-trigger {
   min-height: 32px;
-  margin-top: 7px;
+  margin-top: 8px;
+  padding: 4px 0;
+  font-size: 12px;
+}
+
+.checklist-item > div > small {
+  display: block;
+}
+
+.bulk-checklist-trigger svg {
+  width: 15px;
+  height: 15px;
+}
+
+.bulk-calendar-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line, #dce2dc);
+}
+
+.bulk-calendar-toolbar .admin-form-note { margin: 0; }
+.bulk-calendar-toolbar > div { display: flex; gap: 10px; flex: 0 0 auto; }
+
+.bulk-calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin: 0;
+  color: var(--ink-soft, #53645a);
   font-size: 11px;
 }
 
-.bulk-checklist-dates {
+.bulk-calendar-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.bulk-calendar-legend i { width: 10px; height: 10px; border: 1px solid var(--line-dark, #c5d0c8); border-radius: 2px; }
+.bulk-calendar-legend .is-selectable { background: var(--paper, #fffef9); }
+.bulk-calendar-legend .is-recorded { border-color: var(--evergreen, #25705b); background: var(--evergreen-pale, #e5f0e9); }
+.bulk-calendar-legend .is-holiday { border-style: dashed; background: var(--sun-pale, #f7efd8); }
+
+.bulk-checklist-calendar {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 9px;
-  max-height: min(48dvh, 420px);
+  gap: 20px;
+  max-height: min(48dvh, 430px);
   overflow-y: auto;
-  padding-right: 2px;
+  padding-right: 4px;
 }
 
-.bulk-checklist-date {
-  display: flex !important;
-  align-items: flex-start;
-  gap: 9px;
-  min-height: 66px;
-  padding: 10px;
+.bulk-calendar-month h3 {
+  margin: 0 0 8px;
+  color: var(--ink, #203329);
+  font-size: 14px;
+}
+
+.bulk-calendar-weekdays,
+.bulk-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.bulk-calendar-weekdays span {
+  color: var(--ink-soft, #53645a);
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.bulk-calendar-day,
+.bulk-calendar-blank {
+  min-height: 42px;
+}
+
+.bulk-calendar-day {
+  position: relative;
+  display: grid !important;
+  place-items: center;
   border: 1px solid var(--line-dark, #c5d0c8);
-  border-radius: 9px;
+  border-radius: 7px;
   color: var(--ink, #203329) !important;
   cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
 }
 
-.bulk-checklist-date:has(input:checked) {
+.bulk-calendar-day input {
+  position: absolute;
+  width: 1px !important;
+  min-height: 1px !important;
+  margin: 0;
+  opacity: 0;
+}
+
+.bulk-calendar-day:has(input:checked) {
   border-color: var(--evergreen, #25705b);
   background: var(--evergreen-pale, #e5f0e9);
+  color: var(--evergreen-dark, #155244) !important;
 }
 
-.bulk-checklist-date.is-holiday { border-style: dashed; }
-
-.bulk-checklist-date input {
-  width: 18px !important;
-  min-height: 18px !important;
-  margin: 2px 0 0;
-  padding: 0 !important;
-  accent-color: var(--evergreen, #25705b);
-}
-
-.bulk-checklist-date span {
-  display: grid;
-  gap: 3px;
-  min-width: 0;
-}
-
-.bulk-checklist-date strong { font-size: 12px; line-height: 1.35; }
-.bulk-checklist-date small { color: var(--ink-soft, #53645a); font-size: 11px; line-height: 1.35; }
+.bulk-calendar-day:has(input:focus-visible) { outline: 2px solid var(--evergreen, #25705b); outline-offset: 2px; }
+.bulk-calendar-day.is-recorded { border-color: var(--evergreen, #25705b); background: var(--evergreen-pale, #e5f0e9); color: var(--evergreen-dark, #155244) !important; }
+.bulk-calendar-day.is-recorded svg { width: 12px; height: 12px; position: absolute; right: 4px; bottom: 4px; }
+.bulk-calendar-day.is-holiday { border-style: dashed; background: var(--sun-pale, #f7efd8); }
+.bulk-calendar-day.is-unavailable { border-color: var(--line, #dce2dc); color: var(--ink-soft, #53645a) !important; cursor: not-allowed; opacity: .45; }
 
 @media (max-width: 520px) {
-  .bulk-checklist-dates { grid-template-columns: 1fr; }
+  .bulk-calendar-toolbar { align-items: flex-start; flex-direction: column; }
 }
 
 /* Leader dashboard: keep team progress comparable without turning the chart into the only source of truth. */

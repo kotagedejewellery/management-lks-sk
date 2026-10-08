@@ -175,6 +175,23 @@ class LksCoreTest extends TestCase
         ]);
     }
 
+    public function test_dashboard_exposes_recorded_dates_for_the_personal_bulk_calendar(): void
+    {
+        $this->withoutMiddleware();
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active']);
+        $activity = $this->periodActivity($period, 4);
+        $participant = $this->participant($period, $santri);
+        $recordedDate = now()->subDay()->toDateString();
+        $this->checklist($participant, $activity, $santri, $recordedDate);
+
+        $this->actingAs($santri)
+            ->getJson(route('api.lks.dashboard', ['date' => now()->toDateString()]))
+            ->assertOk()
+            ->assertJsonPath('data.activities.0.recorded_dates.0', $recordedDate);
+    }
+
     public function test_admin_cannot_use_personal_bulk_checklist(): void
     {
         $this->withoutMiddleware();
