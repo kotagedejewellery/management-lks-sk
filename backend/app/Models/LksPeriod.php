@@ -13,7 +13,7 @@ class LksPeriod extends Model
 
     protected $fillable = [
         'name', 'start_date', 'end_date', 'status', 'final_passing_threshold', 'staff_passing_threshold',
-        'activated_at', 'closed_at', 'created_by',
+        'activated_at', 'closed_at', 'created_by', 'signatories_snapshot',
     ];
 
     protected function casts(): array
@@ -25,6 +25,7 @@ class LksPeriod extends Model
             'closed_at' => 'datetime',
             'final_passing_threshold' => 'decimal:2',
             'staff_passing_threshold' => 'decimal:2',
+            'signatories_snapshot' => 'array',
         ];
     }
 

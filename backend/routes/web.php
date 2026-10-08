@@ -4,6 +4,8 @@ use App\Http\Controllers\PrototypeDashboardController;
 use App\Http\Controllers\Lks\ChecklistController;
 use App\Http\Controllers\Lks\AccountController;
 use App\Http\Controllers\Lks\DashboardController;
+use App\Http\Controllers\Lks\DocumentSignatoryController;
+use App\Http\Controllers\Lks\LksExportController;
 use App\Http\Controllers\Lks\PeriodController;
 use App\Http\Controllers\Lks\OrganizationController;
 use App\Http\Controllers\Lks\PeriodConfigurationController;
@@ -39,6 +41,7 @@ Route::middleware(['auth', 'active-user'])->group(function () {
         Route::get('dashboard', DashboardController::class)->name('dashboard');
         Route::get('recap', RecapController::class)->name('recap');
         Route::get('department-trends', [RecapController::class, 'departmentTrends'])->name('department-trends');
+        Route::get('exports/personal/{period}', [LksExportController::class, 'personal'])->name('exports.personal');
         Route::get('periods/history', [PeriodController::class, 'history'])->name('periods.history');
         Route::put('checklists', [ChecklistController::class, 'store'])->name('checklists.store');
         Route::post('periods/{period}/activate', [PeriodController::class, 'activate'])->name('periods.activate');
@@ -50,7 +53,16 @@ Route::middleware(['auth', 'active-user'])->group(function () {
             ->name('periods.participants.destroy');
 
         Route::prefix('admin')->name('admin.')->group(function (): void {
+            Route::get('periods/{period}/participants/{participant}/checklists', [ChecklistController::class, 'correctionContext'])
+                ->name('participants.checklists.context');
+            Route::put('periods/{period}/participants/{participant}/checklists', [ChecklistController::class, 'correct'])
+                ->name('participants.checklists.correct');
+            Route::get('exports/periods/{period}', [LksExportController::class, 'summary'])->name('exports.periods.summary');
+            Route::get('exports/periods/{period}/participants/{participant}', [LksExportController::class, 'participant'])->name('exports.participants.show');
             Route::get('organization', [OrganizationController::class, 'index'])->name('organization.index');
+            Route::get('document-signatories', [DocumentSignatoryController::class, 'index'])->name('document-signatories.index');
+            Route::post('document-signatories/{signatory}', [DocumentSignatoryController::class, 'update'])->name('document-signatories.update');
+            Route::get('document-signatories/{signatory}/signature', [DocumentSignatoryController::class, 'signature'])->name('document-signatories.signature');
             Route::post('departments', [OrganizationController::class, 'storeDepartment'])->name('departments.store');
             Route::patch('departments/{department}', [OrganizationController::class, 'updateDepartment'])->name('departments.update');
             Route::delete('departments/{department}', [OrganizationController::class, 'destroyDepartment'])->name('departments.destroy');

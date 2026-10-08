@@ -1,7 +1,7 @@
 # Graph Report - lks-santri-karya  (2026-10-08)
 
 ## Corpus Check
-- 155 files · ~59,055 words
+- 155 files · ~59,012 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 28 file(s) not represented in the graph (top: (none) 18, .css 5, .example 1)
 

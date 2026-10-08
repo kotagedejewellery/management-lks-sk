@@ -63,6 +63,7 @@ class LksScoreCalculator
             'user_id' => $participant->user_id,
             'name' => $participant->participant_name_snapshot,
             'gender' => $participant->gender_snapshot,
+            'level' => $participant->level_snapshot,
             'department' => $participant->department_name_snapshot,
             'team' => $participant->team_name_snapshot,
             'leader_user_id' => $participant->leader_user_id_snapshot,

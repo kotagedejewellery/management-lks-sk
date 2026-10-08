@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AuditLog;
+use App\Models\DocumentSignatory;
 use App\Models\LksPeriod;
 use App\Models\PeriodParticipantSnapshot;
 use App\Models\SantriProfile;
@@ -10,6 +11,7 @@ use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class PeriodActivationService
@@ -50,7 +52,16 @@ class PeriodActivationService
 
             // MVP memakai bobot setara untuk seluruh aktivitas pada saat periode dikunci aktif.
             $period->periodActivities()->where('is_active', true)->update(['weight' => 1]);
-            $period->update(['status' => 'active', 'activated_at' => now()]);
+            $period->update([
+                'status' => 'active',
+                'activated_at' => now(),
+                'signatories_snapshot' => DocumentSignatory::query()
+                    ->orderByRaw("CASE role WHEN 'general_manager' THEN 1 ELSE 2 END")
+                    ->get(['role', 'title', 'name', 'signature_path'])
+                    ->map(fn (DocumentSignatory $signatory): array => $this->snapshotSignatory($period, $signatory))
+                    ->values()
+                    ->all(),
+            ]);
 
             AuditLog::create([
                 'actor_user_id' => $actor->getKey(),
@@ -199,5 +210,21 @@ class PeriodActivationService
                 'participation_start_date' => $participationStartDate,
             ],
         );
+    }
+
+    /** @return array{role: string, title: string, name: ?string, signature_path: ?string} */
+    private function snapshotSignatory(LksPeriod $period, DocumentSignatory $signatory): array
+    {
+        $snapshot = $signatory->only(['role', 'title', 'name', 'signature_path']);
+        if ($signatory->signature_path === null || ! Storage::disk('local')->exists($signatory->signature_path)) {
+            return $snapshot;
+        }
+
+        $extension = pathinfo($signatory->signature_path, PATHINFO_EXTENSION) ?: 'png';
+        $path = "lks-signatures/periods/{$period->getKey()}/{$signatory->role}.{$extension}";
+        Storage::disk('local')->copy($signatory->signature_path, $path);
+        $snapshot['signature_path'] = $path;
+
+        return $snapshot;
     }
 }

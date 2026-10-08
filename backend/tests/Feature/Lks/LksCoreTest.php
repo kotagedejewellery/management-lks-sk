@@ -3,6 +3,7 @@
 namespace Tests\Feature\Lks;
 
 use App\Models\Department;
+use App\Models\DocumentSignatory;
 use App\Models\LksActivity;
 use App\Models\LksChecklist;
 use App\Models\LksPeriod;
@@ -15,6 +16,8 @@ use App\Models\User;
 use App\Services\LksScoreCalculator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class LksCoreTest extends TestCase
@@ -66,6 +69,25 @@ class LksCoreTest extends TestCase
             'department_id_snapshot' => $department->id,
             'team_id_snapshot' => $team->id,
         ]);
+        $this->assertCount(2, $period->fresh()->signatories_snapshot);
+    }
+
+    public function test_admin_can_manage_a_private_digital_document_signature(): void
+    {
+        Storage::fake('local');
+        $admin = $this->userWithRole('admin');
+        $signatory = DocumentSignatory::query()->where('role', 'general_manager')->firstOrFail();
+
+        $this->actingAs($admin)
+            ->post(route('api.lks.admin.document-signatories.update', $signatory), [
+                'name' => 'Joko Wardiyanto',
+                'signature' => UploadedFile::fake()->image('general-manager.png', 400, 160),
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.name', 'Joko Wardiyanto')
+            ->assertJsonPath('data.signature_configured', true);
+
+        Storage::disk('local')->assertExists($signatory->fresh()->signature_path);
     }
 
     public function test_santri_can_record_own_checklist_but_not_another_participants_checklist(): void
@@ -141,6 +163,47 @@ class LksCoreTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_review_and_correct_multiple_checklists_for_a_participant(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active']);
+        $firstActivity = $this->periodActivity($period, 1);
+        $secondActivity = $this->periodActivity($period, 1);
+        $participant = $this->participant($period, $santri);
+        $this->checklist($participant, $firstActivity, $santri, now()->toDateString());
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.admin.participants.checklists.context', [$period, $participant, 'date' => now()->toDateString()]))
+            ->assertOk()
+            ->assertJsonPath('data.participant.id', $participant->id)
+            ->assertJsonPath('data.activities.0.is_completed', true);
+
+        $this->actingAs($admin)
+            ->putJson(route('api.lks.admin.participants.checklists.correct', [$period, $participant]), [
+                'checklist_date' => now()->toDateString(),
+                'reason' => 'Meluruskan catatan peserta',
+                'activities' => [
+                    ['period_activity_id' => $firstActivity->id, 'is_completed' => false],
+                    ['period_activity_id' => $secondActivity->id, 'is_completed' => true],
+                ],
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.updated', 2);
+
+        $this->assertDatabaseHas('lks_checklists', [
+            'period_participant_id' => $participant->id,
+            'period_activity_id' => $firstActivity->id,
+            'is_completed' => false,
+        ]);
+        $this->assertDatabaseHas('lks_checklists', [
+            'period_participant_id' => $participant->id,
+            'period_activity_id' => $secondActivity->id,
+            'is_completed' => true,
+        ]);
+        $this->assertSame(2, LksChecklist::query()->where('period_participant_id', $participant->id)->count());
+    }
+
     public function test_score_uses_equal_weights_and_caps_each_activity_at_one_hundred_percent(): void
     {
         $admin = $this->userWithRole('admin');
@@ -208,6 +271,35 @@ class LksCoreTest extends TestCase
             ->getJson(route('api.lks.recap'))
             ->assertOk()
             ->assertJsonPath('data.summary.participant_count', 2);
+    }
+
+    public function test_pdf_exports_follow_the_viewers_access_scope(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $otherSantri = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active']);
+        $this->periodActivity($period, 1);
+        $participant = $this->participant($period, $santri);
+
+        $this->actingAs($santri)
+            ->get(route('api.lks.exports.personal', $period))
+            ->assertOk()
+            ->assertHeader('content-type', 'application/pdf');
+
+        $this->actingAs($otherSantri)
+            ->get(route('api.lks.exports.personal', $period))
+            ->assertNotFound();
+
+        $this->actingAs($admin)
+            ->get(route('api.lks.admin.exports.periods.summary', $period))
+            ->assertOk()
+            ->assertHeader('content-type', 'application/pdf');
+
+        $this->actingAs($admin)
+            ->get(route('api.lks.admin.exports.participants.show', [$period, $participant]))
+            ->assertOk()
+            ->assertHeader('content-type', 'application/pdf');
     }
 
     public function test_santri_can_manage_their_own_profile_and_password(): void

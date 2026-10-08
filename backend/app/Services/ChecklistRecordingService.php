@@ -40,7 +40,7 @@ class ChecklistRecordingService
                 ->first();
 
             $before = $checklist === null ? null : $this->auditData($checklist);
-            if ($checklist !== null && $actor->isAdmin() && blank($reason)) {
+            if ($actor->isAdmin() && blank($reason)) {
                 throw ValidationException::withMessages(['reason' => 'Alasan wajib diisi saat Admin mengoreksi checklist.']);
             }
 
@@ -56,7 +56,7 @@ class ChecklistRecordingService
             ]);
             $checklist->save();
 
-            if ($before !== null && $actor->isAdmin()) {
+            if ($actor->isAdmin()) {
                 AuditLog::create([
                     'actor_user_id' => $actor->getKey(),
                     'event' => 'checklist.corrected',
@@ -123,6 +123,7 @@ class ChecklistRecordingService
     private function auditData(LksChecklist $checklist): array
     {
         return [
+            'period_activity_id' => $checklist->period_activity_id,
             'is_completed' => $checklist->is_completed,
             'checklist_date' => $checklist->checklist_date->toDateString(),
             'recorded_by_user_id' => $checklist->recorded_by_user_id,

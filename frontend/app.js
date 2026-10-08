@@ -1,4 +1,4 @@
-const viewLabels = { dashboard: ['Ruang pribadi', 'Dashboard'], lks: ['Catatan pribadi', 'LKS Saya'], recap: ['Pemantauan', 'Rekap'], department: ['Laporan organisasi', 'Departemen'], history: ['Catatan pribadi', 'Riwayat'], account: ['Akun', 'Akun Saya'], settings: ['Administrasi', 'Pengaturan'], organization: ['Pengaturan', 'Struktur Organisasi'], people: ['Pengaturan', 'Data Santri Karya'], periods: ['Pengaturan', 'Periode LKS'], 'period-detail': ['Pengaturan', 'Kelola Periode'], activities: ['Pengaturan', 'Aktivitas & Aturan'] };
+const viewLabels = { dashboard: ['Ruang pribadi', 'Dashboard'], lks: ['Catatan pribadi', 'LKS Saya'], recap: ['Pemantauan', 'Rekap'], department: ['Laporan organisasi', 'Departemen'], history: ['Catatan pribadi', 'Riwayat'], account: ['Akun', 'Akun Saya'], settings: ['Administrasi', 'Pengaturan'], organization: ['Pengaturan', 'Struktur Organisasi'], people: ['Pengaturan', 'Data Santri Karya'], periods: ['Pengaturan', 'Periode LKS'], 'period-detail': ['Pengaturan', 'Kelola Periode'], activities: ['Pengaturan', 'Aktivitas & Aturan'], calendar: ['Pengaturan', 'Kalender Kerja'], documents: ['Pengaturan', 'Dokumen & Tanda Tangan'] };
 const navButtons = document.querySelectorAll('[data-view]');
 const viewPanels = document.querySelectorAll('[data-view-panel]');
 const pageTitle = document.querySelector('#page-title');
@@ -18,6 +18,7 @@ let participantId = null;
 let viewer = null;
 let organizationData = null;
 let configurationData = null;
+let documentSignatoriesData = null;
 let recapData = null;
 let historyData = null;
 let historyRecapData = null;
@@ -26,6 +27,7 @@ let departmentTrendData = [];
 let selectedReportDimension = 'department';
 let selectedChecklistDate = todayIso();
 let activePeriodActivities = [];
+let correctionParticipantId = null;
 let accountData = null;
 let selectedPeriodId = null;
 
@@ -67,7 +69,7 @@ function openView(name, { persist = true, scroll = true, load = true } = {}) {
   if (persist) saveView(name);
   if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
   if (!load) return;
-  if (['settings', 'organization', 'people', 'periods', 'period-detail', 'activities'].includes(name)) loadAdminView(name);
+  if (['settings', 'organization', 'people', 'periods', 'period-detail', 'activities', 'calendar', 'documents'].includes(name)) loadAdminView(name);
   if (['recap', 'department'].includes(name)) loadRecap();
   if (['dashboard', 'lks'].includes(name)) loadDashboard({ showProgress: true, reloadRecap: false });
   if (name === 'history') loadHistory({ showProgress: true });
@@ -363,6 +365,7 @@ function initials(name) {
 }
 
 function statusBadge(status) {
+  if (status === 'belum_mulai') return '<span class="status status-open">Belum mulai</span>';
   const complete = status === 'tuntas';
   return `<span class="status ${complete ? 'status-done' : 'status-open'}">${complete ? 'Tuntas' : 'Belum tuntas'}</span>`;
 }
@@ -389,7 +392,8 @@ function renderPersonalSummary(personal) {
   const details = [
     ['Tim', viewer.identity?.team], ['Leader', viewer.identity?.leader], ['Departemen', viewer.identity?.department], ['Level jabatan', jobLevel],
   ].filter(([, value]) => value).map(([label, value]) => `<li><span>${escapeHtml(label.slice(0, 1))}</span><div><small>${escapeHtml(label)}</small><strong>${escapeHtml(value)}</strong></div></li>`).join('');
-  document.querySelector('.period-summary').innerHTML = `<h3>${personal.final_status === 'tuntas' ? 'Target periode tercapai.' : 'Masih ada ruang untuk bertumbuh.'}</h3>${details ? `<ul>${details}</ul>` : ''}<button class="text-action" type="button" data-go="history">Lihat riwayat <svg><use href="#icon-arrow"/></svg></button>`;
+  const exportLink = recapData?.period?.id ? `<a class="text-action export-pdf-link" href="${apiBase}/exports/personal/${encodeURIComponent(recapData.period.id)}" data-export-pdf>Unduh PDF LKS <svg><use href="#icon-arrow"/></svg></a>` : '';
+  document.querySelector('.period-summary').innerHTML = `<h3>${personal.final_status === 'tuntas' ? 'Target periode tercapai.' : 'Masih ada ruang untuk bertumbuh.'}</h3>${details ? `<ul>${details}</ul>` : ''}${exportLink}<button class="text-action" type="button" data-go="history">Lihat riwayat <svg><use href="#icon-arrow"/></svg></button>`;
 }
 
 function renderPersonalRecap() {
@@ -540,13 +544,29 @@ function renderRecapViews() {
   if (!recapData) return;
 
   const { period, participants, summary } = recapData;
+  const canExportIndividual = viewer?.roles?.includes('admin');
   const canCorrect = viewer?.roles?.includes('admin') && period.status === 'active';
-  const recapRows = participants.map((participant, index) => `<div class="table-row" data-member="${escapeHtml(`${participant.name} ${participant.department ?? ''}`)}" data-status="${escapeHtml(participant.final_status)}" data-gender="${escapeHtml(participant.gender)}"><div class="member-cell"><span class="person-initials tone-${['one', 'two', 'three', 'four'][index % 4]}">${escapeHtml(initials(participant.name))}</span><div><strong>${escapeHtml(participant.name)}</strong><small>${escapeHtml(participant.team ?? 'Tanpa tim')} · Leader: ${escapeHtml(participant.leader ?? 'Belum ditetapkan')}</small></div></div><span>${escapeHtml(participant.department ?? 'Tanpa departemen')}</span><strong>${percentage(participant.final_percentage)}</strong><span class="recap-status">${statusBadge(participant.final_status)}<small>Ambang ${percentage(participant.passing_threshold)}</small></span>${canCorrect ? `<button class="text-button organization-row-action" type="button" data-open-checklist-correction="${escapeHtml(participant.participant_id)}">Koreksi</button>` : '<span aria-hidden="true"></span>'}</div>`).join('');
+  const recapRows = participants.map((participant, index) => {
+    const actions = canExportIndividual ? `<span class="organization-row-actions recap-row-actions"><a class="text-button organization-row-action" href="${apiBase}/admin/exports/periods/${encodeURIComponent(period.id)}/participants/${encodeURIComponent(participant.participant_id)}" data-export-pdf>PDF</a>${canCorrect ? `<button class="text-button organization-row-action" type="button" data-open-checklist-correction="${escapeHtml(participant.participant_id)}">Lihat &amp; koreksi</button>` : ''}</span>` : '<span aria-hidden="true"></span>';
+    return `<div class="table-row" data-member="${escapeHtml(`${participant.name} ${participant.department ?? ''}`)}" data-status="${escapeHtml(participant.final_status)}" data-gender="${escapeHtml(participant.gender)}"><div class="member-cell"><span class="person-initials tone-${['one', 'two', 'three', 'four'][index % 4]}">${escapeHtml(initials(participant.name))}</span><div><strong>${escapeHtml(participant.name)}</strong><small>${escapeHtml(participant.team ?? 'Tanpa tim')} · Leader: ${escapeHtml(participant.leader ?? 'Belum ditetapkan')}</small></div></div><span>${escapeHtml(participant.department ?? 'Tanpa departemen')}</span><strong>${percentage(participant.final_percentage)}</strong><span class="recap-status">${statusBadge(participant.final_status)}<small>Ambang ${percentage(participant.passing_threshold)}</small></span>${actions}</div>`;
+  }).join('');
   const periodOptions = recapPeriods.map((item) => `<option value="${escapeHtml(item.id)}"${item.id === period.id ? ' selected' : ''}>${escapeHtml(item.name)}${item.status === 'closed' ? ' · Ditutup' : ' · Aktif'}</option>`).join('');
 
-  recapPanel.innerHTML = `<div class="page-intro recap-intro"><div><h2>Perkembangan anggota</h2><p>${escapeHtml(period.name)} · ${summary.participant_count} peserta dalam cakupan akses Anda.</p></div><label class="report-period-control">Periode<select data-recap-period>${periodOptions}</select></label></div><div class="filter-bar"><label class="search-field"><svg aria-hidden="true"><use href="#icon-search"/></svg><span class="sr-only">Cari anggota</span><input id="member-search" type="search" aria-label="Cari anggota" placeholder="Cari nama anggota" /></label><button class="filter-pill is-on" type="button" data-recap-filter="all">Semua status</button><button class="filter-pill" type="button" data-recap-filter="belum_tuntas">Belum tuntas</button><button class="filter-pill" type="button" data-recap-filter="tuntas">Tuntas</button><button class="filter-pill is-on" type="button" data-recap-gender="all">Semua gender</button><button class="filter-pill" type="button" data-recap-gender="ikhwan">Ikhwan</button><button class="filter-pill" type="button" data-recap-gender="akhwat">Akhwat</button></div><section class="recap-table" aria-label="Rekap anggota"><div class="table-head"><span>Santri Karya</span><span>Departemen</span><span>Nilai</span><span>Status</span><span>${canCorrect ? 'Aksi' : ''}</span></div><div id="recap-rows">${recapRows || '<p class="empty-search">Belum ada peserta pada periode ini.</p>'}</div></section><p class="empty-search" id="empty-search" hidden>Tidak ada anggota yang sesuai dengan pencarian atau filter tersebut.</p>`;
+  recapPanel.innerHTML = `<div class="page-intro recap-intro"><div><h2>Perkembangan anggota</h2><p>${escapeHtml(period.name)} · ${summary.participant_count} peserta dalam cakupan akses Anda.</p></div><label class="report-period-control">Periode<select data-recap-period>${periodOptions}</select></label></div><div class="filter-bar"><label class="search-field"><svg aria-hidden="true"><use href="#icon-search"/></svg><span class="sr-only">Cari anggota</span><input id="member-search" type="search" aria-label="Cari anggota" placeholder="Cari nama anggota" /></label><button class="filter-pill is-on" type="button" data-recap-filter="all">Semua status</button><button class="filter-pill" type="button" data-recap-filter="belum_tuntas">Belum tuntas</button><button class="filter-pill" type="button" data-recap-filter="tuntas">Tuntas</button><button class="filter-pill is-on" type="button" data-recap-gender="all">Semua gender</button><button class="filter-pill" type="button" data-recap-gender="ikhwan">Ikhwan</button><button class="filter-pill" type="button" data-recap-gender="akhwat">Akhwat</button></div><section class="recap-table" aria-label="Rekap anggota"><div class="table-head"><span>Santri Karya</span><span>Departemen</span><span>Nilai</span><span>Status</span><span>${canExportIndividual ? 'Aksi' : ''}</span></div><div id="recap-rows">${recapRows || '<p class="empty-search">Belum ada peserta pada periode ini.</p>'}</div></section><p class="empty-search" id="empty-search" hidden>Tidak ada anggota yang sesuai dengan pencarian atau filter tersebut.</p>`;
 
-  recapPanel.querySelector('.recap-intro p').textContent += ` ${summary.tuntas_count} tuntas · ${summary.belum_tuntas_count} belum tuntas · rata-rata ${percentage(summary.average_percentage)}. Ambang individu: Leader ${percentage(period.leader_passing_threshold)}, Staff ${percentage(period.staff_passing_threshold)}.`;
+  participants.forEach((participant, index) => {
+    if (Number(participant.final_percentage) !== 0) return;
+    const row = recapPanel.querySelectorAll('.table-row')[index];
+    if (!row) return;
+    row.dataset.status = 'belum_mulai';
+    const recapStatus = row.querySelector('.recap-status');
+    if (recapStatus) recapStatus.innerHTML = `${statusBadge('belum_mulai')}<small>Ambang ${percentage(participant.passing_threshold)}</small>`;
+  });
+  recapPanel.querySelector('[data-recap-filter="belum_tuntas"]')?.insertAdjacentHTML('beforebegin', '<button class="filter-pill" type="button" data-recap-filter="belum_mulai">Belum mulai</button>');
+
+  const belumMulaiCount = participants.filter((participant) => Number(participant.final_percentage) === 0).length;
+  const sedangBerjalanCount = Math.max(0, summary.belum_tuntas_count - belumMulaiCount);
+  recapPanel.querySelector('.recap-intro p').textContent += ` ${summary.tuntas_count} tuntas · ${sedangBerjalanCount} berjalan · ${belumMulaiCount} belum mulai · rata-rata ${percentage(summary.average_percentage)}. Ambang individu: Leader ${percentage(period.leader_passing_threshold)}, Staff ${percentage(period.staff_passing_threshold ?? 85)}.`;
 
   if (!viewer?.roles?.includes('admin')) {
     departmentPanel.innerHTML = `<div class="page-intro"><div><h2>Capaian departemen</h2><p>Ringkasan lintas departemen tersedia untuk Admin.</p></div></div><p class="empty-search">Gunakan akun Admin untuk melihat perbandingan capaian tiap departemen.</p>`;
@@ -560,7 +580,7 @@ function renderRecapViews() {
   const trendRows = departmentNames.map((name) => `<div class="department-history-row"><strong>${escapeHtml(name)}</strong>${trendPeriods.map((item) => `<span><small>${escapeHtml(item.period.name)}</small>${percentage(item.departments.find((department) => department.department === name)?.average_percentage ?? 0)}</span>`).join('')}</div>`).join('');
   const tabs = ['department', 'leader', 'gender'].map((dimension) => `<button class="report-tab${selectedReportDimension === dimension ? ' is-active' : ''}" type="button" role="tab" aria-selected="${selectedReportDimension === dimension}" data-report-dimension="${dimension}">${reportDimensionLabel(dimension)}</button>`).join('');
   const history = selectedReportDimension === 'department' && trendRows ? `<section class="department-history"><div class="section-head"><div><h2>Perbandingan riwayat departemen</h2><p>Tiga periode terakhir yang tersedia.</p></div></div>${trendRows}</section>` : '';
-  departmentPanel.innerHTML = `<div class="page-intro"><div><h2>Laporan periode</h2><p>${escapeHtml(period.name)} · Bandingkan capaian dari data snapshot periode yang dipilih.</p></div><label class="report-period-control">Periode<select data-recap-period>${periodOptions}</select></label></div><nav class="report-tabs" role="tablist" aria-label="Dimensi laporan">${tabs}</nav><section class="report-overview" aria-live="polite"><div class="section-head"><div><h2>Capaian ${escapeHtml(reportLabel)}</h2><p>Rata-rata nilai akhir per kelompok.</p></div></div>${renderReportBars(reportGroupsForDimension, reportLabel)}</section>${renderReportRankings(reportGroupsForDimension)}${history}`;
+  departmentPanel.innerHTML = `<div class="page-intro"><div><h2>Laporan periode</h2><p>${escapeHtml(period.name)} · Bandingkan capaian dari data snapshot periode yang dipilih.</p></div><div class="report-page-actions"><label class="report-period-control">Periode<select data-recap-period>${periodOptions}</select></label><a class="primary-button export-pdf-link" href="${apiBase}/admin/exports/periods/${encodeURIComponent(period.id)}" data-export-pdf>Ekspor PDF</a></div></div><nav class="report-tabs" role="tablist" aria-label="Dimensi laporan">${tabs}</nav><section class="report-overview" aria-live="polite"><div class="section-head"><div><h2>Capaian ${escapeHtml(reportLabel)}</h2><p>Rata-rata nilai akhir per kelompok.</p></div></div>${renderReportBars(reportGroupsForDimension, reportLabel)}</section>${renderReportRankings(reportGroupsForDimension)}${history}`;
 }
 
 async function loadRecap(periodId = '', { showProgress = true } = {}) {
@@ -667,6 +687,8 @@ function canView(view, roles) {
     periods: isAdmin,
     'period-detail': isAdmin,
     activities: isAdmin,
+    calendar: isAdmin,
+    documents: isAdmin,
   }[view] ?? false;
 }
 
@@ -849,6 +871,22 @@ function filterRecapRows() {
 }
 
 document.addEventListener('click', (event) => {
+  const exportLink = event.target.closest('[data-export-pdf]');
+  if (exportLink) {
+    if (exportLink.dataset.exporting === 'true') {
+      event.preventDefault();
+      return;
+    }
+    exportLink.dataset.exporting = 'true';
+    exportLink.dataset.exportLabel = exportLink.textContent.trim();
+    exportLink.textContent = 'Menyiapkan PDF...';
+    exportLink.setAttribute('aria-busy', 'true');
+    window.setTimeout(() => {
+      exportLink.dataset.exporting = 'false';
+      exportLink.textContent = exportLink.dataset.exportLabel;
+      exportLink.removeAttribute('aria-busy');
+    }, 8000);
+  }
   const reportTab = event.target.closest('[data-report-dimension]');
   if (reportTab) {
     selectedReportDimension = reportTab.dataset.reportDimension;
@@ -875,7 +913,7 @@ document.addEventListener('change', (event) => {
 const settingRoutes = { 'Kelola periode': 'periods', 'Kelola aktivitas': 'activities', 'Kelola Santri': 'people' };
 document.querySelectorAll('.settings-grid .text-action').forEach((button) => button.addEventListener('click', () => openView(settingRoutes[button.textContent.trim()])));
 document.querySelectorAll('[data-demo]').forEach((button) => button.addEventListener('click', () => showToast(`${button.dataset.demo} tersedia setelah integrasi backend`)));
-const adminListState = { organization: { page: 1, search: '' }, people: { page: 1, search: '' }, periods: { page: 1, search: '' }, activities: { page: 1, search: '' }, participants: { page: 1, search: '' } };
+const adminListState = { organization: { page: 1, search: '' }, people: { page: 1, search: '' }, periods: { page: 1, search: '' }, activities: { page: 1, search: '' }, calendar: { year: new Date().getFullYear() }, participants: { page: 1, search: '' } };
 let latestAdminRequest = 0;
 let activePeriodParticipants = null;
 
@@ -938,8 +976,9 @@ function renderAdminView(name) {
     return;
   }
   const needsOrganization = ['settings', 'organization', 'people'].includes(name);
-  const needsConfiguration = ['settings', 'periods', 'period-detail', 'activities'].includes(name);
-  if ((needsOrganization && organizationData === null) || (needsConfiguration && configurationData === null)) {
+  const needsConfiguration = ['settings', 'periods', 'period-detail', 'activities', 'calendar'].includes(name);
+  const needsSignatories = ['settings', 'documents'].includes(name);
+  if ((needsOrganization && organizationData === null) || (needsConfiguration && configurationData === null) || (needsSignatories && documentSignatoriesData === null)) {
     panel.innerHTML = adminPanel('Memuat konfigurasi', 'Data administrasi sedang disiapkan.', '<p class="admin-empty" role="status">Memuat data…</p>');
     return;
   }
@@ -956,6 +995,15 @@ function renderAdminView(name) {
   const activityOptions = configuration.activity_options ?? configuration.activities;
   if (name === 'settings') {
     panel.innerHTML = adminPanel('Pengaturan LKS', 'Pilih area yang ingin dikelola. Setiap area memisahkan keputusan administrasi agar lebih mudah ditinjau.', `<nav class="admin-hub-list" aria-label="Area pengaturan LKS"><button class="admin-hub-item" type="button" data-go="organization"><span><strong>Struktur Organisasi</strong><small>${organizationMeta.total} departemen · ${teams.length} tim</small></span><span class="admin-hub-action">Kelola <svg aria-hidden="true"><use href="#icon-chevron"/></svg></span></button><button class="admin-hub-item" type="button" data-go="people"><span><strong>Data Santri Karya</strong><small>${peopleMeta.total} Santri Karya terdaftar</small></span><span class="admin-hub-action">Kelola <svg aria-hidden="true"><use href="#icon-chevron"/></svg></span></button><button class="admin-hub-item" type="button" data-go="activities"><span><strong>Aktivitas LKS</strong><small>${activityMeta.total} aktivitas master</small></span><span class="admin-hub-action">Kelola <svg aria-hidden="true"><use href="#icon-chevron"/></svg></span></button><button class="admin-hub-item" type="button" data-go="periods"><span><strong>Periode LKS</strong><small>${periodMeta.total} periode tersimpan</small></span><span class="admin-hub-action">Kelola <svg aria-hidden="true"><use href="#icon-chevron"/></svg></span></button></nav>`);
+    const calendarHolidayCount = configuration.calendar_holidays?.length ?? 0;
+    panel.querySelector('.admin-hub-list').insertAdjacentHTML('beforeend', `<button class="admin-hub-item" type="button" data-go="calendar"><span><strong>Kalender Kerja</strong><small>${calendarHolidayCount} hari libur pada ${escapeHtml(configuration.calendar_year)}</small></span><span class="admin-hub-action">Kelola <svg aria-hidden="true"><use href="#icon-chevron"/></svg></span></button>`);
+    const configuredSignatories = documentSignatoriesData.filter((signatory) => signatory.signature_configured && signatory.name).length;
+    panel.querySelector('.admin-hub-list').insertAdjacentHTML('beforeend', `<button class="admin-hub-item" type="button" data-go="documents"><span><strong>Dokumen &amp; Tanda Tangan</strong><small>${configuredSignatories} dari 2 TTD digital siap digunakan</small></span><span class="admin-hub-action">Kelola <svg aria-hidden="true"><use href="#icon-chevron"/></svg></span></button>`);
+    return;
+  }
+  if (name === 'documents') {
+    const signatoryRows = documentSignatoriesData.map((signatory) => `<article class="signature-settings-row"><div class="signature-settings-preview">${signatory.signature_configured ? `<img src="${escapeHtml(signatory.signature_url)}" alt="TTD digital ${escapeHtml(signatory.title)}">` : '<span>TTD belum diatur</span>'}</div><div><strong>${escapeHtml(signatory.title)}</strong><small>${escapeHtml(signatory.name || 'Nama pejabat belum diatur')}</small><small>${signatory.signature_configured ? 'TTD digital tersedia' : 'Unggah PNG tanda tangan digital'}</small></div><button class="text-button organization-row-action" type="button" data-open-admin-modal="signatory-edit" data-signatory-id="${escapeHtml(signatory.id)}">Kelola</button></article>`).join('');
+    panel.innerHTML = adminPanel('Dokumen & Tanda Tangan', 'TTD digital dipakai oleh General Manager dan Kabid. Pengembangan Spiritual. Saat periode diaktifkan, konfigurasi aktif disimpan sebagai snapshot periode.', `<nav class="admin-back-link" aria-label="Navigasi pengaturan"><button class="text-button" type="button" data-go="settings">Kembali ke Pengaturan</button></nav><section class="signature-settings-list" aria-label="Tanda tangan digital">${signatoryRows}</section><p class="admin-context-note">Gunakan PNG transparan. TTD disimpan privat dan hanya dapat dipakai untuk membuat PDF oleh sistem.</p>`);
     return;
   }
   if (name === 'organization') {
@@ -1084,6 +1132,7 @@ async function loadAdminView(name, { dataOnly = false } = {}) {
     period_search: adminListState.periods.search,
     activity_page: String(adminListState.activities.page),
     activity_search: adminListState.activities.search,
+    calendar_year: String(adminListState.calendar.year),
   });
   panel.setAttribute('aria-busy', 'true');
   if (!dataOnly) {
@@ -1091,17 +1140,21 @@ async function loadAdminView(name, { dataOnly = false } = {}) {
     showPageProgress('Memuat data administrasi…');
   }
   try {
-    const [organization, configuration] = await Promise.all([
+    const needsSignatories = ['settings', 'documents'].includes(name);
+    const [organization, configuration, signatories] = await Promise.all([
       fetch(`${apiBase}/admin/organization?${query}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' }),
       fetch(`${apiBase}/admin/configuration?${query}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' }),
+      needsSignatories ? fetch(`${apiBase}/admin/document-signatories`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' }) : Promise.resolve(null),
     ]);
-    const [organizationPayload, configurationPayload] = await Promise.all([
+    const [organizationPayload, configurationPayload, signatoriesPayload] = await Promise.all([
       organization.ok ? organization.json() : null,
       configuration.ok ? configuration.json() : null,
+      signatories?.ok ? signatories.json() : null,
     ]);
     if (requestId !== latestAdminRequest) return;
     if (organizationPayload) organizationData = organizationPayload.data;
     if (configurationPayload) configurationData = configurationPayload.data;
+    if (signatoriesPayload) documentSignatoriesData = signatoriesPayload.data;
     if (name === 'period-detail') {
       const period = (configurationPayload?.data?.period_options ?? []).find((item) => item.id === selectedPeriodId);
       if (period?.status === 'active') {
@@ -1115,8 +1168,8 @@ async function loadAdminView(name, { dataOnly = false } = {}) {
     }
     if (requestId !== latestAdminRequest) return;
     const requiresOrganization = ['settings', 'organization', 'people'].includes(name);
-    const requiresConfiguration = ['settings', 'periods', 'period-detail', 'activities'].includes(name);
-    if ((requiresOrganization && !organizationPayload) || (requiresConfiguration && !configurationPayload)) {
+    const requiresConfiguration = ['settings', 'periods', 'period-detail', 'activities', 'calendar'].includes(name);
+    if ((requiresOrganization && !organizationPayload) || (requiresConfiguration && !configurationPayload) || (needsSignatories && !signatoriesPayload)) {
       throw new Error('Data untuk halaman ini belum dapat dimuat. Coba lagi.');
     }
     renderAdminView(name);
@@ -1138,6 +1191,7 @@ async function submitAdminForm(form) {
   let method = 'POST';
   const endpoints = { department: '/admin/departments', team: '/admin/teams', santri: '/admin/santri', period: '/admin/periods', activity: '/admin/activities', holiday: '/admin/calendar-holidays', 'holiday-import': '/admin/calendar-holidays/import' };
   let endpoint = type === 'period-activity' ? `/admin/periods/${payload.period_id}/activities` : type === 'participant' ? `/periods/${payload.period_id}/participants/${payload.profile_id}` : endpoints[type];
+  if (type === 'signatory-edit') endpoint = `/admin/document-signatories/${payload.signatory_id}`;
   if (type === 'department-edit' || type === 'team-edit') {
     const resource = type === 'department-edit' ? 'departments' : 'teams';
     endpoint = `/admin/${resource}/${form.dataset.organizationId}`;
@@ -1177,14 +1231,16 @@ async function submitAdminForm(form) {
     payload = { holidays: entries.map(([holiday_date, name, holidayType = 'tanggal_merah']) => ({ holiday_date, name, type: holidayType === 'cuti_bersama' ? 'collective_leave' : 'public_holiday' })) };
   }
   if (type === 'checklist-correction') {
-    endpoint = '/checklists';
+    const activities = [...form.querySelectorAll('[data-correction-activity]')]
+      .filter((input) => input.checked !== (input.dataset.originalCompleted === 'true'))
+      .map((input) => ({ period_activity_id: input.value, is_completed: input.checked }));
+    if (!activities.length) return setFormError(form, 'Belum ada perubahan checklist untuk disimpan.');
+    endpoint = `/admin/periods/${form.dataset.periodId}/participants/${form.dataset.participantId}/checklists`;
     method = 'PUT';
     payload = {
-      participant_id: payload.participant_id,
-      period_activity_id: payload.period_activity_id,
       checklist_date: payload.checklist_date,
-      is_completed: payload.is_completed === 'true',
       reason: payload.reason,
+      activities,
     };
   }
   if (type === 'period-config') {
@@ -1225,16 +1281,19 @@ async function submitAdminForm(form) {
   setFormError(form);
   setFormBusy(form, true, 'Menyimpan…');
   try {
-    const response = await fetch(`${apiBase}${endpoint}`, { method, credentials: 'same-origin', headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}) }, body: JSON.stringify(payload) });
+    const multipart = type === 'signatory-edit';
+    const response = await fetch(`${apiBase}${endpoint}`, { method, credentials: 'same-origin', headers: { Accept: 'application/json', ...(!multipart ? { 'Content-Type': 'application/json' } : {}), ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}) }, body: multipart ? formData : JSON.stringify(payload) });
     if (!response.ok) throw new Error(await apiError(response));
-    showToast('Data berhasil disimpan');
+    showToast(type === 'checklist-correction' ? 'Koreksi tersimpan dan nilai telah diperbarui' : 'Data berhasil disimpan');
     form.closest('dialog')?.close();
     if (type === 'checklist-correction') {
-      loadDashboard({ date: selectedChecklistDate, reloadRecap: true });
+      correctionParticipantId = null;
+      loadRecap(recapData?.period?.id ?? '', { showProgress: false });
       return;
     }
     organizationData = null;
     configurationData = null;
+    documentSignatoriesData = null;
     activePeriodParticipants = null;
     const returnView = form.closest('dialog')?.dataset.returnView;
     if (returnView) loadAdminView(returnView, { dataOnly: true });
@@ -1245,18 +1304,39 @@ async function submitAdminForm(form) {
   } finally { setFormBusy(form, false); }
 }
 
-function openChecklistCorrection(participantId) {
-  if (!recapData || recapData.period.status !== 'active' || !activePeriodActivities.length) {
-    showToast('Koreksi hanya tersedia pada periode aktif yang memiliki aktivitas.', 'error');
+async function loadChecklistCorrectionContext(date) {
+  if (!recapData || !correctionParticipantId) return;
+  adminFormDialogContent.setAttribute('aria-busy', 'true');
+  try {
+    const response = await fetch(`${apiBase}/admin/periods/${encodeURIComponent(recapData.period.id)}/participants/${encodeURIComponent(correctionParticipantId)}/checklists?date=${encodeURIComponent(date)}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+    if (!response.ok) throw new Error(await apiError(response));
+    const context = (await response.json()).data;
+    const rows = context.activities.map((activity) => `<label class="correction-checklist-row"><span><strong>${escapeHtml(activity.name)}</strong><small>${activity.is_completed ? 'Tercatat selesai' : 'Belum dicatat'}</small></span><input type="checkbox" value="${escapeHtml(activity.id)}" data-correction-activity data-original-completed="${activity.is_completed ? 'true' : 'false'}"${activity.is_completed ? ' checked' : ''}><span class="sr-only">${escapeHtml(activity.name)}</span></label>`).join('');
+    const auditTrail = context.corrections?.length ? `<section class="correction-audit" aria-label="Riwayat koreksi"><h3>Riwayat koreksi tanggal ini</h3>${context.corrections.map((correction) => `<p><strong>${escapeHtml(correction.activity ?? 'Aktivitas')}</strong> · ${escapeHtml(correction.actor)}<small>${correction.before === null ? 'Belum dicatat' : correction.before ? 'Selesai' : 'Tidak selesai'} → ${correction.after ? 'Selesai' : 'Tidak selesai'} · ${escapeHtml(correction.reason ?? '')}</small></p>`).join('')}</section>` : '';
+    adminFormDialogContent.innerHTML = `<form class="admin-modal-form" data-admin-form="checklist-correction" data-period-id="${escapeHtml(recapData.period.id)}" data-participant-id="${escapeHtml(context.participant.id)}"><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">Lihat &amp; koreksi catatan</h2><p>${escapeHtml(context.participant.name)} · ${escapeHtml(context.participant.team ?? 'Tanpa tim')} · ${escapeHtml(context.participant.department ?? 'Tanpa departemen')}</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields"><label>Tanggal pencatatan<input type="date" name="checklist_date" data-correction-date min="${escapeHtml(context.minimum_date)}" max="${escapeHtml(context.maximum_date)}" value="${escapeHtml(context.date)}" required></label><section class="correction-checklist" aria-label="Checklist ${escapeHtml(context.participant.name)}"><p>Ubah hanya aktivitas yang perlu dikoreksi. Nilai dan status akan dihitung ulang setelah disimpan.</p>${rows || '<p class="admin-form-note">Tidak ada aktivitas yang berlaku untuk peserta ini.</p>'}</section>${auditTrail}<label>Alasan koreksi<textarea name="reason" maxlength="1000" required></textarea><small>Alasan tersimpan pada riwayat audit.</small></label></div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit">Simpan koreksi</button></div></form>`;
+    markAdminFormPristine();
+    adminFormDialog.querySelector('[data-correction-date]')?.focus();
+  } catch (error) {
+    adminFormDialogContent.innerHTML = `<div class="admin-modal-form"><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">Koreksi checklist</h2><p>Data catatan belum dapat dimuat.</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><p class="admin-form-error">${escapeHtml(error.message || 'Coba lagi beberapa saat lagi.')}</p></div>`;
+  } finally {
+    adminFormDialogContent.removeAttribute('aria-busy');
+  }
+}
+
+async function openChecklistCorrection(participantId) {
+  if (!recapData || recapData.period.status !== 'active') {
+    showToast('Koreksi hanya tersedia pada periode aktif.', 'error');
     return;
   }
-  const participants = recapData.participants.map((participant) => ({ id: participant.participant_id, name: `${participant.name} — ${participant.team ?? 'Tanpa tim'}` }));
-  const activities = activePeriodActivities.map((activity) => ({ id: activity.id, name: activity.name }));
-  adminFormDialogContent.innerHTML = `<form class="admin-modal-form" data-admin-form="checklist-correction"><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">Koreksi checklist</h2><p>Perubahan oleh Admin harus disertai alasan dan akan tercatat pada audit log.</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields"><label>Santri Karya<select name="participant_id" required>${adminOptions(participants, participantId)}</select></label><label>Aktivitas<select name="period_activity_id" required>${adminOptions(activities)}</select></label><label>Tanggal checklist<input type="date" name="checklist_date" min="${escapeHtml(dateInputValue(recapData.period.start_date))}" max="${escapeHtml([todayIso(), dateInputValue(recapData.period.end_date)].sort()[0])}" value="${escapeHtml(selectedChecklistDate)}" required></label><label>Status<select name="is_completed" required><option value="true">Dicatat selesai</option><option value="false">Tidak selesai</option></select></label><label>Alasan koreksi<textarea name="reason" maxlength="1000" required></textarea></label></div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit">Simpan koreksi</button></div></form>`;
+  correctionParticipantId = participantId;
+  const maximumDate = [todayIso(), dateInputValue(recapData.period.end_date)].sort()[0];
+  const selectedDate = selectedChecklistDate >= dateInputValue(recapData.period.start_date) && selectedChecklistDate <= maximumDate
+    ? selectedChecklistDate
+    : maximumDate;
+  adminFormDialogContent.innerHTML = '<div class="admin-modal-form"><p class="admin-form-note">Memuat catatan peserta…</p></div>';
   adminFormDialog.dataset.returnView = 'recap';
   adminFormDialog.showModal();
-  markAdminFormPristine();
-  adminFormDialog.querySelector('select, input, textarea')?.focus();
+  await loadChecklistCorrectionContext(selectedDate);
 }
 
 function adminFormSnapshot(form) {
@@ -1338,6 +1418,7 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
   const teamLeaderOptions = (organization.team_leader_options ?? []).filter((profile) => profile.team_id === selectedTeam?.id).map((profile) => ({ id: profile.user_id, name: profile.user.name }));
   const selectedJobLevel = selectedProfile?.level === 'leader' ? 'leader' : 'staff';
   const selectedActivity = activityOptions.find((activity) => activity.id === departmentId);
+  const selectedSignatory = (documentSignatoriesData ?? []).find((signatory) => signatory.id === departmentId);
   const activeActivityOptions = activityOptions.filter((activity) => activity.is_active);
   const definitions = {
     department: {
@@ -1363,6 +1444,10 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
     'santri-edit': selectedProfile ? {
       title: `Kelola Santri Karya · ${escapeHtml(selectedProfile.user.name)}`, description: 'Perubahan penempatan berlaku untuk data berikutnya. Riwayat periode yang sudah berjalan tetap menggunakan snapshot sebelumnya. Leader mengikuti Tim yang dipilih.', submitLabel: 'Simpan perubahan',
       fields: `<label>Nama<input name="name" maxlength="150" autocomplete="name" value="${escapeHtml(selectedProfile.user.name)}" required></label><label>Email<input type="email" name="email" autocomplete="email" value="${escapeHtml(selectedProfile.user.email)}" required></label><div class="admin-modal-inline-fields"><label>Gender<select name="gender" required><option value="ikhwan"${selectedProfile.gender === 'ikhwan' ? ' selected' : ''}>Ikhwan</option><option value="akhwat"${selectedProfile.gender === 'akhwat' ? ' selected' : ''}>Akhwat</option></select></label><label>Tim<select name="team_id" required>${adminOptions(teams.filter((team) => team.is_active), selectedProfile.team_id)}</select><small>Leader Tim diatur dari pengaturan Tim.</small></label></div><label>Level jabatan<select name="level" required><option value="staff"${selectedJobLevel === 'staff' ? ' selected' : ''}>Staff</option><option value="leader"${selectedJobLevel === 'leader' ? ' selected' : ''}>Leader</option></select></label><label>Status akun<select name="status" required><option value="active"${selectedProfile.status === 'active' ? ' selected' : ''}>Aktif</option><option value="inactive"${selectedProfile.status === 'inactive' ? ' selected' : ''}>Nonaktif</option></select></label>`,
+    } : null,
+    'signatory-edit': selectedSignatory ? {
+      title: `Kelola TTD digital · ${escapeHtml(selectedSignatory.title)}`, description: 'Nama dan PNG TTD ini dipakai pada PDF baru. Snapshot periode yang sudah aktif atau ditutup tidak berubah.', submitLabel: 'Simpan TTD digital',
+      fields: `<input type="hidden" name="signatory_id" value="${escapeHtml(selectedSignatory.id)}"><label>Nama pejabat<input name="name" maxlength="150" value="${escapeHtml(selectedSignatory.name ?? '')}" required></label><label>Gambar TTD digital<input type="file" name="signature" accept="image/png"><small>${selectedSignatory.signature_configured ? 'PNG saat ini tetap digunakan bila Anda tidak memilih berkas baru.' : 'Unggah PNG transparan, maksimal 2 MB.'}</small></label>`,
     } : null,
     period: {
       title: 'Tambah periode LKS', description: 'Periode dibuat sebagai draft agar aktivitas dapat disiapkan sebelum diaktifkan.', submitLabel: 'Simpan periode draft',
@@ -1440,7 +1525,7 @@ document.addEventListener('click', async (event) => {
   if (trigger) {
     openAdminFormModal(
       trigger.dataset.openAdminModal,
-      trigger.dataset.departmentId ?? trigger.dataset.periodId ?? trigger.dataset.organizationId ?? trigger.dataset.santriId ?? trigger.dataset.activityId,
+      trigger.dataset.departmentId ?? trigger.dataset.periodId ?? trigger.dataset.organizationId ?? trigger.dataset.santriId ?? trigger.dataset.activityId ?? trigger.dataset.signatoryId,
       trigger.closest('[data-view-panel]')?.dataset.viewPanel,
     );
     return;
@@ -1450,6 +1535,9 @@ document.addEventListener('click', async (event) => {
 document.addEventListener('click', (event) => {
   const correction = event.target.closest('[data-open-checklist-correction]');
   if (correction) openChecklistCorrection(correction.dataset.openChecklistCorrection);
+});
+document.addEventListener('change', (event) => {
+  if (event.target.matches('[data-correction-date]')) loadChecklistCorrectionContext(event.target.value);
 });
 document.addEventListener('change', (event) => {
   if (!event.target.matches('[data-calendar-year]')) return;

@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1791431281.830838,
-    "seen": 1791431371.272633,
-    "ast_hash": "f418232392890d1fb8429ddd0dcf3f4a",
+    "mtime": 1791429934.4482548,
+    "seen": 1791429946.8911347,
+    "ast_hash": "67b88f99fe5fca908e26d25d5330163a",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -576,9 +576,9 @@
     "semantic_hash": ""
   },
   "frontend/index.html": {
-    "mtime": 1791432805.9368513,
-    "seen": 1791432850.9150267,
-    "ast_hash": "bb25e435c9b6b9c820834e112d4dd4e1",
+    "mtime": 1791426629.5857663,
+    "seen": 1791427486.5788753,
+    "ast_hash": "df8f66f97e8be3712bf7eb3335d094a5",
     "semantic_hash": ""
   },
   "backend/public/apple-touch-icon.png": {
