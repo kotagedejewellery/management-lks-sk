@@ -212,7 +212,7 @@ body.is-booting .page-progress { inset: 0; }
 .period-activity-summary li { display: grid; gap: 4px; padding: 15px 0; border-bottom: 1px solid var(--line, #d9ddd5); }
 .period-activity-summary li strong { color: var(--ink, #203329); font-size: 13px; }
 .period-activity-summary li span { color: var(--ink-soft, #53645a); font-size: 12px; }
-.activity-record-table .admin-record-head, .activity-record-table .admin-record-row { grid-template-columns: minmax(220px, 1fr) minmax(170px, .7fr) minmax(120px, .4fr) auto; }
+.activity-record-table .admin-record-head, .activity-record-table .admin-record-row { grid-template-columns: minmax(220px, 1fr) minmax(170px, .7fr) minmax(92px, .35fr) minmax(120px, .4fr) auto; }
 .calendar-record-table .admin-record-head, .calendar-record-table .admin-record-row { grid-template-columns: minmax(160px, .7fr) minmax(220px, 1.3fr) minmax(130px, .6fr) auto; }
 .calendar-year-control { display: grid; gap: 6px; min-width: 110px; color: var(--ink-soft, #53645a); font-size: 12px; font-weight: 700; }
 .calendar-year-control input { min-height: 40px; width: 100%; border: 1px solid var(--line-dark, #c5d0c8); border-radius: 8px; background: var(--surface, #fffefa); color: var(--ink, #203329); padding: 7px 9px; }
@@ -393,7 +393,7 @@ body.is-booting .page-progress { inset: 0; }
 
 @media (max-width: 760px) { .organization-hierarchy-row > :nth-child(2), .organization-hierarchy-row > :nth-child(3), .organization-hierarchy-row > :nth-child(4), .organization-hierarchy-row > :nth-child(5) { grid-column: 1; } .organization-hierarchy-row > :nth-child(6) { grid-column: 1 / -1; } }
 
-@media (max-width: 760px) { .activity-record-row > :nth-child(2), .activity-record-row > :nth-child(3) { grid-column: 1; grid-row: auto; text-align: left; } .activity-record-row > :nth-child(4) { grid-column: 2; grid-row: 1 / span 3; text-align: right; } }
+@media (max-width: 760px) { .activity-record-row > :nth-child(2), .activity-record-row > :nth-child(3), .activity-record-row > :nth-child(4) { grid-column: 1; grid-row: auto; text-align: left; } .activity-record-row > :nth-child(5) { grid-column: 2; grid-row: 1 / span 4; text-align: right; } }
 
 @media (min-width: 641px) and (max-width: 900px) {
   .page-progress { left: 76px; }

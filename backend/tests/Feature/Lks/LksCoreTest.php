@@ -398,6 +398,36 @@ class LksCoreTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_delete_activity_used_only_by_draft_period(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $periodActivity = $this->periodActivity($this->period($admin), 4);
+        $this->withoutMiddleware();
+        $activity = LksActivity::query()->findOrFail($periodActivity->activity_id);
+
+        $this->actingAs($admin)
+            ->deleteJson(route('api.lks.admin.activities.destroy', $activity))
+            ->assertNoContent();
+
+        $this->assertDatabaseMissing('lks_activities', ['id' => $periodActivity->activity_id]);
+        $this->assertDatabaseMissing('period_activities', ['id' => $periodActivity->id]);
+    }
+
+    public function test_admin_cannot_delete_activity_used_by_active_period(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $periodActivity = $this->periodActivity($this->period($admin, ['status' => 'active']), 4);
+        $this->withoutMiddleware();
+        $activity = LksActivity::query()->findOrFail($periodActivity->activity_id);
+
+        $this->actingAs($admin)
+            ->deleteJson(route('api.lks.admin.activities.destroy', $activity))
+            ->assertUnprocessable();
+
+        $this->assertDatabaseHas('lks_activities', ['id' => $periodActivity->activity_id]);
+        $this->assertDatabaseHas('period_activities', ['id' => $periodActivity->id]);
+    }
+
     private function userWithRole(string $role, array $attributes = []): User
     {
         $user = User::factory()->create($attributes);

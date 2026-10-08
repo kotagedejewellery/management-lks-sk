@@ -332,13 +332,20 @@ class PeriodConfigurationController extends Controller
     public function destroyActivity(Request $request, LksActivity $activity): Response
     {
         $this->ensureAdmin($request);
-        if ($activity->periodActivities()->exists()) {
-            throw ValidationException::withMessages(['activity' => 'Aktivitas yang sudah dipakai dalam periode tidak dapat dihapus. Nonaktifkan aktivitas ini sebagai gantinya.']);
+        if ($activity->periodActivities()->whereHas('period', fn ($query) => $query->where('status', '!=', 'draft'))->exists()) {
+            throw ValidationException::withMessages(['activity' => 'Aktivitas yang dipakai pada periode aktif atau riwayat tidak dapat dihapus. Nonaktifkan aktivitas ini sebagai gantinya.']);
         }
 
+        $draftPeriodActivities = $activity->periodActivities()->whereHas('period', fn ($query) => $query->where('status', 'draft'));
+        if ((clone $draftPeriodActivities)->whereHas('checklists')->exists()) {
+            throw ValidationException::withMessages(['activity' => 'Aktivitas yang sudah memiliki checklist tidak dapat dihapus.']);
+        }
+        $draftPeriodIds = $draftPeriodActivities->pluck('period_id')->all();
+
         $before = $activity->only(['id', 'code', 'name']);
-        DB::transaction(function () use ($request, $activity, $before): void {
-            AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => 'activity.deleted', 'auditable_type' => $activity->getMorphClass(), 'auditable_id' => $activity->getKey(), 'before_data' => $before]);
+        DB::transaction(function () use ($request, $activity, $before, $draftPeriodIds): void {
+            $activity->periodActivities()->whereIn('period_id', $draftPeriodIds)->delete();
+            AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => 'activity.deleted', 'auditable_type' => $activity->getMorphClass(), 'auditable_id' => $activity->getKey(), 'before_data' => $before, 'after_data' => ['removed_from_draft_period_ids' => $draftPeriodIds]]);
             $activity->delete();
         });
 
