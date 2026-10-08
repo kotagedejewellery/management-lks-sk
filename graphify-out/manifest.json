@@ -498,9 +498,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/DashboardTest.php": {
-    "mtime": 1790584106.0801158,
-    "seen": 1790584154.2909143,
-    "ast_hash": "eaf5f0e07fae2a05575235b0d61649d2",
+    "mtime": 1791451011.0219839,
+    "seen": 1791451081.7335021,
+    "ast_hash": "675c5119f8ad7b9c0c2ddd8120b23e0e",
     "semantic_hash": ""
   },
   "backend/tests/Feature/ExampleTest.php": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1791447439.246065,
-    "seen": 1791447520.9771638,
-    "ast_hash": "73144700b20acece4ea988a68d4894bc",
+    "mtime": 1791449169.0114489,
+    "seen": 1791449249.1404662,
+    "ast_hash": "1bea1bd7708347c05169d2b9442baa57",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -594,9 +594,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/PrototypeDashboardController.php": {
-    "mtime": 1790666178.817691,
-    "seen": 1790666360.215623,
-    "ast_hash": "7fa735686a9eb337bff9b420b30b276b",
+    "mtime": 1791450992.5836313,
+    "seen": 1791451081.7328393,
+    "ast_hash": "da4cdc07067b9d61dcb02f11b61f2b85",
     "semantic_hash": ""
   },
   "backend/resources/views/pages/settings/two-factor/\u26a1recovery-codes.blade.php": {
@@ -822,15 +822,15 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/RecapController.php": {
-    "mtime": 1791365403.4185004,
-    "seen": 1791365637.9948964,
-    "ast_hash": "b652e2e4be25c1ac5568ba1a796ef4d7",
+    "mtime": 1791449169.0096414,
+    "seen": 1791449249.1399462,
+    "ast_hash": "baa7f5fd779a46c60d4e5192d9fccb43",
     "semantic_hash": ""
   },
   "backend/app/Services/LksScoreCalculator.php": {
-    "mtime": 1791446933.1413994,
-    "seen": 1791447089.5045886,
-    "ast_hash": "871118c9cec893ce9c44e4053d985d98",
+    "mtime": 1791449169.0081315,
+    "seen": 1791449249.140053,
+    "ast_hash": "e7439c049b0d42bed97632aa447199a5",
     "semantic_hash": ""
   },
   ".impeccable/critique/2026-09-29T06-52-35Z__frontend-index-html.md": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1791447439.2405338,
-    "seen": 1791447520.9771404,
-    "ast_hash": "42043134a0fefd212cf764bd5e905b43",
+    "mtime": 1791449169.0124483,
+    "seen": 1791449249.1404312,
+    "ast_hash": "2c2941906e0e8a0ed01110b331c02144",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {

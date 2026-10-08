@@ -370,6 +370,36 @@ class LksCoreTest extends TestCase
             ->assertJsonPath('data.0.id', $teamPeriod->id);
     }
 
+    public function test_recap_uses_the_latest_closed_period_when_no_active_period_exists(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $older = $this->period($admin, ['status' => 'closed', 'end_date' => now()->subMonth()->toDateString()]);
+        $latest = $this->period($admin, ['status' => 'closed', 'end_date' => now()->subDay()->toDateString()]);
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.recap'))
+            ->assertOk()
+            ->assertJsonPath('data.period.id', $latest->id);
+
+        $this->assertNotSame($older->id, $latest->id);
+    }
+
+    public function test_admin_recap_trends_include_stable_leader_and_gender_groups(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $leader = $this->userWithRole('leader');
+        $member = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'closed']);
+        $participant = $this->participant($period, $member, $leader);
+        $participant->update(['gender_snapshot' => 'akhwat']);
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.department-trends'))
+            ->assertOk()
+            ->assertJsonPath('data.0.groups.leader.0.id', $leader->id)
+            ->assertJsonPath('data.0.groups.gender.0.id', 'akhwat');
+    }
+
     public function test_pdf_exports_follow_the_viewers_access_scope(): void
     {
         $admin = $this->userWithRole('admin');

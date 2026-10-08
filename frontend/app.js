@@ -26,6 +26,8 @@ let historyScope = 'personal';
 let recapPeriods = [];
 let departmentTrendData = [];
 let selectedReportDimension = 'department';
+let selectedTrendGroupId = '';
+let recapDepartmentFilter = '';
 let selectedChecklistDate = todayIso();
 let activePeriodActivities = [];
 let activePeriod = null;
@@ -484,8 +486,17 @@ function renderRoleDashboard() {
 
   if (role === 'admin') {
     const departments = [...(summary.departments ?? [])].sort((left, right) => Number(right.average_percentage) - Number(left.average_percentage));
-    const departmentRows = departments.map((department) => `<div class="dashboard-department-bar"><span><strong>${escapeHtml(department.department)}</strong><small>${escapeHtml(department.tuntas_count)} dari ${escapeHtml(department.participant_count)} tuntas</small></span><div class="bar-rail" role="progressbar" aria-label="Capaian ${escapeHtml(department.department)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(Math.max(Number(department.average_percentage) || 0, 0), 100)}"><i style="width:${Math.min(Math.max(Number(department.average_percentage) || 0, 0), 100)}%"></i></div><strong>${percentage(department.average_percentage)}</strong></div>`).join('');
-    dashboard.innerHTML = `${dashboardNotice('Capaian LKS organisasi', `${period.name} · tinjau kondisi periode sebelum mengubah konfigurasi.`, '<button class="primary-button" type="button" data-go="department">Buka laporan</button>')}<section class="admin-metrics"><article><p>Peserta aktif</p><strong>${summary.participant_count}</strong><span>Peserta periode ini</span></article><article><p>Rata-rata capaian</p><strong>${percentage(summary.average_percentage)}</strong><span>Perhitungan periode aktif</span></article><article><p>Sudah tuntas</p><strong>${summary.tuntas_count}</strong><span>Peserta mencapai ambang</span></article><article><p>Belum tuntas</p><strong>${Math.max(summary.participant_count - summary.tuntas_count, 0)}</strong><span>Perlu tindak lanjut</span></article></section><section class="department-snapshot"><div class="section-head"><div><h2>Capaian seluruh departemen</h2></div><button class="text-button" type="button" data-go="department">Lihat laporan</button></div><div class="department-bars" role="list">${departmentRows || '<p class="muted">Belum ada data departemen pada periode ini.</p>'}</div></section>`;
+    const departmentRows = departments.map((department) => `<button class="dashboard-department-bar dashboard-department-action" type="button" data-recap-department="${escapeHtml(department.department)}"><span><strong>${escapeHtml(department.department)}</strong><small>${escapeHtml(department.tuntas_count)} dari ${escapeHtml(department.participant_count)} tuntas · Buka rekap</small></span><span class="bar-rail" role="progressbar" aria-label="Capaian ${escapeHtml(department.department)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(Math.max(Number(department.average_percentage) || 0, 0), 100)}"><i style="width:${Math.min(Math.max(Number(department.average_percentage) || 0, 0), 100)}%"></i></span><strong>${percentage(department.average_percentage)}</strong></button>`).join('');
+    const startedCount = Number(summary.recording_started_count) || 0;
+    const lowestActivity = summary.activity_averages?.[0];
+    const isCurrentPeriod = period.status === 'active';
+    const periodMessage = isCurrentPeriod
+      ? `${period.name} · tinjau kondisi periode sebelum mengubah konfigurasi.`
+      : `${period.name} sudah ditutup · menampilkan laporan periode terakhir yang tersedia.`;
+    const healthNote = summary.participant_count
+      ? `${startedCount}/${summary.participant_count} peserta sudah mulai mencatat${lowestActivity ? ` · Aktivitas dengan rata-rata terendah: ${lowestActivity.name} (${percentage(lowestActivity.average_percentage)})` : ''}.`
+      : 'Belum ada peserta dalam periode ini.';
+    dashboard.innerHTML = `${dashboardNotice(isCurrentPeriod ? 'Capaian LKS organisasi' : 'Laporan organisasi terakhir', periodMessage, '<button class="primary-button" type="button" data-go="department">Buka laporan</button>')}<section class="admin-metrics"><article><p>Peserta aktif</p><strong>${summary.participant_count}</strong><span>Peserta periode ini</span></article><article><p>Rata-rata capaian</p><strong>${percentage(summary.average_percentage)}</strong><span>Perhitungan periode</span></article><article><p>Sudah tuntas</p><strong>${summary.tuntas_count}</strong><span>Peserta mencapai ambang</span></article><article><p>Belum tuntas</p><strong>${Math.max(summary.participant_count - summary.tuntas_count, 0)}</strong><span>Perlu tindak lanjut</span></article></section><p class="admin-dashboard-health">${escapeHtml(healthNote)}</p><section class="department-snapshot"><div class="section-head"><div><h2>Capaian seluruh departemen</h2><p class="supporting-copy">Pilih departemen untuk melihat anggota dan melakukan tindak lanjut.</p></div><button class="text-button" type="button" data-go="department">Lihat laporan</button></div><div class="department-bars" role="list">${departmentRows || '<p class="muted">Belum ada data departemen pada periode ini.</p>'}</div></section>`;
   }
 }
 
@@ -579,16 +590,21 @@ function reportGroups(participants, dimension) {
   const labels = { ikhwan: 'Ikhwan', akhwat: 'Akhwat' };
   const groups = new Map();
   participants.forEach((participant) => {
+    const id = dimension === 'department'
+      ? participant.department_id ?? 'unassigned'
+      : dimension === 'leader'
+        ? participant.leader_user_id ?? 'unassigned'
+        : participant.gender ?? 'unknown';
     const label = dimension === 'department'
       ? participant.department ?? 'Tanpa departemen'
       : dimension === 'leader'
         ? participant.leader ?? 'Belum ditetapkan'
         : labels[participant.gender] ?? 'Tidak dicatat';
-    const group = groups.get(label) ?? { name: label, participantCount: 0, totalPercentage: 0, tuntasCount: 0 };
+    const group = groups.get(id) ?? { id, name: label, participantCount: 0, totalPercentage: 0, tuntasCount: 0 };
     group.participantCount += 1;
     group.totalPercentage += Number(participant.final_percentage) || 0;
     group.tuntasCount += participant.final_status === 'tuntas' ? 1 : 0;
-    groups.set(label, group);
+    groups.set(id, group);
   });
 
   return [...groups.values()]
@@ -596,21 +612,41 @@ function reportGroups(participants, dimension) {
     .sort((left, right) => right.averagePercentage - left.averagePercentage || left.name.localeCompare(right.name, 'id'));
 }
 
-function renderReportBars(groups, label) {
+function renderReportBars(groups, label, dimension) {
   if (!groups.length) return '<p class="empty-search">Belum ada peserta pada periode ini.</p>';
-  return `<div class="report-bar-list" role="list" aria-label="Capaian berdasarkan ${escapeHtml(label)}">${groups.map((group) => {
+  return `<div class="report-bar-list" aria-label="Capaian berdasarkan ${escapeHtml(label)}">${groups.map((group) => {
     const value = Math.min(Math.max(group.averagePercentage, 0), 100);
-    return `<article class="report-bar-row" role="listitem"><div><strong>${escapeHtml(group.name)}</strong><small>${group.tuntasCount} dari ${group.participantCount} tuntas</small></div><div class="report-bar-meter" role="progressbar" aria-label="Rata-rata capaian ${escapeHtml(group.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${value}"><i style="width:${value}%"></i></div><strong>${percentage(value)}</strong></article>`;
+    const row = `<span><strong>${escapeHtml(group.name)}</strong><small>${group.tuntasCount} dari ${group.participantCount} tuntas${dimension === 'department' ? ' · Buka rekap' : ''}</small></span><span class="report-bar-meter" role="progressbar" aria-label="Rata-rata capaian ${escapeHtml(group.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${value}"><i style="width:${value}%"></i></span><strong>${percentage(value)}</strong>`;
+    return dimension === 'department'
+      ? `<button class="report-bar-row report-bar-action" type="button" data-recap-department="${escapeHtml(group.name)}" aria-label="Buka rekap ${escapeHtml(group.name)}">${row}</button>`
+      : `<article class="report-bar-row" role="listitem">${row}</article>`;
   }).join('')}</div>`;
 }
 
 function renderReportRankings(groups) {
-  const count = Math.floor(groups.length / 2);
-  if (!count) return '';
+  if (!groups.length) return '';
   const list = (items) => `<ol>${items.map((group) => `<li><span>${escapeHtml(group.name)}</span><strong>${percentage(group.averagePercentage)}</strong><small>${group.tuntasCount}/${group.participantCount} tuntas</small></li>`).join('')}</ol>`;
-  const rankCount = Math.min(3, count);
-  const rankLabel = rankCount === 1 ? 'Capaian' : `${rankCount} capaian`;
-  return `<section class="report-rankings" aria-label="Peringkat capaian"><div><h3>${rankLabel} tertinggi</h3>${list(groups.slice(0, rankCount))}</div><div><h3>${rankLabel} terendah</h3>${list(groups.slice(-rankCount).reverse())}</div></section>`;
+  if (groups.length <= 5) return `<section class="report-rankings report-rankings-single" aria-label="Urutan capaian"><div><h3>Urutan capaian</h3>${list(groups)}</div></section>`;
+  const rankCount = Math.min(3, groups.length);
+  return `<section class="report-rankings" aria-label="Peringkat capaian"><div><h3>${rankCount} capaian tertinggi</h3>${list(groups.slice(0, rankCount))}</div><div><h3>${rankCount} capaian terendah</h3>${list(groups.slice(-rankCount).reverse())}</div></section>`;
+}
+
+function renderReportTrend(dimension) {
+  const periods = departmentTrendData.slice(-6);
+  if (periods.length < 2) return '<p class="report-trend-empty">Tren tersedia setelah minimal dua periode memiliki data.</p>';
+  const groups = new Map();
+  periods.forEach((item) => (item.groups?.[dimension] ?? []).forEach((group) => {
+    if (!groups.has(group.id)) groups.set(group.id, { id: group.id, name: group.name });
+  }));
+  const options = [...groups.values()];
+  if (!options.length) return '<p class="report-trend-empty">Belum ada kelompok untuk ditampilkan pada tren ini.</p>';
+  if (!options.some((group) => group.id === selectedTrendGroupId)) selectedTrendGroupId = options[0].id;
+  const selected = options.find((group) => group.id === selectedTrendGroupId);
+  const points = periods.map((item) => {
+    const group = (item.groups?.[dimension] ?? []).find((candidate) => candidate.id === selected.id);
+    return { label: item.period.name, value: group ? Number(group.average_percentage) || 0 : null };
+  });
+  return `<section class="report-trend" aria-labelledby="report-trend-title"><div class="section-head"><div><h2 id="report-trend-title">Tren bulanan</h2><p>Perubahan capaian enam periode terakhir. Tanda — berarti kelompok belum memiliki peserta pada periode tersebut.</p></div><label class="report-period-control">Kelompok<select data-trend-group>${options.map((group) => `<option value="${escapeHtml(group.id)}"${group.id === selected.id ? ' selected' : ''}>${escapeHtml(group.name)}</option>`).join('')}</select></label></div><div class="report-trend-bars" role="list" aria-label="Tren ${escapeHtml(selected.name)}">${points.map((point) => `<div class="report-trend-point" role="listitem"><strong>${point.value === null ? '—' : percentage(point.value)}</strong><span class="report-trend-meter">${point.value === null ? '' : `<i style="height:${Math.max(point.value, 2)}%"></i>`}</span><small>${escapeHtml(point.label)}</small></div>`).join('')}</div></section>`;
 }
 
 function renderRecapViews() {
@@ -624,11 +660,15 @@ function renderRecapViews() {
   const recapRows = participants.map((participant, index) => {
     const actions = canExportIndividual ? `<span class="organization-row-actions recap-row-actions"><a class="text-button organization-row-action" href="${apiBase}/admin/exports/periods/${encodeURIComponent(period.id)}/participants/${encodeURIComponent(participant.participant_id)}" data-export-pdf>PDF</a>${canCorrect ? `<button class="text-button organization-row-action" type="button" data-open-checklist-correction="${escapeHtml(participant.participant_id)}">Lihat &amp; koreksi</button>` : ''}</span>` : '<span aria-hidden="true"></span>';
     const recommendation = participant.recommendation ? `<details class="recap-recommendation"><summary>Lihat arahan</summary><p>${escapeHtml(participant.recommendation)}</p></details>` : '';
-    return `<div class="table-row" data-member="${escapeHtml(`${participant.name} ${participant.department ?? ''}`)}" data-status="${escapeHtml(participant.final_status)}" data-gender="${escapeHtml(participant.gender)}"><div class="member-cell"><span class="person-initials tone-${['one', 'two', 'three', 'four'][index % 4]}">${escapeHtml(initials(participant.name))}</span><div><strong>${escapeHtml(participant.name)}</strong><small>${escapeHtml(participant.team ?? 'Tanpa tim')} · Leader: ${escapeHtml(participant.leader ?? 'Belum ditetapkan')}</small></div></div><span>${escapeHtml(participant.department ?? 'Tanpa departemen')}</span><strong>${percentage(participant.final_percentage)}</strong><span class="recap-status">${statusBadge(participant.final_status)}<small>Ambang ${percentage(participant.passing_threshold)}</small>${recommendation}</span>${actions}</div>`;
+    const department = participant.department ?? 'Tanpa departemen';
+    return `<div class="table-row" data-member="${escapeHtml(`${participant.name} ${department}`)}" data-status="${escapeHtml(participant.final_status)}" data-gender="${escapeHtml(participant.gender)}" data-department="${escapeHtml(department)}"><div class="member-cell"><span class="person-initials tone-${['one', 'two', 'three', 'four'][index % 4]}">${escapeHtml(initials(participant.name))}</span><div><strong>${escapeHtml(participant.name)}</strong><small>${escapeHtml(participant.team ?? 'Tanpa tim')} · Leader: ${escapeHtml(participant.leader ?? 'Belum ditetapkan')}</small></div></div><span>${escapeHtml(department)}</span><strong>${percentage(participant.final_percentage)}</strong><span class="recap-status">${statusBadge(participant.final_status)}<small>Ambang ${percentage(participant.passing_threshold)}</small>${recommendation}</span>${actions}</div>`;
   }).join('');
   const periodOptions = recapPeriods.map((item) => `<option value="${escapeHtml(item.id)}"${item.id === period.id ? ' selected' : ''}>${escapeHtml(item.name)}${item.status === 'closed' ? ' · Ditutup' : ' · Aktif'}</option>`).join('');
+  const departments = [...new Set(participants.map((participant) => participant.department ?? 'Tanpa departemen'))].sort((left, right) => left.localeCompare(right, 'id'));
+  if (!departments.includes(recapDepartmentFilter)) recapDepartmentFilter = '';
+  const departmentFilter = canExportIndividual ? `<label class="report-period-control recap-department-filter">Departemen<select data-recap-department-select><option value="">Semua departemen</option>${departments.map((department) => `<option value="${escapeHtml(department)}"${department === recapDepartmentFilter ? ' selected' : ''}>${escapeHtml(department)}</option>`).join('')}</select></label>` : '';
 
-  recapPanel.innerHTML = `<div class="page-intro recap-intro"><div><h2>Perkembangan anggota</h2><p>${escapeHtml(period.name)} · ${summary.participant_count} peserta dalam cakupan akses Anda.</p></div><label class="report-period-control">Periode<select data-recap-period>${periodOptions}</select></label></div><div class="filter-bar"><label class="search-field"><svg aria-hidden="true"><use href="#icon-search"/></svg><span class="sr-only">Cari anggota</span><input id="member-search" type="search" aria-label="Cari anggota" placeholder="Cari nama anggota" /></label><button class="filter-pill is-on" type="button" data-recap-filter="all">Semua status</button><button class="filter-pill" type="button" data-recap-filter="belum_tuntas">Belum tuntas</button><button class="filter-pill" type="button" data-recap-filter="tuntas">Tuntas</button><button class="filter-pill is-on" type="button" data-recap-gender="all">Semua gender</button><button class="filter-pill" type="button" data-recap-gender="ikhwan">Ikhwan</button><button class="filter-pill" type="button" data-recap-gender="akhwat">Akhwat</button></div><section class="recap-table" aria-label="Rekap anggota"><div class="table-head"><span>Santri Karya</span><span>Departemen</span><span>Nilai</span><span>Status</span><span>${canExportIndividual ? 'Aksi' : ''}</span></div><div id="recap-rows">${recapRows || '<p class="empty-search">Belum ada peserta pada periode ini.</p>'}</div></section><p class="empty-search" id="empty-search" hidden>Tidak ada anggota yang sesuai dengan pencarian atau filter tersebut.</p>`;
+  recapPanel.innerHTML = `<div class="page-intro recap-intro"><div><h2>Perkembangan anggota</h2><p>${escapeHtml(period.name)} · ${summary.participant_count} peserta dalam cakupan akses Anda.</p></div><div class="recap-page-actions"><label class="report-period-control">Periode<select data-recap-period>${periodOptions}</select></label>${departmentFilter}</div></div><div class="filter-bar"><label class="search-field"><svg aria-hidden="true"><use href="#icon-search"/></svg><span class="sr-only">Cari anggota</span><input id="member-search" type="search" aria-label="Cari anggota" placeholder="Cari nama anggota" /></label><button class="filter-pill is-on" type="button" data-recap-filter="all">Semua status</button><button class="filter-pill" type="button" data-recap-filter="belum_tuntas">Belum tuntas</button><button class="filter-pill" type="button" data-recap-filter="tuntas">Tuntas</button><button class="filter-pill is-on" type="button" data-recap-gender="all">Semua gender</button><button class="filter-pill" type="button" data-recap-gender="ikhwan">Ikhwan</button><button class="filter-pill" type="button" data-recap-gender="akhwat">Akhwat</button></div><section class="recap-table" aria-label="Rekap anggota"><div class="table-head"><span>Santri Karya</span><span>Departemen</span><span>Nilai</span><span>Status</span><span>${canExportIndividual ? 'Aksi' : ''}</span></div><div id="recap-rows">${recapRows || '<p class="empty-search">Belum ada peserta pada periode ini.</p>'}</div></section><p class="empty-search" id="empty-search" hidden>Tidak ada anggota yang sesuai dengan pencarian atau filter tersebut.</p>`;
 
   participants.forEach((participant, index) => {
     if (Number(participant.final_percentage) !== 0) return;
@@ -651,12 +691,8 @@ function renderRecapViews() {
 
   const reportGroupsForDimension = reportGroups(participants, selectedReportDimension);
   const reportLabel = reportDimensionLabel(selectedReportDimension);
-  const trendPeriods = departmentTrendData.slice(-3);
-  const departmentNames = [...new Set(departmentTrendData.flatMap((item) => item.departments.map((department) => department.department)))];
-  const trendRows = departmentNames.map((name) => `<div class="department-history-row"><strong>${escapeHtml(name)}</strong>${trendPeriods.map((item) => `<span><small>${escapeHtml(item.period.name)}</small>${percentage(item.departments.find((department) => department.department === name)?.average_percentage ?? 0)}</span>`).join('')}</div>`).join('');
   const tabs = ['department', 'leader', 'gender'].map((dimension) => `<button class="report-tab${selectedReportDimension === dimension ? ' is-active' : ''}" type="button" role="tab" aria-selected="${selectedReportDimension === dimension}" data-report-dimension="${dimension}">${reportDimensionLabel(dimension)}</button>`).join('');
-  const history = selectedReportDimension === 'department' && trendRows ? `<section class="department-history"><div class="section-head"><div><h2>Perbandingan riwayat departemen</h2><p>Tiga periode terakhir yang tersedia.</p></div></div>${trendRows}</section>` : '';
-  departmentPanel.innerHTML = `<div class="page-intro"><div><h2>Laporan periode</h2><p>${escapeHtml(period.name)} · Bandingkan capaian dari data snapshot periode yang dipilih.</p></div><div class="report-page-actions"><label class="report-period-control">Periode<select data-recap-period>${periodOptions}</select></label><a class="primary-button export-pdf-link" href="${apiBase}/admin/exports/periods/${encodeURIComponent(period.id)}" data-export-pdf>Ekspor PDF</a></div></div><nav class="report-tabs" role="tablist" aria-label="Dimensi laporan">${tabs}</nav><section class="report-overview" aria-live="polite"><div class="section-head"><div><h2>Capaian ${escapeHtml(reportLabel)}</h2><p>Rata-rata nilai akhir per kelompok.</p></div></div>${renderReportBars(reportGroupsForDimension, reportLabel)}</section>${renderReportRankings(reportGroupsForDimension)}${history}`;
+  departmentPanel.innerHTML = `<div class="page-intro"><div><h2>Laporan periode</h2><p>${escapeHtml(period.name)} · Bandingkan capaian dari data snapshot periode yang dipilih.</p></div><div class="report-page-actions"><label class="report-period-control">Periode<select data-recap-period>${periodOptions}</select></label><a class="primary-button export-pdf-link" href="${apiBase}/admin/exports/periods/${encodeURIComponent(period.id)}" data-export-pdf>Ekspor PDF</a></div></div><nav class="report-tabs" role="tablist" aria-label="Dimensi laporan">${tabs}</nav><section class="report-overview" aria-live="polite"><div class="section-head"><div><h2>Capaian ${escapeHtml(reportLabel)}</h2><p>Rata-rata nilai akhir per kelompok.</p></div></div>${renderReportBars(reportGroupsForDimension, reportLabel, selectedReportDimension)}</section>${renderReportRankings(reportGroupsForDimension)}${renderReportTrend(selectedReportDimension)}`;
 }
 
 async function loadRecap(periodId = '', { showProgress = true } = {}) {
@@ -945,11 +981,13 @@ function filterRecapRows() {
   if (!search || !selected || !selectedGender) return;
   const term = search.value.toLowerCase().trim();
   const status = selected.dataset.recapFilter;
+  const department = document.querySelector('[data-recap-department-select]')?.value ?? '';
   let visible = 0;
   document.querySelectorAll('#recap-rows .table-row').forEach((row) => {
     const matches = row.dataset.member.toLowerCase().includes(term)
       && (status === 'all' || row.dataset.status === status)
-      && (selectedGender.dataset.recapGender === 'all' || row.dataset.gender === selectedGender.dataset.recapGender);
+      && (selectedGender.dataset.recapGender === 'all' || row.dataset.gender === selectedGender.dataset.recapGender)
+      && (!department || row.dataset.department === department);
     row.hidden = !matches;
     if (matches) visible += 1;
   });
@@ -977,7 +1015,14 @@ document.addEventListener('click', (event) => {
   const reportTab = event.target.closest('[data-report-dimension]');
   if (reportTab) {
     selectedReportDimension = reportTab.dataset.reportDimension;
+    selectedTrendGroupId = '';
     renderRecapViews();
+    return;
+  }
+  const departmentAction = event.target.closest('[data-recap-department]');
+  if (departmentAction) {
+    recapDepartmentFilter = departmentAction.dataset.recapDepartment;
+    openView('recap');
     return;
   }
   const pill = event.target.closest('[data-recap-filter]');
@@ -995,6 +1040,11 @@ document.addEventListener('click', (event) => {
 
 document.addEventListener('change', (event) => {
   if (event.target.matches('[data-recap-period]')) loadRecap(event.target.value, { showProgress: false });
+  if (event.target.matches('[data-recap-department-select]')) filterRecapRows();
+  if (event.target.matches('[data-trend-group]')) {
+    selectedTrendGroupId = event.target.value;
+    renderRecapViews();
+  }
 });
 
 const settingRoutes = { 'Kelola periode': 'periods', 'Kelola aktivitas': 'activities', 'Kelola Santri': 'people' };

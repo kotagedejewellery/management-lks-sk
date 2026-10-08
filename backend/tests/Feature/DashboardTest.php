@@ -24,10 +24,14 @@ class DashboardTest extends TestCase
         $response = $this->get(route('dashboard'));
         $response->assertOk()
             ->assertSee('LKS Santri Karya')
-            ->assertSee('/lks-prototype/styles.css');
+            ->assertSee('/lks-prototype/styles.css')
+            ->assertSee('app.js?v=')
+            ->assertSee('overrides.css?v=')
+            ->assertHeader('Cache-Control', 'private, no-store');
 
         $this->get('/lks-prototype/app.js')
             ->assertOk()
-            ->assertHeader('Content-Type', 'application/javascript; charset=UTF-8');
+            ->assertHeader('Content-Type', 'application/javascript; charset=UTF-8')
+            ->assertHeader('Cache-Control', 'public, max-age=31536000, immutable');
     }
 }

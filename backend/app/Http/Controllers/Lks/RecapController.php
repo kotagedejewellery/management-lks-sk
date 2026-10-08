@@ -7,6 +7,7 @@ use App\Models\LksPeriod;
 use App\Services\LksScoreCalculator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class RecapController extends Controller
 {
@@ -19,12 +20,17 @@ class RecapController extends Controller
         if ($personalScope || (! $viewer->isAdmin() && ! $viewer->hasRole('leader'))) {
             $periods->whereHas('participants', fn ($participants) => $participants->where('user_id', $viewer->getKey()));
         } elseif (! $viewer->isAdmin() && $viewer->hasRole('leader')) {
-            $periods->whereHas('participants', fn ($participants) => $participants->where('leader_user_id_snapshot', $viewer->getKey()));
+            $periods->whereHas('participants', fn ($participants) => $participants
+                ->where('leader_user_id_snapshot', $viewer->getKey())
+                ->where('user_id', '!=', $viewer->getKey()));
         }
 
         $period = isset($request->period_id)
             ? $periods->findOrFail($request->period_id)
-            : $periods->where('status', 'active')->firstOrFail();
+            : $periods
+                ->orderByRaw("case when status = 'active' then 0 else 1 end")
+                ->orderByDesc('end_date')
+                ->firstOrFail();
 
         if ($viewer->isAdmin()) {
             $scores = $calculator->calculatePeriod($period);
@@ -52,6 +58,8 @@ class RecapController extends Controller
                 'tuntas_count' => $scores->where('final_status', 'tuntas')->count(),
                 'belum_tuntas_count' => $scores->where('final_status', 'belum_tuntas')->count(),
                 'departments' => $viewer->isAdmin() ? $calculator->departmentSummary($scores) : [],
+                'recording_started_count' => $scores->filter(fn (array $score): bool => collect($score['activities'])->sum('completed_count') > 0)->count(),
+                'activity_averages' => $viewer->isAdmin() ? $this->activityAverages($scores)->values() : [],
             ],
         ]]);
     }
@@ -76,10 +84,61 @@ class RecapController extends Controller
                         'end_date' => $period->end_date->toDateString(),
                     ],
                     'departments' => $calculator->departmentSummary($scores)->values(),
+                    'groups' => [
+                        'department' => $this->groupSummary($scores, 'department')->values(),
+                        'leader' => $this->groupSummary($scores, 'leader')->values(),
+                        'gender' => $this->groupSummary($scores, 'gender')->values(),
+                    ],
                 ];
             })
             ->values();
 
         return response()->json(['data' => $trends]);
+    }
+
+    /** @return Collection<int, array{id: string, name: string, participant_count: int, average_percentage: float, tuntas_count: int}> */
+    private function groupSummary(Collection $scores, string $dimension): Collection
+    {
+        return $scores->groupBy(function (array $score) use ($dimension): string {
+            return match ($dimension) {
+                'leader' => $score['leader_user_id'] ?? 'unassigned',
+                'gender' => $score['gender'] ?? 'unknown',
+                default => $score['department_id'] ?? 'unassigned',
+            };
+        })->map(function (Collection $group, string $id) use ($dimension): array {
+            $first = $group->first();
+            $name = match ($dimension) {
+                'leader' => $first['leader'] ?? 'Belum ditetapkan',
+                'gender' => ['ikhwan' => 'Ikhwan', 'akhwat' => 'Akhwat'][$id] ?? 'Tidak dicatat',
+                default => $first['department'] ?? 'Tanpa departemen',
+            };
+
+            return [
+                'id' => $id,
+                'name' => $name,
+                'participant_count' => $group->count(),
+                'average_percentage' => round($group->avg('final_percentage') ?? 0, 2),
+                'tuntas_count' => $group->where('final_status', 'tuntas')->count(),
+            ];
+        })->sortByDesc('average_percentage')->values();
+    }
+
+    /** @return Collection<int, array{id: string, name: string, average_percentage: float, participant_count: int}> */
+    private function activityAverages(Collection $scores): Collection
+    {
+        return $scores->flatMap(fn (array $score) => $score['activities'])
+            ->groupBy('id')
+            ->map(function (Collection $activities, string $id): array {
+                $first = $activities->first();
+
+                return [
+                    'id' => $id,
+                    'name' => $first['name'],
+                    'average_percentage' => round($activities->avg('percentage') ?? 0, 2),
+                    'participant_count' => $activities->count(),
+                ];
+            })
+            ->sortBy('average_percentage')
+            ->values();
     }
 }
