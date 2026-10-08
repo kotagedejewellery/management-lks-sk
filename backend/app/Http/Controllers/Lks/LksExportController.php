@@ -104,37 +104,8 @@ class LksExportController extends Controller
             'total_score' => $totalScore,
             'maximum_score' => $activities->count() * 100,
             'grade' => $this->grade((float) $score['final_percentage']),
-            'recommendation' => $this->recommendation($score),
             'level_label' => $score['level'] ?? null,
         ];
-    }
-
-    /** @param array<string, mixed> $score */
-    private function recommendation(array $score): string
-    {
-        $activities = collect($score['activities']);
-        if ($activities->isEmpty()) {
-            return 'Belum ada aktivitas yang berlaku pada periode ini.';
-        }
-
-        $priorities = $activities
-            ->where('status', 'belum_tuntas')
-            ->sortBy('percentage')
-            ->take(3)
-            ->pluck('name')
-            ->implode(', ');
-
-        if ((float) $score['final_percentage'] === 0.0) {
-            return 'Mulai pencatatan harian dan fokus memenuhi target minimal setiap aktivitas.';
-        }
-
-        if ($priorities === '') {
-            return 'Pertahankan konsistensi seluruh amalan pada periode berikutnya.';
-        }
-
-        return $score['final_status'] === 'tuntas'
-            ? "Pertahankan capaian akhir dan tingkatkan konsistensi pada: {$priorities}."
-            : "Prioritaskan peningkatan pada: {$priorities}.";
     }
 
     private function grade(float $percentage): string

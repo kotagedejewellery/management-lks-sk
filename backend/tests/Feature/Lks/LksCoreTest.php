@@ -42,6 +42,28 @@ class LksCoreTest extends TestCase
         ]);
     }
 
+    public function test_recommendation_is_specific_and_snapshotted_when_the_period_closes(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active', 'staff_passing_threshold' => 85]);
+        $activity = $this->periodActivity($period, 4);
+        $activity->update(['activity_name_snapshot' => 'Tahajud', 'minimum_target_count' => 3]);
+        $participant = $this->participant($period, $santri);
+        $this->checklist($participant, $activity, $santri, now()->subDay()->toDateString());
+
+        $recommendation = app(LksScoreCalculator::class)->calculate($participant)['recommendation'];
+
+        $this->assertSame('Nilai Anda 25% masih 60 poin dari ambang 85%. Prioritaskan: Tahajud.', $recommendation);
+
+        $this->actingAs($admin)->postJson(route('api.lks.periods.close', $period))->assertOk();
+
+        $this->assertDatabaseHas('period_participant_snapshots', [
+            'id' => $participant->id,
+            'recommendation_snapshot' => $recommendation,
+        ]);
+    }
+
     public function test_admin_can_activate_a_draft_period_and_snapshot_active_santri(): void
     {
         $admin = $this->userWithRole('admin');
@@ -324,6 +346,25 @@ class LksCoreTest extends TestCase
             ->assertJsonPath('data.updated', true);
 
         $this->assertTrue(Hash::check('password-baru', $santri->fresh()->password));
+    }
+
+    public function test_admin_can_import_calendar_holidays(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $this->withoutMiddleware();
+
+        $this->actingAs($admin)
+            ->postJson(route('api.lks.admin.calendar-holidays.import'), [
+                'holidays' => [
+                    ['holiday_date' => '2026-01-01', 'name' => 'Tahun Baru', 'type' => 'public_holiday'],
+                    ['holiday_date' => '2026-01-16', 'name' => 'Cuti Bersama', 'type' => 'collective_leave'],
+                ],
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.count', 2);
+
+        $this->assertDatabaseHas('calendar_holidays', ['holiday_date' => '2026-01-01', 'type' => 'public_holiday']);
+        $this->assertDatabaseHas('calendar_holidays', ['holiday_date' => '2026-01-16', 'type' => 'collective_leave']);
     }
 
     private function userWithRole(string $role, array $attributes = []): User

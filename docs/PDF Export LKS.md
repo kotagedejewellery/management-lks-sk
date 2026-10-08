@@ -26,8 +26,11 @@ TTD digital di sini adalah gambar TTD pada PDF, bukan tanda tangan elektronik te
 
 ## Rekomendasi otomatis
 
-- Tanpa checklist: mulai pencatatan harian dan penuhi target minimal.
-- Semua aktivitas tuntas: pertahankan konsistensi.
-- Masih ada aktivitas belum tuntas: tampilkan maksimal tiga aktivitas bernilai terendah sebagai prioritas.
+Rekomendasi memakai hasil kalkulator nilai yang sama untuk LKS Saya, rekap, dan PDF.
 
-Rekomendasi dihitung saat PDF dibuat dan tidak mengubah data LKS.
+- Tanpa checklist: ajakan memulai pencatatan harian.
+- Belum tuntas: nilai saat ini, selisih menuju ambang jabatan, dan maksimal tiga aktivitas prioritas.
+- Tuntas tetapi masih ada aktivitas di bawah batas minimal: arahan menjaga konsistensi pada aktivitas tersebut.
+- Seluruh aktivitas tuntas: apresiasi dan arahan mempertahankan konsistensi.
+
+Selama periode aktif, rekomendasi diperbarui dari checklist. Saat periode ditutup, rekomendasi akhir disimpan pada snapshot peserta agar riwayat dan PDF berikutnya tetap sama.

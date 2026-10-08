@@ -57,6 +57,10 @@ class LksScoreCalculator
 
         $finalPercentage = $totalWeight === 0.0 ? 0.0 : $weightedScore / $totalWeight;
         $passingThreshold = $this->passingThreshold($participant);
+        $finalStatus = $finalPercentage >= $passingThreshold ? 'tuntas' : 'belum_tuntas';
+        $recommendation = $participant->period->status === 'closed' && $participant->recommendation_snapshot !== null
+            ? $participant->recommendation_snapshot
+            : $this->recommendation($activityScores, $finalPercentage, $passingThreshold, $finalStatus);
 
         return [
             'participant_id' => $participant->getKey(),
@@ -71,8 +75,45 @@ class LksScoreCalculator
             'activities' => $activityScores,
             'final_percentage' => round($finalPercentage, 2),
             'passing_threshold' => $passingThreshold,
-            'final_status' => $finalPercentage >= $passingThreshold ? 'tuntas' : 'belum_tuntas',
+            'final_status' => $finalStatus,
+            'recommendation' => $recommendation,
         ];
+    }
+
+    /** @param Collection<int, array<string, mixed>> $activities */
+    private function recommendation(Collection $activities, float $finalPercentage, float $passingThreshold, string $finalStatus): string
+    {
+        if ($activities->isEmpty()) {
+            return 'Belum ada aktivitas yang berlaku pada periode ini.';
+        }
+
+        if ($finalPercentage === 0.0) {
+            return 'Belum ada checklist. Mulai pencatatan hari ini dan fokus memenuhi batas minimal setiap aktivitas yang berlaku.';
+        }
+
+        $priorities = $activities->where('status', 'belum_tuntas')->sortBy('percentage')->take(3)->pluck('name')->implode(', ');
+        if ($finalStatus !== 'tuntas') {
+            $gap = $this->formatPercentage($passingThreshold - $finalPercentage);
+            $score = $this->formatPercentage($finalPercentage);
+            $threshold = $this->formatPercentage($passingThreshold);
+
+            return $priorities === ''
+                ? "Semua batas minimal aktivitas sudah terpenuhi, tetapi nilai Anda {$score}% masih {$gap} poin dari ambang {$threshold}%. Lanjutkan pencatatan untuk memperkuat capaian."
+                : "Nilai Anda {$score}% masih {$gap} poin dari ambang {$threshold}%. Prioritaskan: {$priorities}.";
+        }
+
+        if ($priorities !== '') {
+            return "Target periode sudah tercapai. Untuk menjaga konsistensi, tingkatkan: {$priorities}.";
+        }
+
+        return $finalPercentage >= min($passingThreshold + 10, 100)
+            ? 'Capaian sangat baik dan konsisten. Pertahankan kebiasaan ini hingga periode berakhir.'
+            : 'Target periode tercapai. Pertahankan konsistensi pencatatan hingga periode berakhir.';
+    }
+
+    private function formatPercentage(float $value): string
+    {
+        return rtrim(rtrim(number_format(max($value, 0), 1, '.', ''), '0'), '.');
     }
 
     /** @return Collection<int, array<string, mixed>> */

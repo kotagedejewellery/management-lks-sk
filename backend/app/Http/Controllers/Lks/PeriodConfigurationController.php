@@ -198,10 +198,15 @@ class PeriodConfigurationController extends Controller
         ]);
 
         DB::transaction(function () use ($request, $data): void {
-            foreach ($data['holidays'] as $holiday) {
-                CalendarHoliday::query()->updateOrCreate(['holiday_date' => $holiday['holiday_date']], $holiday);
-            }
-            AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => 'calendar_holiday.imported', 'auditable_type' => CalendarHoliday::class, 'after_data' => ['count' => count($data['holidays'])]]);
+            $holidays = collect($data['holidays'])
+                ->map(fn (array $holiday) => CalendarHoliday::query()->updateOrCreate(['holiday_date' => $holiday['holiday_date']], $holiday));
+            AuditLog::create([
+                'actor_user_id' => $request->user()->getKey(),
+                'event' => 'calendar_holiday.imported',
+                'auditable_type' => CalendarHoliday::class,
+                'auditable_id' => $holidays->first()->getKey(),
+                'after_data' => ['count' => $holidays->count(), 'holiday_ids' => $holidays->map(fn (CalendarHoliday $holiday) => $holiday->getKey())->all()],
+            ]);
         });
 
         return response()->json(['data' => ['count' => count($data['holidays'])]]);

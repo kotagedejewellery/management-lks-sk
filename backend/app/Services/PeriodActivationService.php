@@ -16,6 +16,8 @@ use Illuminate\Validation\ValidationException;
 
 class PeriodActivationService
 {
+    public function __construct(private readonly LksScoreCalculator $calculator) {}
+
     public function activate(User $actor, LksPeriod $period): LksPeriod
     {
         $this->ensureAdmin($actor);
@@ -159,6 +161,10 @@ class PeriodActivationService
             if ($period->status !== 'active') {
                 throw ValidationException::withMessages(['period' => 'Hanya periode aktif yang dapat ditutup.']);
             }
+
+            $period->participants()->get()->each(function (PeriodParticipantSnapshot $participant): void {
+                $participant->update(['recommendation_snapshot' => $this->calculator->calculate($participant)['recommendation']]);
+            });
 
             $closedAt = now();
             $period->update(['status' => 'closed', 'closed_at' => $closedAt]);
