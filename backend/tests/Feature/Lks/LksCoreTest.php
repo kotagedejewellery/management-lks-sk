@@ -66,6 +66,8 @@ class LksCoreTest extends TestCase
 
     public function test_admin_can_activate_a_draft_period_and_snapshot_active_santri(): void
     {
+        Storage::fake('local');
+        $this->configureActivationSignatories();
         $admin = $this->userWithRole('admin');
         $santri = $this->userWithRole('santri');
         $department = Department::query()->create(['code' => 'ENG', 'name' => 'Engineering', 'is_active' => true]);
@@ -75,12 +77,13 @@ class LksCoreTest extends TestCase
             'gender' => 'ikhwan',
             'department_id' => $department->id,
             'team_id' => $team->id,
+            'level' => 'staff',
             'status' => 'active',
         ]);
         $period = $this->period($admin);
         $this->periodActivity($period, 1);
 
-        $this->actingAs($admin)
+        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
             ->postJson(route('api.lks.periods.activate', $period))
             ->assertOk()
             ->assertJsonPath('data.status', 'active');
@@ -92,6 +95,65 @@ class LksCoreTest extends TestCase
             'team_id_snapshot' => $team->id,
         ]);
         $this->assertCount(2, $period->fresh()->signatories_snapshot);
+    }
+
+    public function test_activation_requires_both_digital_signatories(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $period = $this->period($admin);
+        $this->periodActivity($period, 1);
+
+        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
+            ->postJson(route('api.lks.periods.activate', $period))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('signatories');
+    }
+
+    public function test_changing_a_team_leader_updates_active_snapshots_but_not_closed_history(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $previousLeader = $this->userWithRole('leader');
+        $newLeader = $this->userWithRole('leader');
+        $member = $this->userWithRole('santri');
+        $department = Department::query()->create(['code' => 'OPS', 'name' => 'Operations', 'is_active' => true]);
+        $team = Team::query()->create(['department_id' => $department->id, 'code' => 'OPS-1', 'name' => 'Operations One', 'leader_user_id' => $previousLeader->id, 'is_active' => true]);
+        foreach ([$previousLeader, $newLeader, $member] as $user) {
+            SantriProfile::query()->create(['user_id' => $user->id, 'gender' => 'ikhwan', 'department_id' => $department->id, 'team_id' => $team->id, 'level' => $user->id === $member->id ? 'staff' : 'leader', 'status' => 'active']);
+        }
+        $active = $this->period($admin, ['status' => 'active']);
+        $closed = $this->period($admin, ['status' => 'closed']);
+        $activeParticipant = $this->participant($active, $member, $previousLeader);
+        $activeParticipant->update(['team_id_snapshot' => $team->id]);
+        $closedParticipant = $this->participant($closed, $member, $previousLeader);
+        $closedParticipant->update(['team_id_snapshot' => $team->id]);
+
+        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
+            ->patchJson(route('api.lks.admin.teams.update', $team), ['leader_user_id' => $newLeader->id])
+            ->assertOk();
+
+        $this->assertDatabaseHas('period_participant_snapshots', ['id' => $activeParticipant->id, 'leader_user_id_snapshot' => $newLeader->id]);
+        $this->assertDatabaseHas('period_participant_snapshots', ['id' => $closedParticipant->id, 'leader_user_id_snapshot' => $previousLeader->id]);
+    }
+
+    public function test_temporary_password_must_be_changed_before_lks_access(): void
+    {
+        $santri = User::factory()->create(['password' => 'sementara123', 'must_change_password' => true]);
+
+        $this->actingAs($santri)
+            ->getJson(route('api.lks.recap'))
+            ->assertForbidden();
+
+        $this->withoutMiddleware();
+        $this->actingAs($santri)
+            ->putJson(route('api.lks.account.password.update'), [
+                'current_password' => 'sementara123',
+                'password' => 'passwordbaru123',
+                'password_confirmation' => 'passwordbaru123',
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.must_change_password', false);
+
+        $this->assertDatabaseHas('users', ['id' => $santri->id, 'must_change_password' => false]);
     }
 
     public function test_admin_can_manage_a_private_digital_document_signature(): void
@@ -349,6 +411,18 @@ class LksCoreTest extends TestCase
             ->assertJsonPath('data.summary.participant_count', 1)
             ->assertJsonPath('data.participants.0.user_id', $member->id);
 
+        $this->actingAs($leader)
+            ->getJson(route('api.lks.recap', ['scope' => 'personal']))
+            ->assertOk()
+            ->assertJsonPath('data.summary.participant_count', 1)
+            ->assertJsonPath('data.participants.0.user_id', $leader->id);
+
+        $this->actingAs($member)
+            ->getJson(route('api.lks.recap'))
+            ->assertOk()
+            ->assertJsonPath('data.summary.participant_count', 1)
+            ->assertJsonPath('data.participants.0.user_id', $member->id);
+
         $this->actingAs($admin)
             ->getJson(route('api.lks.recap'))
             ->assertOk()
@@ -415,6 +489,38 @@ class LksCoreTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.0.groups.leader.0.id', $leader->id)
             ->assertJsonPath('data.0.groups.gender.0.id', 'akhwat');
+    }
+
+    public function test_role_trends_keep_leader_and_santri_scopes_separate(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $leader = $this->userWithRole('leader');
+        $member = $this->userWithRole('santri');
+        $other = $this->userWithRole('santri');
+        $teamPeriod = $this->period($admin, ['status' => 'closed', 'name' => 'Tren Tim']);
+        $personalPeriod = $this->period($admin, ['status' => 'closed', 'name' => 'Tren Pribadi Leader']);
+        $otherPeriod = $this->period($admin, ['status' => 'closed', 'name' => 'Tren Lain']);
+        $this->participant($teamPeriod, $member, $leader);
+        $this->participant($personalPeriod, $leader);
+        $this->participant($otherPeriod, $other);
+
+        $this->actingAs($leader)
+            ->getJson(route('api.lks.role-trends'))
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.period.id', $teamPeriod->id)
+            ->assertJsonPath('data.0.participant_count', 1);
+
+        $this->actingAs($member)
+            ->getJson(route('api.lks.role-trends'))
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.period.id', $teamPeriod->id)
+            ->assertJsonPath('data.0.participant_count', 1);
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.role-trends'))
+            ->assertForbidden();
     }
 
     public function test_pdf_exports_follow_the_viewers_access_scope(): void
@@ -617,5 +723,17 @@ class LksCoreTest extends TestCase
             'is_completed' => true,
             'recorded_by_user_id' => $actor->id,
         ]);
+    }
+
+    private function configureActivationSignatories(): void
+    {
+        foreach (['general_manager', 'kabid_pengembangan_spiritual'] as $role) {
+            $path = "lks-signatures/{$role}.png";
+            Storage::disk('local')->put($path, 'signature');
+            DocumentSignatory::query()->where('role', $role)->update([
+                'name' => $role === 'general_manager' ? 'General Manager' : 'Kabid Spiritual',
+                'signature_path' => $path,
+            ]);
+        }
     }
 }

@@ -24,6 +24,7 @@ class DashboardController extends Controller
             'id' => $viewer->getKey(),
             'name' => $viewer->name,
             'roles' => $viewer->roles->pluck('code')->values(),
+            'must_change_password' => $viewer->must_change_password,
             'identity' => $profile === null ? null : [
                 'team' => $profile->team?->name,
                 'leader' => $profile->team?->leader?->name,

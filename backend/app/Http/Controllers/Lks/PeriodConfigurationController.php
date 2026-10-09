@@ -149,9 +149,31 @@ class PeriodConfigurationController extends Controller
             'final_passing_threshold' => ['required', 'numeric', 'between:0,100'],
             'staff_passing_threshold' => ['required', 'numeric', 'between:0,100'],
         ]);
-        $period->update($data);
+        $rangeChanged = $period->start_date->toDateString() !== $data['start_date']
+            || $period->end_date->toDateString() !== $data['end_date'];
 
-        return response()->json(['data' => $period->refresh()->load('periodActivities')]);
+        DB::transaction(function () use ($period, $data, $rangeChanged): void {
+            $period->update($data);
+            if (! $rangeChanged) {
+                return;
+            }
+
+            $period->holidaySnapshots()
+                ->whereNotBetween('holiday_date', [$period->start_date, $period->end_date])
+                ->delete();
+
+            CalendarHoliday::query()
+                ->whereBetween('holiday_date', [$period->start_date, $period->end_date])
+                ->each(fn (CalendarHoliday $holiday) => $period->holidaySnapshots()->firstOrCreate(
+                    ['holiday_date' => $holiday->holiday_date],
+                    ['name' => $holiday->name, 'type' => $holiday->type],
+                ));
+        });
+
+        return response()->json([
+            'data' => $period->refresh()->load('periodActivities'),
+            'meta' => ['calendar_review_required' => $rangeChanged],
+        ]);
     }
 
     public function updateActivity(Request $request, LksActivity $activity): JsonResponse

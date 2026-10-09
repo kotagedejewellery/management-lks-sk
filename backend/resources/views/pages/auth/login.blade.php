@@ -70,7 +70,10 @@
                             </button>
                         </div>
                     </div>
-                    <label class="auth-check"><input type="checkbox" name="remember" value="1" @checked(old('remember'))><span>Ingat saya di perangkat ini</span></label>
+                    <div class="auth-remember">
+                        <label class="auth-check"><input type="checkbox" name="remember" value="1" @checked(old('remember'))><span>Ingat saya di perangkat ini</span></label>
+                        <p>Gunakan hanya pada perangkat pribadi, bukan perangkat bersama. Masa berlaku maksimum 30 hari.</p>
+                    </div>
                     <button class="auth-submit" type="submit" data-test="login-button"><span class="auth-submit-label">Masuk ke LKS</span><span class="auth-submit-loading" aria-live="polite" hidden><i aria-hidden="true"></i><span>Memeriksa akses…</span></span></button>
                 </form>
                 <p class="auth-help">Belum menerima akun? Hubungi Admin LKS untuk dibuatkan akses.</p>

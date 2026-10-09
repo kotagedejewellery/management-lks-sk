@@ -19,6 +19,7 @@ class AccountController extends Controller
             'name' => $user->name,
             'email' => $user->email,
             'roles' => $user->roles->pluck('code')->values(),
+            'must_change_password' => $user->must_change_password,
         ]]);
     }
 
@@ -53,8 +54,9 @@ class AccountController extends Controller
         }
 
         $user->password = $data['password'];
+        $user->must_change_password = false;
         $user->save();
 
-        return response()->json(['data' => ['updated' => true]]);
+        return response()->json(['data' => ['updated' => true, 'must_change_password' => false]]);
     }
 }

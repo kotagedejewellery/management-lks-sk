@@ -34,13 +34,14 @@ Route::middleware(['auth', 'active-user'])->group(function () {
         ->where('asset', 'styles\.css|overrides\.css|app\.js')
         ->name('lks-prototype.asset');
 
-    Route::prefix('api/lks')->name('api.lks.')->group(function (): void {
+    Route::prefix('api/lks')->middleware('password-changed')->name('api.lks.')->group(function (): void {
         Route::get('account', [AccountController::class, 'show'])->name('account.show');
         Route::put('account/profile', [AccountController::class, 'updateProfile'])->name('account.profile.update');
         Route::put('account/password', [AccountController::class, 'updatePassword'])->name('account.password.update');
         Route::get('dashboard', DashboardController::class)->name('dashboard');
         Route::get('recap', RecapController::class)->name('recap');
         Route::get('department-trends', [RecapController::class, 'departmentTrends'])->name('department-trends');
+        Route::get('role-trends', [RecapController::class, 'roleTrends'])->name('role-trends');
         Route::get('exports/personal/{period}', [LksExportController::class, 'personal'])->name('exports.personal');
         Route::get('periods/history', [PeriodController::class, 'history'])->name('periods.history');
         Route::put('checklists', [ChecklistController::class, 'store'])->name('checklists.store');

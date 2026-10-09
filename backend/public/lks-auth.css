@@ -144,6 +144,8 @@ body { margin: 0; min-width: 320px; }
 
 .auth-check { display: flex; align-items: center; gap: 10px; font-weight: 500; cursor: pointer; }
 .auth-check input { width: 18px; height: 18px; accent-color: var(--evergreen); }
+.auth-remember { display: grid; gap: 5px; }
+.auth-remember p { margin: 0 0 0 28px; color: var(--ink-soft); font-size: 12px; line-height: 1.45; }
 
 .auth-submit {
     min-height: 48px;

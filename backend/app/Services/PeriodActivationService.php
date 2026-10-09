@@ -42,6 +42,24 @@ class PeriodActivationService
                 throw ValidationException::withMessages(['period_activities' => 'Periode aktif harus memiliki minimal satu aktivitas aktif.']);
             }
 
+            $signatories = DocumentSignatory::query()
+                ->whereIn('role', ['general_manager', 'kabid_pengembangan_spiritual'])
+                ->orderByRaw("CASE role WHEN 'general_manager' THEN 1 ELSE 2 END")
+                ->get(['role', 'title', 'name', 'signature_path'])
+                ->keyBy('role');
+            $missingSignatories = collect(['general_manager', 'kabid_pengembangan_spiritual'])
+                ->filter(fn (string $role): bool => blank($signatories->get($role)?->name)
+                    || blank($signatories->get($role)?->signature_path)
+                    || ! Storage::disk('local')->exists($signatories->get($role)->signature_path))
+                ->map(fn (string $role): string => $role === 'general_manager' ? 'General Manager' : 'Kabid. Pengembangan Spiritual')
+                ->values();
+
+            if ($missingSignatories->isNotEmpty()) {
+                throw ValidationException::withMessages([
+                    'signatories' => 'Lengkapi nama dan TTD digital untuk: '.$missingSignatories->join(', ').'.',
+                ]);
+            }
+
             $profiles = SantriProfile::query()
                 ->where('status', 'active')
                 ->with(['user', 'department', 'team.leader'])
@@ -57,9 +75,8 @@ class PeriodActivationService
             $period->update([
                 'status' => 'active',
                 'activated_at' => now(),
-                'signatories_snapshot' => DocumentSignatory::query()
-                    ->orderByRaw("CASE role WHEN 'general_manager' THEN 1 ELSE 2 END")
-                    ->get(['role', 'title', 'name', 'signature_path'])
+                'signatories_snapshot' => $signatories
+                    ->values()
                     ->map(fn (DocumentSignatory $signatory): array => $this->snapshotSignatory($period, $signatory))
                     ->values()
                     ->all(),

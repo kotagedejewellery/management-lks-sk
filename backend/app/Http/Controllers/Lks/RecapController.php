@@ -96,6 +96,48 @@ class RecapController extends Controller
         return response()->json(['data' => $trends]);
     }
 
+    public function roleTrends(Request $request, LksScoreCalculator $calculator): JsonResponse
+    {
+        $viewer = $request->user();
+        abort_if($viewer->isAdmin(), 403);
+
+        $leaderScope = $viewer->hasRole('leader');
+        $periods = LksPeriod::query()->whereIn('status', ['active', 'closed']);
+
+        if ($leaderScope) {
+            $periods->whereHas('participants', fn ($participants) => $participants
+                ->where('leader_user_id_snapshot', $viewer->getKey())
+                ->where('user_id', '!=', $viewer->getKey()));
+        } else {
+            $periods->whereHas('participants', fn ($participants) => $participants->where('user_id', $viewer->getKey()));
+        }
+
+        $trends = $periods->orderByDesc('start_date')
+            ->limit(6)
+            ->get()
+            ->sortBy('start_date')
+            ->map(function (LksPeriod $period) use ($calculator, $leaderScope, $viewer): array {
+                $scores = $leaderScope
+                    ? $calculator->calculatePeriod($period, leaderUserId: $viewer->getKey())
+                    : $calculator->calculatePeriod($period, userId: $viewer->getKey());
+
+                return [
+                    'period' => [
+                        'id' => $period->getKey(),
+                        'name' => $period->name,
+                        'status' => $period->status,
+                        'start_date' => $period->start_date->toDateString(),
+                        'end_date' => $period->end_date->toDateString(),
+                    ],
+                    'participant_count' => $scores->count(),
+                    'average_percentage' => $scores->isEmpty() ? null : round($scores->avg('final_percentage'), 2),
+                ];
+            })
+            ->values();
+
+        return response()->json(['data' => $trends]);
+    }
+
     /** @return Collection<int, array{id: string, name: string, participant_count: int, average_percentage: float, tuntas_count: int}> */
     private function groupSummary(Collection $scores, string $dimension): Collection
     {

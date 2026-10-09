@@ -46,7 +46,10 @@ class OrganizationController extends Controller
         return response()->json(['data' => [
             'departments' => $departments->items(),
             'department_pagination' => $this->pagination($departments),
-            'department_options' => Department::query()->with(['teams' => fn ($query) => $query->with('leader:id,name')->select('id', 'department_id', 'leader_user_id', 'code', 'name', 'is_active')])->orderBy('name')->get(),
+            'department_options' => Department::query()->with(['teams' => fn ($query) => $query
+                ->with('leader:id,name')
+                ->withCount(['santriProfiles as active_santri_profiles_count' => fn ($profiles) => $profiles->where('status', 'active')])
+                ->select('id', 'department_id', 'leader_user_id', 'code', 'name', 'is_active')])->orderBy('name')->get(),
             'team_leader_options' => SantriProfile::query()->where('status', 'active')->where('level', 'leader')->with('user:id,name')->orderBy('created_at')->get(['user_id', 'team_id']),
             'santri' => $santri->items(),
             'santri_pagination' => $this->pagination($santri),
@@ -135,7 +138,8 @@ class OrganizationController extends Controller
             $team->update($data);
             if ($leaderChanged) {
                 $this->syncProfilesToTeamLeader($team);
-                AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => 'team.leader_changed', 'auditable_type' => $team->getMorphClass(), 'auditable_id' => $team->getKey(), 'before_data' => ['leader_user_id' => $previousLeader], 'after_data' => ['leader_user_id' => $team->leader_user_id]]);
+                $activeParticipantCount = $this->syncActivePeriodParticipantsToTeamLeader($team);
+                AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => 'team.leader_changed', 'auditable_type' => $team->getMorphClass(), 'auditable_id' => $team->getKey(), 'before_data' => ['leader_user_id' => $previousLeader], 'after_data' => ['leader_user_id' => $team->leader_user_id, 'active_participant_count' => $activeParticipantCount]]);
             }
             if (array_key_exists('is_active', $data) && $wasActive !== $team->is_active) {
                 AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => $team->is_active ? 'team.reactivated' : 'team.archived', 'auditable_type' => $team->getMorphClass(), 'auditable_id' => $team->getKey(), 'before_data' => ['is_active' => $wasActive], 'after_data' => ['is_active' => $team->is_active]]);
@@ -201,6 +205,7 @@ class OrganizationController extends Controller
                 'password' => $data['temporary_password'],
             ]);
             $user->email_verified_at = now();
+            $user->must_change_password = true;
             $user->save();
 
             $user->roles()->sync($data['level'] === 'leader'
@@ -362,5 +367,18 @@ class OrganizationController extends Controller
 
         $profiles->where('user_id', '!=', $team->leader_user_id)->update(['leader_user_id' => $team->leader_user_id]);
         $team->santriProfiles()->where('user_id', $team->leader_user_id)->update(['leader_user_id' => null]);
+    }
+
+    private function syncActivePeriodParticipantsToTeamLeader(Team $team): int
+    {
+        $team->load('leader:id,name');
+
+        return PeriodParticipantSnapshot::query()
+            ->where('team_id_snapshot', $team->getKey())
+            ->whereHas('period', fn ($period) => $period->where('status', 'active'))
+            ->update([
+                'leader_user_id_snapshot' => $team->leader?->getKey(),
+                'leader_name_snapshot' => $team->leader?->name,
+            ]);
     }
 }

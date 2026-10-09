@@ -20,7 +20,7 @@
             'passwords.throttled', 'Please wait before retrying.' => 'Tunggu beberapa saat sebelum meminta tautan reset password baru.',
             default => $rawFeedbackMessage,
         };
-        $feedbackType = $errors->any() ? 'error' : 'success';
+        $feedbackType = $rawFeedbackMessage === 'passwords.throttled' || $errors->any() ? 'error' : 'success';
     @endphp
     @if ($feedbackMessage)
         <div class="auth-feedback auth-feedback-{{ $feedbackType }}" role="{{ $feedbackType === 'error' ? 'alert' : 'status' }}" aria-live="{{ $feedbackType === 'error' ? 'assertive' : 'polite' }}" data-auth-feedback>
