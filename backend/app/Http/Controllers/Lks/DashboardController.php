@@ -85,7 +85,8 @@ class DashboardController extends Controller
             ->where('is_active', true)
             ->orderBy('sort_order')
             ->get()
-            ->filter(fn ($activity) => $participant === null || $activity->appliesTo($participant))
+            ->filter(fn ($activity) => ($participant === null || $activity->appliesTo($participant))
+                && ($activity->allowedWeekdays() === [] || in_array($selectedDate->isoWeekday(), $activity->allowedWeekdays(), true)))
             ->map(function ($activity) use ($participant, $calculator, $period, $holidayDates, $holiday, $recordedDatesByActivity): array {
                 $checklist = $participant?->checklists->firstWhere('period_activity_id', $activity->getKey());
                 $rule = $calculator->effectiveTargets($activity, $period, $holidayDates);

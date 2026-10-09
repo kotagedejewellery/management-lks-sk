@@ -8,6 +8,7 @@ use App\Models\LksActivity;
 use App\Models\LksChecklist;
 use App\Models\LksPeriod;
 use App\Models\PeriodActivity;
+use App\Models\PeriodHolidaySnapshot;
 use App\Models\PeriodParticipantSnapshot;
 use App\Models\Role;
 use App\Models\SantriProfile;
@@ -252,6 +253,92 @@ class LksCoreTest extends TestCase
             ->getJson(route('api.lks.dashboard', ['date' => now()->toDateString()]))
             ->assertOk()
             ->assertJsonPath('data.activities.0.recorded_dates.0', $recordedDate);
+    }
+
+    public function test_dashboard_only_returns_activities_scheduled_for_the_selected_date(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active']);
+        $scheduled = $this->periodActivity($period, 1);
+        $notScheduled = $this->periodActivity($period, 1);
+        $scheduled->update(['allowed_weekdays' => '{'.now()->isoWeekday().'}']);
+        $notScheduled->update(['allowed_weekdays' => '{'.now()->addDay()->isoWeekday().'}']);
+        $this->participant($period, $santri);
+
+        $this->actingAs($santri)
+            ->getJson(route('api.lks.dashboard', ['date' => now()->toDateString()]))
+            ->assertOk()
+            ->assertJsonCount(1, 'data.activities')
+            ->assertJsonPath('data.activities.0.id', $scheduled->id);
+    }
+
+    public function test_holiday_checklist_does_not_consume_the_weekly_limit(): void
+    {
+        $this->withoutMiddleware();
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active', 'start_date' => now()->subWeeks(2)->toDateString()]);
+        $activity = $this->periodActivity($period, 4);
+        $activity->update(['max_per_week' => 1]);
+        $participant = $this->participant($period, $santri);
+        $holidayDate = now()->copy()->startOfWeek();
+        $ordinaryDate = $holidayDate->copy()->addDay();
+        if ($ordinaryDate->gt(now())) {
+            $holidayDate = $holidayDate->subWeek();
+            $ordinaryDate = $holidayDate->copy()->addDay();
+        }
+        PeriodHolidaySnapshot::query()->create([
+            'period_id' => $period->id,
+            'holiday_date' => $holidayDate->toDateString(),
+            'name' => 'Hari libur uji',
+            'type' => 'public_holiday',
+        ]);
+
+        $this->actingAs($santri)
+            ->putJson(route('api.lks.checklists.store'), [
+                'period_activity_id' => $activity->id,
+                'participant_id' => $participant->id,
+                'checklist_date' => $holidayDate->toDateString(),
+                'is_completed' => true,
+            ])
+            ->assertOk();
+
+        $this->actingAs($santri)
+            ->putJson(route('api.lks.checklists.store'), [
+                'period_activity_id' => $activity->id,
+                'participant_id' => $participant->id,
+                'checklist_date' => $ordinaryDate->toDateString(),
+                'is_completed' => true,
+            ])
+            ->assertOk();
+    }
+
+    public function test_bulk_checklist_identifies_dates_that_exceed_the_weekly_limit(): void
+    {
+        $this->withoutMiddleware();
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active', 'start_date' => now()->subWeeks(2)->toDateString()]);
+        $activity = $this->periodActivity($period, 4);
+        $activity->update(['max_per_week' => 1]);
+        $participant = $this->participant($period, $santri);
+        $firstDate = now()->copy()->startOfWeek();
+        $secondDate = $firstDate->copy()->addDay();
+        if ($secondDate->gt(now())) {
+            $firstDate = $firstDate->subWeek();
+            $secondDate = $firstDate->copy()->addDay();
+        }
+
+        $this->actingAs($santri)
+            ->postJson(route('api.lks.checklists.bulk'), [
+                'period_activity_id' => $activity->id,
+                'checklist_dates' => [$firstDate->toDateString(), $secondDate->toDateString()],
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('checklist_dates.'.$secondDate->toDateString());
+
+        $this->assertDatabaseMissing('lks_checklists', ['period_participant_id' => $participant->id]);
     }
 
     public function test_admin_cannot_use_personal_bulk_checklist(): void

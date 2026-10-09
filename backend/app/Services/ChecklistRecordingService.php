@@ -28,7 +28,7 @@ class ChecklistRecordingService
         $this->ensureCanRecord($actor, $participant);
 
         return DB::transaction(function () use ($participant, $activity, $checklistDates): array {
-            $participant = PeriodParticipantSnapshot::query()->with('period')->lockForUpdate()->findOrFail($participant->getKey());
+            $participant = PeriodParticipantSnapshot::query()->with('period.holidaySnapshots')->lockForUpdate()->findOrFail($participant->getKey());
             $activity = PeriodActivity::query()->lockForUpdate()->findOrFail($activity->getKey());
             $dates = collect($checklistDates)
                 ->map(fn (string $date): Carbon => Carbon::parse($date)->startOfDay())
@@ -36,6 +36,10 @@ class ChecklistRecordingService
                 ->sortBy(fn (Carbon $date): string => $date->toDateString());
             $recorded = 0;
             $skipped = 0;
+            $pending = [];
+            $pendingWeeklyCounts = [];
+            $errors = [];
+            $holidayDates = $this->holidayDates($participant->period);
 
             foreach ($dates as $date) {
                 $checklist = LksChecklist::query()
@@ -50,8 +54,25 @@ class ChecklistRecordingService
                     continue;
                 }
 
-                $this->validateRecord($participant, $activity, $date, true);
+                try {
+                    $this->validateRecord($participant, $activity, $date, true, $holidayDates, $pendingWeeklyCounts);
+                } catch (ValidationException $exception) {
+                    $errors['checklist_dates.'.$date->toDateString()] = collect($exception->errors())->flatten()->first();
+                    continue;
+                }
 
+                if ($activity->max_per_week !== null && ! in_array($date->toDateString(), $holidayDates, true)) {
+                    $weekKey = $date->copy()->startOfWeek()->toDateString();
+                    $pendingWeeklyCounts[$weekKey] = ($pendingWeeklyCounts[$weekKey] ?? 0) + 1;
+                }
+                $pending[] = compact('checklist', 'date');
+            }
+
+            if ($errors !== []) {
+                throw ValidationException::withMessages(['checklist_dates' => 'Beberapa tanggal tidak lagi dapat dicatat. Periksa tanggal yang ditandai.'] + $errors);
+            }
+
+            foreach ($pending as ['checklist' => $checklist, 'date' => $date]) {
                 $checklist ??= new LksChecklist([
                     'period_participant_id' => $participant->getKey(),
                     'period_activity_id' => $activity->getKey(),
@@ -77,11 +98,11 @@ class ChecklistRecordingService
         $this->ensureCanRecord($actor, $participant);
 
         return DB::transaction(function () use ($actor, $participant, $activity, $checklistDate, $isCompleted, $reason): LksChecklist {
-            $participant = PeriodParticipantSnapshot::query()->with('period')->lockForUpdate()->findOrFail($participant->getKey());
+            $participant = PeriodParticipantSnapshot::query()->with('period.holidaySnapshots')->lockForUpdate()->findOrFail($participant->getKey());
             $activity = PeriodActivity::query()->lockForUpdate()->findOrFail($activity->getKey());
             $date = Carbon::parse($checklistDate)->startOfDay();
 
-            $this->validateRecord($participant, $activity, $date, $isCompleted);
+            $this->validateRecord($participant, $activity, $date, $isCompleted, $this->holidayDates($participant->period));
 
             $checklist = LksChecklist::query()
                 ->where('period_participant_id', $participant->getKey())
@@ -130,7 +151,10 @@ class ChecklistRecordingService
         }
     }
 
-    private function validateRecord(PeriodParticipantSnapshot $participant, PeriodActivity $activity, Carbon $date, bool $isCompleted): void
+    /** @param list<string> $holidayDates
+     *  @param array<string, int> $pendingWeeklyCounts
+     */
+    private function validateRecord(PeriodParticipantSnapshot $participant, PeriodActivity $activity, Carbon $date, bool $isCompleted, array $holidayDates = [], array $pendingWeeklyCounts = []): void
     {
         $period = $participant->period;
 
@@ -155,19 +179,30 @@ class ChecklistRecordingService
             throw ValidationException::withMessages(['checklist' => 'Aktivitas ini tidak berlaku untuk kategori peserta tersebut.']);
         }
 
-        if ($isCompleted && $activity->max_per_week !== null) {
+        if ($isCompleted && $activity->max_per_week !== null && ! in_array($date->toDateString(), $holidayDates, true)) {
             $weeklyCount = LksChecklist::query()
                 ->where('period_participant_id', $participant->getKey())
                 ->where('period_activity_id', $activity->getKey())
                 ->where('is_completed', true)
                 ->whereBetween('checklist_date', [$date->copy()->startOfWeek(), $date->copy()->endOfWeek()])
                 ->whereDate('checklist_date', '!=', $date)
+                ->when($holidayDates !== [], fn ($query) => $query->whereNotIn('checklist_date', $holidayDates))
                 ->count();
+
+            $weeklyCount += $pendingWeeklyCounts[$date->copy()->startOfWeek()->toDateString()] ?? 0;
 
             if ($weeklyCount >= $activity->max_per_week) {
                 throw ValidationException::withMessages(['checklist' => 'Batas pencatatan aktivitas untuk pekan ini sudah tercapai.']);
             }
         }
+    }
+
+    /** @return list<string> */
+    private function holidayDates($period): array
+    {
+        $period->loadMissing('holidaySnapshots');
+
+        return $period->holidaySnapshots->map(fn ($holiday): string => $holiday->holiday_date->toDateString())->all();
     }
 
     /** @return array<string, mixed> */

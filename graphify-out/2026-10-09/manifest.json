@@ -84,9 +84,9 @@
     "semantic_hash": ""
   },
   "backend/app/Providers/FortifyServiceProvider.php": {
-    "mtime": 1791530371.1086943,
-    "seen": 1791531760.891198,
-    "ast_hash": "4f335bdd0d2dc374835bc3d95a61636e",
+    "mtime": 1791531882.306123,
+    "seen": 1791531947.5911489,
+    "ast_hash": "e62375c20018c4b5aa489c580ada4d6d",
     "semantic_hash": ""
   },
   "backend/artisan": {
@@ -390,9 +390,9 @@
     "semantic_hash": ""
   },
   "backend/resources/views/pages/auth/login.blade.php": {
-    "mtime": 1791530372.6431484,
-    "seen": 1791531760.8914557,
-    "ast_hash": "a77e7c86f09a770c66ac5cfdaddb0d4f",
+    "mtime": 1791531882.8078249,
+    "seen": 1791531947.5912666,
+    "ast_hash": "2f5906db28585304dd6f460fa15c7cf1",
     "semantic_hash": ""
   },
   "backend/resources/views/pages/auth/register.blade.php": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1791528431.5325017,
-    "seen": 1791528494.5952237,
-    "ast_hash": "9c313ab90b219363bcb4c89958795251",
+    "mtime": 1791534239.694653,
+    "seen": 1791534462.1739068,
+    "ast_hash": "4627f3ba7f5e2e1d3b0e19fe1c4f206c",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -774,9 +774,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/DashboardController.php": {
-    "mtime": 1791519107.5458677,
-    "seen": 1791520155.083029,
-    "ast_hash": "04666fd0fb4ee3ab033315ae130b2e50",
+    "mtime": 1791534142.5054097,
+    "seen": 1791534462.1736057,
+    "ast_hash": "6fe34f84fb87cb0c3ea6271f6dd6ed04",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodController.php": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1791519995.0276976,
-    "seen": 1791520155.083236,
-    "ast_hash": "d83a01153d2795da1574dea717c2eba2",
+    "mtime": 1791534142.5063503,
+    "seen": 1791534462.173888,
+    "ast_hash": "f61712f6889e462b41a0d85df11d8cad",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {
