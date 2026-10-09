@@ -1095,3 +1095,174 @@ body.is-booting .page-progress { inset: 0; }
     gap: 14px 9px;
   }
 }
+
+/* Rekap is a compact result card on small screens, not a squeezed table row. */
+.recap-summary {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin: 0 0 24px;
+  border-top: 1px solid var(--line-dark, #c5d0c8);
+  border-bottom: 1px solid var(--line-dark, #c5d0c8);
+}
+
+.recap-summary > div {
+  min-width: 0;
+  padding: 13px 14px;
+  border-right: 1px solid var(--line, #d9ddd5);
+}
+
+.recap-summary > div:last-child {
+  border-right: 0;
+}
+
+.recap-summary dt,
+.recap-summary dd {
+  margin: 0;
+}
+
+.recap-summary dt {
+  color: var(--ink-soft, #53645a);
+  font-size: 11px;
+}
+
+.recap-summary dd {
+  margin-top: 4px;
+  color: var(--ink, #203329);
+  font-size: 14px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.recap-department > small,
+.recap-score > small {
+  display: none;
+}
+
+.recap-row-actions--empty {
+  visibility: hidden;
+}
+
+@media (max-width: 900px) {
+  .recap-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .recap-summary > div:nth-child(3n) {
+    border-right: 0;
+  }
+
+  .recap-summary > div:nth-child(n + 4) {
+    border-top: 1px solid var(--line, #d9ddd5);
+  }
+}
+
+@media (max-width: 640px) {
+  .recap-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: 20px;
+  }
+
+  .recap-summary > div {
+    padding: 11px 10px;
+    border-right: 1px solid var(--line, #d9ddd5);
+    border-top: 1px solid var(--line, #d9ddd5);
+  }
+
+  .recap-summary > div:nth-child(-n + 2) {
+    border-top: 0;
+  }
+
+  .recap-summary > div:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .recap-summary > div:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .recap-table .recap-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "member score"
+      "department department"
+      "status status"
+      "actions actions";
+    gap: 10px 14px;
+    padding: 16px;
+  }
+
+  .recap-table .recap-row > .member-cell {
+    grid-area: member;
+    min-width: 0;
+  }
+
+  .recap-table .recap-row > .recap-score {
+    grid-area: score;
+    align-self: start;
+    color: var(--evergreen-dark, #155244);
+    font-size: 17px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .recap-table .recap-row > .recap-department {
+    grid-area: department;
+    display: grid;
+    gap: 2px;
+    color: var(--ink, #203329);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .recap-department > small,
+  .recap-score > small {
+    display: block;
+    color: var(--ink-soft, #53645a);
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .recap-table .recap-row > .recap-status {
+    grid-area: status;
+    display: block;
+    padding-top: 10px;
+    border-top: 1px solid var(--line, #d9ddd5);
+  }
+
+  .recap-table .recap-row > .recap-status > small {
+    margin-left: 8px;
+  }
+
+  .recap-table .recap-row > .recap-row-actions {
+    grid-area: actions;
+    display: flex;
+    gap: 8px;
+    justify-content: stretch;
+    padding-top: 10px;
+    border-top: 1px solid var(--line, #d9ddd5);
+    white-space: normal;
+  }
+
+  .recap-table .recap-row > .recap-row-actions--empty {
+    display: none;
+  }
+
+  .recap-table .recap-row-actions .organization-row-action {
+    flex: 1 1 120px;
+    min-height: 42px;
+    margin-left: 0;
+    border-radius: 8px;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .recap-table .recap-row .recap-recommendation {
+    margin-top: 10px;
+  }
+
+  .recap-page-actions .report-period-control {
+    flex-basis: 100%;
+  }
+}

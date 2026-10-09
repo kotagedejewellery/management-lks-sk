@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1791508514.5476677,
-    "seen": 1791508543.2684224,
-    "ast_hash": "c4ab8d0e3c553eeb809c86232ed1a4a3",
+    "mtime": 1791453180.6462395,
+    "seen": 1791453378.9270134,
+    "ast_hash": "5d7f3b28ed2af678e6dc4ac24e9ffbe4",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
