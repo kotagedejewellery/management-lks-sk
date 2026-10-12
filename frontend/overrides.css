@@ -232,9 +232,12 @@ body.is-booting .page-progress { inset: 0; }
 .activity-usage.is-empty { color: var(--ink-soft, #53645a); font-weight: 400; }
 .admin-context-note { max-width: 64ch; margin: 18px 0 0; color: var(--ink-soft, #53645a); font-size: 13px; line-height: 1.55; }
 .admin-workbench form.admin-list-search { display: flex; align-items: center; gap: 10px; max-width: 460px; margin: 0 0 16px; padding: 0; border: 0; }
+.admin-workbench form.admin-list-search.people-filter-form { display: grid; grid-template-columns: minmax(230px, 1.45fr) repeat(4, minmax(128px, .72fr)) auto; max-width: none; }
 .admin-list-search + .organization-hierarchy-table, .admin-list-search + .admin-record-table { border-top: 0; }
 .admin-list-search input { min-height: 42px; width: 100%; border: 1px solid var(--line-dark, #c5d0c8); border-radius: 9px; background: var(--surface, #fffefa); color: var(--ink, #203329); padding: 9px 11px; outline: none; }
-.admin-list-search input:focus { border-color: var(--evergreen, #25705b); box-shadow: 0 0 0 3px rgba(37,112,91,.12); }
+.admin-list-search select { min-height: 42px; width: 100%; border: 1px solid var(--line-dark, #c5d0c8); border-radius: 9px; background: var(--surface, #fffefa); color: var(--ink, #203329); padding: 9px 30px 9px 11px; outline: none; }
+.admin-list-search input:focus, .admin-list-search select:focus { border-color: var(--evergreen, #25705b); box-shadow: 0 0 0 3px rgba(37,112,91,.12); }
+.admin-list-search select:disabled { cursor: not-allowed; color: var(--ink-soft, #53645a); opacity: .72; }
 .admin-list-search .text-button { min-height: 42px; padding: 0 10px; color: var(--evergreen-dark, #155244); font-size: 12px; font-weight: 800; }
 .admin-pagination { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 18px; color: var(--ink-soft, #53645a); font-size: 12px; }
 .admin-pagination > div { display: flex; align-items: center; gap: 12px; }
@@ -416,6 +419,9 @@ body.is-booting .page-progress { inset: 0; }
 }
 
 @media (max-width: 760px) { .admin-workbench-grid, .admin-workbench .inline-fields, .admin-modal-inline-fields, .history-layout { grid-template-columns: 1fr; } .admin-page-actions { justify-content: flex-start; } .organization-table-head, .admin-record-head, .organization-hierarchy-head { display: none; } .organization-table-row { grid-template-columns: 68px minmax(0, 1fr) auto; row-gap: 5px; padding: 15px 0; } .organization-table-row > :nth-child(3) { grid-column: 2; } .organization-table-row > :nth-child(4) { grid-column: 3; grid-row: 1 / span 2; } .organization-team-row > :nth-child(4) { display: none; } .people-record-table .admin-record-row, .period-record-table .admin-record-row, .activity-record-table .admin-record-row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 6px; padding: 15px 0; } .people-record-row > :nth-child(2), .period-record-row > :nth-child(2), .activity-record-row > :nth-child(2) { grid-column: 1; grid-row: auto; text-align: left; } .people-record-row > :nth-child(3), .period-record-row > :nth-child(3), .activity-record-row > :nth-child(3) { grid-column: 2; grid-row: 1; text-align: right; } .people-record-row > :nth-child(4) { grid-column: 2; grid-row: 2; text-align: right; } .admin-pagination { align-items: flex-start; flex-direction: column; } .organization-hierarchy-row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 6px; padding: 15px 0; } .organization-hierarchy-row > :nth-child(2), .organization-hierarchy-row > :nth-child(3), .organization-hierarchy-row > :nth-child(4) { grid-column: 1; } .organization-hierarchy-row > :nth-child(5) { grid-column: 1 / -1; } .organization-department-row > :first-child, .organization-team-child-row > :first-child { padding-left: 0; } .organization-team-child-row > :first-child::before { display: none; } .organization-no-team { padding-left: 0; } .history-detail { padding-top: 0; } }
+
+@media (max-width: 760px) { .admin-workbench form.admin-list-search.people-filter-form { grid-template-columns: repeat(2, minmax(0, 1fr)); } .people-filter-form input { grid-column: 1 / -1; } .people-filter-form .text-button { justify-self: start; } }
+@media (max-width: 440px) { .admin-workbench form.admin-list-search.people-filter-form { grid-template-columns: 1fr; } }
 
 @media (max-width: 760px) {
   .history-layout { gap: 20px; }

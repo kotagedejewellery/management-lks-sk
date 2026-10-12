@@ -23,11 +23,27 @@ class OrganizationController extends Controller
     {
         $this->ensureAdmin($request);
         $search = trim((string) $request->query('people_search'));
+        $departmentId = (string) $request->query('people_department_id', '');
+        $teamId = (string) $request->query('people_team_id', '');
+        $status = (string) $request->query('people_status', '');
+        $level = (string) $request->query('people_level', '');
         $santriQuery = SantriProfile::query()
             ->with(['user:id,name,email,is_active', 'user.roles:id,code', 'department:id,name', 'team:id,name,leader_user_id', 'team.leader:id,name'])
-            ->when($search !== '', fn ($query) => $query->whereHas('user', fn ($userQuery) => $userQuery
-                ->where('name', 'ilike', "%{$search}%")
-                ->orWhere('email', 'ilike', "%{$search}%")))
+            ->when($departmentId !== '', fn ($query) => $query->where('department_id', $departmentId))
+            ->when($teamId !== '', fn ($query) => $query->where('team_id', $teamId))
+            ->when(in_array($status, ['active', 'inactive'], true), fn ($query) => $query->where('status', $status))
+            ->when(in_array($level, ['leader', 'staff'], true), fn ($query) => $query->where('level', $level))
+            ->when($search !== '', fn ($query) => $query->where(function ($peopleQuery) use ($search) {
+                $peopleQuery
+                    ->whereHas('user', fn ($userQuery) => $userQuery
+                        ->where('name', 'ilike', "%{$search}%")
+                        ->orWhere('email', 'ilike', "%{$search}%"))
+                    ->orWhereHas('department', fn ($departmentQuery) => $departmentQuery
+                        ->where('name', 'ilike', "%{$search}%"))
+                    ->orWhereHas('team', fn ($teamQuery) => $teamQuery
+                        ->where('name', 'ilike', "%{$search}%")
+                        ->orWhereHas('leader', fn ($leaderQuery) => $leaderQuery->where('name', 'ilike', "%{$search}%")));
+            }))
             ->orderBy('created_at', 'desc');
         $santri = $santriQuery->paginate(25, ['*'], 'people_page');
         $organizationSearch = trim((string) $request->query('organization_search'));

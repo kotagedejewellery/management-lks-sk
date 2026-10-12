@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1791535883.8018477,
-    "seen": 1791535996.0305498,
-    "ast_hash": "1183a4373a4f5715e53f2e7f7b4053d2",
+    "mtime": 1791778796.6061587,
+    "seen": 1791778891.224025,
+    "ast_hash": "49451e8e81d59c550354fbc8d4c2ad41",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -804,9 +804,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/OrganizationController.php": {
-    "mtime": 1791519136.100276,
-    "seen": 1791520155.0830355,
-    "ast_hash": "00f59265d4bbe6dc08fb6187ed2da7cf",
+    "mtime": 1791777369.145466,
+    "seen": 1791777677.0072384,
+    "ast_hash": "1fc5da20890bf951a931792bf040cf23",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1791535971.6421862,
-    "seen": 1791535996.030517,
-    "ast_hash": "7ad21eee1173ff383101efd81d192663",
+    "mtime": 1791778978.866062,
+    "seen": 1791779069.3393242,
+    "ast_hash": "2b5126b6583ec40dba030051e9089baf",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {
@@ -990,9 +990,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php": {
-    "mtime": 1791427174.4162283,
-    "seen": 1791427486.5785053,
-    "ast_hash": "0e0b3a4f9665fada268b963f754d6cb9",
+    "mtime": 1791779034.2611678,
+    "seen": 1791779069.3390365,
+    "ast_hash": "10a6c7bd0508d590551833683ca249d2",
     "semantic_hash": ""
   },
   "backend/app/Models/DocumentSignatory.php": {
@@ -1041,6 +1041,12 @@
     "mtime": 1791530369.679389,
     "seen": 1791531760.8911154,
     "ast_hash": "31f25c07f26bdde2726298143cb244b6",
+    "semantic_hash": ""
+  },
+  "docs/Panduan-Admin-Konfigurasi-LKS.md": {
+    "mtime": 1791771161.176557,
+    "seen": 1791771180.7658958,
+    "ast_hash": "a4dd23c264da342c28c5c33f27c9601f",
     "semantic_hash": ""
   }
 }

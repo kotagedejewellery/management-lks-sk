@@ -98,6 +98,64 @@ class LksCoreTest extends TestCase
         $this->assertCount(2, $period->fresh()->signatories_snapshot);
     }
 
+    public function test_admin_can_filter_santri_by_organization_status_level_and_search(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $department = Department::query()->create(['code' => 'MKT', 'name' => 'Marketing', 'is_active' => true]);
+        $otherDepartment = Department::query()->create(['code' => 'OPS', 'name' => 'Operasional', 'is_active' => true]);
+        $team = Team::query()->create(['department_id' => $department->id, 'code' => 'MKT-DIG', 'name' => 'Digital', 'is_active' => true]);
+        $otherTeam = Team::query()->create(['department_id' => $otherDepartment->id, 'code' => 'OPS-GUD', 'name' => 'Gudang', 'is_active' => true]);
+        $leader = $this->userWithRole('leader', ['name' => 'Rahmad Leader']);
+        $team->update(['leader_user_id' => $leader->id]);
+        $matchingUser = $this->userWithRole('santri', ['name' => 'Zhafron Firdaus']);
+        $otherUser = $this->userWithRole('santri', ['name' => 'Anggota Operasional']);
+        $inactiveUser = $this->userWithRole('santri', ['name' => 'Anggota Nonaktif']);
+
+        SantriProfile::query()->create(['user_id' => $matchingUser->id, 'gender' => 'ikhwan', 'department_id' => $department->id, 'team_id' => $team->id, 'leader_user_id' => $leader->id, 'level' => 'staff', 'status' => 'active']);
+        SantriProfile::query()->create(['user_id' => $otherUser->id, 'gender' => 'akhwat', 'department_id' => $otherDepartment->id, 'team_id' => $otherTeam->id, 'level' => 'staff', 'status' => 'active']);
+        SantriProfile::query()->create(['user_id' => $inactiveUser->id, 'gender' => 'ikhwan', 'department_id' => $department->id, 'team_id' => $team->id, 'leader_user_id' => $leader->id, 'level' => 'staff', 'status' => 'inactive']);
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.admin.organization.index', [
+                'people_department_id' => $department->id,
+                'people_team_id' => $team->id,
+                'people_status' => 'active',
+                'people_level' => 'staff',
+                'people_search' => 'Rahmad',
+            ]))
+            ->assertOk()
+            ->assertJsonPath('data.santri_pagination.total', 1)
+            ->assertJsonPath('data.santri.0.user.name', 'Zhafron Firdaus');
+    }
+
+    public function test_creating_santri_uses_the_selected_team_as_the_single_placement_source(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $leader = $this->userWithRole('leader', ['name' => 'Leader Tim']);
+        $department = Department::query()->create(['code' => 'OPS', 'name' => 'Operasional', 'is_active' => true]);
+        $team = Team::query()->create(['department_id' => $department->id, 'code' => 'OPS-1', 'name' => 'Operasional Satu', 'leader_user_id' => $leader->id, 'is_active' => true]);
+        SantriProfile::query()->create(['user_id' => $leader->id, 'gender' => 'ikhwan', 'department_id' => $department->id, 'team_id' => $team->id, 'level' => 'leader', 'status' => 'active']);
+
+        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
+            ->postJson(route('api.lks.admin.santri.store'), [
+                'name' => 'Anggota Baru',
+                'email' => 'anggota-baru@example.test',
+                'temporary_password' => 'passwordsementara123',
+                'gender' => 'akhwat',
+                'team_id' => $team->id,
+                'level' => 'staff',
+            ])
+            ->assertCreated();
+
+        $newUser = User::query()->where('email', 'anggota-baru@example.test')->firstOrFail();
+        $this->assertDatabaseHas('santri_profiles', [
+            'user_id' => $newUser->id,
+            'department_id' => $department->id,
+            'team_id' => $team->id,
+            'leader_user_id' => $leader->id,
+        ]);
+    }
+
     public function test_activation_requires_both_digital_signatories(): void
     {
         $admin = $this->userWithRole('admin');
@@ -173,6 +231,19 @@ class LksCoreTest extends TestCase
             ->assertJsonPath('data.signature_configured', true);
 
         Storage::disk('local')->assertExists($signatory->fresh()->signature_path);
+    }
+
+    public function test_document_signature_slots_are_recreated_after_configuration_data_is_cleared(): void
+    {
+        $admin = $this->userWithRole('admin');
+        DocumentSignatory::query()->delete();
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.admin.document-signatories.index'))
+            ->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.role', 'general_manager')
+            ->assertJsonPath('data.1.role', 'kabid_pengembangan_spiritual');
     }
 
     public function test_santri_can_record_own_checklist_but_not_another_participants_checklist(): void

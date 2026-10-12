@@ -16,6 +16,7 @@ class DocumentSignatoryController extends Controller
     public function index(Request $request): JsonResponse
     {
         $this->ensureAdmin($request);
+        $this->ensureRequiredSignatories();
 
         return response()->json(['data' => DocumentSignatory::query()
             ->orderByRaw("CASE role WHEN 'general_manager' THEN 1 ELSE 2 END")
@@ -89,5 +90,15 @@ class DocumentSignatoryController extends Controller
     private function ensureAdmin(Request $request): void
     {
         abort_unless($request->user()?->isAdmin(), 403);
+    }
+
+    private function ensureRequiredSignatories(): void
+    {
+        foreach ([
+            'general_manager' => 'General Manager',
+            'kabid_pengembangan_spiritual' => 'Kabid. Pengembangan Spiritual',
+        ] as $role => $title) {
+            DocumentSignatory::query()->firstOrCreate(['role' => $role], ['title' => $title]);
+        }
     }
 }

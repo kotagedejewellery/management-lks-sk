@@ -312,7 +312,7 @@ function bulkChecklistMonths(activity) {
   const start = new Date(`${dateInputValue(activeParticipant.participation_start_date)}T00:00:00`);
   const end = new Date(`${[todayIso(), dateInputValue(activePeriod.end_date)].sort()[0]}T00:00:00`);
   if (start > end) return [];
-  const allowedWeekdays = new Set(activity.allowed_weekdays ?? []);
+  const allowedWeekdays = new Set(weekdayValues(activity.allowed_weekdays));
   const holidays = new Map((activePeriod.holidays ?? []).map((holiday) => [dateInputValue(holiday.date), holiday.name]));
   const recordedDates = new Set(activity.recorded_dates ?? []);
   const recordedByWeek = new Map();
@@ -1551,7 +1551,7 @@ document.addEventListener('change', (event) => {
 const settingRoutes = { 'Kelola periode': 'periods', 'Kelola aktivitas': 'activities', 'Kelola Santri': 'people' };
 document.querySelectorAll('.settings-grid .text-action').forEach((button) => button.addEventListener('click', () => openView(settingRoutes[button.textContent.trim()])));
 document.querySelectorAll('[data-demo]').forEach((button) => button.addEventListener('click', () => showToast(`${button.dataset.demo} tersedia setelah integrasi backend`)));
-const adminListState = { organization: { page: 1, search: '' }, people: { page: 1, search: '' }, periods: { page: 1, search: '' }, activities: { page: 1, search: '' }, calendar: { year: new Date().getFullYear() }, participants: { page: 1, search: '' } };
+const adminListState = { organization: { page: 1, search: '' }, people: { page: 1, search: '', departmentId: '', teamId: '', status: '', level: '' }, periods: { page: 1, search: '' }, activities: { page: 1, search: '' }, calendar: { year: new Date().getFullYear() }, participants: { page: 1, search: '' } };
 let latestAdminRequest = 0;
 let activePeriodParticipants = null;
 
@@ -1559,8 +1559,14 @@ function adminOptions(items, selected = '') {
   return `<option value="">Pilih</option>${items.map((item) => `<option value="${escapeHtml(item.id)}"${item.id === selected ? ' selected' : ''}>${escapeHtml(item.name)}</option>`).join('')}`;
 }
 
+function weekdayValues(value = []) {
+  return Array.isArray(value)
+    ? value.map(Number)
+    : String(value ?? '').replace(/[{}]/g, '').split(',').filter(Boolean).map(Number);
+}
+
 function weekdayPicker(selected = [], fieldName = 'allowed_weekdays') {
-  const activeDays = Array.isArray(selected) ? selected.map(Number) : String(selected ?? '').replace(/[{}]/g, '').split(',').filter(Boolean).map(Number);
+  const activeDays = weekdayValues(selected);
   const days = [[1, 'Sen'], [2, 'Sel'], [3, 'Rab'], [4, 'Kam'], [5, 'Jum'], [6, 'Sab'], [7, 'Min']];
   return `<fieldset class="weekday-picker"><legend>Jadwal pencatatan</legend><small>Kosongkan semua bila aktivitas dapat dicatat setiap hari.</small><span>${days.map(([value, label]) => `<label><input type="checkbox" name="${fieldName}" value="${value}"${activeDays.includes(value) ? ' checked' : ''}> ${label}</label>`).join('')}</span></fieldset>`;
 }
@@ -1578,7 +1584,7 @@ function activityRuleLabel(activity) {
 }
 
 function activityScheduleLabel(activity) {
-  const days = [...new Set((activity.allowed_weekdays ?? []).map(Number))].sort((left, right) => left - right);
+  const days = [...new Set(weekdayValues(activity.allowed_weekdays))].sort((left, right) => left - right);
   if (!days.length) return 'setiap hari';
   if (days.join(',') === '1,2,3,4,5') return 'Senin–Jumat';
   const labels = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
@@ -1695,30 +1701,34 @@ function renderAdminView(name) {
     const showOrganizationEmpty = organizationMeta.total === 0 && !hasOrganizationSearch;
     const hierarchyRows = departments.map((department) => {
       const departmentActions = `<button class="text-button organization-row-action" type="button" data-open-admin-modal="department-edit" data-organization-id="${escapeHtml(department.id)}">Edit</button><button class="text-button organization-row-action" type="button" data-open-admin-modal="team" data-department-id="${escapeHtml(department.id)}"${department.is_active ? '' : ' disabled'}>Tambah tim</button>${department.is_active ? `<button class="text-button organization-row-action organization-archive-action" type="button" data-archive-organization="department" data-organization-id="${escapeHtml(department.id)}" data-organization-name="${escapeHtml(department.name)}">Arsipkan</button>` : ''}${department.teams.length === 0 && department.santri_profiles_count === 0 ? `<button class="text-button organization-row-action" type="button" data-delete-resource="department" data-resource-id="${escapeHtml(department.id)}" data-resource-name="${escapeHtml(department.name)}">Hapus</button>` : ''}`;
-      const departmentRow = `<div class="organization-hierarchy-row organization-department-row" role="row"><span role="cell"><strong>${escapeHtml(department.name)}</strong><small>${department.teams.length} tim</small></span><span class="organization-code" role="cell">${escapeHtml(department.code)}</span><span role="cell">${department.santri_profiles_count} Santri Karya</span><span role="cell">—</span><span role="cell">${department.is_active ? 'Aktif' : 'Diarsipkan'}</span><span class="organization-row-actions" role="cell">${departmentActions}</span></div>`;
-      const teamRows = department.teams.map((team) => `<div class="organization-hierarchy-row organization-team-child-row" role="row"><span role="cell"><strong>${escapeHtml(team.name)}</strong><small>Tim · ${escapeHtml(department.name)}</small></span><span class="organization-code" role="cell">${escapeHtml(team.code)}</span><span role="cell">${team.santri_profiles_count} Santri Karya</span><span role="cell">${escapeHtml(team.leader?.name ?? 'Belum ditetapkan')}</span><span role="cell">${team.is_active ? 'Aktif' : 'Diarsipkan'}</span><span class="organization-row-actions" role="cell"><button class="text-button organization-row-action" type="button" data-open-admin-modal="team-edit" data-organization-id="${escapeHtml(team.id)}">Edit</button>${team.is_active ? `<button class="text-button organization-row-action organization-archive-action" type="button" data-archive-organization="team" data-organization-id="${escapeHtml(team.id)}" data-organization-name="${escapeHtml(team.name)}">Arsipkan</button>` : ''}${team.santri_profiles_count === 0 ? `<button class="text-button organization-row-action" type="button" data-delete-resource="team" data-resource-id="${escapeHtml(team.id)}" data-resource-name="${escapeHtml(team.name)}">Hapus</button>` : ''}</span></div>`).join('');
+      const departmentRow = `<div class="organization-hierarchy-row organization-department-row" role="row"><span role="cell"><strong>Departemen · ${escapeHtml(department.name)}</strong><small>${department.teams.length} tim · ${department.santri_profiles_count} anggota</small></span><span class="organization-code" role="cell">${escapeHtml(department.code)}</span><span role="cell">${department.santri_profiles_count} anggota</span><span role="cell">—</span><span role="cell">${department.is_active ? 'Aktif' : 'Diarsipkan'}</span><span class="organization-row-actions" role="cell">${departmentActions}</span></div>`;
+      const teamRows = department.teams.map((team) => `<div class="organization-hierarchy-row organization-team-child-row" role="row"><span role="cell"><strong>Tim · ${escapeHtml(team.name)}</strong><small>Di dalam departemen: ${escapeHtml(department.name)}</small></span><span class="organization-code" role="cell">${escapeHtml(team.code)}</span><span role="cell">${team.santri_profiles_count} anggota</span><span role="cell">${escapeHtml(team.leader?.name ?? 'Belum ditetapkan')}</span><span role="cell">${team.is_active ? 'Aktif' : 'Diarsipkan'}</span><span class="organization-row-actions" role="cell">${team.is_active ? `<button class="text-button organization-row-action" type="button" data-open-admin-modal="santri" data-team-id="${escapeHtml(team.id)}">Tambah anggota</button>` : ''}<button class="text-button organization-row-action" type="button" data-open-admin-modal="team-edit" data-organization-id="${escapeHtml(team.id)}">Kelola tim</button>${team.is_active ? `<button class="text-button organization-row-action organization-archive-action" type="button" data-archive-organization="team" data-organization-id="${escapeHtml(team.id)}" data-organization-name="${escapeHtml(team.name)}">Arsipkan</button>` : ''}${team.santri_profiles_count === 0 ? `<button class="text-button organization-row-action" type="button" data-delete-resource="team" data-resource-id="${escapeHtml(team.id)}" data-resource-name="${escapeHtml(team.name)}">Hapus</button>` : ''}</span></div>`).join('');
       return `${departmentRow}${teamRows || '<div class="organization-no-team">Belum ada tim. Tambahkan tim dari baris departemen di atas.</div>'}`;
     }).join('');
     const hierarchyContent = showOrganizationEmpty
       ? `<section class="organization-empty-state" aria-labelledby="department-empty-title"><h3 id="department-empty-title">Belum ada departemen</h3><p>Mulai dengan membuat departemen sebagai dasar struktur organisasi. Setelah itu, Anda dapat menambahkan tim di dalamnya.</p><button class="primary-button" type="button" data-open-admin-modal="department">Tambah departemen</button></section>`
-      : `<section class="admin-record-section organization-hierarchy-section" aria-labelledby="organization-list-title"><div class="organization-section-head"><div><h3 id="organization-list-title">Struktur Departemen dan Tim</h3><p>${organizationMeta.total} departemen · ${teams.length} tim.</p></div></div><form class="admin-list-search" data-admin-list-search="organization"><label class="sr-only" for="organization-search">Cari departemen atau tim</label><input id="organization-search" name="search" value="${escapeHtml(adminListState.organization.search)}" placeholder="Cari nama atau kode departemen/tim" autocomplete="off"></form>${departments.length ? `<div class="organization-hierarchy-table" role="table" aria-label="Struktur organisasi"><div class="organization-hierarchy-head" role="row"><span role="columnheader">Unit</span><span role="columnheader">Kode</span><span role="columnheader">Santri Karya</span><span role="columnheader">Leader Tim</span><span role="columnheader">Status</span><span role="columnheader">Aksi</span></div>${hierarchyRows}</div>${paginationControls(organizationMeta, 'organization')}` : '<p class="admin-empty">Tidak ada unit yang sesuai dengan pencarian.</p>'}</section>`;
+      : `<section class="admin-record-section organization-hierarchy-section" aria-labelledby="organization-list-title"><div class="organization-section-head"><div><h3 id="organization-list-title">Struktur Departemen dan Tim</h3><p>${organizationMeta.total} departemen · ${teams.length} tim. Tempatkan anggota dari baris Tim agar departemen dan Leader mengikuti Tim secara otomatis.</p></div></div><form class="admin-list-search" data-admin-list-search="organization"><label class="sr-only" for="organization-search">Cari departemen atau tim</label><input id="organization-search" name="search" value="${escapeHtml(adminListState.organization.search)}" placeholder="Cari nama atau kode departemen/tim" autocomplete="off"></form>${departments.length ? `<div class="organization-hierarchy-table" role="table" aria-label="Struktur organisasi"><div class="organization-hierarchy-head" role="row"><span role="columnheader">Struktur</span><span role="columnheader">Kode</span><span role="columnheader">Anggota</span><span role="columnheader">Leader Tim</span><span role="columnheader">Status</span><span role="columnheader">Aksi</span></div>${hierarchyRows}</div>${paginationControls(organizationMeta, 'organization')}` : '<p class="admin-empty">Tidak ada unit yang sesuai dengan pencarian.</p>'}</section>`;
     const organizationActions = !showOrganizationEmpty ? '<button class="primary-button" type="button" data-open-admin-modal="department">Tambah departemen</button>' : '';
-    panel.innerHTML = adminPanel('Struktur Organisasi', 'Atur departemen dan tim sebagai dasar penempatan Santri Karya.', `<nav class="admin-back-link" aria-label="Navigasi pengaturan"><button class="text-button" type="button" data-go="settings">Kembali ke Pengaturan</button></nav>${hierarchyContent}`, organizationActions, !showOrganizationEmpty);
+    panel.innerHTML = adminPanel('Struktur Organisasi', 'Departemen menaungi Tim. Santri Karya cukup ditempatkan pada Tim; Departemen dan Leader Tim mengikuti secara otomatis.', `<nav class="admin-back-link" aria-label="Navigasi pengaturan"><button class="text-button" type="button" data-go="settings">Kembali ke Pengaturan</button></nav>${hierarchyContent}`, organizationActions, !showOrganizationEmpty);
     return;
   }
   if (name === 'people') {
     const hasTeams = teams.length > 0;
     const people = organization.santri;
-    const hasPeopleSearch = Boolean(adminListState.people.search);
-    const showPeopleEmpty = hasTeams && peopleMeta.total === 0 && !hasPeopleSearch;
-    const peopleRows = people.map((profile) => `<div class="admin-record-row people-record-row" role="row"><span role="cell"><strong>${escapeHtml(profile.user.name)}</strong><small>${escapeHtml(profile.user.email)}</small></span><span role="cell">${escapeHtml(profile.team?.name ?? 'Tanpa tim')} · ${escapeHtml(profile.department?.name ?? 'Tanpa departemen')}</span><span role="cell">${profile.status === 'active' ? 'Aktif' : 'Nonaktif'} · ${profile.level === 'leader' ? 'Leader' : 'Staff'}</span><span role="cell"><button class="text-button organization-row-action" type="button" data-open-admin-modal="santri-edit" data-santri-id="${escapeHtml(profile.user_id)}">Edit</button><button class="text-button organization-row-action" type="button" data-delete-resource="santri" data-resource-id="${escapeHtml(profile.user_id)}" data-resource-name="${escapeHtml(profile.user.name)}">Hapus</button></span></div>`).join('');
+    const peopleFilters = adminListState.people;
+    const selectedPeopleDepartment = departmentOptions.find((department) => department.id === peopleFilters.departmentId);
+    const peopleTeams = selectedPeopleDepartment?.teams ?? [];
+    const hasPeopleFilters = Boolean(peopleFilters.search || peopleFilters.departmentId || peopleFilters.teamId || peopleFilters.status || peopleFilters.level);
+    const showPeopleEmpty = hasTeams && peopleMeta.total === 0 && !hasPeopleFilters;
+    const peopleRows = people.map((profile) => `<div class="admin-record-row people-record-row" role="row"><span role="cell"><strong>${escapeHtml(profile.user.name)}</strong><small>${escapeHtml(profile.user.email)}</small></span><span role="cell"><strong>${escapeHtml(profile.department?.name ?? 'Tanpa departemen')}</strong><small>Tim: ${escapeHtml(profile.team?.name ?? 'Belum ditetapkan')} · Leader: ${escapeHtml(profile.team?.leader?.name ?? 'Belum ditetapkan')}</small></span><span role="cell">${profile.status === 'active' ? 'Aktif' : 'Nonaktif'} · ${profile.level === 'leader' ? 'Leader' : 'Staff'}</span><span role="cell"><button class="text-button organization-row-action" type="button" data-open-admin-modal="santri-edit" data-santri-id="${escapeHtml(profile.user_id)}">Edit</button><button class="text-button organization-row-action" type="button" data-delete-resource="santri" data-resource-id="${escapeHtml(profile.user_id)}" data-resource-name="${escapeHtml(profile.user.name)}">Hapus</button></span></div>`).join('');
+    const peopleFilterControls = `<form class="admin-list-search people-filter-form" data-admin-list-search="people"><label class="sr-only" for="people-search">Cari Santri Karya</label><input id="people-search" name="search" value="${escapeHtml(peopleFilters.search)}" placeholder="Cari nama, email, tim, atau Leader" autocomplete="off"><label><span class="sr-only">Departemen</span><select name="department_id" data-people-filter="department"><option value="">Semua departemen</option>${departmentOptions.map((department) => `<option value="${escapeHtml(department.id)}"${department.id === peopleFilters.departmentId ? ' selected' : ''}>${escapeHtml(department.name)}</option>`).join('')}</select></label><label><span class="sr-only">Tim</span><select name="team_id" data-people-filter="team"${peopleFilters.departmentId ? '' : ' disabled'}>${peopleFilters.departmentId ? `<option value="">Semua tim</option>${peopleTeams.map((team) => `<option value="${escapeHtml(team.id)}"${team.id === peopleFilters.teamId ? ' selected' : ''}>${escapeHtml(team.name)}</option>`).join('')}` : '<option value="">Pilih departemen terlebih dahulu</option>'}</select></label><label><span class="sr-only">Status akses</span><select name="status" data-people-filter="status"><option value="">Semua status</option><option value="active"${peopleFilters.status === 'active' ? ' selected' : ''}>Aktif</option><option value="inactive"${peopleFilters.status === 'inactive' ? ' selected' : ''}>Nonaktif</option></select></label><label><span class="sr-only">Level jabatan</span><select name="level" data-people-filter="level"><option value="">Semua level</option><option value="leader"${peopleFilters.level === 'leader' ? ' selected' : ''}>Leader</option><option value="staff"${peopleFilters.level === 'staff' ? ' selected' : ''}>Staff</option></select></label>${hasPeopleFilters ? '<button class="text-button" type="button" data-reset-people-filters>Reset filter</button>' : ''}</form>`;
     const peopleContent = !hasTeams
       ? `<section class="organization-empty-state" aria-labelledby="people-prerequisite-title"><h3 id="people-prerequisite-title">Siapkan tim terlebih dahulu</h3><p>Santri Karya perlu ditempatkan di dalam tim. Buat departemen dan tim sebelum membuat akun Santri Karya.</p><button class="primary-button" type="button" data-go="organization">Kelola struktur organisasi</button></section>`
       : !showPeopleEmpty
-        ? `<section class="admin-record-section" aria-labelledby="people-list-title"><div class="organization-section-head"><div><h3 id="people-list-title">Daftar Santri Karya</h3><p>${peopleMeta.total} Santri Karya terdaftar.</p></div></div><form class="admin-list-search" data-admin-list-search="people"><label class="sr-only" for="people-search">Cari Santri Karya</label><input id="people-search" name="search" value="${escapeHtml(adminListState.people.search)}" placeholder="Cari nama atau email" autocomplete="off"></form>${people.length ? `<div class="admin-record-table people-record-table" role="table" aria-label="Daftar Santri Karya"><div class="admin-record-head" role="row"><span role="columnheader">Santri Karya</span><span role="columnheader">Penempatan</span><span role="columnheader">Status akses</span><span role="columnheader">Aksi</span></div>${peopleRows}</div>${paginationControls(peopleMeta, 'people')}` : '<p class="admin-empty">Tidak ada Santri Karya yang sesuai dengan pencarian.</p>'}</section>`
+        ? `<section class="admin-record-section" aria-labelledby="people-list-title"><div class="organization-section-head"><div><h3 id="people-list-title">Daftar Santri Karya</h3><p>${hasPeopleFilters ? `${peopleMeta.total} Santri Karya ditemukan.` : `${peopleMeta.total} Santri Karya terdaftar.`}</p></div></div>${peopleFilterControls}${people.length ? `<div class="admin-record-table people-record-table" role="table" aria-label="Daftar Santri Karya"><div class="admin-record-head" role="row"><span role="columnheader">Santri Karya</span><span role="columnheader">Penempatan</span><span role="columnheader">Status akses</span><span role="columnheader">Aksi</span></div>${peopleRows}</div>${paginationControls(peopleMeta, 'people')}` : '<p class="admin-empty">Tidak ada Santri Karya yang sesuai dengan filter. Ubah atau reset filter untuk melihat data lain.</p>'}</section>`
         : `<section class="organization-empty-state" aria-labelledby="people-empty-title"><h3 id="people-empty-title">Belum ada Santri Karya</h3><p>Buat akun Santri Karya dan tetapkan timnya. Peserta periode dapat dikelola setelah akun tersedia.</p><button class="primary-button" type="button" data-open-admin-modal="santri">Tambah Santri Karya</button></section>`;
     const peopleActions = hasTeams && !showPeopleEmpty ? '<button class="primary-button" type="button" data-open-admin-modal="santri">Tambah Santri Karya</button>' : '';
-    panel.innerHTML = adminPanel('Data Santri Karya', 'Buat akun dan tetapkan penempatan organisasinya. Peserta periode dikelola dari Periode LKS.', `<nav class="admin-back-link" aria-label="Navigasi pengaturan"><button class="text-button" type="button" data-go="settings">Kembali ke Pengaturan</button></nav>${peopleContent}`, peopleActions, !showPeopleEmpty && hasTeams);
+    panel.innerHTML = adminPanel('Data Santri Karya', 'Buat akun dan pilih Tim. Departemen serta Leader Tim akan mengikuti pilihan tersebut secara otomatis. Peserta periode dikelola dari Periode LKS.', `<nav class="admin-back-link" aria-label="Navigasi pengaturan"><button class="text-button" type="button" data-go="settings">Kembali ke Pengaturan</button></nav>${peopleContent}`, peopleActions, !showPeopleEmpty && hasTeams);
     return;
   }
   if (name === 'period-detail') {
@@ -1825,6 +1835,10 @@ async function loadAdminView(name, { dataOnly = false } = {}) {
     organization_search: adminListState.organization.search,
     people_page: String(adminListState.people.page),
     people_search: adminListState.people.search,
+    people_department_id: adminListState.people.departmentId,
+    people_team_id: adminListState.people.teamId,
+    people_status: adminListState.people.status,
+    people_level: adminListState.people.level,
     period_page: String(adminListState.periods.page),
     period_search: adminListState.periods.search,
     activity_page: String(adminListState.activities.page),
@@ -2134,6 +2148,24 @@ document.addEventListener('submit', (event) => {
   adminListState[list].page = 1;
   loadAdminView(list === 'participants' ? 'period-detail' : list, { dataOnly: true });
 });
+document.addEventListener('change', (event) => {
+  const filter = event.target.closest('[data-people-filter]');
+  if (!filter) return;
+  const people = adminListState.people;
+  if (filter.dataset.peopleFilter === 'department') {
+    people.departmentId = filter.value;
+    people.teamId = '';
+  } else if (filter.dataset.peopleFilter === 'team') people.teamId = filter.value;
+  else if (filter.dataset.peopleFilter === 'status') people.status = filter.value;
+  else if (filter.dataset.peopleFilter === 'level') people.level = filter.value;
+  people.page = 1;
+  loadAdminView('people', { dataOnly: true });
+});
+document.addEventListener('click', (event) => {
+  if (!event.target.closest('[data-reset-people-filters]')) return;
+  adminListState.people = { page: 1, search: '', departmentId: '', teamId: '', status: '', level: '' };
+  loadAdminView('people', { dataOnly: true });
+});
 function openAdminFormModal(type, departmentId = '', returnView = '') {
   const organization = organizationData ?? { departments: [], department_options: [], santri: [], santri_options: [], team_leader_options: [] };
   const configuration = configurationData ?? { periods: [], period_options: [], activities: [], activity_options: [] };
@@ -2164,7 +2196,7 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
       fields: '<label>Kode<input name="code" maxlength="30" autocomplete="off" required></label><label>Nama departemen<input name="name" maxlength="100" autocomplete="organization" required></label>',
     },
     team: {
-      title: 'Tambah tim', description: 'Pilih departemen induk sebelum menyimpan tim baru. Leader Tim dapat dipilih setelah akun Leader dibuat.', submitLabel: 'Simpan tim',
+      title: 'Tambah tim', description: 'Pilih departemen induk, lalu simpan Tim. Setelahnya, tambahkan anggota dari baris Tim agar penempatan tidak perlu diisi dua kali.', submitLabel: 'Simpan tim',
       fields: `<label>Departemen<select name="department_id" required>${adminOptions(departmentOptions.filter((department) => department.is_active), departmentId)}</select></label><label>Kode<input name="code" maxlength="30" autocomplete="off" required></label><label>Nama tim<input name="name" maxlength="100" autocomplete="organization" required></label>`,
     },
     'department-edit': selectedDepartment ? {
@@ -2172,12 +2204,12 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
       fields: `<label>Kode<input name="code" maxlength="30" value="${escapeHtml(selectedDepartment.code)}" required></label><label>Nama departemen<input name="name" maxlength="100" value="${escapeHtml(selectedDepartment.name)}" required></label><label class="admin-modal-checkbox"><input type="checkbox" name="is_active"${selectedDepartment.is_active ? ' checked' : ''}> Departemen aktif</label>`,
     } : null,
     'team-edit': selectedTeam ? {
-      title: `Kelola tim · ${escapeHtml(selectedTeam.name)}`, description: 'Pilih satu Leader Tim agar seluruh anggota mengikuti akses dan catatan LKS yang sama. Tim hanya dapat diarsipkan setelah seluruh Santri Karya aktifnya dipindahkan atau dinonaktifkan.', submitLabel: 'Simpan perubahan',
+      title: `Kelola tim · ${escapeHtml(selectedTeam.name)}`, description: 'Pilih satu Leader Tim agar seluruh anggota mengikuti akses dan catatan LKS yang sama. Anggota tidak perlu ditempatkan ulang di sini.', submitLabel: 'Simpan perubahan',
       fields: `<label>Kode<input name="code" maxlength="30" value="${escapeHtml(selectedTeam.code)}" required></label><label>Nama tim<input name="name" maxlength="100" value="${escapeHtml(selectedTeam.name)}" required></label><label>Leader Tim<select name="leader_user_id">${adminOptions(teamLeaderOptions, selectedTeam.leader_user_id ?? '')}</select><small>Pilih Santri Karya aktif dengan level jabatan Leader dari tim ini.</small></label><label class="admin-modal-checkbox"><input type="checkbox" name="is_active"${selectedTeam.is_active ? ' checked' : ''}> Tim aktif</label>`,
     } : null,
     santri: {
-      title: 'Tambah Santri Karya', description: 'Admin menetapkan password sementara dan penempatan organisasi akun baru. Leader Tim ditentukan dari pengaturan Tim.', submitLabel: 'Buat akun Santri',
-      fields: `<label>Nama<input name="name" maxlength="150" autocomplete="name" required></label><label>Email<input type="email" name="email" autocomplete="email" required></label><label>Password sementara<input type="password" name="temporary_password" minlength="8" autocomplete="new-password" required></label><div class="admin-modal-inline-fields"><label>Gender<select name="gender" required><option value="ikhwan">Ikhwan</option><option value="akhwat">Akhwat</option></select></label><label>Tim<select name="team_id" required>${adminOptions(teams)}</select></label></div><label>Level jabatan<select name="level" required><option value="staff" selected>Staff</option><option value="leader">Leader</option></select><small>Setelah akun Leader dibuat, pilih akun tersebut sebagai Leader Tim dari pengaturan Tim.</small></label>`,
+      title: selectedTeam ? `Tambah Santri Karya · ${escapeHtml(selectedTeam.name)}` : 'Tambah Santri Karya', description: selectedTeam ? 'Tim sudah dipilih. Departemen dan Leader Tim akan mengikuti Tim ini secara otomatis.' : 'Pilih Tim untuk akun baru. Departemen dan Leader Tim akan mengikuti pilihan tersebut secara otomatis.', submitLabel: 'Buat akun Santri',
+      fields: `<label>Nama<input name="name" maxlength="150" autocomplete="name" required></label><label>Email<input type="email" name="email" autocomplete="email" required></label><label>Password sementara<input type="password" name="temporary_password" minlength="8" autocomplete="new-password" required></label><div class="admin-modal-inline-fields"><label>Gender<select name="gender" required><option value="ikhwan">Ikhwan</option><option value="akhwat">Akhwat</option></select></label><label>Tim<select name="team_id" required>${adminOptions(teams.filter((team) => team.is_active), selectedTeam?.id)}</select><small>Departemen dan Leader Tim mengikuti Tim ini secara otomatis.</small></label></div><label>Level jabatan<select name="level" required><option value="staff" selected>Staff</option><option value="leader">Leader</option></select><small>Untuk menetapkan Leader Tim, pilih akun Leader dari menu Kelola tim.</small></label>`,
     },
     'santri-edit': selectedProfile ? {
       title: `Kelola Santri Karya · ${escapeHtml(selectedProfile.user.name)}`, description: 'Perubahan penempatan berlaku untuk data berikutnya. Riwayat periode yang sudah berjalan tetap menggunakan snapshot sebelumnya. Leader mengikuti Tim yang dipilih.', submitLabel: 'Simpan perubahan',
@@ -2286,7 +2318,7 @@ document.addEventListener('click', async (event) => {
   if (trigger) {
     openAdminFormModal(
       trigger.dataset.openAdminModal,
-      trigger.dataset.departmentId ?? trigger.dataset.periodId ?? trigger.dataset.organizationId ?? trigger.dataset.santriId ?? trigger.dataset.activityId ?? trigger.dataset.signatoryId,
+      trigger.dataset.departmentId ?? trigger.dataset.periodId ?? trigger.dataset.organizationId ?? trigger.dataset.santriId ?? trigger.dataset.activityId ?? trigger.dataset.signatoryId ?? trigger.dataset.teamId,
       trigger.closest('[data-view-panel]')?.dataset.viewPanel,
     );
     return;
