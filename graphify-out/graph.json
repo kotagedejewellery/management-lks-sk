@@ -2751,7 +2751,7 @@
       "file_type": "code",
       "norm_label": "loaddashboard()",
       "source_file": "frontend/app.js",
-      "source_location": "L2536"
+      "source_location": "L2554"
     },
     {
       "id": "frontend_app_logout",
@@ -18427,7 +18427,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2540",
+      "source_location": "L2558",
       "weight": 1.0
     },
     {
@@ -18439,7 +18439,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2545",
+      "source_location": "L2563",
       "weight": 1.0
     },
     {
@@ -18451,7 +18451,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2545",
+      "source_location": "L2563",
       "weight": 1.0
     },
     {
@@ -18463,7 +18463,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2548",
+      "source_location": "L2566",
       "weight": 1.0
     },
     {
@@ -18475,7 +18475,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2550",
+      "source_location": "L2568",
       "weight": 1.0
     },
     {
@@ -18487,7 +18487,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2551",
+      "source_location": "L2569",
       "weight": 1.0
     },
     {
@@ -18499,7 +18499,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2553",
+      "source_location": "L2571",
       "weight": 1.0
     },
     {
@@ -18511,7 +18511,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2555",
+      "source_location": "L2573",
       "weight": 1.0
     },
     {
@@ -18871,7 +18871,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2200",
+      "source_location": "L2193",
       "weight": 1.0
     },
     {
@@ -18883,7 +18883,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2203",
+      "source_location": "L2193",
       "weight": 1.0
     },
     {
@@ -18895,7 +18895,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2228",
+      "source_location": "L2232",
       "weight": 1.0
     },
     {
@@ -18907,7 +18907,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2240",
+      "source_location": "L2244",
       "weight": 1.0
     },
     {
@@ -18919,7 +18919,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2240",
+      "source_location": "L2244",
       "weight": 1.0
     },
     {
@@ -18931,7 +18931,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2255",
+      "source_location": "L2259",
       "weight": 1.0
     },
     {
@@ -18943,7 +18943,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2259",
+      "source_location": "L2263",
       "weight": 1.0
     },
     {
@@ -18955,7 +18955,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2279",
+      "source_location": "L2283",
       "weight": 1.0
     },
     {
@@ -18967,7 +18967,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2289",
+      "source_location": "L2293",
       "weight": 1.0
     },
     {
@@ -21055,7 +21055,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2536",
+      "source_location": "L2554",
       "weight": 1.0
     },
     {
@@ -41796,5 +41796,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "43becff28d13cce8ff72ff6fd16627e9c5ac7db6"
+  "built_at_commit": "6c89a53bc5e57661a7f944eae1244c25d29b9f49"
 }
