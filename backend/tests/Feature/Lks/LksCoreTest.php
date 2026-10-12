@@ -784,6 +784,76 @@ class LksCoreTest extends TestCase
         ]);
     }
 
+    public function test_new_draft_period_automatically_snapshots_active_master_activities(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $this->withoutMiddleware();
+        LksActivity::query()->update(['is_active' => false]);
+        $activity = LksActivity::query()->create([
+            'code' => 'AUTO-SNAPSHOT', 'name' => 'Aktivitas otomatis', 'is_active' => true, 'sort_order' => 1,
+            'default_target_count' => 20, 'default_minimum_target_count' => 14,
+            'default_applicable_genders' => '{ikhwan,akhwat}', 'default_applicable_levels' => '{leader,staff}',
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->postJson(route('api.lks.admin.periods.store'), [
+                'name' => 'Oktober 2026',
+                'start_date' => '2026-10-01',
+                'end_date' => '2026-10-31',
+                'final_passing_threshold' => 90,
+                'staff_passing_threshold' => 85,
+            ])
+            ->assertCreated();
+
+        $this->assertDatabaseHas('period_activities', [
+            'period_id' => $response->json('data.id'),
+            'activity_id' => $activity->id,
+            'target_count' => 20,
+            'minimum_target_count' => 14,
+        ]);
+    }
+
+    public function test_admin_can_sync_missing_master_activities_to_a_draft_without_overwriting_existing_rules(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $this->withoutMiddleware();
+        LksActivity::query()->update(['is_active' => false]);
+        $period = $this->period($admin);
+        $existingMaster = LksActivity::query()->create([
+            'code' => 'EXISTING', 'name' => 'Aktivitas tersedia', 'is_active' => true, 'sort_order' => 1,
+            'default_target_count' => 20, 'default_minimum_target_count' => 14,
+            'default_applicable_genders' => '{ikhwan,akhwat}', 'default_applicable_levels' => '{leader,staff}',
+        ]);
+        $missingMaster = LksActivity::query()->create([
+            'code' => 'MISSING', 'name' => 'Aktivitas belum disalin', 'is_active' => true, 'sort_order' => 2,
+            'default_target_count' => 8, 'default_minimum_target_count' => 6,
+            'default_applicable_genders' => '{ikhwan}', 'default_applicable_levels' => '{leader}',
+        ]);
+        $existingPeriodActivity = PeriodActivity::query()->create([
+            'period_id' => $period->id, 'activity_id' => $existingMaster->id,
+            'activity_code_snapshot' => $existingMaster->code, 'activity_name_snapshot' => $existingMaster->name,
+            'target_count' => 17, 'minimum_target_count' => 12, 'weight' => 1, 'is_active' => true,
+        ]);
+
+        $this->actingAs($admin)
+            ->postJson(route('api.lks.admin.periods.activities.sync', $period))
+            ->assertOk()
+            ->assertJsonPath('data.added_count', 1);
+
+        $this->assertSame(17, $existingPeriodActivity->fresh()->target_count);
+        $this->assertDatabaseHas('period_activities', [
+            'period_id' => $period->id,
+            'activity_id' => $missingMaster->id,
+            'target_count' => 8,
+            'minimum_target_count' => 6,
+        ]);
+
+        $this->actingAs($admin)
+            ->postJson(route('api.lks.admin.periods.activities.sync', $period))
+            ->assertOk()
+            ->assertJsonPath('data.added_count', 0);
+    }
+
     public function test_admin_can_delete_activity_used_only_by_draft_period(): void
     {
         $admin = $this->userWithRole('admin');

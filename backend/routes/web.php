@@ -90,6 +90,8 @@ Route::middleware(['auth', 'active-user'])->group(function () {
             Route::delete('calendar-holidays/{holiday}', [PeriodConfigurationController::class, 'destroyCalendarHoliday'])->name('calendar-holidays.destroy');
             Route::post('periods/{period}/activities', [PeriodConfigurationController::class, 'storePeriodActivity'])
                 ->name('periods.activities.store');
+            Route::post('periods/{period}/activities/sync', [PeriodConfigurationController::class, 'syncPeriodActivities'])
+                ->name('periods.activities.sync');
             Route::patch('periods/{period}/activities', [PeriodConfigurationController::class, 'updatePeriodActivities'])
                 ->name('periods.activities.update');
         });

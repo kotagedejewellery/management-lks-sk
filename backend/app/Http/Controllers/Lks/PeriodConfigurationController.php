@@ -79,20 +79,7 @@ class PeriodConfigurationController extends Controller
                 ->whereNotNull('default_target_count')
                 ->orderBy('sort_order')
                 ->each(function (LksActivity $activity) use ($period): void {
-                    PeriodActivity::create([
-                        'period_id' => $period->getKey(),
-                        'activity_id' => $activity->getKey(),
-                        'activity_code_snapshot' => $activity->code,
-                        'activity_name_snapshot' => $activity->name,
-                        'target_count' => $activity->default_target_count,
-                        'minimum_target_count' => $activity->default_minimum_target_count,
-                        'max_per_week' => $activity->default_max_per_week,
-                        'allowed_weekdays' => $activity->default_allowed_weekdays,
-                        'applicable_genders' => $activity->default_applicable_genders,
-                        'applicable_levels' => $activity->default_applicable_levels,
-                        'weight' => 1,
-                        'sort_order' => $activity->sort_order,
-                    ]);
+                    $this->snapshotMasterActivity($period, $activity);
                 });
 
             CalendarHoliday::query()
@@ -108,6 +95,39 @@ class PeriodConfigurationController extends Controller
         });
 
         return response()->json(['data' => $period->load(['periodActivities', 'holidaySnapshots'])], 201);
+    }
+
+    public function syncPeriodActivities(Request $request, LksPeriod $period): JsonResponse
+    {
+        $this->ensureAdmin($request);
+        if ($period->status !== 'draft') {
+            throw ValidationException::withMessages(['period' => 'Aktivitas master hanya dapat disinkronkan ke periode draft.']);
+        }
+
+        $addedCount = DB::transaction(function () use ($period, $request): int {
+            $added = LksActivity::query()
+                ->where('is_active', true)
+                ->whereNotNull('default_target_count')
+                ->whereNotIn('code', $period->periodActivities()->select('activity_code_snapshot'))
+                ->orderBy('sort_order')
+                ->get()
+                ->filter(fn (LksActivity $activity): bool => $this->snapshotMasterActivity($period, $activity)->wasRecentlyCreated)
+                ->count();
+
+            if ($added > 0) {
+                AuditLog::create([
+                    'actor_user_id' => $request->user()->getKey(),
+                    'event' => 'period.activities.synced',
+                    'auditable_type' => $period->getMorphClass(),
+                    'auditable_id' => $period->getKey(),
+                    'after_data' => ['added_count' => $added],
+                ]);
+            }
+
+            return $added;
+        });
+
+        return response()->json(['data' => ['added_count' => $addedCount]]);
     }
 
     public function storeActivity(Request $request): JsonResponse
@@ -525,6 +545,25 @@ class PeriodConfigurationController extends Controller
         if ($minimum > $target) {
             throw ValidationException::withMessages(['minimum_target_count' => 'Target minimal tidak boleh melebihi target periode.']);
         }
+    }
+
+    private function snapshotMasterActivity(LksPeriod $period, LksActivity $activity): PeriodActivity
+    {
+        return $period->periodActivities()->firstOrCreate(
+            ['activity_code_snapshot' => $activity->code],
+            [
+                'activity_id' => $activity->getKey(),
+                'activity_name_snapshot' => $activity->name,
+                'target_count' => $activity->default_target_count,
+                'minimum_target_count' => $activity->default_minimum_target_count,
+                'max_per_week' => $activity->default_max_per_week,
+                'allowed_weekdays' => $activity->default_allowed_weekdays,
+                'applicable_genders' => $activity->default_applicable_genders,
+                'applicable_levels' => $activity->default_applicable_levels,
+                'weight' => 1,
+                'sort_order' => $activity->sort_order,
+            ],
+        );
     }
 
     /** @param array<string, mixed> $data
