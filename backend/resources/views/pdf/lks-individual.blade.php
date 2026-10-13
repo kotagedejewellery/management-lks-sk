@@ -10,25 +10,27 @@
         h1, h2 { font-family: DejaVu Serif, serif; }
         .document-header { border-bottom: 1px solid #6e8278; display: table; padding-bottom: 7px; table-layout: fixed; width: 100%; }
         .brand-mark, .document-title, .period-context { display: table-cell; vertical-align: middle; }
-        .brand-mark, .period-context { width: 82px; }
-        .brand-mark img { display: block; height: 74px; max-width: 74px; object-fit: contain; width: 74px; }
+        .brand-mark { width: 80px; }
+        .period-context { width: 72px; }
+        .brand-symbol { display: block; height: 76px; margin: 0 auto; overflow: hidden; position: relative; width: 76px; }
+        .brand-symbol img { display: block; height: 150px; left: -37px; max-width: none; position: absolute; top: -26px; width: 150px; }
         .document-title { padding: 0 8px; text-align: center; }
         .organization-name, .period-context { color: #5a706d; font-size: 6.8pt; }
         .organization-name { font-weight: bold; letter-spacing: .55px; text-transform: uppercase; }
-        .document-title h1 { font-size: 16pt; letter-spacing: -.25px; margin: 1px 0; }
+        .document-title h1 { font-size: 16pt; letter-spacing: -.25px; margin: 1px 0; white-space: nowrap; }
         .period-context { padding-bottom: 3px; text-align: right; vertical-align: bottom; }
         .identity { border-collapse: collapse; margin-top: 8px; width: 100%; }
         .identity td { border-bottom: 1px solid #d9e1da; padding: 3px 0; vertical-align: top; }
         .identity td:nth-child(odd) { color: #5a706d; font-size: 7.3pt; width: 15%; }
         .identity td:nth-child(even) { font-weight: bold; width: 35%; }
-        .summary { border-collapse: separate; border-spacing: 5px 0; margin: 9px -5px 0; width: calc(100% + 10px); }
-        .summary td { border: 1px solid #c7d4c8; padding: 5px; text-align: center; width: 25%; }
+        .summary { border-collapse: separate; border-spacing: 6px 0; margin: 12px -6px 0; width: calc(100% + 12px); }
+        .summary td { border: 1px solid #c7d4c8; padding: 7px 6px; text-align: center; width: 25%; }
         .summary span { color: #5a706d; display: block; font-size: 6.6pt; }
         .summary strong { display: block; font-family: DejaVu Serif, serif; font-size: 12.5pt; line-height: 1.1; margin: 1px 0; }
-        .section-title { border-bottom: 1px solid #c7d4c8; font-size: 11.5pt; margin: 11px 0 0; padding-bottom: 3px; }
-        .activity-table { border-collapse: collapse; margin-top: 5px; width: 100%; }
-        .activity-table th { background: #eaf2ec; color: #49625b; font-size: 7pt; padding: 4px; text-align: left; }
-        .activity-table td { border-bottom: 1px solid #d9e1da; padding: 4px; vertical-align: top; }
+        .section-title { border-bottom: 1px solid #c7d4c8; font-size: 11.5pt; margin: 17px 0 0; padding-bottom: 4px; }
+        .activity-table { border-collapse: collapse; margin-top: 6px; width: 100%; }
+        .activity-table th { background: #eaf2ec; color: #49625b; font-size: 7pt; padding: 5px; text-align: left; }
+        .activity-table td { border-bottom: 1px solid #d9e1da; padding: 5px 4px; vertical-align: top; }
         .activity-table th:not(:first-child), .activity-table td:not(:first-child) { text-align: center; white-space: nowrap; }
         .empty-activity { color: #5a706d; padding: 9px !important; text-align: center !important; }
         .status-done { color: #16604c; font-weight: bold; }
@@ -50,7 +52,7 @@
 </head>
 <body>
     <header class="document-header">
-        <div class="brand-mark">@if($logoPath)<img src="{{ $logoPath }}" alt="Logo organisasi">@endif</div>
+        <div class="brand-mark">@if($logoPath)<span class="brand-symbol"><img src="{{ $logoPath }}" alt="Logo organisasi"></span>@endif</div>
         <div class="document-title"><p class="organization-name">{{ $organizationName }}</p><h1>Lembar Kendali Spiritual</h1></div>
         <p class="period-context">Periode {{ $period->name }}</p>
     </header>
