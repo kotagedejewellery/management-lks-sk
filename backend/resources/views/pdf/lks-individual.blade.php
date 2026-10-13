@@ -39,7 +39,7 @@
         .signature-grid > div:last-child { padding-right: 0; }
         .signature-label { color: #5a706d; font-size: 7pt; }
         .signature-title { font-weight: bold; margin-top: 2px; }
-        .signature-asset, .manual-signature-space { height: 38px; margin: 4px auto 2px; max-width: 115px; }
+        .signature-asset, .manual-signature-space { height: 42px; margin: 4px auto 2px; max-width: 115px; }
         .signature-asset { display: block; object-fit: contain; }
         .signature-missing { color: #7c8d86; font-size: 6.6pt; padding-top: 12px; }
         .manual-signature-space { border-bottom: 1px solid #18333a; width: 88%; }
