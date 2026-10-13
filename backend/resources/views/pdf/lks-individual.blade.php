@@ -8,26 +8,25 @@
         body { color: #18333a; font-family: DejaVu Sans, sans-serif; font-size: 8.3pt; line-height: 1.3; }
         h1, h2, p { margin: 0; }
         h1, h2 { font-family: DejaVu Serif, serif; }
-        .document-header { border-bottom: 1px solid #6e8278; display: table; padding-bottom: 7px; table-layout: fixed; width: 100%; }
-        .brand-mark, .document-title, .period-context { display: table-cell; vertical-align: middle; }
-        .brand-mark { width: 80px; }
-        .period-context { width: 72px; }
+        .document-header { border-bottom: 1px solid #6e8278; min-height: 76px; padding-bottom: 7px; position: relative; }
+        .brand-mark { left: 0; position: absolute; top: 0; width: 76px; }
         .brand-symbol { display: block; height: 76px; margin: 0 auto; overflow: hidden; position: relative; width: 76px; }
         .brand-symbol img { display: block; height: 150px; left: -37px; max-width: none; position: absolute; top: -26px; width: 150px; }
-        .document-title { padding: 0 8px; text-align: center; }
+        .document-title { padding: 0 88px; text-align: center; }
         .organization-name, .period-context { color: #5a706d; font-size: 6.8pt; }
         .organization-name { font-weight: bold; letter-spacing: .55px; text-transform: uppercase; }
         .document-title h1 { font-size: 16pt; letter-spacing: -.25px; margin: 1px 0; white-space: nowrap; }
-        .period-context { padding-bottom: 3px; text-align: right; vertical-align: bottom; }
-        .identity { border-collapse: collapse; margin-top: 8px; width: 100%; }
+        .period-context { bottom: 7px; padding-bottom: 3px; position: absolute; right: 0; text-align: right; }
+        .identity { border-collapse: collapse; margin-top: 16px; width: 100%; }
         .identity td { border-bottom: 1px solid #d9e1da; padding: 3px 0; vertical-align: top; }
         .identity td:nth-child(odd) { color: #5a706d; font-size: 7.3pt; width: 15%; }
         .identity td:nth-child(even) { font-weight: bold; width: 35%; }
-        .summary { border-collapse: separate; border-spacing: 6px 0; margin: 12px -6px 0; width: calc(100% + 12px); }
+        .summary { border-collapse: separate; border-spacing: 6px 0; margin: 18px -6px 0; width: calc(100% + 12px); }
         .summary td { border: 1px solid #c7d4c8; padding: 7px 6px; text-align: center; width: 25%; }
         .summary span { color: #5a706d; display: block; font-size: 6.6pt; }
         .summary strong { display: block; font-family: DejaVu Serif, serif; font-size: 12.5pt; line-height: 1.1; margin: 1px 0; }
         .section-title { border-bottom: 1px solid #c7d4c8; font-size: 11.5pt; margin: 17px 0 0; padding-bottom: 4px; }
+        .summary + .section-title { margin-top: 24px; }
         .activity-table { border-collapse: collapse; margin-top: 6px; width: 100%; }
         .activity-table th { background: #eaf2ec; color: #49625b; font-size: 7pt; padding: 5px; text-align: left; }
         .activity-table td { border-bottom: 1px solid #d9e1da; padding: 5px 4px; vertical-align: top; }
