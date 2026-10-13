@@ -8,14 +8,15 @@
         body { color: #18333a; font-family: DejaVu Sans, sans-serif; font-size: 8.3pt; line-height: 1.3; }
         h1, h2, p { margin: 0; }
         h1, h2 { font-family: DejaVu Serif, serif; }
-        .document-header { border-bottom: 1px solid #6e8278; display: table; padding-bottom: 6px; width: 100%; }
-        .brand-mark, .document-title { display: table-cell; vertical-align: middle; }
-        .brand-mark { width: 63px; }
-        .brand-mark img { display: block; height: 54px; max-width: 54px; object-fit: contain; }
-        .document-title { text-align: right; }
-        .eyebrow, .document-title p { color: #5a706d; font-size: 7pt; }
-        .eyebrow { font-weight: bold; letter-spacing: .7px; text-transform: uppercase; }
+        .document-header { border-bottom: 1px solid #6e8278; display: table; padding-bottom: 7px; table-layout: fixed; width: 100%; }
+        .brand-mark, .document-title, .period-context { display: table-cell; vertical-align: middle; }
+        .brand-mark, .period-context { width: 82px; }
+        .brand-mark img { display: block; height: 74px; max-width: 74px; object-fit: contain; width: 74px; }
+        .document-title { padding: 0 8px; text-align: center; }
+        .organization-name, .period-context { color: #5a706d; font-size: 6.8pt; }
+        .organization-name { font-weight: bold; letter-spacing: .55px; text-transform: uppercase; }
         .document-title h1 { font-size: 16pt; letter-spacing: -.25px; margin: 1px 0; }
+        .period-context { padding-bottom: 3px; text-align: right; vertical-align: bottom; }
         .identity { border-collapse: collapse; margin-top: 8px; width: 100%; }
         .identity td { border-bottom: 1px solid #d9e1da; padding: 3px 0; vertical-align: top; }
         .identity td:nth-child(odd) { color: #5a706d; font-size: 7.3pt; width: 15%; }
@@ -33,7 +34,7 @@
         .status-done { color: #16604c; font-weight: bold; }
         .status-open { color: #a3524a; font-weight: bold; }
         .recommendation { border-left: 1px solid #2c765d; color: #334e49; margin-top: 5px; padding: 5px 7px; }
-        .signature-location { margin: 12px 0 5px; text-align: right; }
+        .signature-location { margin: 104px 0 5px; text-align: right; }
         .signature-grid { display: table; table-layout: fixed; width: 100%; page-break-inside: avoid; }
         .signature-grid > div { display: table-cell; padding-right: 12px; text-align: center; vertical-align: top; }
         .signature-grid > div:last-child { padding-right: 0; }
@@ -50,7 +51,8 @@
 <body>
     <header class="document-header">
         <div class="brand-mark">@if($logoPath)<img src="{{ $logoPath }}" alt="Logo organisasi">@endif</div>
-        <div class="document-title"><p class="eyebrow">{{ $organizationName }}</p><h1>Lembar Kendali Spiritual</h1><p>Periode {{ $period->name }}</p></div>
+        <div class="document-title"><p class="organization-name">{{ $organizationName }}</p><h1>Lembar Kendali Spiritual</h1></div>
+        <p class="period-context">Periode {{ $period->name }}</p>
     </header>
 
     <table class="identity">

@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1791853858.9629636,
-    "seen": 1791854034.806975,
-    "ast_hash": "a4ae86276793bee12975d66e594b6d22",
+    "mtime": 1791856000.7194684,
+    "seen": 1791856113.252855,
+    "ast_hash": "67594cd0451639a1ce2007bf35c3e9d5",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -972,9 +972,9 @@
     "semantic_hash": ""
   },
   "backend/resources/views/pdf/lks-individual.blade.php": {
-    "mtime": 1791855127.165044,
-    "seen": 1791855209.6226203,
-    "ast_hash": "a7b6c4297b1bdf7a9dda7482e11e6eec",
+    "mtime": 1791857881.371706,
+    "seen": 1791858005.574822,
+    "ast_hash": "533a12deeb07975114833aef9c259ead",
     "semantic_hash": ""
   },
   "backend/resources/views/pdf/lks-period-summary.blade.php": {
