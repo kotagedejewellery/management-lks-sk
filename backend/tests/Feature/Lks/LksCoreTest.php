@@ -525,8 +525,30 @@ class LksCoreTest extends TestCase
 
         $this->assertSame(75.0, $score['final_percentage']);
         $this->assertSame('tuntas', $score['final_status']);
+        $this->assertSame('C', $score['grade']);
         $this->assertSame(100.0, $score['activities'][0]['percentage']);
         $this->assertSame(50.0, $score['activities'][1]['percentage']);
+    }
+
+    public function test_personal_recap_exposes_a_grade_only_after_recording_starts(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active']);
+        $activity = $this->periodActivity($period, 1);
+        $participant = $this->participant($period, $santri);
+
+        $beforeRecording = $this->actingAs($santri)->getJson(route('api.lks.recap'));
+        $beforeRecording->assertOk();
+        $this->assertArrayHasKey('grade', $beforeRecording->json('data.participants.0'));
+        $this->assertNull($beforeRecording->json('data.participants.0.grade'));
+
+        $this->checklist($participant, $activity, $santri, now()->toDateString());
+
+        $this->actingAs($santri)
+            ->getJson(route('api.lks.recap'))
+            ->assertOk()
+            ->assertJsonPath('data.participants.0.grade', 'A');
     }
 
     public function test_final_status_uses_the_participants_job_level_threshold(): void
@@ -708,6 +730,27 @@ class LksCoreTest extends TestCase
             ->get(route('api.lks.admin.exports.participants.show', [$period, $participant]))
             ->assertOk()
             ->assertHeader('content-type', 'application/pdf');
+    }
+
+    public function test_individual_pdf_with_ten_activities_fits_a_single_a4_page(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active']);
+
+        // shortcut: covers the current 10-item LKS catalog; add a page strategy if periods can exceed it.
+        foreach (range(1, 10) as $target) {
+            $this->periodActivity($period, $target);
+        }
+
+        $this->participant($period, $santri);
+
+        $pdf = $this->actingAs($santri)
+            ->get(route('api.lks.exports.personal', $period))
+            ->assertOk()
+            ->assertHeader('content-type', 'application/pdf');
+
+        $this->assertSame(1, preg_match_all('/\/Type\s*\/Page\b/', $pdf->getContent()));
     }
 
     public function test_santri_can_manage_their_own_profile_and_password(): void

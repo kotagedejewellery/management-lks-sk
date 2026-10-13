@@ -696,9 +696,10 @@ function renderPersonalSummary(personal) {
     : Number(personal.final_percentage) === 0
       ? 'Belum mulai mencatat'
       : 'Belum mencapai ambang';
+  const grade = personal.grade ? `Predikat sementara ${escapeHtml(personal.grade)}` : 'Predikat belum terbentuk';
   const scoreBox = document.querySelector('.score-box');
   scoreBox.hidden = false;
-  scoreBox.innerHTML = `<span>Nilai sementara</span><strong>${score}</strong><small>${status} · ambang ${percentage(personal.passing_threshold)}</small>`;
+  scoreBox.innerHTML = `<span>Nilai sementara</span><strong>${score}</strong><small>${status} · ambang ${percentage(personal.passing_threshold)}</small><small>${grade}</small>`;
 
   const jobLevel = viewer.identity?.level === 'leader' ? 'Leader' : viewer.identity?.level === 'staff' ? 'Staff' : null;
   const details = [
@@ -858,11 +859,12 @@ function renderHistoryActivities(participant) {
 
 function renderHistoryParticipantDetail(participant, { label = 'Nilai akhir', includeExport = false } = {}) {
   const activities = renderHistoryActivities(participant);
+  const grade = participant.grade ? `Predikat akhir ${escapeHtml(participant.grade)}` : 'Predikat belum terbentuk';
   const recommendation = participant.recommendation ? `<section class="recommendation-summary"><h4>Rekomendasi akhir</h4><p>Disimpan saat periode ditutup.</p><p>${escapeHtml(participant.recommendation)}</p></section>` : '';
   const exportLink = includeExport && historyRecapData?.period?.id
     ? `<a class="text-action export-pdf-link" href="${apiBase}/exports/personal/${encodeURIComponent(historyRecapData.period.id)}" data-export-pdf>Unduh PDF LKS <svg><use href="#icon-arrow"/></svg></a>`
     : '';
-  return `<section class="history-participant-detail"><div class="history-score"><span>${escapeHtml(label)}</span><strong>${percentage(participant.final_percentage)}</strong><small>Ambang tuntas ${percentage(participant.passing_threshold)}</small>${statusBadge(participantStatus(participant))}</div>${recommendation}${activities ? `<ul class="history-activity-list">${activities}</ul>` : '<p class="history-empty-detail">Tidak ada aktivitas yang berlaku untuk peserta ini.</p>'}${exportLink}</section>`;
+  return `<section class="history-participant-detail"><div class="history-score"><span>${escapeHtml(label)}</span><strong>${percentage(participant.final_percentage)}</strong><small>Ambang tuntas ${percentage(participant.passing_threshold)}</small><small>${grade}</small>${statusBadge(participantStatus(participant))}</div>${recommendation}${activities ? `<ul class="history-activity-list">${activities}</ul>` : '<p class="history-empty-detail">Tidak ada aktivitas yang berlaku untuk peserta ini.</p>'}${exportLink}</section>`;
 }
 
 function renderHistoryDetail(data) {
@@ -1064,25 +1066,27 @@ function renderRecapViews() {
   const teams = [...new Set(participants.map((participant) => participant.team).filter(Boolean))].sort((left, right) => left.localeCompare(right, 'id'));
   if (!departments.includes(recapDepartmentFilter)) recapDepartmentFilter = '';
   if (!teams.includes(recapTeamFilter)) recapTeamFilter = '';
-  const departmentFilter = canExportIndividual ? `<label class="report-period-control recap-department-filter">Departemen<select data-recap-department-select><option value="">Semua departemen</option>${departments.map((department) => `<option value="${escapeHtml(department)}"${department === recapDepartmentFilter ? ' selected' : ''}>${escapeHtml(department)}</option>`).join('')}</select></label>` : '';
-  const teamFilter = isLeader && !personalScope && teams.length > 1 ? `<label class="report-period-control recap-team-filter">Tim<select data-recap-team-select><option value="">Semua tim</option>${teams.map((team) => `<option value="${escapeHtml(team)}"${team === recapTeamFilter ? ' selected' : ''}>${escapeHtml(team)}</option>`).join('')}</select></label>` : '';
+  const departmentFilter = canExportIndividual ? `<label class="recap-filter-control recap-department-filter">Departemen<select data-recap-department-select><option value="">Semua departemen</option>${departments.map((department) => `<option value="${escapeHtml(department)}"${department === recapDepartmentFilter ? ' selected' : ''}>${escapeHtml(department)}</option>`).join('')}</select></label>` : '';
+  const teamFilter = isLeader && !personalScope && teams.length > 1 ? `<label class="recap-filter-control recap-team-filter">Tim<select data-recap-team-select><option value="">Semua tim</option>${teams.map((team) => `<option value="${escapeHtml(team)}"${team === recapTeamFilter ? ' selected' : ''}>${escapeHtml(team)}</option>`).join('')}</select></label>` : '';
   const focusedParticipant = participants.find((participant) => participant.participant_id === recapMemberFocus);
   if (recapMemberFocus && !focusedParticipant) recapMemberFocus = '';
   const focusNotice = focusedParticipant ? `<p class="recap-focus-note">Menampilkan ${escapeHtml(focusedParticipant.name)} dari daftar prioritas Leader. <button class="text-button" type="button" data-clear-recap-member>Tampilkan semua</button></p>` : '';
   const belumMulaiCount = participants.filter((participant) => Number(participant.final_percentage) === 0).length;
   const sedangBerjalanCount = Math.max(0, summary.belum_tuntas_count - belumMulaiCount);
   const personalParticipant = personalScope ? participants[0] : null;
-  const threshold = personalParticipant ? percentage(personalParticipant.passing_threshold) : `Leader ${percentage(period.leader_passing_threshold)} · Staff ${percentage(period.staff_passing_threshold ?? 85)}`;
-  const recapSummary = `<dl class="recap-summary" aria-label="Ringkasan rekap"><div><dt>${personalScope ? 'Status' : 'Peserta'}</dt><dd>${personalScope && personalParticipant ? participantStatus(personalParticipant) === 'tuntas' ? 'Tuntas' : 'Belum tuntas' : summary.participant_count}</dd></div><div><dt>Tuntas</dt><dd>${summary.tuntas_count}</dd></div><div><dt>Berjalan</dt><dd>${sedangBerjalanCount}</dd></div><div><dt>Belum mulai</dt><dd>${belumMulaiCount}</dd></div><div><dt>${personalScope ? 'Nilai akhir' : 'Rata-rata'}</dt><dd>${percentage(summary.average_percentage)}</dd></div><div><dt>Ambang</dt><dd>${threshold}</dd></div></dl>`;
+  const grade = personalParticipant?.grade ? `Predikat ${period.status === 'closed' ? 'akhir' : 'sementara'} ${escapeHtml(personalParticipant.grade)}` : 'Predikat belum terbentuk';
+  const threshold = personalParticipant ? `${percentage(personalParticipant.passing_threshold)} · ${grade}` : `Leader ${percentage(period.leader_passing_threshold)} · Staff ${percentage(period.staff_passing_threshold ?? 85)}`;
+  const recapSummary = `<dl class="recap-summary" aria-label="Ringkasan rekap"><div><dt>${personalScope ? 'Status' : 'Peserta'}</dt><dd>${personalScope && personalParticipant ? participantStatus(personalParticipant) === 'tuntas' ? 'Tuntas' : 'Belum tuntas' : summary.participant_count}</dd></div><div><dt>Tuntas</dt><dd>${summary.tuntas_count}</dd></div><div><dt>Berjalan</dt><dd>${sedangBerjalanCount}</dd></div><div><dt>Belum mulai</dt><dd>${belumMulaiCount}</dd></div><div><dt>${personalScope ? 'Nilai akhir' : 'Rata-rata'}</dt><dd>${percentage(summary.average_percentage)}</dd></div><div><dt>${personalScope ? 'Ambang · Predikat' : 'Ambang'}</dt><dd>${threshold}</dd></div></dl>`;
   const title = isAdmin ? 'Perkembangan anggota' : personalScope ? 'Rekap Saya' : 'Perkembangan tim';
   const description = personalScope
     ? `${period.name} · Nilai, aktivitas, dan arahan LKS Anda.`
     : `${period.name} · Rekap anggota dalam bimbingan Anda.`;
   const scopeToggle = isLeader ? `<nav class="history-scope-toggle recap-scope-toggle" aria-label="Cakupan rekap"><button class="filter-pill${personalScope ? '' : ' is-on'}" type="button" data-recap-scope="team" aria-pressed="${!personalScope}">Tim Saya</button><button class="filter-pill${personalScope ? ' is-on' : ''}" type="button" data-recap-scope="personal" aria-pressed="${personalScope}">LKS Saya</button></nav>` : '';
   const periodState = period.status === 'closed' ? '<p class="recap-period-state"><span class="status status-closed">Periode ditutup</span> Data final dan capaian tidak dapat diubah.</p>' : '';
-  const filters = personalScope ? '' : `<div class="filter-bar"><label class="search-field"><svg aria-hidden="true"><use href="#icon-search"/></svg><span class="sr-only">Cari anggota</span><input id="member-search" type="search" aria-label="Cari anggota" placeholder="Cari nama anggota" /></label><button class="filter-pill is-on" type="button" data-recap-filter="all" aria-pressed="true">Semua status</button><button class="filter-pill" type="button" data-recap-filter="perlu_perhatian" aria-pressed="false">Perlu perhatian</button><button class="filter-pill" type="button" data-recap-filter="belum_mulai" aria-pressed="false">Belum mulai</button><button class="filter-pill" type="button" data-recap-filter="tuntas" aria-pressed="false">Tuntas</button><button class="filter-pill is-on" type="button" data-recap-gender="all" aria-pressed="true">Semua gender</button><button class="filter-pill" type="button" data-recap-gender="ikhwan" aria-pressed="false">Ikhwan</button><button class="filter-pill" type="button" data-recap-gender="akhwat" aria-pressed="false">Akhwat</button></div>`;
+  const pageActions = scopeToggle ? `<div class="recap-page-actions">${scopeToggle}</div>` : '';
+  const filters = personalScope ? '' : `<div class="recap-filter-toolbar" role="search" aria-label="Cari dan filter anggota"><label class="search-field"><svg aria-hidden="true"><use href="#icon-search"/></svg><span class="sr-only">Cari anggota</span><input id="member-search" type="search" aria-label="Cari anggota" placeholder="Cari nama anggota" /></label><label class="recap-filter-control">Periode<select data-recap-period>${periodOptions}</select></label>${departmentFilter}${teamFilter}<label class="recap-filter-control">Status<select data-recap-status-select><option value="all">Semua status</option><option value="perlu_perhatian">Perlu perhatian</option><option value="belum_mulai">Belum mulai</option><option value="tuntas">Tuntas</option></select></label><label class="recap-filter-control">Gender<select data-recap-gender-select><option value="all">Semua gender</option><option value="ikhwan">Ikhwan</option><option value="akhwat">Akhwat</option></select></label><button class="text-button recap-filter-reset" type="button" data-reset-recap-filters disabled>Reset filter</button></div>`;
 
-  recapPanel.innerHTML = `<div class="page-intro recap-intro"><div><h2>${title}</h2><p>${escapeHtml(description)}</p>${periodState}</div><div class="recap-page-actions">${scopeToggle}<label class="report-period-control">Periode<select data-recap-period>${periodOptions}</select></label>${departmentFilter}${teamFilter}</div></div>${recapSummary}${filters}${personalScope ? '' : '<p class="filter-result-count" id="recap-filter-results" role="status" aria-live="polite"></p>'}${focusNotice}<section class="recap-table" aria-label="${personalScope ? 'Rekap saya' : 'Rekap anggota'}"><div class="table-head"><span>${personalScope ? 'LKS Saya' : 'Santri Karya'}</span><span>Departemen</span><span>Nilai</span><span>Status</span><span>Aksi</span></div><div id="recap-rows">${recapRows || `<p class="empty-search">${personalScope ? 'Belum ada data LKS pada periode ini.' : 'Belum ada anggota dalam cakupan tim pada periode ini.'}</p>`}</div></section><p class="empty-search" id="empty-search" hidden>Tidak ada anggota yang sesuai dengan pencarian atau filter tersebut.</p>`;
+  recapPanel.innerHTML = `<div class="page-intro recap-intro"><div><h2>${title}</h2><p>${escapeHtml(description)}</p>${periodState}</div>${pageActions}</div>${recapSummary}${filters}${personalScope ? '' : '<p class="filter-result-count" id="recap-filter-results" role="status" aria-live="polite"></p>'}${focusNotice}<section class="recap-table" aria-label="${personalScope ? 'Rekap saya' : 'Rekap anggota'}"><div class="table-head"><span>${personalScope ? 'LKS Saya' : 'Santri Karya'}</span><span>Departemen</span><span>Nilai</span><span>Status</span><span>Aksi</span></div><div id="recap-rows">${recapRows || `<p class="empty-search">${personalScope ? 'Belum ada data LKS pada periode ini.' : 'Belum ada anggota dalam cakupan tim pada periode ini.'}</p>`}</div></section><p class="empty-search" id="empty-search" hidden>Tidak ada anggota yang sesuai dengan pencarian atau filter tersebut.</p>`;
   if (!personalScope) filterRecapRows();
 
   if (!viewer?.roles?.includes('admin')) {
@@ -1431,11 +1435,10 @@ document.addEventListener('input', (event) => {
 
 function filterRecapRows() {
   const search = document.querySelector('#member-search');
-  const selected = document.querySelector('[data-recap-filter].is-on');
-  const selectedGender = document.querySelector('[data-recap-gender].is-on');
-  if (!search || !selected || !selectedGender) return;
+  if (!search) return;
   const term = search.value.toLowerCase().trim();
-  const status = selected.dataset.recapFilter;
+  const status = document.querySelector('[data-recap-status-select]')?.value ?? 'all';
+  const gender = document.querySelector('[data-recap-gender-select]')?.value ?? 'all';
   const department = document.querySelector('[data-recap-department-select]')?.value ?? '';
   const team = document.querySelector('[data-recap-team-select]')?.value ?? '';
   let visible = 0;
@@ -1445,7 +1448,7 @@ function filterRecapRows() {
       || row.dataset.status === status;
     const matches = row.dataset.member.toLowerCase().includes(term)
       && statusMatches
-      && (selectedGender.dataset.recapGender === 'all' || row.dataset.gender === selectedGender.dataset.recapGender)
+      && (gender === 'all' || row.dataset.gender === gender)
       && (!department || row.dataset.department === department)
       && (!team || row.dataset.team === team)
       && (!recapMemberFocus || row.dataset.participantId === recapMemberFocus);
@@ -1456,6 +1459,22 @@ function filterRecapRows() {
   if (empty) empty.hidden = visible !== 0;
   const resultCount = document.querySelector('#recap-filter-results');
   if (resultCount) resultCount.textContent = `Menampilkan ${visible} dari ${document.querySelectorAll('#recap-rows .table-row').length} anggota.`;
+  updateRecapFilterReset();
+}
+
+function updateRecapFilterReset() {
+  const reset = document.querySelector('[data-reset-recap-filters]');
+  if (!reset) return;
+
+  const hasFilter = Boolean(
+    document.querySelector('#member-search')?.value
+    || document.querySelector('[data-recap-status-select]')?.value !== 'all'
+    || document.querySelector('[data-recap-gender-select]')?.value !== 'all'
+    || document.querySelector('[data-recap-department-select]')?.value
+    || document.querySelector('[data-recap-team-select]')?.value
+    || recapMemberFocus,
+  );
+  reset.disabled = !hasFilter;
 }
 
 document.addEventListener('click', (event) => {
@@ -1478,6 +1497,24 @@ document.addEventListener('click', (event) => {
     event.target.closest('.recap-focus-note')?.remove();
     return;
   }
+  if (event.target.closest('[data-reset-recap-filters]')) {
+    const search = document.querySelector('#member-search');
+    const status = document.querySelector('[data-recap-status-select]');
+    const gender = document.querySelector('[data-recap-gender-select]');
+    const department = document.querySelector('[data-recap-department-select]');
+    const team = document.querySelector('[data-recap-team-select]');
+    if (search) search.value = '';
+    if (status) status.value = 'all';
+    if (gender) gender.value = 'all';
+    if (department) department.value = '';
+    if (team) team.value = '';
+    recapDepartmentFilter = '';
+    recapTeamFilter = '';
+    recapMemberFocus = '';
+    document.querySelector('.recap-focus-note')?.remove();
+    filterRecapRows();
+    return;
+  }
   const exportLink = event.target.closest('[data-export-pdf]');
   if (exportLink) {
     event.preventDefault();
@@ -1497,26 +1534,6 @@ document.addEventListener('click', (event) => {
     openView('recap');
     return;
   }
-  const pill = event.target.closest('[data-recap-filter]');
-  if (pill) {
-    document.querySelectorAll('[data-recap-filter]').forEach((item) => {
-      const selected = item === pill;
-      item.classList.toggle('is-on', selected);
-      item.setAttribute('aria-pressed', String(selected));
-    });
-    filterRecapRows();
-    return;
-  }
-  const gender = event.target.closest('[data-recap-gender]');
-  if (gender) {
-    document.querySelectorAll('[data-recap-gender]').forEach((item) => {
-      const selected = item === gender;
-      item.classList.toggle('is-on', selected);
-      item.setAttribute('aria-pressed', String(selected));
-    });
-    filterRecapRows();
-    return;
-  }
   const recapScopeButton = event.target.closest('[data-recap-scope]');
   if (recapScopeButton) {
     recapScope = recapScopeButton.dataset.recapScope;
@@ -1528,8 +1545,15 @@ document.addEventListener('click', (event) => {
 
 document.addEventListener('change', (event) => {
   if (event.target.matches('[data-recap-period]')) loadRecap(event.target.value, { showProgress: false });
-  if (event.target.matches('[data-recap-department-select]')) filterRecapRows();
-  if (event.target.matches('[data-recap-team-select]')) filterRecapRows();
+  if (event.target.matches('[data-recap-department-select]')) {
+    recapDepartmentFilter = event.target.value;
+    filterRecapRows();
+  }
+  if (event.target.matches('[data-recap-team-select]')) {
+    recapTeamFilter = event.target.value;
+    filterRecapRows();
+  }
+  if (event.target.matches('[data-recap-status-select], [data-recap-gender-select]')) filterRecapRows();
   if (event.target.matches('[data-history-year]')) {
     historyYear = event.target.value;
     resetHistoryDetail();

@@ -103,20 +103,8 @@ class LksExportController extends Controller
             'activities' => $columns->map(fn (array $activity): ?array => $byActivity->get($activity['id']))->all(),
             'total_score' => $totalScore,
             'maximum_score' => $activities->count() * 100,
-            'grade' => $this->grade((float) $score['final_percentage']),
             'level_label' => $score['level'] ?? null,
         ];
-    }
-
-    private function grade(float $percentage): string
-    {
-        return match (true) {
-            $percentage >= 91 => 'A',
-            $percentage >= 81 => 'B',
-            $percentage >= 71 => 'C',
-            $percentage >= 61 => 'D',
-            default => 'E',
-        };
     }
 
     /** @return list<array{role: string, title: string, name: string, signature_path: ?string}> */

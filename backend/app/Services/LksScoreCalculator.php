@@ -58,6 +58,7 @@ class LksScoreCalculator
         $finalPercentage = $totalWeight === 0.0 ? 0.0 : $weightedScore / $totalWeight;
         $passingThreshold = $this->passingThreshold($participant);
         $finalStatus = $finalPercentage >= $passingThreshold ? 'tuntas' : 'belum_tuntas';
+        $grade = $activityScores->sum('completed_count') > 0 ? $this->grade($finalPercentage) : null;
         $recommendation = $participant->period->status === 'closed' && $participant->recommendation_snapshot !== null
             ? $participant->recommendation_snapshot
             : $this->recommendation($activityScores, $finalPercentage, $passingThreshold, $finalStatus);
@@ -77,8 +78,20 @@ class LksScoreCalculator
             'final_percentage' => round($finalPercentage, 2),
             'passing_threshold' => $passingThreshold,
             'final_status' => $finalStatus,
+            'grade' => $grade,
             'recommendation' => $recommendation,
         ];
+    }
+
+    private function grade(float $percentage): string
+    {
+        return match (true) {
+            $percentage >= 91 => 'A',
+            $percentage >= 81 => 'B',
+            $percentage >= 71 => 'C',
+            $percentage >= 61 => 'D',
+            default => 'E',
+        };
     }
 
     /** @param Collection<int, array<string, mixed>> $activities */

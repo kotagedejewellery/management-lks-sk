@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1791794117.3529184,
-    "seen": 1791794231.944478,
-    "ast_hash": "6ca9955cff8f711b998d720379caa672",
+    "mtime": 1791856000.7194684,
+    "seen": 1791856113.252855,
+    "ast_hash": "67594cd0451639a1ce2007bf35c3e9d5",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -828,9 +828,9 @@
     "semantic_hash": ""
   },
   "backend/app/Services/LksScoreCalculator.php": {
-    "mtime": 1791449169.0081315,
-    "seen": 1791449249.140053,
-    "ast_hash": "e7439c049b0d42bed97632aa447199a5",
+    "mtime": 1791853632.9641902,
+    "seen": 1791853765.2964435,
+    "ast_hash": "686e6a98c9d7fba0c8670decac5fbba0",
     "semantic_hash": ""
   },
   ".impeccable/critique/2026-09-29T06-52-35Z__frontend-index-html.md": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1791794290.3206775,
-    "seen": 1791794346.9333081,
-    "ast_hash": "af565d5ddd56a7d4ba78a3e2001107fc",
+    "mtime": 1791855244.3280408,
+    "seen": 1791855264.6198225,
+    "ast_hash": "03a0b820b2256b7a10acf7d272805fd5",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {
@@ -960,9 +960,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/LksExportController.php": {
-    "mtime": 1791433633.4245772,
-    "seen": 1791434006.6556754,
-    "ast_hash": "a961b815f1105abc89ce11d99bdc57d5",
+    "mtime": 1791853632.9653664,
+    "seen": 1791853765.2963567,
+    "ast_hash": "f5f4ccd6a6f90aa40437240d106ded38",
     "semantic_hash": ""
   },
   "backend/config/lks-export.php": {
@@ -972,15 +972,15 @@
     "semantic_hash": ""
   },
   "backend/resources/views/pdf/lks-individual.blade.php": {
-    "mtime": 1791426589.7998369,
-    "seen": 1791427486.578784,
-    "ast_hash": "c3de6621b74a1ebf5a85462f412fb001",
+    "mtime": 1791855127.165044,
+    "seen": 1791855209.6226203,
+    "ast_hash": "a7b6c4297b1bdf7a9dda7482e11e6eec",
     "semantic_hash": ""
   },
   "backend/resources/views/pdf/lks-period-summary.blade.php": {
-    "mtime": 1791426603.8286796,
-    "seen": 1791427486.5787861,
-    "ast_hash": "be0ad97d881d0dbd5ba744e314779540",
+    "mtime": 1791853858.9698455,
+    "seen": 1791854034.806888,
+    "ast_hash": "85504ef74df9f6855c05cf72e8058e22",
     "semantic_hash": ""
   },
   "docs/PDF Export LKS.md": {
