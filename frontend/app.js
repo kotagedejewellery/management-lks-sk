@@ -59,37 +59,42 @@ function canOpenView(name, roles) {
   return canView(name, roles);
 }
 
-function storedViewKey() {
-  return viewer?.id ? `lks.active-view.${viewer.id}` : null;
-}
-
 function storedPeriodKey() {
   return viewer?.id ? `lks.selected-period.${viewer.id}` : null;
 }
 
-function savedView() {
-  const key = storedViewKey();
-  if (!key) return null;
-  try { return sessionStorage.getItem(key); } catch { return null; }
-}
-
-function saveView(name) {
-  const key = storedViewKey();
-  if (!key) return;
+function viewFromLocation() {
   try {
-    sessionStorage.setItem(key, name);
-    if (name === 'period-detail' && selectedPeriodId) sessionStorage.setItem(storedPeriodKey(), selectedPeriodId);
-  } catch { /* Browser storage is optional. */ }
+    const name = decodeURIComponent(window.location.hash.slice(1));
+    return viewLabels[name] ? name : 'dashboard';
+  } catch {
+    return 'dashboard';
+  }
 }
 
-function openView(name, { persist = true, scroll = true, load = true } = {}) {
+function updateViewLocation(name, { replace = false } = {}) {
+  const url = new URL(window.location.href);
+  url.hash = name === 'dashboard' ? '' : name;
+  if (url.href === window.location.href) return;
+  window.history[replace ? 'replaceState' : 'pushState']({}, '', url);
+}
+
+function restorePeriodSelection(name) {
+  if (name !== 'period-detail') return;
+  try { selectedPeriodId = sessionStorage.getItem(storedPeriodKey()); } catch { selectedPeriodId = null; }
+}
+
+function openView(name, { scroll = true, load = true, syncLocation = true } = {}) {
   if (!viewLabels[name] || (viewer && !canOpenView(name, viewer.roles ?? []))) name = 'dashboard';
   viewPanels.forEach((panel) => panel.classList.toggle('is-active', panel.dataset.viewPanel === name));
   navButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.view === name));
   const [trail, title] = viewLabels[name];
   pageTitle.textContent = title;
   breadcrumb.textContent = trail;
-  if (persist) saveView(name);
+  if (syncLocation) updateViewLocation(name);
+  if (name === 'period-detail' && selectedPeriodId) {
+    try { sessionStorage.setItem(storedPeriodKey(), selectedPeriodId); } catch { /* Browser storage is optional. */ }
+  }
   if (scroll) window.scrollTo({ top: 0, behavior: 'smooth' });
   if (!load) return;
   if (['settings', 'organization', 'people', 'periods', 'period-detail', 'activities', 'calendar', 'documents'].includes(name)) loadAdminView(name);
@@ -98,6 +103,21 @@ function openView(name, { persist = true, scroll = true, load = true } = {}) {
   if (name === 'history') loadHistory({ showProgress: true });
   if (name === 'account') loadAccount({ showProgress: true });
 }
+
+function openLocationView() {
+  if (!viewer) return;
+  const name = viewFromLocation();
+  if (!canOpenView(name, viewer.roles ?? [])) {
+    updateViewLocation('dashboard', { replace: true });
+    return openView('dashboard', { scroll: false, syncLocation: false });
+  }
+  if (document.querySelector(`[data-view-panel="${name}"]`)?.classList.contains('is-active')) return;
+  restorePeriodSelection(name);
+  openView(name, { scroll: false, syncLocation: false });
+}
+
+window.addEventListener('popstate', openLocationView);
+window.addEventListener('hashchange', openLocationView);
 
 function finishInitialBoot({ hideProgress = true } = {}) {
   if (!document.body.classList.contains('is-booting')) return;
@@ -567,7 +587,7 @@ function applyDashboard(data) {
   activeParticipant = data.participant;
   if (viewerChanged) applyViewerIdentity(data.viewer);
   if (data.viewer.must_change_password) {
-    openView('account', { persist: false, scroll: false });
+    openView('account', { scroll: false });
     finishInitialBoot();
     return false;
   }
@@ -1295,7 +1315,7 @@ function applyViewerIdentity(currentViewer) {
       'Akses LKS belum siap',
       'Akun Anda belum memiliki peran LKS. Hubungi Admin LKS agar akses Santri Karya dapat diaktifkan, lalu muat ulang halaman ini.',
     );
-    openView('dashboard', { persist: false, scroll: false, load: false });
+    openView('dashboard', { scroll: false, load: false });
     finishInitialBoot();
     return;
   }
@@ -1317,17 +1337,15 @@ function applyViewerIdentity(currentViewer) {
   historyYear = '';
   renderHistory();
 
-  const restoredView = savedView();
-  if (restoredView === 'period-detail') {
-    try { selectedPeriodId = sessionStorage.getItem(storedPeriodKey()); } catch { selectedPeriodId = null; }
-  }
-  if (restoredView && canOpenView(restoredView, roles)) {
-    openView(restoredView, { persist: false, scroll: false, load: restoredView !== 'dashboard' });
-    finishInitialBoot({ hideProgress: restoredView === 'dashboard' });
+  const requestedView = viewFromLocation();
+  if (requestedView !== 'dashboard' && canOpenView(requestedView, roles)) {
+    restorePeriodSelection(requestedView);
+    openView(requestedView, { scroll: false, syncLocation: false });
+    finishInitialBoot({ hideProgress: false });
     return;
   }
-  if (restoredView) saveView('dashboard');
-  openView('dashboard', { persist: false, scroll: false, load: false });
+  if (requestedView !== 'dashboard') updateViewLocation('dashboard', { replace: true });
+  openView('dashboard', { scroll: false, load: false, syncLocation: false });
   finishInitialBoot();
 }
 
@@ -2686,7 +2704,7 @@ async function loadDashboard({ date = selectedChecklistDate, reloadRecap = true,
     if (requestId !== dashboardRequest || error.name === 'AbortError') return;
     setChecklistEmpty('Data LKS belum dapat dimuat. Muat ulang halaman untuk mencoba lagi.');
     if (document.body.classList.contains('is-booting')) {
-      openView('dashboard', { persist: false, scroll: false, load: false });
+      openView('dashboard', { scroll: false, load: false });
       finishInitialBoot();
     }
     showToast(error.message, 'error');

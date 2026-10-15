@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1792048270.7563958,
-    "seen": 1792048307.1638515,
-    "ast_hash": "3eca023a8af1ada487e3dcd40cf0c461",
+    "mtime": 1792048766.6435866,
+    "seen": 1792049265.6108289,
+    "ast_hash": "c637103ad10ec24b1d7efef7c9f0dc48",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {
@@ -1077,6 +1077,12 @@
     "mtime": 1792047404.490213,
     "seen": 1792048307.1637971,
     "ast_hash": "d017c3b2d958eb3ed14e262e022243b7",
+    "semantic_hash": ""
+  },
+  "backend/database/migrations/2026_10_15_000002_remove_legacy_signature_uploads.php": {
+    "mtime": 1792048937.5693495,
+    "seen": 1792049265.6107187,
+    "ast_hash": "2cff946dcc7b4897a178cd75283f671e",
     "semantic_hash": ""
   }
 }
