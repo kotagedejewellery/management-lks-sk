@@ -9,5 +9,5 @@ class DocumentSignatory extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['role', 'title', 'name', 'signature_path', 'updated_by'];
+    protected $fillable = ['role', 'title', 'name', 'updated_by'];
 }

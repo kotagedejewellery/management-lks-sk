@@ -139,6 +139,8 @@ class PeriodConfigurationController extends Controller
             'description' => ['nullable', 'string'],
             'default_target_count' => ['required', 'integer', 'min:1'],
             'default_minimum_target_count' => ['required', 'integer', 'min:1'],
+            'default_magang_target_count' => ['nullable', 'integer', 'min:1'],
+            'default_magang_minimum_target_count' => ['nullable', 'integer', 'min:1'],
             'default_max_per_week' => ['nullable', 'integer', 'min:1'],
             'default_allowed_weekdays' => ['nullable', 'array'],
             'default_allowed_weekdays.*' => ['integer', 'between:1,7', 'distinct'],
@@ -148,6 +150,7 @@ class PeriodConfigurationController extends Controller
             'default_applicable_levels.*' => ['in:leader,staff', 'distinct'],
         ]);
         $this->ensureMinimumDoesNotExceedTarget($data['default_minimum_target_count'], $data['default_target_count']);
+        $this->completeMagangTargets($data, 'default_');
         $data = $this->serializeMasterRules($data);
         $data['sort_order'] = ((int) LksActivity::query()->max('sort_order')) + 1;
         $activity = LksActivity::create($data);
@@ -206,6 +209,8 @@ class PeriodConfigurationController extends Controller
             'is_active' => ['required', 'boolean'],
             'default_target_count' => ['required', 'integer', 'min:1'],
             'default_minimum_target_count' => ['required', 'integer', 'min:1'],
+            'default_magang_target_count' => ['nullable', 'integer', 'min:1'],
+            'default_magang_minimum_target_count' => ['nullable', 'integer', 'min:1'],
             'default_max_per_week' => ['nullable', 'integer', 'min:1'],
             'default_allowed_weekdays' => ['nullable', 'array'],
             'default_allowed_weekdays.*' => ['integer', 'between:1,7', 'distinct'],
@@ -215,6 +220,7 @@ class PeriodConfigurationController extends Controller
             'default_applicable_levels.*' => ['in:leader,staff', 'distinct'],
         ]);
         $this->ensureMinimumDoesNotExceedTarget($data['default_minimum_target_count'], $data['default_target_count']);
+        $this->completeMagangTargets($data, 'default_');
         $data = $this->serializeMasterRules($data);
         $activity->update($data);
         if ($wasActive !== $activity->is_active) {
@@ -405,6 +411,8 @@ class PeriodConfigurationController extends Controller
             'activity_id' => ['required', 'uuid', 'exists:lks_activities,id'],
             'target_count' => ['required', 'integer', 'min:1'],
             'minimum_target_count' => ['nullable', 'integer', 'min:1'],
+            'magang_target_count' => ['nullable', 'integer', 'min:1'],
+            'magang_minimum_target_count' => ['nullable', 'integer', 'min:1'],
             'max_per_week' => ['nullable', 'integer', 'min:1'],
             'allowed_weekdays' => ['nullable', 'array'],
             'allowed_weekdays.*' => ['integer', 'between:1,7', 'distinct'],
@@ -416,6 +424,7 @@ class PeriodConfigurationController extends Controller
         ]);
         $data['minimum_target_count'] ??= $data['target_count'];
         $this->ensureMinimumDoesNotExceedTarget($data['minimum_target_count'], $data['target_count']);
+        $this->completeMagangTargets($data);
         $activity = LksActivity::query()->findOrFail($data['activity_id']);
 
         if ($period->periodActivities()->where('activity_code_snapshot', $activity->code)->exists()) {
@@ -429,6 +438,8 @@ class PeriodConfigurationController extends Controller
             'activity_name_snapshot' => $activity->name,
             'target_count' => $data['target_count'],
             'minimum_target_count' => $data['minimum_target_count'],
+            'magang_target_count' => $data['magang_target_count'],
+            'magang_minimum_target_count' => $data['magang_minimum_target_count'],
             'max_per_week' => $data['max_per_week'] ?? null,
             'allowed_weekdays' => isset($data['allowed_weekdays'])
                 ? '{'.implode(',', $data['allowed_weekdays']).'}'
@@ -458,6 +469,8 @@ class PeriodConfigurationController extends Controller
             'activities.*.id' => ['required', 'uuid', 'distinct'],
             'activities.*.target_count' => ['required', 'integer', 'min:1'],
             'activities.*.minimum_target_count' => ['required', 'integer', 'min:1'],
+            'activities.*.magang_target_count' => ['nullable', 'integer', 'min:1'],
+            'activities.*.magang_minimum_target_count' => ['nullable', 'integer', 'min:1'],
             'activities.*.max_per_week' => ['nullable', 'integer', 'min:1'],
             'activities.*.is_active' => ['required', 'boolean'],
             'activities.*.allowed_weekdays' => ['nullable', 'array'],
@@ -476,6 +489,8 @@ class PeriodConfigurationController extends Controller
             'id' => $activity->getKey(),
             'target_count' => $activity->target_count,
             'minimum_target_count' => $activity->minimum_target_count,
+            'magang_target_count' => $activity->magang_target_count,
+            'magang_minimum_target_count' => $activity->magang_minimum_target_count,
             'max_per_week' => $activity->max_per_week,
             'is_active' => $activity->is_active,
             'allowed_weekdays' => $activity->allowedWeekdays(),
@@ -485,9 +500,12 @@ class PeriodConfigurationController extends Controller
 
         foreach ($data['activities'] as $activity) {
             $this->ensureMinimumDoesNotExceedTarget($activity['minimum_target_count'], $activity['target_count']);
+            $this->completeMagangTargets($activity);
             $periodActivities[$activity['id']]->update([
                 'target_count' => $activity['target_count'],
                 'minimum_target_count' => $activity['minimum_target_count'],
+                'magang_target_count' => $activity['magang_target_count'],
+                'magang_minimum_target_count' => $activity['magang_minimum_target_count'],
                 'max_per_week' => $activity['max_per_week'] ?? null,
                 'is_active' => $activity['is_active'],
                 'allowed_weekdays' => isset($activity['allowed_weekdays'])
@@ -547,6 +565,25 @@ class PeriodConfigurationController extends Controller
         }
     }
 
+    /** @param array<string, mixed> $data */
+    private function completeMagangTargets(array &$data, string $prefix = ''): void
+    {
+        $targetKey = $prefix.'target_count';
+        $minimumKey = $prefix.'minimum_target_count';
+        $magangTargetKey = $prefix.'magang_target_count';
+        $magangMinimumKey = $prefix.'magang_minimum_target_count';
+
+        $data[$magangTargetKey] ??= $this->seventyFivePercent((int) $data[$targetKey]);
+        $data[$magangMinimumKey] ??= $this->seventyFivePercent((int) $data[$minimumKey]);
+        $this->ensureMinimumDoesNotExceedTarget((int) $data[$magangMinimumKey], (int) $data[$magangTargetKey]);
+    }
+
+    private function seventyFivePercent(int $value): int
+    {
+        // Nilai pecahan dibulatkan ke bilangan terdekat agar target tetap dapat dicatat sebagai angka utuh.
+        return max(1, (int) round($value * 0.75, 0, PHP_ROUND_HALF_UP));
+    }
+
     private function snapshotMasterActivity(LksPeriod $period, LksActivity $activity): PeriodActivity
     {
         return $period->periodActivities()->firstOrCreate(
@@ -556,6 +593,8 @@ class PeriodConfigurationController extends Controller
                 'activity_name_snapshot' => $activity->name,
                 'target_count' => $activity->default_target_count,
                 'minimum_target_count' => $activity->default_minimum_target_count,
+                'magang_target_count' => $activity->default_magang_target_count ?? $this->seventyFivePercent((int) $activity->default_target_count),
+                'magang_minimum_target_count' => $activity->default_magang_minimum_target_count ?? $this->seventyFivePercent((int) $activity->default_minimum_target_count),
                 'max_per_week' => $activity->default_max_per_week,
                 'allowed_weekdays' => $activity->default_allowed_weekdays,
                 'applicable_genders' => $activity->default_applicable_genders,

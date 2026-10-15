@@ -89,7 +89,7 @@ class DashboardController extends Controller
                 && ($activity->allowedWeekdays() === [] || in_array($selectedDate->isoWeekday(), $activity->allowedWeekdays(), true)))
             ->map(function ($activity) use ($participant, $calculator, $period, $holidayDates, $holiday, $recordedDatesByActivity): array {
                 $checklist = $participant?->checklists->firstWhere('period_activity_id', $activity->getKey());
-                $rule = $calculator->effectiveTargets($activity, $period, $holidayDates);
+                $rule = $calculator->effectiveTargets($activity, $period, $holidayDates, $participant);
 
                 return [
                     'id' => $activity->getKey(),
@@ -97,6 +97,7 @@ class DashboardController extends Controller
                     'name' => $activity->activity_name_snapshot,
                     'target_count' => $rule['target_count'],
                     'minimum_target_count' => $rule['minimum_target_count'],
+                    'lks_category' => $rule['category'],
                     'max_per_week' => $activity->max_per_week,
                     'is_completed' => $checklist?->is_completed ?? false,
                     'recorded_dates' => $recordedDatesByActivity->get($activity->getKey(), []),
@@ -130,6 +131,7 @@ class DashboardController extends Controller
             'participant' => $participant === null ? null : [
                 'id' => $participant->getKey(),
                 'participation_start_date' => $participant->participation_start_date->toDateString(),
+                'category' => $participant->category_snapshot === 'magang' ? 'magang' : 'regular',
             ],
             'personal_summary' => $participant === null ? null : $calculator->calculate($participant),
             'activities' => $activities,

@@ -361,6 +361,9 @@ body.is-booting .page-progress { inset: 0; }
 .report-rankings li span { min-width: 0; overflow-wrap: anywhere; font-weight: 800; }
 .report-rankings li strong { font-variant-numeric: tabular-nums; }
 .report-rankings li small { grid-column: 1 / -1; color: var(--ink-soft, #53645a); font-size: 11px; }
+.report-ranking-action { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 14px; width: 100%; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; }
+.report-ranking-action:hover, .report-ranking-action:focus-visible { color: var(--evergreen-dark, #155244); }
+.report-ranking-action:focus-visible { outline: 2px solid var(--evergreen, #25705b); outline-offset: 3px; }
 @media (max-width: 760px) {
   .dashboard-department-bar { grid-template-columns: minmax(0, 1fr) 38px; gap: 8px; }
   .dashboard-department-bar .bar-rail { grid-column: 1 / -1; }

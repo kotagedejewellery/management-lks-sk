@@ -8,8 +8,6 @@ use App\Models\DocumentSignatory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class DocumentSignatoryController extends Controller
 {
@@ -32,18 +30,12 @@ class DocumentSignatoryController extends Controller
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:150'],
-            'signature' => ['nullable', 'file', 'mimes:png', 'max:2048'],
         ]);
-        $oldPath = $signatory->signature_path;
-        $newPath = $request->hasFile('signature')
-            ? $request->file('signature')->store('lks-signatures', 'local')
-            : $oldPath;
 
-        DB::transaction(function () use ($request, $signatory, $data, $newPath): void {
-            $before = $signatory->only(['role', 'title', 'name', 'signature_path']);
+        DB::transaction(function () use ($request, $signatory, $data): void {
+            $before = $signatory->only(['role', 'title', 'name']);
             $signatory->update([
                 'name' => $data['name'],
-                'signature_path' => $newPath,
                 'updated_by' => $request->user()->getKey(),
             ]);
             AuditLog::create([
@@ -52,25 +44,11 @@ class DocumentSignatoryController extends Controller
                 'auditable_type' => $signatory->getMorphClass(),
                 'auditable_id' => $signatory->getKey(),
                 'before_data' => $before,
-                'after_data' => $signatory->only(['role', 'title', 'name', 'signature_path']),
+                'after_data' => $signatory->only(['role', 'title', 'name']),
             ]);
         });
 
-        if ($newPath !== $oldPath && $oldPath !== null) {
-            Storage::disk('local')->delete($oldPath);
-        }
-
         return response()->json(['data' => $this->payload($signatory->refresh())]);
-    }
-
-    public function signature(Request $request, DocumentSignatory $signatory): BinaryFileResponse
-    {
-        $this->ensureAdmin($request);
-        abort_unless($signatory->signature_path && Storage::disk('local')->exists($signatory->signature_path), 404);
-
-        return response()->file(Storage::disk('local')->path($signatory->signature_path), [
-            'Cache-Control' => 'private, no-store',
-        ]);
     }
 
     /** @return array<string, mixed> */
@@ -81,8 +59,7 @@ class DocumentSignatoryController extends Controller
             'role' => $signatory->role,
             'title' => $signatory->title,
             'name' => $signatory->name,
-            'signature_configured' => $signatory->signature_path !== null && Storage::disk('local')->exists($signatory->signature_path),
-            'signature_url' => route('api.lks.admin.document-signatories.signature', $signatory),
+            'verification_configured' => filled($signatory->name),
             'updated_at' => $signatory->updated_at?->toIso8601String(),
         ];
     }

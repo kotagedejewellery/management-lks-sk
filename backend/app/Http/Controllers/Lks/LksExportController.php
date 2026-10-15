@@ -4,13 +4,17 @@ namespace App\Http\Controllers\Lks;
 
 use App\Http\Controllers\Controller;
 use App\Models\DocumentSignatory;
+use App\Models\LksDocumentVerification;
 use App\Models\LksPeriod;
 use App\Models\PeriodParticipantSnapshot;
 use App\Services\LksScoreCalculator;
 use Barryvdh\DomPDF\Facade\Pdf;
+use BaconQrCode\Renderer\Image\SvgImageBackEnd;
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class LksExportController extends Controller
@@ -75,16 +79,46 @@ class LksExportController extends Controller
     private function individualPdf(LksPeriod $period, PeriodParticipantSnapshot $participant, LksScoreCalculator $calculator)
     {
         $score = $calculator->calculate($participant);
+        $signatories = $this->signatoriesForPeriod($period);
+        $verification = $period->status === 'closed'
+            ? $this->issueVerification($period, $participant)
+            : null;
 
         return Pdf::loadView('pdf.lks-individual', [
             'period' => $period,
             'organizationName' => config('lks-export.organization_name'),
             'logoPath' => $this->logoPath(),
             'report' => $this->reportRow($score),
-            'signatories' => $this->signatoriesForPeriod($period),
+            'signatories' => $signatories,
             'signatureDate' => $this->signatureDate($period),
             'generatedAt' => now()->format('d-m-Y H:i'),
+            'verification' => $verification,
+            'verificationQrDataUri' => $verification === null ? null : $this->verificationQrDataUri(route('lks.verification.show', $verification)),
         ])->setPaper('a4', 'portrait')->download($this->fileName('lks', $period->name.'-'.$score['name']));
+    }
+
+    private function issueVerification(LksPeriod $period, PeriodParticipantSnapshot $participant): LksDocumentVerification
+    {
+        return LksDocumentVerification::query()->firstOrCreate(
+            ['period_id' => $period->getKey(), 'participant_id' => $participant->getKey()],
+            function (): array {
+                $token = Str::lower(Str::random(40));
+
+                return [
+                    'public_token' => $token,
+                    'document_code' => 'LKS-'.Str::upper(Str::random(10)),
+                    'issued_at' => now(),
+                ];
+            },
+        );
+    }
+
+    private function verificationQrDataUri(string $url): string
+    {
+        $renderer = new ImageRenderer(new RendererStyle(96), new SvgImageBackEnd());
+        $svg = (new Writer($renderer))->writeString($url);
+
+        return 'data:image/svg+xml;base64,'.base64_encode($svg);
     }
 
     /** @param array<string, mixed> $score
@@ -107,7 +141,7 @@ class LksExportController extends Controller
         ];
     }
 
-    /** @return list<array{role: string, title: string, name: string, signature_path: ?string}> */
+    /** @return list<array{role: string, title: string, name: string}> */
     private function signatoriesForPeriod(LksPeriod $period): array
     {
         $snapshot = collect($period->signatories_snapshot ?? []);
@@ -115,27 +149,15 @@ class LksExportController extends Controller
             ? $snapshot
             : DocumentSignatory::query()
                 ->orderByRaw("CASE role WHEN 'general_manager' THEN 1 ELSE 2 END")
-                ->get(['role', 'title', 'name', 'signature_path'])
-                ->map(fn (DocumentSignatory $signatory): array => $signatory->only(['role', 'title', 'name', 'signature_path']));
+                ->get(['role', 'title', 'name'])
+                ->map(fn (DocumentSignatory $signatory): array => $signatory->only(['role', 'title', 'name']));
 
         return $signatories
             ->map(fn (array $signatory): array => [
                 'role' => $signatory['role'],
                 'title' => $signatory['title'],
                 'name' => $signatory['name'] ?: 'Belum dikonfigurasi',
-                'signature_path' => $this->signaturePath($signatory['signature_path'] ?? null),
             ])->all();
-    }
-
-    private function signaturePath(?string $path): ?string
-    {
-        if (! is_string($path) || $path === '') {
-            return null;
-        }
-
-        $absolutePath = Storage::disk('local')->path($path);
-
-        return is_file($absolutePath) ? $absolutePath : null;
     }
 
     private function signatureDate(LksPeriod $period): string

@@ -35,17 +35,20 @@
         .status-done { color: #16604c; font-weight: bold; }
         .status-open { color: #a3524a; font-weight: bold; }
         .recommendation { border-left: 1px solid #2c765d; color: #334e49; margin-top: 5px; padding: 5px 7px; }
-        .signature-location { margin: 104px 0 5px; text-align: right; }
+        .signature-location { margin: 48px 0 5px; text-align: right; }
         .signature-grid { display: table; table-layout: fixed; width: 100%; page-break-inside: avoid; }
         .signature-grid > div { display: table-cell; padding-right: 12px; text-align: center; vertical-align: top; }
         .signature-grid > div:last-child { padding-right: 0; }
         .signature-label { color: #5a706d; font-size: 7pt; }
         .signature-title { font-weight: bold; margin-top: 2px; }
-        .signature-asset, .manual-signature-space { height: 42px; margin: 4px auto 2px; max-width: 115px; }
-        .signature-asset { display: block; object-fit: contain; }
-        .signature-missing { color: #7c8d86; font-size: 6.6pt; padding-top: 12px; }
+        .manual-signature-space { height: 42px; margin: 4px auto 2px; max-width: 115px; }
         .manual-signature-space { border-bottom: 1px solid #18333a; width: 88%; }
         .signature-name { font-weight: bold; min-height: 15px; }
+        .verification-strip { border-top: 1px solid #d9e1da; margin-top: 8px; padding-top: 7px; text-align: center; }
+        .verification-qr { display: inline-block; height: 48px; margin-right: 7px; vertical-align: middle; width: 48px; }
+        .verification-copy { display: inline-block; text-align: left; vertical-align: middle; }
+        .verification-copy strong { color: #16604c; display: block; font-size: 7pt; }
+        .verification-copy span { color: #5a706d; display: block; font-size: 6.2pt; }
         .footer { border-top: 1px solid #d9e1da; color: #5a706d; font-size: 6.4pt; margin-top: 10px; padding-top: 4px; }
     </style>
 </head>
@@ -57,7 +60,7 @@
     </header>
 
     <table class="identity">
-        <tr><td>Nama</td><td>{{ $report['name'] }}</td><td>Level jabatan</td><td>{{ $report['level'] === 'leader' ? 'Leader' : 'Staff' }}</td></tr>
+        <tr><td>Nama</td><td>{{ $report['name'] }}</td><td>Level jabatan</td><td>{{ $report['level'] === 'leader' ? 'Leader' : 'Staff' }} · LKS {{ ($report['category'] ?? 'regular') === 'magang' ? 'Magang' : 'Reguler' }}</td></tr>
         <tr><td>Gender</td><td>{{ $report['gender'] === 'akhwat' ? 'Akhwat' : 'Ikhwan' }}</td><td>Leader tim</td><td>{{ $report['leader'] ?: 'Belum ditetapkan' }}</td></tr>
         <tr><td>Departemen</td><td>{{ $report['department'] ?: 'Tanpa departemen' }}</td><td>Tim</td><td>{{ $report['team'] ?: 'Tanpa tim' }}</td></tr>
         <tr><td>Rentang periode</td><td colspan="3">{{ $period->start_date->format('d-m-Y') }} s.d. {{ $period->end_date->format('d-m-Y') }}</td></tr>
@@ -85,10 +88,16 @@
     <p class="signature-location">{{ $signatureDate }}</p>
     <section class="signature-grid">
         @foreach($signatories as $signatory)
-            <div><p class="signature-label">{{ $loop->first ? 'Disetujui oleh,' : 'Diketahui oleh,' }}</p><p class="signature-title">{{ $signatory['title'] }}</p>@if($signatory['signature_path'])<img class="signature-asset" src="{{ $signatory['signature_path'] }}" alt="TTD digital {{ $signatory['title'] }}">@else<div class="signature-asset signature-missing">TTD digital belum dikonfigurasi</div>@endif<p class="signature-name">{{ $signatory['name'] }}</p></div>
+            <div><p class="signature-label">{{ $loop->first ? 'Disetujui oleh,' : 'Diketahui oleh,' }}</p><p class="signature-title">{{ $signatory['title'] }}</p><p class="signature-name">{{ $signatory['name'] }}</p></div>
         @endforeach
         <div><p class="signature-label">Diterima oleh,</p><p class="signature-title">Santri Karya</p><div class="manual-signature-space"></div><p class="signature-name">{{ $report['name'] }}</p></div>
     </section>
+
+    @if($verification)
+        <section class="verification-strip"><img class="verification-qr" src="{{ $verificationQrDataUri }}" alt="QR verifikasi dokumen"><span class="verification-copy"><strong>Dokumen ini Resmi &amp; Sah</strong><span>Scan QR untuk verifikasi · {{ $verification->document_code }}</span></span></section>
+    @else
+        <section class="verification-strip"><span class="verification-copy"><strong>Dokumen sementara</strong><span>QR verifikasi tersedia setelah periode ditutup.</span></span></section>
+    @endif
 
     <footer class="footer">Dokumen dibuat dari snapshot periode pada {{ $generatedAt }}. Nilai aktivitas dibatasi maksimal 100% dan status akhir mengikuti ambang jabatan peserta.</footer>
 </body>

@@ -36,9 +36,6 @@
         .signature-grid { display: table; margin-top: 28px; table-layout: fixed; width: 100%; }
         .signature-grid > div { display: table-cell; padding-right: 65px; text-align: center; vertical-align: top; }
         .signature-grid > div:last-child { padding-right: 0; }
-        .signature-image, .signature-missing { height: 45px; margin: 5px auto; max-width: 130px; }
-        .signature-image { display: block; object-fit: contain; }
-        .signature-missing { color: #52646a; font-size: 7pt; padding-top: 17px; }
         .signature-name { border-top: 1px solid #17313a; font-weight: bold; padding-top: 4px; }
         .signature-location { margin: 20px 0 7px; text-align: right; }
         .footer { border-top: 1px solid #dce2dc; color: #52646a; font-size: 6.5pt; margin-top: 18px; padding-top: 6px; }
@@ -61,7 +58,7 @@
     <table class="report-table"><thead><tr><th>Santri Karya</th><th>Departemen / Tim</th><th>Level</th>@foreach($activityColumns as $activity)<th>{{ $activity['name'] }}</th>@endforeach<th>Total</th><th>Nilai akhir</th><th>Predikat</th><th>Status</th><th>Rekomendasi</th></tr></thead><tbody>@foreach($rows as $row)<tr><td><strong>{{ $row['name'] }}</strong><br><span class="muted">{{ $row['gender'] === 'akhwat' ? 'Akhwat' : 'Ikhwan' }}</span></td><td>{{ $row['department'] ?: '—' }}<br><span class="muted">{{ $row['team'] ?: '—' }}</span></td><td>{{ $row['level'] === 'leader' ? 'Leader' : 'Staff' }}</td>@foreach($row['activities'] as $activity)<td class="activity-value">{{ $activity ? number_format($activity['percentage'], 0, ',', '.') . '%' : '—' }}</td>@endforeach<td class="activity-value">{{ number_format($row['total_score'], 0, ',', '.') }}</td><td class="activity-value">{{ number_format($row['final_percentage'], 1, ',', '.') }}%</td><td class="activity-value">{{ $row['grade'] ?? '—' }}</td><td class="{{ $row['final_status'] === 'tuntas' ? 'status-done' : 'status-open' }}">{{ $row['final_status'] === 'tuntas' ? 'Tuntas' : 'Belum tuntas' }}</td><td>{{ $row['recommendation'] }}</td></tr>@endforeach</tbody></table>
 
     <p class="signature-location">{{ $signatureDate }}</p>
-    <section class="signature-grid">@foreach($signatories as $signatory)<div><p>{{ $loop->first ? 'Disetujui oleh,' : 'Diketahui oleh,' }}</p><p>{{ $signatory['title'] }}</p>@if($signatory['signature_path'])<img class="signature-image" src="{{ $signatory['signature_path'] }}" alt="Tanda tangan digital {{ $signatory['title'] }}">@else<div class="signature-missing">TTD digital belum dikonfigurasi</div>@endif<p class="signature-name">{{ $signatory['name'] }}</p></div>@endforeach</section>
+    <section class="signature-grid">@foreach($signatories as $signatory)<div><p>{{ $loop->first ? 'Disetujui oleh,' : 'Diketahui oleh,' }}</p><p>{{ $signatory['title'] }}</p><p class="signature-name">{{ $signatory['name'] }}</p></div>@endforeach</section>
     <footer class="footer">Dokumen dibuat dari snapshot periode pada {{ $generatedAt }}. Nilai aktivitas dibatasi maksimal 100%; status akhir mengikuti ambang jabatan peserta.</footer>
 </body>
 </html>

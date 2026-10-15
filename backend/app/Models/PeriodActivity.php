@@ -15,7 +15,8 @@ class PeriodActivity extends Model
 
     protected $fillable = [
         'period_id', 'activity_id', 'activity_code_snapshot', 'activity_name_snapshot',
-        'target_count', 'minimum_target_count', 'max_per_week', 'weight', 'allowed_weekdays',
+        'target_count', 'minimum_target_count', 'magang_target_count', 'magang_minimum_target_count',
+        'max_per_week', 'weight', 'allowed_weekdays',
         'applicable_genders', 'applicable_levels', 'is_active', 'sort_order',
     ];
 

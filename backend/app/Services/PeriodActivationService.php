@@ -11,7 +11,6 @@ use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class PeriodActivationService
@@ -45,18 +44,16 @@ class PeriodActivationService
             $signatories = DocumentSignatory::query()
                 ->whereIn('role', ['general_manager', 'kabid_pengembangan_spiritual'])
                 ->orderByRaw("CASE role WHEN 'general_manager' THEN 1 ELSE 2 END")
-                ->get(['role', 'title', 'name', 'signature_path'])
+                ->get(['role', 'title', 'name'])
                 ->keyBy('role');
             $missingSignatories = collect(['general_manager', 'kabid_pengembangan_spiritual'])
-                ->filter(fn (string $role): bool => blank($signatories->get($role)?->name)
-                    || blank($signatories->get($role)?->signature_path)
-                    || ! Storage::disk('local')->exists($signatories->get($role)->signature_path))
+                ->filter(fn (string $role): bool => blank($signatories->get($role)?->name))
                 ->map(fn (string $role): string => $role === 'general_manager' ? 'General Manager' : 'Kabid. Pengembangan Spiritual')
                 ->values();
 
             if ($missingSignatories->isNotEmpty()) {
                 throw ValidationException::withMessages([
-                    'signatories' => 'Lengkapi nama dan TTD digital untuk: '.$missingSignatories->join(', ').'.',
+                    'signatories' => 'Lengkapi nama pejabat untuk: '.$missingSignatories->join(', ').'.',
                 ]);
             }
 
@@ -77,7 +74,7 @@ class PeriodActivationService
                 'activated_at' => now(),
                 'signatories_snapshot' => $signatories
                     ->values()
-                    ->map(fn (DocumentSignatory $signatory): array => $this->snapshotSignatory($period, $signatory))
+                    ->map(fn (DocumentSignatory $signatory): array => $this->snapshotSignatory($signatory))
                     ->values()
                     ->all(),
             ]);
@@ -235,19 +232,9 @@ class PeriodActivationService
         );
     }
 
-    /** @return array{role: string, title: string, name: ?string, signature_path: ?string} */
-    private function snapshotSignatory(LksPeriod $period, DocumentSignatory $signatory): array
+    /** @return array{role: string, title: string, name: ?string} */
+    private function snapshotSignatory(DocumentSignatory $signatory): array
     {
-        $snapshot = $signatory->only(['role', 'title', 'name', 'signature_path']);
-        if ($signatory->signature_path === null || ! Storage::disk('local')->exists($signatory->signature_path)) {
-            return $snapshot;
-        }
-
-        $extension = pathinfo($signatory->signature_path, PATHINFO_EXTENSION) ?: 'png';
-        $path = "lks-signatures/periods/{$period->getKey()}/{$signatory->role}.{$extension}";
-        Storage::disk('local')->copy($signatory->signature_path, $path);
-        $snapshot['signature_path'] = $path;
-
-        return $snapshot;
+        return $signatory->only(['role', 'title', 'name']);
     }
 }

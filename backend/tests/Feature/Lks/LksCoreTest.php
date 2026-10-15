@@ -5,6 +5,7 @@ namespace Tests\Feature\Lks;
 use App\Models\Department;
 use App\Models\DocumentSignatory;
 use App\Models\LksActivity;
+use App\Models\LksDocumentVerification;
 use App\Models\LksChecklist;
 use App\Models\LksPeriod;
 use App\Models\PeriodActivity;
@@ -17,8 +18,6 @@ use App\Models\User;
 use App\Services\LksScoreCalculator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class LksCoreTest extends TestCase
@@ -67,7 +66,6 @@ class LksCoreTest extends TestCase
 
     public function test_admin_can_activate_a_draft_period_and_snapshot_active_santri(): void
     {
-        Storage::fake('local');
         $this->configureActivationSignatories();
         $admin = $this->userWithRole('admin');
         $santri = $this->userWithRole('santri');
@@ -98,6 +96,48 @@ class LksCoreTest extends TestCase
         $this->assertCount(2, $period->fresh()->signatories_snapshot);
     }
 
+    public function test_magang_profile_is_snapshotted_and_uses_the_magang_activity_targets(): void
+    {
+        $this->configureActivationSignatories();
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $department = Department::query()->create(['code' => 'MKT', 'name' => 'Marketing', 'is_active' => true]);
+        $team = Team::query()->create(['department_id' => $department->id, 'code' => 'DIG', 'name' => 'Digital', 'is_active' => true]);
+        SantriProfile::query()->create([
+            'user_id' => $santri->id,
+            'gender' => 'ikhwan',
+            'department_id' => $department->id,
+            'team_id' => $team->id,
+            'category' => 'magang',
+            'level' => 'staff',
+            'status' => 'active',
+        ]);
+        $period = $this->period($admin);
+        $activity = $this->periodActivity($period, 20);
+        $activity->update(['minimum_target_count' => 14, 'magang_target_count' => 15, 'magang_minimum_target_count' => 11]);
+
+        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
+            ->postJson(route('api.lks.periods.activate', $period))
+            ->assertOk();
+
+        $participant = $period->fresh()->participants()->where('user_id', $santri->id)->firstOrFail();
+        $score = app(LksScoreCalculator::class)->calculate($participant);
+
+        $this->assertSame('magang', $participant->category_snapshot);
+        $this->assertSame(15, $score['activities'][0]['target_count']);
+        $this->assertSame(11, $score['activities'][0]['minimum_target_count']);
+    }
+
+    public function test_puasa_senin_kamis_master_rule_applies_to_both_levels_once_per_week(): void
+    {
+        $activity = LksActivity::query()->where('code', 'PUASA_SENIN_KAMIS')->firstOrFail();
+
+        $this->assertSame('Puasa Senin-Kamis', $activity->name);
+        $this->assertSame(1, $activity->default_max_per_week);
+        $this->assertSame('{1,4}', $activity->default_allowed_weekdays);
+        $this->assertSame('{leader,staff}', $activity->default_applicable_levels);
+    }
+
     public function test_admin_can_filter_santri_by_organization_status_level_and_search(): void
     {
         $admin = $this->userWithRole('admin');
@@ -114,6 +154,7 @@ class LksCoreTest extends TestCase
         SantriProfile::query()->create(['user_id' => $matchingUser->id, 'gender' => 'ikhwan', 'department_id' => $department->id, 'team_id' => $team->id, 'leader_user_id' => $leader->id, 'level' => 'staff', 'status' => 'active']);
         SantriProfile::query()->create(['user_id' => $otherUser->id, 'gender' => 'akhwat', 'department_id' => $otherDepartment->id, 'team_id' => $otherTeam->id, 'level' => 'staff', 'status' => 'active']);
         SantriProfile::query()->create(['user_id' => $inactiveUser->id, 'gender' => 'ikhwan', 'department_id' => $department->id, 'team_id' => $team->id, 'leader_user_id' => $leader->id, 'level' => 'staff', 'status' => 'inactive']);
+        SantriProfile::query()->where('user_id', $matchingUser->id)->update(['category' => 'magang']);
 
         $this->actingAs($admin)
             ->getJson(route('api.lks.admin.organization.index', [
@@ -121,6 +162,7 @@ class LksCoreTest extends TestCase
                 'people_team_id' => $team->id,
                 'people_status' => 'active',
                 'people_level' => 'staff',
+                'people_category' => 'magang',
                 'people_search' => 'Rahmad',
             ]))
             ->assertOk()
@@ -156,7 +198,65 @@ class LksCoreTest extends TestCase
         ]);
     }
 
-    public function test_activation_requires_both_digital_signatories(): void
+    public function test_admin_cannot_create_magang_leader(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $department = Department::query()->create(['code' => 'OPS', 'name' => 'Operasional', 'is_active' => true]);
+        $team = Team::query()->create(['department_id' => $department->id, 'code' => 'OPS-1', 'name' => 'Operasional Satu', 'is_active' => true]);
+
+        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
+            ->postJson(route('api.lks.admin.santri.store'), [
+                'name' => 'Magang Leader',
+                'email' => 'magang-leader@example.test',
+                'temporary_password' => 'passwordsementara123',
+                'gender' => 'ikhwan',
+                'team_id' => $team->id,
+                'category' => 'magang',
+                'level' => 'leader',
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('category');
+
+        $this->assertDatabaseMissing('users', ['email' => 'magang-leader@example.test']);
+    }
+
+    public function test_admin_cannot_change_magang_to_leader(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri', ['name' => 'Santri Magang']);
+        $department = Department::query()->create(['code' => 'OPS', 'name' => 'Operasional', 'is_active' => true]);
+        $team = Team::query()->create(['department_id' => $department->id, 'code' => 'OPS-1', 'name' => 'Operasional Satu', 'is_active' => true]);
+        $profile = SantriProfile::query()->create(['user_id' => $santri->id, 'gender' => 'ikhwan', 'department_id' => $department->id, 'team_id' => $team->id, 'category' => 'magang', 'level' => 'staff', 'status' => 'active']);
+
+        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
+            ->patchJson(route('api.lks.admin.santri.update', $profile), [
+                'name' => $santri->name,
+                'email' => $santri->email,
+                'gender' => 'ikhwan',
+                'team_id' => $team->id,
+                'category' => 'magang',
+                'level' => 'leader',
+                'status' => 'active',
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('category');
+    }
+
+    public function test_admin_cannot_assign_magang_as_team_leader(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $magang = $this->userWithRole('leader', ['name' => 'Magang Lama']);
+        $department = Department::query()->create(['code' => 'OPS', 'name' => 'Operasional', 'is_active' => true]);
+        $team = Team::query()->create(['department_id' => $department->id, 'code' => 'OPS-1', 'name' => 'Operasional Satu', 'is_active' => true]);
+        SantriProfile::query()->create(['user_id' => $magang->id, 'gender' => 'ikhwan', 'department_id' => $department->id, 'team_id' => $team->id, 'category' => 'magang', 'level' => 'leader', 'status' => 'active']);
+
+        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
+            ->patchJson(route('api.lks.admin.teams.update', $team), ['leader_user_id' => $magang->id])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('leader_user_id');
+    }
+
+    public function test_activation_requires_both_document_official_names(): void
     {
         $admin = $this->userWithRole('admin');
         $period = $this->period($admin);
@@ -215,22 +315,19 @@ class LksCoreTest extends TestCase
         $this->assertDatabaseHas('users', ['id' => $santri->id, 'must_change_password' => false]);
     }
 
-    public function test_admin_can_manage_a_private_digital_document_signature(): void
+    public function test_admin_can_manage_a_document_official_identity_without_uploading_a_signature(): void
     {
-        Storage::fake('local');
         $admin = $this->userWithRole('admin');
         $signatory = DocumentSignatory::query()->where('role', 'general_manager')->firstOrFail();
 
-        $this->actingAs($admin)
+        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
             ->post(route('api.lks.admin.document-signatories.update', $signatory), [
                 'name' => 'Joko Wardiyanto',
-                'signature' => UploadedFile::fake()->image('general-manager.png', 400, 160),
             ])
             ->assertOk()
             ->assertJsonPath('data.name', 'Joko Wardiyanto')
-            ->assertJsonPath('data.signature_configured', true);
-
-        Storage::disk('local')->assertExists($signatory->fresh()->signature_path);
+            ->assertJsonPath('data.verification_configured', true)
+            ->assertJsonMissing(['signature_path']);
     }
 
     public function test_document_signature_slots_are_recreated_after_configuration_data_is_cleared(): void
@@ -736,14 +833,14 @@ class LksCoreTest extends TestCase
     {
         $admin = $this->userWithRole('admin');
         $santri = $this->userWithRole('santri');
-        $period = $this->period($admin, ['status' => 'active']);
+        $period = $this->period($admin, ['status' => 'closed', 'name' => 'Periode Pengujian Lembar Kendali Spiritual Oktober Dua Ribu Dua Puluh Enam']);
 
         // shortcut: covers the current 10-item LKS catalog; add a page strategy if periods can exceed it.
         foreach (range(1, 10) as $target) {
             $this->periodActivity($period, $target);
         }
 
-        $this->participant($period, $santri);
+        $this->participant($period, $santri)->update(['category_snapshot' => 'magang']);
 
         $pdf = $this->actingAs($santri)
             ->get(route('api.lks.exports.personal', $period))
@@ -751,6 +848,14 @@ class LksCoreTest extends TestCase
             ->assertHeader('content-type', 'application/pdf');
 
         $this->assertSame(1, preg_match_all('/\/Type\s*\/Page\b/', $pdf->getContent()));
+        $verification = LksDocumentVerification::query()->sole();
+
+        $this->get(route('lks.verification.show', $verification))
+            ->assertOk()
+            ->assertSee('Dokumen ini Resmi &amp; Sah', false)
+            ->assertSee($verification->document_code)
+            ->assertDontSee($santri->name)
+            ->assertDontSee($period->name);
     }
 
     public function test_santri_can_manage_their_own_profile_and_password(): void
@@ -853,6 +958,8 @@ class LksCoreTest extends TestCase
             'activity_id' => $activity->id,
             'target_count' => 20,
             'minimum_target_count' => 14,
+            'magang_target_count' => 15,
+            'magang_minimum_target_count' => 11,
         ]);
     }
 
@@ -999,11 +1106,8 @@ class LksCoreTest extends TestCase
     private function configureActivationSignatories(): void
     {
         foreach (['general_manager', 'kabid_pengembangan_spiritual'] as $role) {
-            $path = "lks-signatures/{$role}.png";
-            Storage::disk('local')->put($path, 'signature');
             DocumentSignatory::query()->where('role', $role)->update([
                 'name' => $role === 'general_manager' ? 'General Manager' : 'Kabid Spiritual',
-                'signature_path' => $path,
             ]);
         }
     }

@@ -27,12 +27,14 @@ class OrganizationController extends Controller
         $teamId = (string) $request->query('people_team_id', '');
         $status = (string) $request->query('people_status', '');
         $level = (string) $request->query('people_level', '');
+        $category = (string) $request->query('people_category', '');
         $santriQuery = SantriProfile::query()
             ->with(['user:id,name,email,is_active', 'user.roles:id,code', 'department:id,name', 'team:id,name,leader_user_id', 'team.leader:id,name'])
             ->when($departmentId !== '', fn ($query) => $query->where('department_id', $departmentId))
             ->when($teamId !== '', fn ($query) => $query->where('team_id', $teamId))
             ->when(in_array($status, ['active', 'inactive'], true), fn ($query) => $query->where('status', $status))
             ->when(in_array($level, ['leader', 'staff'], true), fn ($query) => $query->where('level', $level))
+            ->when(in_array($category, ['regular', 'magang'], true), fn ($query) => $query->where('category', $category))
             ->when($search !== '', fn ($query) => $query->where(function ($peopleQuery) use ($search) {
                 $peopleQuery
                     ->whereHas('user', fn ($userQuery) => $userQuery
@@ -66,7 +68,7 @@ class OrganizationController extends Controller
                 ->with('leader:id,name')
                 ->withCount(['santriProfiles as active_santri_profiles_count' => fn ($profiles) => $profiles->where('status', 'active')])
                 ->select('id', 'department_id', 'leader_user_id', 'code', 'name', 'is_active')])->orderBy('name')->get(),
-            'team_leader_options' => SantriProfile::query()->where('status', 'active')->where('level', 'leader')->with('user:id,name')->orderBy('created_at')->get(['user_id', 'team_id']),
+            'team_leader_options' => SantriProfile::query()->where('status', 'active')->where('level', 'leader')->where(fn ($query) => $query->where('category', 'regular')->orWhereNull('category'))->with('user:id,name')->orderBy('created_at')->get(['user_id', 'team_id']),
             'santri' => $santri->items(),
             'santri_pagination' => $this->pagination($santri),
             'santri_options' => SantriProfile::query()->where('status', 'active')->with('user:id,name')->orderBy('created_at', 'desc')->get(),
@@ -208,8 +210,11 @@ class OrganizationController extends Controller
             'temporary_password' => ['required', 'string', 'min:8', 'max:255'],
             'gender' => ['required', 'in:ikhwan,akhwat'],
             'team_id' => ['required', 'uuid', 'exists:teams,id'],
+            'category' => ['nullable', Rule::in(['regular', 'magang'])],
             'level' => ['required', Rule::in(['staff', 'leader'])],
         ]);
+        $data['category'] ??= 'regular';
+        $this->ensureMagangIsStaff($data['category'], $data['level']);
 
         $team = Team::query()->findOrFail($data['team_id']);
         $roleIds = $this->requiredRoleIds(['santri', 'leader']);
@@ -234,6 +239,7 @@ class OrganizationController extends Controller
                 'department_id' => $team->department_id,
                 'team_id' => $team->getKey(),
                 'leader_user_id' => $team->leader_user_id,
+                'category' => $data['category'],
                 'level' => $data['level'],
                 'status' => 'active',
             ]);
@@ -251,9 +257,12 @@ class OrganizationController extends Controller
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($profile->getKey())],
             'gender' => ['required', 'in:ikhwan,akhwat'],
             'team_id' => ['required', 'uuid', 'exists:teams,id'],
+            'category' => ['nullable', Rule::in(['regular', 'magang'])],
             'level' => ['required', Rule::in(['staff', 'leader'])],
             'status' => ['required', 'in:active,inactive'],
         ]);
+        $data['category'] ??= $profile->category ?? 'regular';
+        $this->ensureMagangIsStaff($data['category'], $data['level']);
 
         $team = Team::query()->where('is_active', true)->find($data['team_id']);
         if ($team === null) {
@@ -286,6 +295,7 @@ class OrganizationController extends Controller
                 'department_id' => $team->department_id,
                 'team_id' => $team->getKey(),
                 'leader_user_id' => $team->leader_user_id === $profile->getKey() ? null : $team->leader_user_id,
+                'category' => $data['category'],
                 'level' => $data['level'],
                 'status' => $data['status'],
             ]);
@@ -366,10 +376,20 @@ class OrganizationController extends Controller
             ->where('user_id', $leaderUserId)
             ->where('status', 'active')
             ->where('level', 'leader')
+            ->where(fn ($query) => $query->where('category', 'regular')->orWhereNull('category'))
             ->exists();
 
         if (! $isEligible) {
-            throw ValidationException::withMessages(['leader_user_id' => 'Pilih Santri Karya aktif dengan level jabatan Leader dari tim ini.']);
+            throw ValidationException::withMessages(['leader_user_id' => 'Pilih Santri Karya Reguler aktif dengan level jabatan Leader dari tim ini.']);
+        }
+    }
+
+    private function ensureMagangIsStaff(string $category, string $level): void
+    {
+        if ($category === 'magang' && $level === 'leader') {
+            throw ValidationException::withMessages([
+                'category' => 'Santri Karya Magang tidak dapat menjadi Leader. Pilih Staff atau ubah jenis LKS menjadi Reguler.',
+            ]);
         }
     }
 

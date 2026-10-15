@@ -22,7 +22,7 @@ class LksScoreCalculator
             ->values();
         $holidayDates = $this->periodHolidayDates($participant->period);
         $effectiveTargets = $activities
-            ->mapWithKeys(fn ($activity): array => [$activity->getKey() => $this->effectiveTargets($activity, $participant->period, $holidayDates)])
+            ->mapWithKeys(fn ($activity): array => [$activity->getKey() => $this->effectiveTargets($activity, $participant->period, $holidayDates, $participant)])
             ->filter(fn (array $rule): bool => $rule['target_count'] > 0);
         $activities = $activities->filter(fn ($activity): bool => $effectiveTargets->has($activity->getKey()))->values();
         $completed = LksChecklist::query()
@@ -68,6 +68,7 @@ class LksScoreCalculator
             'user_id' => $participant->user_id,
             'name' => $participant->participant_name_snapshot,
             'gender' => $participant->gender_snapshot,
+            'category' => $this->category($participant),
             'level' => $participant->level_snapshot,
             'department_id' => $participant->department_id_snapshot,
             'department' => $participant->department_name_snapshot,
@@ -182,16 +183,17 @@ class LksScoreCalculator
     }
 
     /** @param list<string> $holidayDates
-     *  @return array{target_count: int, minimum_target_count: int}
+     *  @return array{target_count: int, minimum_target_count: int, category: string}
      */
-    public function effectiveTargets($activity, LksPeriod $period, array $holidayDates = []): array
+    public function effectiveTargets($activity, LksPeriod $period, array $holidayDates = [], ?PeriodParticipantSnapshot $participant = null): array
     {
-        $target = (int) $activity->target_count;
-        $minimum = (int) $activity->minimum_target_count;
+        $magang = $participant !== null && $this->category($participant) === 'magang';
+        $target = (int) ($magang ? ($activity->magang_target_count ?? $activity->target_count) : $activity->target_count);
+        $minimum = (int) ($magang ? ($activity->magang_minimum_target_count ?? $activity->minimum_target_count) : $activity->minimum_target_count);
         $weekdays = $activity->allowedWeekdays();
 
         if ($weekdays === []) {
-            return ['target_count' => $target, 'minimum_target_count' => $minimum];
+            return ['target_count' => $target, 'minimum_target_count' => $minimum, 'category' => $magang ? 'magang' : 'regular'];
         }
 
         $holidays = array_fill_keys($holidayDates, true);
@@ -210,6 +212,12 @@ class LksScoreCalculator
         return [
             'target_count' => $effectiveTarget,
             'minimum_target_count' => $effectiveTarget === 0 ? 0 : (int) ceil($minimum / $target * $effectiveTarget),
+            'category' => $magang ? 'magang' : 'regular',
         ];
+    }
+
+    private function category(PeriodParticipantSnapshot $participant): string
+    {
+        return $participant->category_snapshot === 'magang' ? 'magang' : 'regular';
     }
 }

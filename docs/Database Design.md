@@ -112,7 +112,7 @@ Profil LKS yang melekat pada akun.
 | `department_id` | uuid | FK → `departments.id`, nullable |
 | `team_id` | uuid | FK → `teams.id`, nullable |
 | `leader_user_id` | uuid | FK → `users.id`, nullable, tidak boleh sama dengan `user_id` |
-| `category` | varchar(100) | nullable |
+| `category` | varchar(100) | `regular` atau `magang`; data lama dibaca sebagai `regular` |
 | `level` | varchar(100) | nullable |
 | `status` | varchar(15) | `active` atau `inactive` |
 | `created_at`, `updated_at` | timestamptz | wajib |
@@ -153,6 +153,11 @@ Master katalog aktivitas yang dapat digunakan kembali.
 | `code` | varchar(50) | unik, stabil, contoh `shalat_dhuha` |
 | `name` | varchar(150) | wajib |
 | `description` | text | nullable |
+| `default_target_count`, `default_minimum_target_count` | integer | target Reguler bawaan untuk periode draft baru |
+| `default_magang_target_count`, `default_magang_minimum_target_count` | integer | target Magang bawaan; bila kosong dihitung 75% dari target Reguler, pembulatan setengah ke atas dan minimal 1 |
+| `default_max_per_week` | smallint | nullable; batas pencatatan per minggu |
+| `default_allowed_weekdays` | smallint[] | nullable; 1–7 untuk pembatasan hari |
+| `default_applicable_genders`, `default_applicable_levels` | varchar(10)[] | nullable; sasaran aktivitas |
 | `is_active` | boolean | default `true` |
 | `sort_order` | smallint | default `0` |
 | `created_at`, `updated_at` | timestamptz | wajib |
@@ -169,6 +174,10 @@ Snapshot konfigurasi aktivitas untuk satu periode.
 | `activity_code_snapshot` | varchar(50) | wajib |
 | `activity_name_snapshot` | varchar(150) | wajib |
 | `target_count` | integer | wajib, > 0 |
+| `minimum_target_count` | integer | wajib, > 0 dan ≤ `target_count` |
+| `magang_target_count`, `magang_minimum_target_count` | integer | target Magang snapshot; dibentuk saat periode draft disusun |
+| `max_per_week` | smallint | nullable; batas pencatatan per minggu |
+| `applicable_genders`, `applicable_levels` | varchar(10)[] | nullable; sasaran aktivitas snapshot |
 | `weight` | numeric(8,2) | default `1.00`, > 0 |
 | `allowed_weekdays` | smallint[] | nullable; 1–7 untuk pembatasan hari, misalnya Kamis |
 | `is_active` | boolean | default `true` |
@@ -198,7 +207,7 @@ Peserta LKS dan struktur organisasi saat periode diaktifkan.
 | `team_name_snapshot` | varchar(100) | nullable |
 | `leader_user_id_snapshot` | uuid | nullable, referensi informatif |
 | `leader_name_snapshot` | varchar(150) | nullable |
-| `category_snapshot` | varchar(100) | nullable |
+| `category_snapshot` | varchar(100) | `regular` atau `magang`; nilai lama diperlakukan sebagai `regular` |
 | `level_snapshot` | varchar(100) | nullable |
 | `created_at` | timestamptz | wajib |
 

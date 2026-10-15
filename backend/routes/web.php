@@ -5,6 +5,7 @@ use App\Http\Controllers\Lks\ChecklistController;
 use App\Http\Controllers\Lks\AccountController;
 use App\Http\Controllers\Lks\DashboardController;
 use App\Http\Controllers\Lks\DocumentSignatoryController;
+use App\Http\Controllers\Lks\DocumentVerificationController;
 use App\Http\Controllers\Lks\LksExportController;
 use App\Http\Controllers\Lks\PeriodController;
 use App\Http\Controllers\Lks\OrganizationController;
@@ -27,6 +28,8 @@ Route::post('logout', function (Request $request) {
 
     return redirect()->route('home');
 })->middleware('auth')->name('logout');
+
+Route::get('verifikasi/{verification}', [DocumentVerificationController::class, 'show'])->name('lks.verification.show');
 
 Route::middleware(['auth', 'active-user'])->group(function () {
     Route::get('dashboard', PrototypeDashboardController::class)->name('dashboard');
@@ -64,7 +67,6 @@ Route::middleware(['auth', 'active-user'])->group(function () {
             Route::get('organization', [OrganizationController::class, 'index'])->name('organization.index');
             Route::get('document-signatories', [DocumentSignatoryController::class, 'index'])->name('document-signatories.index');
             Route::post('document-signatories/{signatory}', [DocumentSignatoryController::class, 'update'])->name('document-signatories.update');
-            Route::get('document-signatories/{signatory}/signature', [DocumentSignatoryController::class, 'signature'])->name('document-signatories.signature');
             Route::post('departments', [OrganizationController::class, 'storeDepartment'])->name('departments.store');
             Route::patch('departments/{department}', [OrganizationController::class, 'updateDepartment'])->name('departments.update');
             Route::delete('departments/{department}', [OrganizationController::class, 'destroyDepartment'])->name('departments.destroy');
