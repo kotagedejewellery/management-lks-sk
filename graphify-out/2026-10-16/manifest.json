@@ -24,9 +24,9 @@
     "semantic_hash": ""
   },
   "docs/PRD.md": {
-    "mtime": 1790577728.8437655,
-    "seen": 1790578130.300013,
-    "ast_hash": "5a82059e96d9120a9c26f88e4b49465e",
+    "mtime": 1792114617.011577,
+    "seen": 1792114800.6946857,
+    "ast_hash": "6649f47563510ca1f003d125b1d176a1",
     "semantic_hash": ""
   },
   "docs/Tech Stack.md": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1792114211.328411,
-    "seen": 1792114408.4136715,
-    "ast_hash": "18c782528b1c1559b11ca93a259fab9a",
+    "mtime": 1792114774.8232903,
+    "seen": 1792114800.6946404,
+    "ast_hash": "c1d4b33658d94868858b229e96e5c4ee",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -570,9 +570,9 @@
     "semantic_hash": ""
   },
   "docs/Frontend Design.md": {
-    "mtime": 1790578592.2450027,
-    "seen": 1790581887.553683,
-    "ast_hash": "ef506fcdc2d035062276a0098e637c0b",
+    "mtime": 1792114617.011577,
+    "seen": 1792114800.6946783,
+    "ast_hash": "e1b1979106e72375647dae547a2ced3a",
     "semantic_hash": ""
   },
   "frontend/index.html": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1792048766.6435866,
-    "seen": 1792049265.6108289,
-    "ast_hash": "c637103ad10ec24b1d7efef7c9f0dc48",
+    "mtime": 1792114617.011577,
+    "seen": 1792114800.6946144,
+    "ast_hash": "54278bc430682b759b6379cd87bcb7c6",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {
@@ -1083,6 +1083,12 @@
     "mtime": 1792048937.5693495,
     "seen": 1792049265.6107187,
     "ast_hash": "2cff946dcc7b4897a178cd75283f671e",
+    "semantic_hash": ""
+  },
+  "DESIGN.md": {
+    "mtime": 1792114645.3354714,
+    "seen": 1792114800.6946552,
+    "ast_hash": "b684d8d667db07b61b2666e78b24731c",
     "semantic_hash": ""
   }
 }

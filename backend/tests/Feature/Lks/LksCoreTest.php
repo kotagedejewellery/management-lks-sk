@@ -126,6 +126,14 @@ class LksCoreTest extends TestCase
         $this->assertSame('magang', $participant->category_snapshot);
         $this->assertSame(15, $score['activities'][0]['target_count']);
         $this->assertSame(11, $score['activities'][0]['minimum_target_count']);
+
+        $this->actingAs($santri)
+            ->getJson(route('api.lks.dashboard', ['date' => now()->toDateString()]))
+            ->assertOk()
+            ->assertJsonPath('data.participant.category', 'magang')
+            ->assertJsonPath('data.activities.0.lks_category', 'magang')
+            ->assertJsonPath('data.activities.0.target_count', 15)
+            ->assertJsonPath('data.activities.0.minimum_target_count', 11);
     }
 
     public function test_puasa_senin_kamis_master_rule_applies_to_both_levels_once_per_week(): void
@@ -679,14 +687,16 @@ class LksCoreTest extends TestCase
         $period = $this->period($admin, ['status' => 'active']);
         $this->periodActivity($period, 1);
         $this->participant($period, $leader, $leader, 'leader');
-        $this->participant($period, $member, $leader);
+        $memberParticipant = $this->participant($period, $member, $leader);
+        $memberParticipant->update(['category_snapshot' => 'magang']);
         $this->participant($period, $other);
 
         $this->actingAs($leader)
             ->getJson(route('api.lks.recap'))
             ->assertOk()
             ->assertJsonPath('data.summary.participant_count', 1)
-            ->assertJsonPath('data.participants.0.user_id', $member->id);
+            ->assertJsonPath('data.participants.0.user_id', $member->id)
+            ->assertJsonPath('data.participants.0.category', 'magang');
 
         $this->actingAs($leader)
             ->getJson(route('api.lks.recap', ['scope' => 'personal']))
