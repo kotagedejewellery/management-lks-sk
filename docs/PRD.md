@@ -218,6 +218,7 @@ Admin membuat periode
 |---|---|
 | BR-01 | Satu pengguna memiliki satu data LKS dalam satu periode. |
 | BR-02 | Checklist Santri hanya dapat dilakukan pada periode aktif dengan pencatatan dibuka dan pada tanggal saat ini di dalam rentang periode; periode ditutup bersifat hanya-baca. |
+| BR-02a | Ambang nilai akhir periode mengikuti peserta: Leader memakai ambang Leader, Staff Reguler memakai ambang Staff Reguler, dan Staff Magang memakai ambang Staff Magang; default masing-masing 90%, 85%, dan 75%. Ambang yang sudah tersimpan pada periode tertutup tidak diubah oleh aturan kategori baru. |
 | BR-03 | Setiap aktivitas dapat memiliki target berbeda. |
 | BR-04 | Nilai dihitung otomatis dari checklist. |
 | BR-05 | Status aktivitas ditentukan oleh pencapaian target. |
@@ -246,7 +247,7 @@ Untuk Santri Karya, dashboard menampilkan periode aktif, progres LKS, nilai seme
 
 Untuk Leader dan Admin, dashboard menampilkan jumlah peserta, rata-rata capaian, jumlah Tuntas, jumlah Belum Tuntas, dan capaian departemen.
 
-Dashboard Admin dapat menyaring ringkasan dan capaian departemen berdasarkan jenis LKS: seluruh peserta, Reguler, atau Magang. Filter hanya mengubah sudut pandang laporan; aturan kelulusan tetap mengikuti ambang jabatan pada periode, sedangkan target aktivitas Magang mengikuti konfigurasi Magang.
+Dashboard Admin dapat menyaring ringkasan dan capaian departemen berdasarkan jenis LKS: seluruh peserta, Reguler, atau Magang. Filter hanya mengubah sudut pandang laporan; Rekap menampilkan ambang sesuai kategori yang dipilih. Target aktivitas Magang mengikuti konfigurasi Magang secara terpisah dari ambang kelulusan 75%.
 
 ## 17. Non-functional requirements
 

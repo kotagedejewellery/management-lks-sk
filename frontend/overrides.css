@@ -223,6 +223,18 @@ body.is-booting .page-progress { inset: 0; }
 .period-overview dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 0; }
 .period-overview dd { margin: 5px 0 0; color: var(--ink, #203329); font-family: Newsreader, serif; font-size: 22px; }
 .period-overview-action { display: flex; justify-content: flex-end; }
+.period-threshold-summary dd { display: flex; flex-wrap: wrap; gap: 4px 12px; font-family: inherit; font-size: 12px; line-height: 1.4; }
+.period-threshold-summary dd span { color: var(--ink-soft, #53645a); white-space: nowrap; }
+.period-threshold-summary dd strong { color: var(--ink, #203329); font-size: 13px; }
+.period-lifecycle-actions { display: grid; justify-items: end; gap: 10px; }
+.period-lifecycle-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.period-recording-action, .period-close-action { min-height: 42px; padding: 0 14px; border-radius: 9px; font-size: 12px; font-weight: 800; }
+.period-recording-action { border: 1px solid var(--evergreen, #25705b); background: var(--evergreen-pale, #e5f0e9); color: var(--evergreen-dark, #155244); }
+.period-recording-action:hover:not(:disabled) { border-color: var(--evergreen-dark, #155244); background: #d8e9de; }
+.period-recording-action.is-resume { background: var(--evergreen, #25705b); color: #fff; }
+.period-recording-action.is-resume:hover:not(:disabled) { background: var(--evergreen-dark, #155244); }
+.period-close-action { border: 1px solid transparent; background: transparent; color: var(--danger, #9c4e47); }
+.period-close-action:hover:not(:disabled) { border-color: rgba(156, 78, 71, .45); background: var(--danger-pale, #f8e9e7); }
 .period-activity-summary { padding-top: 28px; }
 .period-activity-summary ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0 24px; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line-dark, #c5d0c8); }
 .period-activity-summary li { display: grid; gap: 4px; padding: 15px 0; border-bottom: 1px solid var(--line, #d9ddd5); }
@@ -409,6 +421,7 @@ body.is-booting .page-progress { inset: 0; }
 .admin-modal-fields textarea { min-height: 92px; width: 100%; resize: vertical; border: 1px solid var(--line-dark, #c5d0c8); border-radius: 9px; background: var(--surface, #fffefa); color: var(--ink, #203329); padding: 9px 11px; outline: none; }
 .admin-modal-fields textarea:focus { border-color: var(--evergreen, #25705b); box-shadow: 0 0 0 3px rgba(37,112,91,.12); }
 .admin-modal-inline-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (min-width: 761px) { .admin-modal-inline-fields.period-threshold-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .admin-modal-checkbox { display: flex !important; align-items: center; gap: 8px; color: var(--ink, #203329) !important; }
 .admin-modal-checkbox input { width: 16px !important; min-height: 16px !important; }
 .correction-checklist { display: grid; gap: 0; margin: 0; border-top: 1px solid var(--line-dark, #c5d0c8); }
@@ -484,8 +497,10 @@ body.is-booting .page-progress { inset: 0; }
   .participant-record-row > :nth-child(4) { grid-column: 2; grid-row: 2; text-align: right; }
   .period-record-row > :nth-child(4) { grid-column: 2; grid-row: 2; text-align: right; }
   .period-overview { grid-template-columns: 1fr; gap: 18px; }
-  .period-overview dl { max-width: 360px; }
+  .period-overview dl { max-width: none; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .period-threshold-summary { grid-column: 1 / -1; }
   .period-overview-action { justify-content: flex-start; }
+  .period-lifecycle-actions { justify-items: start; }
 }
 .period-detail { display: grid; grid-template-columns: 1.1fr 1.5fr auto; align-items: center; gap: 28px; padding: 28px 0; border-top: 1px solid var(--line, #d9ddd5); border-bottom: 1px solid var(--line, #d9ddd5); }
 .period-detail h3 { margin: 10px 0 6px; font-size: 24px; }
@@ -1264,6 +1279,8 @@ body.is-booting .page-progress { inset: 0; }
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
+
+.recap-threshold-note { display: block; margin-top: 2px; color: var(--ink-soft, #53645a); font-size: 11px; font-weight: 500; line-height: 1.35; }
 
 .recap-department > small,
 .recap-score > small {

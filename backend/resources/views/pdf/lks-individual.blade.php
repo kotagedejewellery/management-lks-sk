@@ -70,7 +70,7 @@
         <td><span>Total nilai</span><strong>{{ number_format($report['total_score'], 1, ',', '.') }}</strong><span>dari {{ number_format($report['maximum_score'], 0, ',', '.') }}</span></td>
         <td><span>Nilai akhir</span><strong>{{ number_format($report['final_percentage'], 1, ',', '.') }}%</strong><span>ambang {{ number_format($report['passing_threshold'], 0, ',', '.') }}%</span></td>
         <td><span>Predikat</span><strong>{{ $report['grade'] ?? '—' }}</strong><span>A sampai E</span></td>
-        <td><span>Status akhir</span><strong class="{{ $report['final_status'] === 'tuntas' ? 'status-done' : 'status-open' }}">{{ $report['final_status'] === 'tuntas' ? 'Tuntas' : 'Belum tuntas' }}</strong><span>sesuai ambang jabatan</span></td>
+        <td><span>Status akhir</span><strong class="{{ $report['final_status'] === 'tuntas' ? 'status-done' : 'status-open' }}">{{ $report['final_status'] === 'tuntas' ? 'Tuntas' : 'Belum tuntas' }}</strong><span>sesuai ambang peserta</span></td>
     </tr></table>
 
     <h2 class="section-title">Capaian aktivitas</h2>
@@ -99,6 +99,6 @@
         <section class="verification-strip"><span class="verification-copy"><strong>Dokumen sementara</strong><span>QR verifikasi tersedia setelah periode ditutup.</span></span></section>
     @endif
 
-    <footer class="footer">Dokumen dibuat dari snapshot periode pada {{ $generatedAt }}. Nilai aktivitas dibatasi maksimal 100% dan status akhir mengikuti ambang jabatan peserta.</footer>
+    <footer class="footer">Dokumen dibuat dari snapshot periode pada {{ $generatedAt }}. Nilai aktivitas dibatasi maksimal 100% dan status akhir mengikuti ambang peserta.</footer>
 </body>
 </html>

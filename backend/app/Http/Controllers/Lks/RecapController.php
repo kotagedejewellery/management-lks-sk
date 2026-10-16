@@ -50,6 +50,7 @@ class RecapController extends Controller
                 'closed_at' => $period->closed_at?->toIso8601String(),
                 'leader_passing_threshold' => $period->final_passing_threshold,
                 'staff_passing_threshold' => $period->staff_passing_threshold,
+                'magang_passing_threshold' => $period->magang_passing_threshold,
             ],
             'participants' => $scores->values(),
             'summary' => [

@@ -20,6 +20,8 @@ PDF individu mencantumkan identitas pejabat berikut:
 
 Leader Tim ditampilkan sebagai data identitas, bukan penandatangan dokumen. PDF rekap Admin mencantumkan identitas dua pejabat.
 
+Pada setiap baris peserta, PDF rekap Admin juga mencantumkan kategori LKS (Reguler atau Magang) dan ambang nilai aktual peserta agar status Tuntas dapat ditelusuri.
+
 Admin mengelola **nama dan jabatan** pejabat dari **Pengaturan → Dokumen & Verifikasi**. Tidak ada unggahan gambar TTD. Saat periode diaktifkan, sistem menyimpan snapshot nama dan jabatan yang berlaku; perubahan setelahnya hanya berlaku pada periode berikutnya.
 
 PDF individu dari periode tertutup memuat QR verifikasi. Saat PDF tersebut pertama kali dibuat, sistem menerbitkan satu rekam verifikasi untuk kombinasi peserta dan periode; preview dan unduhan berikutnya memakai rekam yang sama. QR mengarah ke halaman publik yang menyatakan dokumen diterbitkan oleh sistem tanpa menampilkan identitas peserta atau nilai LKS.
@@ -31,7 +33,7 @@ QR verifikasi menunjukkan asal dokumen dari sistem, bukan tanda tangan elektroni
 Rekomendasi memakai hasil kalkulator nilai yang sama untuk LKS Saya, rekap, dan PDF.
 
 - Tanpa checklist: ajakan memulai pencatatan harian.
-- Belum tuntas: nilai saat ini, selisih menuju ambang jabatan, dan maksimal tiga aktivitas prioritas.
+- Belum tuntas: nilai saat ini, selisih menuju ambang peserta berdasarkan jabatan dan kategori LKS, serta maksimal tiga aktivitas prioritas.
 - Tuntas tetapi masih ada aktivitas di bawah batas minimal: arahan menjaga konsistensi pada aktivitas tersebut.
 - Seluruh aktivitas tuntas: apresiasi dan arahan mempertahankan konsistensi.
 

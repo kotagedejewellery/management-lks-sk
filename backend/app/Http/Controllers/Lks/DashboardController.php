@@ -127,6 +127,7 @@ class DashboardController extends Controller
                 'end_date' => $period->end_date->toDateString(),
                 'leader_passing_threshold' => $period->final_passing_threshold,
                 'staff_passing_threshold' => $period->staff_passing_threshold,
+                'magang_passing_threshold' => $period->magang_passing_threshold,
                 'is_open' => true,
                 'recording_enabled' => $period->recording_enabled,
                 'recording_available' => $recordingAvailable,

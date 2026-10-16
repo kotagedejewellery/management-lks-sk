@@ -67,8 +67,10 @@ class PeriodConfigurationController extends Controller
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'final_passing_threshold' => ['nullable', 'numeric', 'between:0,100'],
             'staff_passing_threshold' => ['nullable', 'numeric', 'between:0,100'],
+            'magang_passing_threshold' => ['nullable', 'numeric', 'between:0,100'],
         ]);
         $data['staff_passing_threshold'] ??= 85;
+        $data['magang_passing_threshold'] ??= 75;
         $data['created_by'] = $request->user()->getKey();
 
         $period = DB::transaction(function () use ($data): LksPeriod {
@@ -171,7 +173,9 @@ class PeriodConfigurationController extends Controller
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'final_passing_threshold' => ['required', 'numeric', 'between:0,100'],
             'staff_passing_threshold' => ['required', 'numeric', 'between:0,100'],
+            'magang_passing_threshold' => ['nullable', 'numeric', 'between:0,100'],
         ]);
+        $data['magang_passing_threshold'] ??= $period->magang_passing_threshold ?? 75;
         $rangeChanged = $period->start_date->toDateString() !== $data['start_date']
             || $period->end_date->toDateString() !== $data['end_date'];
 

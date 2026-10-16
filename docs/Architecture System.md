@@ -23,7 +23,7 @@ flowchart LR
 
 ## 2. Prinsip arsitektur
 
-1. **Checklist adalah sumber kebenaran.** Nilai, status, dan rekap selalu dapat dijelaskan dari checklist, target, bobot, serta ambang periode.
+1. **Checklist adalah sumber kebenaran.** Nilai, status, dan rekap selalu dapat dijelaskan dari checklist, target, bobot, serta ambang periode menurut level dan kategori LKS peserta.
 2. **Konfigurasi periode tidak mengubah masa lalu.** Aktivasi periode membuat snapshot peserta dan aktivitas agar riwayat tetap akurat.
 3. **Akses dibatasi di server.** Menyembunyikan menu bukan otorisasi; route, Policy, query, dan endpoint grafik wajib memeriksa hak akses.
 4. **Satu aturan perhitungan.** `LksScoreCalculator` digunakan oleh dashboard, LKS Saya, rekap, dan grafik.
@@ -150,7 +150,7 @@ sequenceDiagram
 ```text
 lks_checklists (completed)
   + period_activities (target, weight, aktif)
-  + lks_periods (ambang akhir)
+  + lks_periods (ambang Leader, Staff Reguler, dan Staff Magang)
   → LksScoreCalculator
   → hasil individu
   → agregasi snapshot peserta menurut gender / leader / departemen
@@ -220,7 +220,7 @@ Semua perubahan antarmuka berikutnya wajib mengikuti `AGENTS.md`: jalankan `impe
 | Backup | Dump PostgreSQL harian, disimpan di lokasi terpisah. |
 | Scheduler | Cron memanggil Laravel scheduler setiap menit; belum ada job bisnis wajib pada MVP. |
 | Health check | Endpoint ringan terautentikasi server atau pemeriksaan proses deployment. |
-| Migrasi | Selalu melalui Laravel migration; tidak ada perubahan schema manual di produksi. |
+| Migrasi | Selalu melalui Laravel migration; tidak ada perubahan schema manual di produksi. Migration yang memengaruhi riwayat periode bersifat forward-only dan dikoreksi melalui migration baru, bukan rollback destruktif. |
 
 ## 10. Batas evolusi
 

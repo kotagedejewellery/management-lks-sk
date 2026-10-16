@@ -167,8 +167,12 @@ class LksScoreCalculator
 
     private function passingThreshold(PeriodParticipantSnapshot $participant): float
     {
-        return (float) ($participant->level_snapshot === 'leader'
-            ? $participant->period->final_passing_threshold
+        if ($participant->level_snapshot === 'leader') {
+            return (float) $participant->period->final_passing_threshold;
+        }
+
+        return (float) ($this->category($participant) === 'magang'
+            ? $participant->period->magang_passing_threshold ?? 75
             : $participant->period->staff_passing_threshold ?? 85);
     }
 

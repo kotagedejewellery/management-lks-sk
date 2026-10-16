@@ -41,7 +41,7 @@ erDiagram
 | Satu orang, satu LKS per periode | Kombinasi unik `period_id + user_id` pada `period_participant_snapshots`. |
 | Satu checklist per tanggal dan aktivitas | Kombinasi unik `period_participant_id + period_activity_id + checklist_date`. |
 | Target bisa berubah tiap periode | Target berada di `period_activities`, bukan di checklist atau master aktivitas. |
-| Laporan historis tidak berubah | Nama dan struktur organisasi peserta disalin ke `period_participant_snapshots`; konfigurasi aktivitas disalin ke `period_activities`. |
+| Laporan historis tidak berubah | Nama dan struktur organisasi peserta disalin ke `period_participant_snapshots`; konfigurasi aktivitas dan ambang kelulusan tersimpan pada periode. Periode tertutup selalu memakai ambang yang telah tersimpan. |
 | Periode selesai tidak dapat diubah | Dicegah pada Policy/Service Laravel; database tetap menjaga foreign key dan constraint. |
 
 ## 4. Tabel master identitas dan organisasi
@@ -131,7 +131,9 @@ Profil LKS yang melekat pada akun.
 | `end_date` | date | wajib, harus ≥ `start_date` |
 | `status` | varchar(15) | `draft`, `active`, atau `closed` |
 | `recording_enabled` | boolean | default `false`; hanya bermakna pada periode `active`; mengatur apakah Santri dapat mencatat |
-| `final_passing_threshold` | numeric(5,2) | default `90.00`, rentang 0–100 |
+| `final_passing_threshold` | numeric(5,2) | ambang Leader; default `90.00`, rentang 0–100 |
+| `staff_passing_threshold` | numeric(5,2) | ambang Staff Reguler; default `85.00`, rentang 0–100 |
+| `magang_passing_threshold` | numeric(5,2) | ambang Staff Magang; default `75.00`, rentang 0–100 |
 | `activated_at` | timestamptz | nullable |
 | `closed_at` | timestamptz | nullable |
 | `created_by` | uuid | FK → `users.id` |
@@ -264,7 +266,11 @@ activity_status = Tuntas jika completed_count ≥ target_count
 final_percentage =
   Σ(activity_percentage × weight) / Σ(weight untuk aktivitas aktif)
 
-final_status = Tuntas jika final_percentage ≥ final_passing_threshold
+passing_threshold = final_passing_threshold untuk Leader
+                  = staff_passing_threshold untuk Staff Reguler
+                  = magang_passing_threshold untuk Staff Magang
+
+final_status = Tuntas jika final_percentage ≥ passing_threshold
                selain itu Belum Tuntas
 ```
 

@@ -12,7 +12,7 @@ class LksPeriod extends Model
     use HasUuids;
 
     protected $fillable = [
-        'name', 'start_date', 'end_date', 'status', 'recording_enabled', 'final_passing_threshold', 'staff_passing_threshold',
+        'name', 'start_date', 'end_date', 'status', 'recording_enabled', 'final_passing_threshold', 'staff_passing_threshold', 'magang_passing_threshold',
         'activated_at', 'closed_at', 'created_by', 'signatories_snapshot',
     ];
 
@@ -26,6 +26,7 @@ class LksPeriod extends Model
             'recording_enabled' => 'boolean',
             'final_passing_threshold' => 'decimal:2',
             'staff_passing_threshold' => 'decimal:2',
+            'magang_passing_threshold' => 'decimal:2',
             'signatories_snapshot' => 'array',
         ];
     }

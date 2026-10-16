@@ -754,26 +754,60 @@ class LksCoreTest extends TestCase
             ->assertJsonPath('data.participants.0.grade', 'A');
     }
 
-    public function test_final_status_uses_the_participants_job_level_threshold(): void
+    public function test_final_status_uses_the_participants_job_level_and_lks_category_threshold(): void
     {
         $admin = $this->userWithRole('admin');
         $leader = $this->userWithRole('leader');
         $staff = $this->userWithRole('santri');
-        $period = $this->period($admin, ['status' => 'active', 'final_passing_threshold' => 90, 'staff_passing_threshold' => 85]);
+        $regularAtSeventyFive = $this->userWithRole('santri');
+        $magang = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active', 'final_passing_threshold' => 90, 'staff_passing_threshold' => 85, 'magang_passing_threshold' => 75]);
         $activity = $this->periodActivity($period, 20);
         $leaderParticipant = $this->participant($period, $leader, level: 'leader');
         $staffParticipant = $this->participant($period, $staff);
+        $regularAtSeventyFiveParticipant = $this->participant($period, $regularAtSeventyFive);
+        $magangParticipant = $this->participant($period, $magang);
+        $magangParticipant->update(['category_snapshot' => 'magang']);
 
         foreach (range(1, 17) as $day) {
             $date = now()->subDays($day)->toDateString();
             $this->checklist($leaderParticipant, $activity, $leader, $date);
             $this->checklist($staffParticipant, $activity, $staff, $date);
+            if ($day <= 15) {
+                $this->checklist($regularAtSeventyFiveParticipant, $activity, $regularAtSeventyFive, $date);
+                $this->checklist($magangParticipant, $activity, $magang, $date);
+            }
         }
 
         $calculator = app(LksScoreCalculator::class);
         $this->assertSame(85.0, $calculator->calculate($leaderParticipant)['final_percentage']);
         $this->assertSame('belum_tuntas', $calculator->calculate($leaderParticipant)['final_status']);
         $this->assertSame('tuntas', $calculator->calculate($staffParticipant)['final_status']);
+        $this->assertSame(85.0, $calculator->calculate($regularAtSeventyFiveParticipant)['passing_threshold']);
+        $this->assertSame('belum_tuntas', $calculator->calculate($regularAtSeventyFiveParticipant)['final_status']);
+        $this->assertSame(75.0, $calculator->calculate($magangParticipant)['final_percentage']);
+        $this->assertSame(75.0, $calculator->calculate($magangParticipant)['passing_threshold']);
+        $this->assertSame('tuntas', $calculator->calculate($magangParticipant)['final_status']);
+    }
+
+    public function test_closed_magang_period_keeps_its_stored_historical_threshold(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $magang = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'closed', 'staff_passing_threshold' => 85, 'magang_passing_threshold' => 85]);
+        $activity = $this->periodActivity($period, 20);
+        $participant = $this->participant($period, $magang);
+        $participant->update(['category_snapshot' => 'magang']);
+
+        foreach (range(1, 15) as $day) {
+            $this->checklist($participant, $activity, $magang, now()->subDays($day)->toDateString());
+        }
+
+        $score = app(LksScoreCalculator::class)->calculate($participant);
+
+        $this->assertSame(75.0, $score['final_percentage']);
+        $this->assertSame(85.0, $score['passing_threshold']);
+        $this->assertSame('belum_tuntas', $score['final_status']);
     }
 
     public function test_recap_scope_matches_the_viewers_role(): void
@@ -1033,6 +1067,7 @@ class LksCoreTest extends TestCase
                 'staff_passing_threshold' => 85,
             ])
             ->assertCreated()
+            ->assertJsonPath('data.magang_passing_threshold', '75.00')
             ->assertJsonPath('data.holiday_snapshots.0.name', 'Hari Libur Uji');
 
         $this->assertDatabaseHas('period_holiday_snapshots', [

@@ -6,27 +6,27 @@
     "semantic_hash": ""
   },
   "PRODUCT.md": {
-    "mtime": 1792124911.705352,
-    "seen": 1792124987.7523854,
-    "ast_hash": "d4516207314ac120ed01edf6bcdc1ff1",
+    "mtime": 1792135067.361933,
+    "seen": 1792135346.3657146,
+    "ast_hash": "f6bf186a1127c5dbdc366b7486bbd292",
     "semantic_hash": ""
   },
   "docs/Architecture System.md": {
-    "mtime": 1790823845.1598651,
-    "seen": 1790823883.4242852,
-    "ast_hash": "6c90dfe4b4899fba5d737bb7b11654b0",
+    "mtime": 1792135067.36874,
+    "seen": 1792135346.3657227,
+    "ast_hash": "25443eb3729aab644be99ccbd2eeedde",
     "semantic_hash": ""
   },
   "docs/Database Design.md": {
-    "mtime": 1792034898.7358997,
-    "seen": 1792035720.4511647,
-    "ast_hash": "d5142097f18f2f05a154762c4c0c526f",
+    "mtime": 1792135067.3666928,
+    "seen": 1792135346.3657238,
+    "ast_hash": "99d68b4838d631508c48da397109fb94",
     "semantic_hash": ""
   },
   "docs/PRD.md": {
-    "mtime": 1792124911.7069752,
-    "seen": 1792124987.7524028,
-    "ast_hash": "ce84028a41e2c3c2445061309c3ff88b",
+    "mtime": 1792135067.363932,
+    "seen": 1792135346.3657315,
+    "ast_hash": "24aa105cf23f06cdaf73cd81bc7b94f2",
     "semantic_hash": ""
   },
   "docs/Tech Stack.md": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1792124847.860662,
-    "seen": 1792124987.7523751,
-    "ast_hash": "da97ddce9d4895918df8269604c45ef3",
+    "mtime": 1792135109.6674137,
+    "seen": 1792135346.3657055,
+    "ast_hash": "7bdbf3a0f96dff43a2d7d0f63f88acd3",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -708,9 +708,9 @@
     "semantic_hash": ""
   },
   "backend/app/Models/LksPeriod.php": {
-    "mtime": 1792124713.3139343,
-    "seen": 1792124987.7521675,
-    "ast_hash": "a60850dda61c22630f21af68b3fcce29",
+    "mtime": 1792134627.9959178,
+    "seen": 1792135346.3654876,
+    "ast_hash": "f014021a58d85d6195da53c0f9852be4",
     "semantic_hash": ""
   },
   "backend/app/Models/PeriodActivity.php": {
@@ -774,9 +774,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/DashboardController.php": {
-    "mtime": 1792124713.3190296,
-    "seen": 1792124987.752126,
-    "ast_hash": "71a1cc84bafc2ee04249b38031e9be96",
+    "mtime": 1792134628.0012548,
+    "seen": 1792135346.3654466,
+    "ast_hash": "7b413a271c8ceb7ea37f74fd830ff4f9",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodController.php": {
@@ -810,9 +810,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php": {
-    "mtime": 1792037422.443355,
-    "seen": 1792037954.0061579,
-    "ast_hash": "3a60f50cb9120ce441a722e2d2082f9c",
+    "mtime": 1792134627.9974284,
+    "seen": 1792135346.3654568,
+    "ast_hash": "82d1b39842617c4c1719c0cf02e390a7",
     "semantic_hash": ""
   },
   ".impeccable/config.json": {
@@ -822,15 +822,15 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/RecapController.php": {
-    "mtime": 1792114144.5169148,
-    "seen": 1792114408.4125664,
-    "ast_hash": "6ad3895855c20ddaa8443ff5e3505225",
+    "mtime": 1792134628.0001316,
+    "seen": 1792135346.3654602,
+    "ast_hash": "aad3f0a22554d8626ecebc09ce2f55f4",
     "semantic_hash": ""
   },
   "backend/app/Services/LksScoreCalculator.php": {
-    "mtime": 1792035577.3499568,
-    "seen": 1792035720.450759,
-    "ast_hash": "d61637536e8092ef15c8b4366551c6a6",
+    "mtime": 1792134627.998125,
+    "seen": 1792135346.365509,
+    "ast_hash": "e41ae2a320601c6d17779d3bc8479659",
     "semantic_hash": ""
   },
   ".impeccable/critique/2026-09-29T06-52-35Z__frontend-index-html.md": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1792124877.8922656,
-    "seen": 1792124987.7523603,
-    "ast_hash": "cdf0ccae22e87100c1b29d7c8db4a47a",
+    "mtime": 1792135017.3564637,
+    "seen": 1792135346.365692,
+    "ast_hash": "3e7a6765378b72554da08e96a755ca23",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {
@@ -972,21 +972,21 @@
     "semantic_hash": ""
   },
   "backend/resources/views/pdf/lks-individual.blade.php": {
-    "mtime": 1792048144.7435174,
-    "seen": 1792048307.1638308,
-    "ast_hash": "db38f495289652a6456e4af703d92daa",
+    "mtime": 1792134979.741377,
+    "seen": 1792135346.36567,
+    "ast_hash": "175b6b83f6814a5988dd33820f1b7bd9",
     "semantic_hash": ""
   },
   "backend/resources/views/pdf/lks-period-summary.blade.php": {
-    "mtime": 1792047407.2254994,
-    "seen": 1792048307.163832,
-    "ast_hash": "242e73a28c3b47b52a5f92cd8a795850",
+    "mtime": 1792134980.396687,
+    "seen": 1792135346.3656712,
+    "ast_hash": "33ba0919792c08b28604719ea21b8fba",
     "semantic_hash": ""
   },
   "docs/PDF Export LKS.md": {
-    "mtime": 1792123143.0516472,
-    "seen": 1792123210.9991806,
-    "ast_hash": "8a7227896257f9542c9916cd57382649",
+    "mtime": 1792135067.3712747,
+    "seen": 1792135346.3657298,
+    "ast_hash": "58920da2d2a5ff657818c1533881714f",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php": {
@@ -1086,15 +1086,21 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1792124911.7058885,
-    "seen": 1792124987.7523832,
-    "ast_hash": "b99432b06f78f991c43740a916b6c86d",
+    "mtime": 1792135067.3629296,
+    "seen": 1792135346.3657131,
+    "ast_hash": "ff2958f8c6768a385723a3b0d4d7deed",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_16_000001_add_recording_enabled_to_lks_periods_table.php": {
-    "mtime": 1792124955.746419,
-    "seen": 1792124987.7522547,
-    "ast_hash": "5729a0b755020147660661b3dd5cbdd8",
+    "mtime": 1792127986.644969,
+    "seen": 1792128148.5709348,
+    "ast_hash": "2b729455ed980b78efe547eeb5cdd0c6",
+    "semantic_hash": ""
+  },
+  "backend/database/migrations/2026_10_16_000002_add_magang_passing_threshold_to_lks_periods.php": {
+    "mtime": 1792134627.9949145,
+    "seen": 1792135346.3655732,
+    "ast_hash": "b8a427639b0b226801184bffb17f223f",
     "semantic_hash": ""
   }
 }
