@@ -972,9 +972,9 @@
     "semantic_hash": ""
   },
   "backend/resources/views/pdf/lks-individual.blade.php": {
-    "mtime": 1792143895.9630857,
-    "seen": 1792143911.115317,
-    "ast_hash": "1c83016e8c79694f7f7b8888f50da9e3",
+    "mtime": 1792144442.1924174,
+    "seen": 1792144466.1233037,
+    "ast_hash": "36bb1f6b9b356555adc739cf480ecdc1",
     "semantic_hash": ""
   },
   "backend/resources/views/pdf/lks-period-summary.blade.php": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1792143610.258965,
-    "seen": 1792143776.166938,
-    "ast_hash": "7fa8ee54f12e481466f84cd67e9e560b",
+    "mtime": 1792144442.6912727,
+    "seen": 1792144466.123414,
+    "ast_hash": "7e2d48f1260acaea541b80d04cf7b147",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_16_000001_add_recording_enabled_to_lks_periods_table.php": {
