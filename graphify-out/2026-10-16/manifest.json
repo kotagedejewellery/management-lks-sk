@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "PRODUCT.md": {
-    "mtime": 1790577726.8916366,
-    "seen": 1790578130.3000035,
-    "ast_hash": "8d89056f0e1cd2366c73ff84539b80e4",
+    "mtime": 1792122244.6553118,
+    "seen": 1792122349.3793285,
+    "ast_hash": "3486d2830c479e4d6179b95256b0112b",
     "semantic_hash": ""
   },
   "docs/Architecture System.md": {
@@ -24,9 +24,9 @@
     "semantic_hash": ""
   },
   "docs/PRD.md": {
-    "mtime": 1792114617.011577,
-    "seen": 1792114800.6946857,
-    "ast_hash": "6649f47563510ca1f003d125b1d176a1",
+    "mtime": 1792122314.6399097,
+    "seen": 1792122349.379346,
+    "ast_hash": "6d3d2c811c637c70351cfedfaa968a43",
     "semantic_hash": ""
   },
   "docs/Tech Stack.md": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1792114774.8232903,
-    "seen": 1792114800.6946404,
-    "ast_hash": "c1d4b33658d94868858b229e96e5c4ee",
+    "mtime": 1792122270.6234531,
+    "seen": 1792122349.3793173,
+    "ast_hash": "047a766b063668c9c0ecd7914bfaf415",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -576,9 +576,9 @@
     "semantic_hash": ""
   },
   "frontend/index.html": {
-    "mtime": 1791527927.3632016,
-    "seen": 1791528494.595255,
-    "ast_hash": "97b61fed467d0d41a5a9362ec2fd6a46",
+    "mtime": 1792122244.6547863,
+    "seen": 1792122349.3793504,
+    "ast_hash": "afefeb390f1398f9741d231d2550d539",
     "semantic_hash": ""
   },
   "backend/public/apple-touch-icon.png": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1792114617.011577,
-    "seen": 1792114800.6946144,
-    "ast_hash": "54278bc430682b759b6379cd87bcb7c6",
+    "mtime": 1792120303.9275591,
+    "seen": 1792120336.2732556,
+    "ast_hash": "c4ad57d738701c65577afd5ca3e0667a",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {
@@ -984,9 +984,9 @@
     "semantic_hash": ""
   },
   "docs/PDF Export LKS.md": {
-    "mtime": 1791433726.0499904,
-    "seen": 1791434006.6559677,
-    "ast_hash": "a802b83c2adad81da5b3a88ddf75ec68",
+    "mtime": 1792122244.6553118,
+    "seen": 1792122349.3793445,
+    "ast_hash": "173dee5bfb07109866aa6afa94339dd2",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1792114645.3354714,
-    "seen": 1792114800.6946552,
-    "ast_hash": "b684d8d667db07b61b2666e78b24731c",
+    "mtime": 1792122314.6409118,
+    "seen": 1792122349.3793268,
+    "ast_hash": "0a0a244440bcff527e488ac882b81976",
     "semantic_hash": ""
   }
 }

@@ -148,6 +148,8 @@ Sistem menyediakan rekap terpisah dengan data minimum berikut.
 | Pengguna A | Tim A | Leader A | 92% | Tuntas |
 | Pengguna B | Tim A | Leader A | 78% | Belum Tuntas |
 
+Peringkat individu maksimal tiga capaian tertinggi dan tiga terendah hanya ditampilkan untuk peserta berlevel **Staff** pada laporan Ikhwan/Akhwat. Leader tidak masuk peringkat individu; laporan Leader, departemen, dan kategori menampilkan perbandingan agregat. Label kategori LKS (Reguler atau Magang) ditampilkan pada setiap peserta di peringkat.
+
 ### Rekap leader
 
 Leader melihat anggota yang menjadi tanggung jawabnya, termasuk jumlah anggota, nilai masing-masing anggota, persentase capaian, dan status ketuntasan.
@@ -205,6 +207,7 @@ Admin membuat periode
 | FR-13 | Sistem menyediakan capaian berdasarkan departemen. |
 | FR-14 | Sistem menampilkan grafik capaian spiritual departemen per periode. |
 | FR-15 | Pengguna berhak dapat melihat data periode sebelumnya. |
+| FR-16 | Pengguna yang berhak dapat melihat preview PDF LKS atau rekap sebelum mengunduh file yang sama. |
 
 ## 14. Business rules
 
@@ -218,6 +221,7 @@ Admin membuat periode
 | BR-06 | Standar ketercapaian keseluruhan mengikuti konfigurasi LKS yang berlaku. |
 | BR-07 | Rekap departemen bersumber dari data LKS anggota departemen tersebut. |
 | BR-08 | Data periode selesai tetap disimpan sebagai riwayat. |
+| BR-09 | PDF individu dari periode tertutup memiliki QR verifikasi. Rekam verifikasi diterbitkan sekali untuk setiap peserta dan periode, lalu dipakai ulang pada preview maupun unduhan berikutnya. |
 
 ## 15. Halaman minimum
 

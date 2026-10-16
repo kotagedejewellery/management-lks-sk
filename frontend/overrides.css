@@ -87,6 +87,13 @@ body.is-booting .page-progress { inset: 0; }
 .admin-form-dialog::backdrop { background: rgba(23, 49, 58, .35); backdrop-filter: blur(3px); }
 .confirm-dialog,
 .admin-form-dialog { max-height: calc(100dvh - 36px); overflow-y: auto; }
+.pdf-preview-dialog { width: min(1080px, calc(100vw - 48px)); max-width: none; padding: 0; border: 0; border-radius: 14px; background: var(--surface, #fffefa); color: var(--ink, #203329); box-shadow: 0 24px 60px rgba(25, 52, 44, .2); }
+.pdf-preview-dialog::backdrop { background: rgba(23, 49, 58, .35); backdrop-filter: blur(3px); }
+.pdf-preview { display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto; gap: 0; max-height: calc(100dvh - 48px); padding: 28px; }
+.pdf-preview-frame { min-height: 0; margin-top: 20px; border: 1px solid var(--line-dark, #c5d0c8); border-radius: 10px; overflow: hidden; background: #f0f3ef; }
+.pdf-preview-frame iframe { display: block; width: 100%; height: min(68dvh, 760px); border: 0; background: #f0f3ef; }
+.pdf-preview-note { margin: 12px 0 0; color: var(--ink-soft, #53645a); font-size: 12px; line-height: 1.5; }
+.pdf-preview .admin-modal-actions { margin-top: 20px; }
 .admin-modal-form { display: grid; gap: 24px; padding: 28px; }
 .admin-modal-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
 .admin-modal-heading h2 { margin: 0 0 7px; font-family: Newsreader, serif; font-size: 29px; letter-spacing: -.03em; }
@@ -449,6 +456,9 @@ body.is-booting .page-progress { inset: 0; }
   .page-progress { left: 76px; }
 }
 @media (max-width: 760px) {
+  .pdf-preview-dialog { width: min(100vw - 20px, 620px); }
+  .pdf-preview { max-height: calc(100dvh - 20px); padding: 20px; }
+  .pdf-preview-frame iframe { height: min(62dvh, 620px); }
   .admin-form-dialog.is-period-config { width: min(100vw - 20px, 620px); }
   .admin-form-dialog.is-period-config .admin-modal-form { max-height: calc(100dvh - 20px); }
   .admin-form-dialog.is-period-config .admin-modal-heading, .admin-form-dialog.is-period-config .admin-modal-actions { padding-left: 20px; padding-right: 20px; }

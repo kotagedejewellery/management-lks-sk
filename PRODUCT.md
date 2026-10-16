@@ -33,6 +33,8 @@ LKS operates in recurring, generally monthly periods. A Santri Karya checks comp
 - The first release includes login, personal LKS, history, role-scoped recaps, organization data, period settings, and activity settings.
 - The first release excludes gamification, AI, complex notifications, external integrations, multilevel approvals, rewards, and social features.
 - The approved calculation baseline is capped activity achievement, equal default weights, and a configurable final completion threshold initially set to 90%.
+- Individual rankings are limited to Staff; Leader, department, and category reporting remain aggregate comparisons.
+- PDF LKS and rekap can be previewed before download using the same authorized export file. The first individual PDF generated for a closed period issues one reusable verification record; it never changes the period calculation or snapshot.
 - Exact policy for checklist correction after a period ends remains a business-rule decision; the proposed default is that closed periods are read-only.
 
 ## Brand Commitments

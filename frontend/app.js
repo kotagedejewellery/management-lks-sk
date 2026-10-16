@@ -8,6 +8,8 @@ const pageProgress = document.querySelector('#page-progress');
 const confirmDialog = document.querySelector('#confirm-dialog');
 const adminFormDialog = document.querySelector('#admin-form-dialog');
 const adminFormDialogContent = document.querySelector('[data-admin-form-dialog-content]');
+const pdfPreviewDialog = document.querySelector('#pdf-preview-dialog');
+const pdfPreviewDialogContent = document.querySelector('[data-pdf-preview-dialog-content]');
 const quickChecks = document.querySelector('#quick-checks');
 const fullChecklist = document.querySelector('#full-checklist');
 const logoutButton = document.querySelector('#logout-button');
@@ -54,6 +56,8 @@ let dashboardRequest = 0;
 let dashboardAbortController = null;
 let recapRequest = 0;
 let recapAbortController = null;
+let pdfPreviewObjectUrl = '';
+let pdfPreviewFilename = '';
 
 function canOpenView(name, roles) {
   if (!hasConfiguredRole(roles)) return ['dashboard', 'account'].includes(name);
@@ -127,34 +131,70 @@ function finishInitialBoot({ hideProgress = true } = {}) {
 }
 
 navButtons.forEach((button) => button.addEventListener('click', () => openView(button.dataset.view)));
-async function exportPdf(link) {
+function pdfFilename(response) {
+  return response.headers.get('content-disposition')?.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)?.[1]?.replace(/['"]/g, '') || 'LKS.pdf';
+}
+
+function clearPdfPreview() {
+  if (pdfPreviewObjectUrl) URL.revokeObjectURL(pdfPreviewObjectUrl);
+  pdfPreviewObjectUrl = '';
+  pdfPreviewFilename = '';
+  pdfPreviewDialogContent.innerHTML = '';
+}
+
+function closePdfPreview() {
+  if (pdfPreviewDialog.open) pdfPreviewDialog.close();
+}
+
+function downloadPdfPreview() {
+  if (!pdfPreviewObjectUrl) return;
+  const download = document.createElement('a');
+  download.href = pdfPreviewObjectUrl;
+  download.download = pdfPreviewFilename || 'LKS.pdf';
+  download.hidden = true;
+  document.body.append(download);
+  download.click();
+  download.remove();
+  showToast('PDF berhasil diunduh');
+}
+
+function openPdfPreview(blob, filename) {
+  clearPdfPreview();
+  pdfPreviewObjectUrl = URL.createObjectURL(blob);
+  pdfPreviewFilename = filename;
+  pdfPreviewDialogContent.innerHTML = `<section class="pdf-preview"><div class="admin-modal-heading"><div><h2 id="pdf-preview-dialog-title">Preview PDF</h2><p>${escapeHtml(filename)}</p></div><button class="text-button" type="button" data-close-pdf-preview>Tutup</button></div><div class="pdf-preview-frame"><iframe src="${pdfPreviewObjectUrl}" title="Preview ${escapeHtml(filename)}"></iframe></div><p class="pdf-preview-note">Jika preview tidak tampil pada browser ini, Anda tetap dapat mengunduh PDF.</p><div class="admin-modal-actions"><button class="text-button" type="button" data-close-pdf-preview>Batal</button><button class="primary-button" type="button" data-download-pdf-preview>Unduh PDF</button></div></section>`;
+  pdfPreviewDialog.showModal();
+  pdfPreviewDialog.querySelector('[data-close-pdf-preview]')?.focus();
+}
+
+async function previewPdf(link) {
   if (link.dataset.exporting === 'true') return;
   link.dataset.exporting = 'true';
-  link.dataset.exportLabel = link.textContent.trim();
-  link.textContent = 'Menyiapkan PDF…';
+  link.dataset.exportMarkup = link.innerHTML;
+  link.textContent = 'Menyiapkan preview…';
   link.setAttribute('aria-busy', 'true');
   link.setAttribute('aria-disabled', 'true');
   try {
     const response = await fetch(link.href, { headers: { Accept: 'application/pdf' }, credentials: 'same-origin' });
     if (!response.ok) throw new Error(await apiError(response));
+    if (!response.headers.get('content-type')?.includes('application/pdf')) {
+      throw new Error(response.redirected
+        ? 'Sesi Anda telah berakhir. Silakan masuk kembali untuk membuka PDF.'
+        : 'PDF belum dapat dibuat. Coba lagi beberapa saat lagi.');
+    }
     const blob = await response.blob();
-    const filename = response.headers.get('content-disposition')?.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)?.[1]?.replace(/['"]/g, '') || 'LKS.pdf';
-    const objectUrl = URL.createObjectURL(blob);
-    const download = document.createElement('a');
-    download.href = objectUrl;
-    download.download = filename;
-    download.click();
-    URL.revokeObjectURL(objectUrl);
-    showToast('PDF berhasil diunduh');
+    openPdfPreview(blob, pdfFilename(response));
   } catch (error) {
     showToast(error.message || 'PDF belum dapat dibuat. Coba lagi beberapa saat lagi.', 'error');
   } finally {
     link.dataset.exporting = 'false';
-    link.textContent = link.dataset.exportLabel;
+    link.innerHTML = link.dataset.exportMarkup;
     link.removeAttribute('aria-busy');
     link.removeAttribute('aria-disabled');
   }
 }
+
+pdfPreviewDialog.addEventListener('close', clearPdfPreview);
 
 document.addEventListener('click', (event) => {
   const action = event.target.closest('[data-go]');
@@ -727,7 +767,7 @@ function renderPersonalSummary(personal) {
   const details = [
     ['Tim', viewer.identity?.team], ['Leader', viewer.identity?.leader], ['Departemen', viewer.identity?.department], ['Level jabatan', jobLevel], ['Jenis LKS', personal.category === 'magang' ? 'Magang' : 'Reguler'],
   ].filter(([, value]) => value).map(([label, value]) => `<li><span>${escapeHtml(label.slice(0, 1))}</span><div><small>${escapeHtml(label)}</small><strong>${escapeHtml(value)}</strong></div></li>`).join('');
-  const exportLink = recapData?.period?.id ? `<a class="text-action export-pdf-link" href="${apiBase}/exports/personal/${encodeURIComponent(recapData.period.id)}" data-export-pdf>Unduh PDF LKS <svg><use href="#icon-arrow"/></svg></a>` : '';
+  const exportLink = recapData?.period?.id ? `<a class="text-action export-pdf-link" href="${apiBase}/exports/personal/${encodeURIComponent(recapData.period.id)}" data-export-pdf>Preview PDF LKS <svg><use href="#icon-arrow"/></svg></a>` : '';
   const recommendation = personal.recommendation ? `<section class="recommendation-summary"><h4>Arahan periode ini</h4><p>${escapeHtml(personal.recommendation)}</p></section>` : '';
   document.querySelector('.period-summary').innerHTML = `<h3>${personal.final_status === 'tuntas' ? 'Target periode tercapai.' : 'Masih ada ruang untuk bertumbuh.'}</h3>${details ? `<ul>${details}</ul>` : ''}${recommendation}${exportLink}<button class="text-action" type="button" data-go="history">Lihat riwayat <svg><use href="#icon-arrow"/></svg></button>`;
 }
@@ -899,7 +939,7 @@ function renderHistoryParticipantDetail(participant, { label = 'Nilai akhir', in
   const grade = participant.grade ? `Predikat akhir ${escapeHtml(participant.grade)}` : 'Predikat belum terbentuk';
   const recommendation = participant.recommendation ? `<section class="recommendation-summary"><h4>Rekomendasi akhir</h4><p>Disimpan saat periode ditutup.</p><p>${escapeHtml(participant.recommendation)}</p></section>` : '';
   const exportLink = includeExport && historyRecapData?.period?.id
-    ? `<a class="text-action export-pdf-link" href="${apiBase}/exports/personal/${encodeURIComponent(historyRecapData.period.id)}" data-export-pdf>Unduh PDF LKS <svg><use href="#icon-arrow"/></svg></a>`
+    ? `<a class="text-action export-pdf-link" href="${apiBase}/exports/personal/${encodeURIComponent(historyRecapData.period.id)}" data-export-pdf>Preview PDF LKS <svg><use href="#icon-arrow"/></svg></a>`
     : '';
   return `<section class="history-participant-detail"><div class="history-score"><span>${escapeHtml(label)}</span><strong>${percentage(participant.final_percentage)}</strong><small>Ambang tuntas ${percentage(participant.passing_threshold)}</small><small>${grade}</small>${statusBadge(participantStatus(participant))}</div>${recommendation}${activities ? `<ul class="history-activity-list">${activities}</ul>` : '<p class="history-empty-detail">Tidak ada aktivitas yang berlaku untuk peserta ini.</p>'}${exportLink}</section>`;
 }
@@ -1111,23 +1151,16 @@ function renderReportBars(groups, label, dimension) {
   }).join('')}</div>`;
 }
 
-function renderReportRankings(groups) {
-  if (!groups.length) return '';
-  const list = (items) => `<ol>${items.map((group) => `<li><span>${escapeHtml(group.name)}</span><strong>${percentage(group.averagePercentage)}</strong><small>${group.tuntasCount}/${group.participantCount} tuntas</small></li>`).join('')}</ol>`;
-  if (groups.length <= 5) return `<section class="report-rankings report-rankings-single" aria-label="Urutan capaian"><div><h3>Urutan capaian</h3>${list(groups)}</div></section>`;
-  const rankCount = Math.min(3, groups.length);
-  return `<section class="report-rankings" aria-label="Peringkat capaian"><div><h3>${rankCount} capaian tertinggi</h3>${list(groups.slice(0, rankCount))}</div><div><h3>${rankCount} capaian terendah</h3>${list(groups.slice(-rankCount).reverse())}</div></section>`;
-}
-
 function renderParticipantRankings(participants) {
-  if (!participants.length) return '';
+  const staff = participants.filter((participant) => participant.level === 'staff');
+  if (!staff.length) return '<p class="empty-search">Belum ada Staff untuk diperingkatkan pada periode ini.</p>';
   const genderLabel = { ikhwan: 'Ikhwan', akhwat: 'Akhwat' };
-  const ranked = [...participants].sort((left, right) => Number(right.final_percentage) - Number(left.final_percentage)
+  const ranked = [...staff].sort((left, right) => Number(right.final_percentage) - Number(left.final_percentage)
     || left.name.localeCompare(right.name, 'id'));
-  const list = (items) => `<ol>${items.map((participant) => `<li><button class="report-ranking-action" type="button" data-go="recap" data-recap-member="${escapeHtml(participant.participant_id)}" aria-label="Buka rekap ${escapeHtml(participant.name)}"><span>${escapeHtml(participant.name)}</span><strong>${percentage(participant.final_percentage)}</strong><small>${escapeHtml(genderLabel[participant.gender] ?? 'Tidak dicatat')} · ${escapeHtml(participant.team ?? participant.department ?? 'Tanpa tim')} · ${participantStatus(participant) === 'tuntas' ? 'Tuntas' : 'Belum tuntas'}</small></button></li>`).join('')}</ol>`;
-  if (ranked.length <= 5) return `<section class="report-rankings report-rankings-single" aria-label="Urutan capaian Santri Karya"><div><h3>Urutan capaian Santri Karya</h3>${list(ranked)}</div></section>`;
+  const list = (items) => `<ol>${items.map((participant) => `<li><button class="report-ranking-action" type="button" data-go="recap" data-recap-member="${escapeHtml(participant.participant_id)}" aria-label="Buka rekap ${escapeHtml(participant.name)}"><span>${escapeHtml(participant.name)}</span><strong>${percentage(participant.final_percentage)}</strong><small>${escapeHtml(genderLabel[participant.gender] ?? 'Tidak dicatat')} · ${escapeHtml(participant.team ?? participant.department ?? 'Tanpa tim')} · LKS ${lksCategoryLabel(lksCategory(participant))} · ${participantStatus(participant) === 'tuntas' ? 'Tuntas' : 'Belum tuntas'}</small></button></li>`).join('')}</ol>`;
+  if (ranked.length <= 5) return `<section class="report-rankings report-rankings-single" aria-label="Urutan capaian Staff"><div><h3>Urutan capaian Staff</h3>${list(ranked)}</div></section>`;
   const rankCount = Math.min(3, Math.floor(ranked.length / 2));
-  return `<section class="report-rankings" aria-label="Peringkat capaian Santri Karya"><div><h3>${rankCount} capaian tertinggi</h3>${list(ranked.slice(0, rankCount))}</div><div><h3>${rankCount} capaian terendah</h3>${list(ranked.slice(-rankCount).reverse())}</div></section>`;
+  return `<section class="report-rankings" aria-label="Peringkat capaian Staff"><div><h3>${rankCount} capaian Staff tertinggi</h3>${list(ranked.slice(0, rankCount))}</div><div><h3>${rankCount} capaian Staff terendah</h3>${list(ranked.slice(-rankCount).reverse())}</div></section>`;
 }
 
 function renderReportTrend(dimension) {
@@ -1162,7 +1195,7 @@ function openRecapDetail(participantId) {
     ? `<section class="recommendation-summary"><h4>${closed ? 'Rekomendasi akhir' : 'Arahan periode ini'}</h4>${closed ? '<p>Disimpan saat periode ditutup.</p>' : ''}<p>${escapeHtml(participant.recommendation)}</p></section>`
     : '';
   const personalExport = participant.user_id === viewer?.id && canUsePersonalLks(viewer?.roles ?? [])
-    ? `<a class="text-action export-pdf-link" href="${apiBase}/exports/personal/${encodeURIComponent(recapData.period.id)}" data-export-pdf>Unduh PDF LKS <svg><use href="#icon-arrow"/></svg></a>`
+    ? `<a class="text-action export-pdf-link" href="${apiBase}/exports/personal/${encodeURIComponent(recapData.period.id)}" data-export-pdf>Preview PDF LKS <svg><use href="#icon-arrow"/></svg></a>`
     : '';
 
   adminFormDialog.classList.remove('is-period-config');
@@ -1185,7 +1218,7 @@ function renderRecapViews() {
   const canCorrect = viewer?.roles?.includes('admin') && period.status === 'active';
   const recapRows = participants.map((participant, index) => {
     const actions = canExportIndividual
-      ? `<span class="organization-row-actions recap-row-actions"><a class="text-button organization-row-action" href="${apiBase}/admin/exports/periods/${encodeURIComponent(period.id)}/participants/${encodeURIComponent(participant.participant_id)}" data-export-pdf>PDF</a>${canCorrect ? `<button class="text-button organization-row-action" type="button" data-open-checklist-correction="${escapeHtml(participant.participant_id)}">Lihat &amp; koreksi</button>` : ''}</span>`
+      ? `<span class="organization-row-actions recap-row-actions"><a class="text-button organization-row-action" href="${apiBase}/admin/exports/periods/${encodeURIComponent(period.id)}/participants/${encodeURIComponent(participant.participant_id)}" data-export-pdf>Preview PDF</a>${canCorrect ? `<button class="text-button organization-row-action" type="button" data-open-checklist-correction="${escapeHtml(participant.participant_id)}">Lihat &amp; koreksi</button>` : ''}</span>`
       : `<span class="organization-row-actions recap-row-actions"><button class="text-button organization-row-action" type="button" data-open-recap-detail="${escapeHtml(participant.participant_id)}">Lihat rincian</button></span>`;
     const recommendation = participant.recommendation ? `<details class="recap-recommendation"><summary>Lihat arahan</summary><p>${escapeHtml(participant.recommendation)}</p></details>` : '';
     const department = participant.department ?? 'Tanpa departemen';
@@ -1227,10 +1260,8 @@ function renderRecapViews() {
   const reportGroupsForDimension = reportGroups(participants, selectedReportDimension);
   const reportLabel = reportDimensionLabel(selectedReportDimension);
   const tabs = ['department', 'leader', 'gender', 'category'].map((dimension) => `<button class="report-tab${selectedReportDimension === dimension ? ' is-active' : ''}" type="button" role="tab" aria-selected="${selectedReportDimension === dimension}" data-report-dimension="${dimension}">${reportDimensionLabel(dimension)}</button>`).join('');
-  const rankings = selectedReportDimension === 'gender'
-    ? renderParticipantRankings(participants)
-    : selectedReportDimension === 'category' ? '' : renderReportRankings(reportGroupsForDimension);
-  departmentPanel.innerHTML = `<div class="page-intro"><div><h2>Laporan periode</h2><p>${escapeHtml(period.name)} · Bandingkan capaian dari data snapshot periode yang dipilih.</p></div><div class="report-page-actions"><label class="report-period-control">Periode<select data-recap-period>${periodOptions}</select></label><a class="primary-button export-pdf-link" href="${apiBase}/admin/exports/periods/${encodeURIComponent(period.id)}" data-export-pdf>Ekspor PDF</a></div></div><nav class="report-tabs" role="tablist" aria-label="Dimensi laporan">${tabs}</nav><section class="report-overview" aria-live="polite"><div class="section-head"><div><h2>Capaian ${escapeHtml(reportLabel)}</h2><p>Rata-rata nilai akhir per kelompok.</p></div></div>${renderReportBars(reportGroupsForDimension, reportLabel, selectedReportDimension)}</section>${rankings}${renderReportTrend(selectedReportDimension)}`;
+  const rankings = selectedReportDimension === 'gender' ? renderParticipantRankings(participants) : '';
+  departmentPanel.innerHTML = `<div class="page-intro"><div><h2>Laporan periode</h2><p>${escapeHtml(period.name)} · Bandingkan capaian dari data snapshot periode yang dipilih.</p></div><div class="report-page-actions"><label class="report-period-control">Periode<select data-recap-period>${periodOptions}</select></label><a class="primary-button export-pdf-link" href="${apiBase}/admin/exports/periods/${encodeURIComponent(period.id)}" data-export-pdf>Preview PDF Rekap</a></div></div><nav class="report-tabs" role="tablist" aria-label="Dimensi laporan">${tabs}</nav><section class="report-overview" aria-live="polite"><div class="section-head"><div><h2>Capaian ${escapeHtml(reportLabel)}</h2><p>Rata-rata nilai akhir per kelompok.</p></div></div>${renderReportBars(reportGroupsForDimension, reportLabel, selectedReportDimension)}</section>${rankings}${renderReportTrend(selectedReportDimension)}`;
 }
 
 async function loadRecap(periodId = '', { showProgress = true, scope = viewer?.roles?.includes('leader') ? recapScope : 'personal' } = {}) {
@@ -1657,10 +1688,20 @@ document.addEventListener('click', (event) => {
     filterRecapRows();
     return;
   }
+  const pdfPreviewDownload = event.target.closest('[data-download-pdf-preview]');
+  if (pdfPreviewDownload) {
+    downloadPdfPreview();
+    return;
+  }
+  const pdfPreviewClose = event.target.closest('[data-close-pdf-preview]');
+  if (pdfPreviewClose) {
+    closePdfPreview();
+    return;
+  }
   const exportLink = event.target.closest('[data-export-pdf]');
   if (exportLink) {
     event.preventDefault();
-    void exportPdf(exportLink);
+    void previewPdf(exportLink);
     return;
   }
   const reportTab = event.target.closest('[data-report-dimension]');

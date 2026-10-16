@@ -696,6 +696,7 @@ class LksCoreTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.summary.participant_count', 1)
             ->assertJsonPath('data.participants.0.user_id', $member->id)
+            ->assertJsonPath('data.participants.0.level', 'staff')
             ->assertJsonPath('data.participants.0.category', 'magang');
 
         $this->actingAs($leader)
