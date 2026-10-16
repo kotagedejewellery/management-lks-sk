@@ -10,6 +10,8 @@
 
 ## Dokumen dan verifikasi QR
 
+Header PDF LKS individu memakai logo Yayasan Riyadhul Jannah Indonesia secara utuh di kiri dan logo Kotagede Jewellery secara utuh di kanan. Di tengah tercantum judul **Lembar Kendali Spiritual Santri Karya PT. Kotagede Jewellery Group**, dengan **Yayasan Riyadhul Jannah Indonesia** di bawahnya. Rentang periode tetap tersedia pada data identitas dokumen agar header tetap ringkas dan PDF tetap satu halaman.
+
 PDF individu mencantumkan identitas pejabat berikut:
 
 | Urutan | Label | Jabatan |

@@ -8,15 +8,17 @@
         body { color: #18333a; font-family: DejaVu Sans, sans-serif; font-size: 8.3pt; line-height: 1.3; }
         h1, h2, p { margin: 0; }
         h1, h2 { font-family: DejaVu Serif, serif; }
-        .document-header { border-bottom: 1px solid #6e8278; min-height: 76px; padding-bottom: 7px; position: relative; }
-        .brand-mark { left: 0; position: absolute; top: 0; width: 76px; }
-        .brand-symbol { display: block; height: 76px; margin: 0 auto; overflow: hidden; position: relative; width: 76px; }
-        .brand-symbol img { display: block; height: 150px; left: -37px; max-width: none; position: absolute; top: -26px; width: 150px; }
-        .document-title { padding: 0 88px; text-align: center; }
-        .organization-name, .period-context { color: #5a706d; font-size: 6.8pt; }
-        .organization-name { font-weight: bold; letter-spacing: .55px; text-transform: uppercase; }
-        .document-title h1 { font-size: 16pt; letter-spacing: -.25px; margin: 1px 0; white-space: nowrap; }
-        .period-context { bottom: 7px; padding-bottom: 3px; position: absolute; right: 0; text-align: right; }
+        .document-header { border-bottom: 1px solid #6e8278; display: table; min-height: 76px; padding-bottom: 7px; table-layout: fixed; width: 100%; }
+        .brand-mark, .document-title { display: table-cell; vertical-align: middle; }
+        .brand-mark { width: 76px; }
+        .brand-mark--kgj { text-align: right; width: 88px; }
+        .brand-symbol { display: block; height: 68px; margin: 0 auto; width: 68px; }
+        .brand-symbol--kgj { height: 54px; margin-right: 0; width: 82px; }
+        .brand-symbol img { display: block; height: auto; margin: 0 auto; max-height: 68px; max-width: 68px; width: auto; }
+        .brand-symbol--kgj img { max-height: 54px; max-width: 82px; }
+        .document-title { padding: 0 8px; text-align: center; }
+        .organization-name { color: #5a706d; font-size: 6.8pt; font-weight: bold; letter-spacing: .55px; text-transform: uppercase; }
+        .document-title h1 { font-size: 11.9pt; letter-spacing: -.15px; line-height: 1.2; margin: 1px 0; }
         .identity { border-collapse: collapse; margin-top: 16px; width: 100%; }
         .identity td { border-bottom: 1px solid #d9e1da; padding: 3px 0; vertical-align: top; }
         .identity td:nth-child(odd) { color: #5a706d; font-size: 7.3pt; width: 15%; }
@@ -54,9 +56,9 @@
 </head>
 <body>
     <header class="document-header">
-        <div class="brand-mark">@if($logoPath)<span class="brand-symbol"><img src="{{ $logoPath }}" alt="Logo organisasi"></span>@endif</div>
-        <div class="document-title"><p class="organization-name">{{ $organizationName }}</p><h1>Lembar Kendali Spiritual</h1></div>
-        <p class="period-context">Periode {{ $period->name }}</p>
+        <div class="brand-mark">@if($logoPath)<span class="brand-symbol"><img src="{{ $logoPath }}" alt="Logo Yayasan Riyadhul Jannah Indonesia"></span>@endif</div>
+        <div class="document-title"><h1>Lembar Kendali Spiritual Santri Karya<br>PT. Kotagede Jewellery Group</h1><p class="organization-name">Yayasan Riyadhul Jannah Indonesia</p></div>
+        <div class="brand-mark brand-mark--kgj">@if($kotagedeJewelleryLogoPath)<span class="brand-symbol brand-symbol--kgj"><img src="{{ $kotagedeJewelleryLogoPath }}" alt="Logo Kotagede Jewellery"></span>@endif</div>
     </header>
 
     <table class="identity">

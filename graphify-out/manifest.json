@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "PRODUCT.md": {
-    "mtime": 1792135067.361933,
-    "seen": 1792135346.3657146,
-    "ast_hash": "f6bf186a1127c5dbdc366b7486bbd292",
+    "mtime": 1792143610.2685266,
+    "seen": 1792143776.1669428,
+    "ast_hash": "be1d3bcf63235626ca121be81138c9ef",
     "semantic_hash": ""
   },
   "docs/Architecture System.md": {
@@ -960,9 +960,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/LksExportController.php": {
-    "mtime": 1792047352.4458804,
-    "seen": 1792048307.163638,
-    "ast_hash": "5d57dbbae9c047177a9192dcbcdf1430",
+    "mtime": 1792143610.2558196,
+    "seen": 1792143776.16634,
+    "ast_hash": "e944e670cf57a23c03be36551ff3f236",
     "semantic_hash": ""
   },
   "backend/config/lks-export.php": {
@@ -972,9 +972,9 @@
     "semantic_hash": ""
   },
   "backend/resources/views/pdf/lks-individual.blade.php": {
-    "mtime": 1792134979.741377,
-    "seen": 1792135346.36567,
-    "ast_hash": "175b6b83f6814a5988dd33820f1b7bd9",
+    "mtime": 1792143895.9630857,
+    "seen": 1792143911.115317,
+    "ast_hash": "1c83016e8c79694f7f7b8888f50da9e3",
     "semantic_hash": ""
   },
   "backend/resources/views/pdf/lks-period-summary.blade.php": {
@@ -984,9 +984,9 @@
     "semantic_hash": ""
   },
   "docs/PDF Export LKS.md": {
-    "mtime": 1792136767.3174124,
-    "seen": 1792136842.2991157,
-    "ast_hash": "8ebdce7b91aae5d46ef7e3747b0d7be7",
+    "mtime": 1792143610.2583086,
+    "seen": 1792143776.1669858,
+    "ast_hash": "d922c4b0bdb82f571f6fdb20e0ab7d19",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/DocumentSignatoryController.php": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1792136767.3194146,
-    "seen": 1792136842.2990997,
-    "ast_hash": "2365a6e73964da2d0fd78f1d3aab102b",
+    "mtime": 1792143610.258965,
+    "seen": 1792143776.166938,
+    "ast_hash": "7fa8ee54f12e481466f84cd67e9e560b",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_16_000001_add_recording_enabled_to_lks_periods_table.php": {
@@ -1101,6 +1101,12 @@
     "mtime": 1792136549.5174625,
     "seen": 1792136842.2989829,
     "ast_hash": "eeb801d17dcbf28ff79eea9b808bae4c",
+    "semantic_hash": ""
+  },
+  "backend/public/brand/kotagede-jewellery.png": {
+    "mtime": 1778557693.94193,
+    "seen": 1792143776.167023,
+    "ast_hash": "feedd275eb6a053208560e4b4798fd7e",
     "semantic_hash": ""
   }
 }

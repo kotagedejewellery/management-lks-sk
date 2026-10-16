@@ -5530,7 +5530,7 @@
       "label": "down()",
       "file_type": "code",
       "source_file": "backend/database/migrations/2026_10_16_000002_add_magang_passing_threshold_to_lks_periods.php",
-      "source_location": "L19",
+      "source_location": "L24",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7191,11 +7191,20 @@
       "_origin": "ast"
     },
     {
+      "id": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_closed_magang_period_keeps_its_stored_historical_threshold",
+      "label": ".test_closed_magang_period_keeps_its_stored_historical_threshold()",
+      "file_type": "code",
+      "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
+      "source_location": "L793",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
       "id": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_recap_scope_matches_the_viewers_role",
       "label": ".test_recap_scope_matches_the_viewers_role()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L788",
+      "source_location": "L813",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7204,7 +7213,7 @@
       "label": ".test_history_scope_keeps_leader_team_and_personal_periods_separate()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L827",
+      "source_location": "L852",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7213,7 +7222,7 @@
       "label": ".test_recap_uses_the_latest_closed_period_when_no_active_period_exists()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L859",
+      "source_location": "L884",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7222,7 +7231,7 @@
       "label": ".test_admin_recap_trends_include_stable_leader_and_gender_groups()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L873",
+      "source_location": "L898",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7231,7 +7240,7 @@
       "label": ".test_role_trends_keep_leader_and_santri_scopes_separate()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L890",
+      "source_location": "L915",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7240,7 +7249,7 @@
       "label": ".test_pdf_exports_follow_the_viewers_access_scope()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L922",
+      "source_location": "L947",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7249,7 +7258,7 @@
       "label": ".test_individual_pdf_with_ten_activities_fits_a_single_a4_page()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L951",
+      "source_location": "L976",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7258,7 +7267,7 @@
       "label": ".test_santri_can_manage_their_own_profile_and_password()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L980",
+      "source_location": "L1005",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7267,7 +7276,7 @@
       "label": ".test_admin_can_import_calendar_holidays()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1004",
+      "source_location": "L1029",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7276,7 +7285,7 @@
       "label": ".test_new_draft_period_automatically_snapshots_work_calendar_holidays()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1023",
+      "source_location": "L1048",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7285,7 +7294,7 @@
       "label": ".test_new_draft_period_automatically_snapshots_active_master_activities()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1055",
+      "source_location": "L1080",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7294,7 +7303,7 @@
       "label": ".test_admin_can_sync_missing_master_activities_to_a_draft_without_overwriting_existing_rules()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1086",
+      "source_location": "L1111",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7303,7 +7312,7 @@
       "label": ".test_admin_can_delete_activity_used_only_by_draft_period()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1127",
+      "source_location": "L1152",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7312,7 +7321,7 @@
       "label": ".test_admin_cannot_delete_activity_used_by_active_period()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1142",
+      "source_location": "L1167",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7321,7 +7330,7 @@
       "label": ".userWithRole()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1157",
+      "source_location": "L1182",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7330,7 +7339,7 @@
       "label": ".period()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1166",
+      "source_location": "L1191",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7339,7 +7348,7 @@
       "label": ".periodActivity()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1181",
+      "source_location": "L1206",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7348,7 +7357,7 @@
       "label": ".participant()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1204",
+      "source_location": "L1229",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7357,7 +7366,7 @@
       "label": ".checklist()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1218",
+      "source_location": "L1243",
       "_callable": true,
       "_origin": "ast"
     },
@@ -7366,7 +7375,7 @@
       "label": ".configureActivationSignatories()",
       "file_type": "code",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1229",
+      "source_location": "L1254",
       "_callable": true,
       "_origin": "ast"
     },
@@ -9996,7 +10005,7 @@
       "file_type": "document",
       "node_kind": "heading",
       "source_file": "docs/PDF Export LKS.md",
-      "source_location": "L29",
+      "source_location": "L31",
       "_origin": "ast"
     },
     {
@@ -10572,7 +10581,7 @@
       "file_type": "document",
       "node_kind": "heading",
       "source_file": "docs/Tech Stack.md",
-      "source_location": "L116",
+      "source_location": "L117",
       "_origin": "ast"
     },
     {
@@ -26562,7 +26571,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/database/migrations/2026_10_16_000002_add_magang_passing_threshold_to_lks_periods.php",
-      "source_location": "L19",
+      "source_location": "L24",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29006,11 +29015,21 @@
     },
     {
       "source": "backend_tests_feature_lks_lkscoretest_lkscoretest",
+      "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_closed_magang_period_keeps_its_stored_historical_threshold",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
+      "source_location": "L793",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_tests_feature_lks_lkscoretest_lkscoretest",
       "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_recap_scope_matches_the_viewers_role",
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L788",
+      "source_location": "L813",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29020,7 +29039,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L827",
+      "source_location": "L852",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29030,7 +29049,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L859",
+      "source_location": "L884",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29040,7 +29059,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L873",
+      "source_location": "L898",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29050,7 +29069,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L890",
+      "source_location": "L915",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29060,7 +29079,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L922",
+      "source_location": "L947",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29070,7 +29089,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L951",
+      "source_location": "L976",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29080,7 +29099,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L980",
+      "source_location": "L1005",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29090,7 +29109,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1004",
+      "source_location": "L1029",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29100,7 +29119,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1023",
+      "source_location": "L1048",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29110,7 +29129,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1055",
+      "source_location": "L1080",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29120,7 +29139,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1086",
+      "source_location": "L1111",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29130,7 +29149,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1127",
+      "source_location": "L1152",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29140,7 +29159,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1142",
+      "source_location": "L1167",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29150,7 +29169,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1157",
+      "source_location": "L1182",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29160,7 +29179,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1157",
+      "source_location": "L1182",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast"
@@ -29171,7 +29190,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1166",
+      "source_location": "L1191",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29181,7 +29200,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1166",
+      "source_location": "L1191",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -29192,7 +29211,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1166",
+      "source_location": "L1191",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast"
@@ -29203,7 +29222,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1181",
+      "source_location": "L1206",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29213,7 +29232,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1181",
+      "source_location": "L1206",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -29224,7 +29243,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1181",
+      "source_location": "L1206",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast"
@@ -29235,7 +29254,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1204",
+      "source_location": "L1229",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29245,7 +29264,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1204",
+      "source_location": "L1229",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -29256,7 +29275,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1204",
+      "source_location": "L1229",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -29267,7 +29286,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1204",
+      "source_location": "L1229",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast"
@@ -29278,7 +29297,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1218",
+      "source_location": "L1243",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -29288,7 +29307,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1218",
+      "source_location": "L1243",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -29299,7 +29318,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1218",
+      "source_location": "L1243",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -29310,7 +29329,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1218",
+      "source_location": "L1243",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -29321,7 +29340,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1229",
+      "source_location": "L1254",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30311,24 +30330,13 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L763",
-      "weight": 1.0,
-      "_origin": "ast"
-    },
-    {
-      "source": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_final_status_uses_the_participants_job_level_and_lks_category_threshold",
-      "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_periodactivity",
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
       "source_location": "L764",
       "weight": 1.0,
       "_origin": "ast"
     },
     {
       "source": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_final_status_uses_the_participants_job_level_and_lks_category_threshold",
-      "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_participant",
+      "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_periodactivity",
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -30339,12 +30347,78 @@
     },
     {
       "source": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_final_status_uses_the_participants_job_level_and_lks_category_threshold",
+      "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_participant",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
+      "source_location": "L766",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_final_status_uses_the_participants_job_level_and_lks_category_threshold",
       "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_checklist",
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L772",
+      "source_location": "L774",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_closed_magang_period_keeps_its_stored_historical_threshold",
+      "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_userwithrole",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
+      "source_location": "L795",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_closed_magang_period_keeps_its_stored_historical_threshold",
+      "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_period",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
+      "source_location": "L797",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_closed_magang_period_keeps_its_stored_historical_threshold",
+      "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_periodactivity",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
+      "source_location": "L798",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_closed_magang_period_keeps_its_stored_historical_threshold",
+      "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_participant",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
+      "source_location": "L799",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_closed_magang_period_keeps_its_stored_historical_threshold",
+      "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_checklist",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
+      "source_location": "L803",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30355,7 +30429,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L790",
+      "source_location": "L815",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30366,7 +30440,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L794",
+      "source_location": "L819",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30377,7 +30451,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L795",
+      "source_location": "L820",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30388,7 +30462,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L796",
+      "source_location": "L821",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30399,7 +30473,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L829",
+      "source_location": "L854",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30410,24 +30484,13 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L833",
+      "source_location": "L858",
       "weight": 1.0,
       "_origin": "ast"
     },
     {
       "source": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_history_scope_keeps_leader_team_and_personal_periods_separate",
       "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_participant",
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L836",
-      "weight": 1.0,
-      "_origin": "ast"
-    },
-    {
-      "source": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_recap_uses_the_latest_closed_period_when_no_active_period_exists",
-      "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_userwithrole",
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -30438,12 +30501,23 @@
     },
     {
       "source": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_recap_uses_the_latest_closed_period_when_no_active_period_exists",
+      "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_userwithrole",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
+      "source_location": "L886",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_recap_uses_the_latest_closed_period_when_no_active_period_exists",
       "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_period",
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L862",
+      "source_location": "L887",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30454,7 +30528,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L875",
+      "source_location": "L900",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30465,7 +30539,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L878",
+      "source_location": "L903",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30476,7 +30550,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L879",
+      "source_location": "L904",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30487,7 +30561,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L892",
+      "source_location": "L917",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30498,24 +30572,13 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L896",
+      "source_location": "L921",
       "weight": 1.0,
       "_origin": "ast"
     },
     {
       "source": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_role_trends_keep_leader_and_santri_scopes_separate",
       "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_participant",
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L899",
-      "weight": 1.0,
-      "_origin": "ast"
-    },
-    {
-      "source": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_pdf_exports_follow_the_viewers_access_scope",
-      "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_userwithrole",
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -30526,12 +30589,23 @@
     },
     {
       "source": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_pdf_exports_follow_the_viewers_access_scope",
+      "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_userwithrole",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
+      "source_location": "L949",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_tests_feature_lks_lkscoretest_lkscoretest_test_pdf_exports_follow_the_viewers_access_scope",
       "target": "backend_tests_feature_lks_lkscoretest_lkscoretest_period",
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L927",
+      "source_location": "L952",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30542,7 +30616,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L928",
+      "source_location": "L953",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30553,7 +30627,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L929",
+      "source_location": "L954",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30564,7 +30638,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L953",
+      "source_location": "L978",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30575,7 +30649,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L955",
+      "source_location": "L980",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30586,7 +30660,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L959",
+      "source_location": "L984",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30597,7 +30671,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L962",
+      "source_location": "L987",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30608,7 +30682,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L982",
+      "source_location": "L1007",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30619,7 +30693,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1006",
+      "source_location": "L1031",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30630,7 +30704,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1025",
+      "source_location": "L1050",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30641,7 +30715,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1057",
+      "source_location": "L1082",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30652,7 +30726,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1088",
+      "source_location": "L1113",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30663,7 +30737,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1091",
+      "source_location": "L1116",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30674,7 +30748,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1129",
+      "source_location": "L1154",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30685,7 +30759,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1130",
+      "source_location": "L1155",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30696,7 +30770,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1130",
+      "source_location": "L1155",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30707,7 +30781,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1144",
+      "source_location": "L1169",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30718,7 +30792,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1145",
+      "source_location": "L1170",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -30729,7 +30803,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1145",
+      "source_location": "L1170",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -37548,7 +37622,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/PDF Export LKS.md",
-      "source_location": "L29",
+      "source_location": "L31",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -38158,7 +38232,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "docs/Tech Stack.md",
-      "source_location": "L112",
+      "source_location": "L113",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -38168,7 +38242,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/Tech Stack.md",
-      "source_location": "L116",
+      "source_location": "L117",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -39296,7 +39370,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L970",
+      "source_location": "L995",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -39308,7 +39382,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1059",
+      "source_location": "L1084",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -39320,7 +39394,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1090",
+      "source_location": "L1115",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -39332,7 +39406,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1132",
+      "source_location": "L1157",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -39344,7 +39418,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1147",
+      "source_location": "L1172",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -39356,7 +39430,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1160",
+      "source_location": "L1185",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -39368,7 +39442,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1183",
+      "source_location": "L1208",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -39380,7 +39454,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1220",
+      "source_location": "L1245",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -39392,7 +39466,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/tests/Feature/Lks/LksCoreTest.php",
-      "source_location": "L1232",
+      "source_location": "L1257",
       "weight": 1.0,
       "_origin": "ast"
     },

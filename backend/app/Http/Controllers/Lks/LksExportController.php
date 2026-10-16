@@ -88,6 +88,7 @@ class LksExportController extends Controller
             'period' => $period,
             'organizationName' => config('lks-export.organization_name'),
             'logoPath' => $this->logoPath(),
+            'kotagedeJewelleryLogoPath' => $this->kotagedeJewelleryLogoPath(),
             'report' => $this->reportRow($score),
             'signatories' => $signatories,
             'signatureDate' => $this->signatureDate($period),
@@ -168,6 +169,13 @@ class LksExportController extends Controller
     private function logoPath(): ?string
     {
         $path = public_path('brand/yayasan-riyadhul-jannah.png');
+
+        return is_file($path) ? $path : null;
+    }
+
+    private function kotagedeJewelleryLogoPath(): ?string
+    {
+        $path = public_path('brand/kotagede-jewellery.png');
 
         return is_file($path) ? $path : null;
     }

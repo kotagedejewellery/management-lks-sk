@@ -593,7 +593,7 @@
       "label": ".issueVerification()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L100",
+      "source_location": "L101",
       "_callable": true,
       "_origin": "ast"
     },
@@ -602,7 +602,7 @@
       "label": "{closure#3}()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L104",
+      "source_location": "L105",
       "_callable": true,
       "_origin": "ast"
     },
@@ -611,7 +611,7 @@
       "label": ".verificationQrDataUri()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L116",
+      "source_location": "L117",
       "_callable": true,
       "_origin": "ast"
     },
@@ -620,7 +620,7 @@
       "label": ".reportRow()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L128",
+      "source_location": "L129",
       "_callable": true,
       "_origin": "ast"
     },
@@ -629,7 +629,7 @@
       "label": "{closure#4}()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L132",
+      "source_location": "L133",
       "_callable": true,
       "_origin": "ast"
     },
@@ -638,7 +638,7 @@
       "label": "{closure#5}()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L137",
+      "source_location": "L138",
       "_callable": true,
       "_origin": "ast"
     },
@@ -647,7 +647,7 @@
       "label": ".signatoriesForPeriod()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L145",
+      "source_location": "L146",
       "_callable": true,
       "_origin": "ast"
     },
@@ -656,7 +656,7 @@
       "label": "{closure#6}()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L153",
+      "source_location": "L154",
       "_callable": true,
       "_origin": "ast"
     },
@@ -665,7 +665,7 @@
       "label": "{closure#7}()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L156",
+      "source_location": "L157",
       "_callable": true,
       "_origin": "ast"
     },
@@ -674,7 +674,7 @@
       "label": ".signatureDate()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L163",
+      "source_location": "L164",
       "_callable": true,
       "_origin": "ast"
     },
@@ -683,7 +683,16 @@
       "label": ".logoPath()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L168",
+      "source_location": "L169",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "backend_app_http_controllers_lks_lksexportcontroller_lksexportcontroller_kotagedejewellerylogopath",
+      "label": ".kotagedeJewelleryLogoPath()",
+      "file_type": "code",
+      "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
+      "source_location": "L176",
       "_callable": true,
       "_origin": "ast"
     },
@@ -692,7 +701,7 @@
       "label": ".ensureExportable()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L175",
+      "source_location": "L183",
       "_callable": true,
       "_origin": "ast"
     },
@@ -701,7 +710,7 @@
       "label": ".fileName()",
       "file_type": "code",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L180",
+      "source_location": "L188",
       "_callable": true,
       "_origin": "ast"
     },
@@ -10005,7 +10014,7 @@
       "file_type": "document",
       "node_kind": "heading",
       "source_file": "docs/PDF Export LKS.md",
-      "source_location": "L31",
+      "source_location": "L33",
       "_origin": "ast"
     },
     {
@@ -13396,7 +13405,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L100",
+      "source_location": "L101",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -13406,7 +13415,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L100",
+      "source_location": "L101",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -13417,7 +13426,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L100",
+      "source_location": "L101",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -13428,7 +13437,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L100",
+      "source_location": "L101",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast"
@@ -13439,7 +13448,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L104",
+      "source_location": "L105",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -13449,7 +13458,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L116",
+      "source_location": "L117",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -13459,7 +13468,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L128",
+      "source_location": "L129",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -13469,7 +13478,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L128",
+      "source_location": "L129",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -13480,7 +13489,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L132",
+      "source_location": "L133",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -13490,7 +13499,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L137",
+      "source_location": "L138",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -13500,7 +13509,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L145",
+      "source_location": "L146",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -13510,7 +13519,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L145",
+      "source_location": "L146",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -13521,7 +13530,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L153",
+      "source_location": "L154",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -13531,7 +13540,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L153",
+      "source_location": "L154",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -13542,7 +13551,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L156",
+      "source_location": "L157",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -13552,7 +13561,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L163",
+      "source_location": "L164",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -13562,7 +13571,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L163",
+      "source_location": "L164",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -13573,7 +13582,17 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L168",
+      "source_location": "L169",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_lksexportcontroller_lksexportcontroller",
+      "target": "backend_app_http_controllers_lks_lksexportcontroller_lksexportcontroller_kotagedejewellerylogopath",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
+      "source_location": "L176",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -13583,7 +13602,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L175",
+      "source_location": "L183",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -13593,7 +13612,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L175",
+      "source_location": "L183",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast"
@@ -13604,7 +13623,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L180",
+      "source_location": "L188",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -13753,7 +13772,7 @@
     },
     {
       "source": "backend_app_http_controllers_lks_lksexportcontroller_lksexportcontroller_individualpdf",
-      "target": "backend_app_http_controllers_lks_lksexportcontroller_lksexportcontroller_reportrow",
+      "target": "backend_app_http_controllers_lks_lksexportcontroller_lksexportcontroller_kotagedejewellerylogopath",
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -13764,12 +13783,23 @@
     },
     {
       "source": "backend_app_http_controllers_lks_lksexportcontroller_lksexportcontroller_individualpdf",
+      "target": "backend_app_http_controllers_lks_lksexportcontroller_lksexportcontroller_reportrow",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
+      "source_location": "L92",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "backend_app_http_controllers_lks_lksexportcontroller_lksexportcontroller_individualpdf",
       "target": "backend_app_http_controllers_lks_lksexportcontroller_lksexportcontroller_signaturedate",
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L93",
+      "source_location": "L94",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -13780,7 +13810,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L96",
+      "source_location": "L97",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -13791,7 +13821,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L97",
+      "source_location": "L98",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -37622,7 +37652,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/PDF Export LKS.md",
-      "source_location": "L31",
+      "source_location": "L33",
       "weight": 1.0,
       "_origin": "ast"
     },
@@ -38326,7 +38356,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.85,
       "source_file": "backend/app/Http/Controllers/Lks/LksExportController.php",
-      "source_location": "L165",
+      "source_location": "L166",
       "weight": 1.0,
       "_origin": "ast"
     },

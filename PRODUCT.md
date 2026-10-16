@@ -40,12 +40,12 @@ LKS operates in recurring, generally monthly periods. A Santri Karya checks comp
 
 ## Brand Commitments
 
-The product name is LKS Santri Karya. No visual identity, logo, palette, or typography has been provided. Future UI work must establish those choices through the Impeccable workflow rather than inventing a permanent brand direction here.
+The product name is LKS Santri Karya. Individual LKS PDFs use the supplied original Yayasan Riyadhul Jannah Indonesia and Kotagede Jewellery logos as document identity. No broader web visual identity, palette, or typography has been provided; future web UI work must establish those choices through the Impeccable workflow rather than inventing a permanent brand direction here.
 
 ## Evidence on Hand
 
 - Approved source requirements: `docs/PRD.md`.
-- No existing implementation, visual assets, logo, production data, testimonial, benchmark, or brand manual is present in the workspace.
+- Supplied document-logo assets: Yayasan Riyadhul Jannah Indonesia and Kotagede Jewellery.
 
 ## Product Principles
 
