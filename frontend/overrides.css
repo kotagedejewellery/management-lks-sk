@@ -51,6 +51,8 @@
 @keyframes button-spin { to { transform: rotate(1turn); } }
 .primary-button.is-busy, .text-button.is-busy, .logout-button.is-busy { cursor: wait; opacity: .78; }
 .quick-check.is-busy, .square-check.is-busy { cursor: wait; opacity: .65; }
+.quick-check:disabled, .square-check:disabled { cursor: not-allowed; }
+.quick-check:disabled:not(.is-done) .check-mark, .checklist-item:not(.is-done) .square-check:disabled { border-color: var(--line-dark, #c5d0c8); background: #eef2ec; }
 .quick-check.is-busy .check-mark, .square-check.is-busy { position: relative; }
 .quick-check.is-busy .check-mark::after, .square-check.is-busy::after { content: ''; position: absolute; width: 12px; height: 12px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: button-spin .65s linear infinite; }
 .quick-check.is-busy .check-mark svg, .square-check.is-busy svg { visibility: hidden; }

@@ -35,7 +35,8 @@ LKS operates in recurring, generally monthly periods. A Santri Karya checks comp
 - The approved calculation baseline is capped activity achievement, equal default weights, and a configurable final completion threshold initially set to 90%.
 - Individual rankings are limited to Staff; Leader, department, and category reporting remain aggregate comparisons.
 - PDF LKS and rekap can be previewed before download using the same authorized export file. The first individual PDF generated for a closed period issues one reusable verification record; it never changes the period calculation or snapshot.
-- Exact policy for checklist correction after a period ends remains a business-rule decision; the proposed default is that closed periods are read-only.
+- Period activation locks its snapshots and configuration; a separate recording control lets an administrator pause or resume Santri checklist input without changing that lifecycle. Checklist input remains limited to the configured date range, while an active period can still be reviewed outside it.
+- Santri checklist input is read-only when an active period is paused or its date range has ended. Admin may correct a valid historical date while the period remains active; a closed period is read-only for everyone.
 
 ## Brand Commitments
 

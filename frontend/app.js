@@ -350,11 +350,16 @@ function checkIcon() {
   return '<svg><use href="#icon-check"/></svg>';
 }
 
+function recordingUnavailableLabel() {
+  return activePeriod?.recording_enabled ? 'Pencatatan telah berakhir' : 'Pencatatan dijeda oleh Admin';
+}
+
 function renderQuickCheck(activity) {
   const complete = activity.is_completed ?? activity.is_completed_today;
   const saveError = checklistSaveErrors.get(checklistSaveErrorKey(activity.id));
-  return `<button class="quick-check${complete ? ' is-done' : ''}" data-activity-id="${escapeHtml(activity.id)}" aria-pressed="${complete}">
-    <span class="check-mark">${checkIcon()}</span><span><strong>${escapeHtml(activity.name)}</strong><small${saveError ? ' class="checklist-save-error"' : ''}>${escapeHtml(saveError ? 'Gagal disimpan — coba lagi' : complete ? 'Sudah dicatat' : 'Belum dicatat')}</small></span>
+  const canRecord = activePeriod?.recording_available === true;
+  return `<button class="quick-check${complete ? ' is-done' : ''}" data-activity-id="${escapeHtml(activity.id)}" aria-pressed="${complete}"${canRecord ? '' : ' disabled'}>
+    <span class="check-mark">${checkIcon()}</span><span><strong>${escapeHtml(activity.name)}</strong><small${saveError ? ' class="checklist-save-error"' : ''}>${escapeHtml(saveError ? 'Gagal disimpan — coba lagi' : complete ? 'Sudah dicatat' : canRecord ? 'Belum dicatat' : recordingUnavailableLabel())}</small></span>
   </button>`;
 }
 
@@ -362,10 +367,11 @@ function renderFullCheck(activity) {
   const complete = activity.is_completed ?? activity.is_completed_today;
   const optionalNote = activity.is_optional_today ? ` · Opsional${activity.holiday_name ? ` (${escapeHtml(activity.holiday_name)})` : ''}` : '';
   const saveError = checklistSaveErrors.get(checklistSaveErrorKey(activity.id));
+  const canRecord = activePeriod?.recording_available === true;
   return `<div class="checklist-item${complete ? ' is-done' : ''}${saveError ? ' has-save-error' : ''}">
-    <button class="square-check" data-activity-id="${escapeHtml(activity.id)}" aria-label="${complete ? 'Batalkan catatan' : 'Catat'} ${escapeHtml(activity.name)}" aria-pressed="${complete}">${checkIcon()}</button>
-    <div><strong>${escapeHtml(activity.name)}</strong><small>${escapeHtml(activityRuleLabel(activity))}${optionalNote}</small><button class="text-button bulk-checklist-trigger" type="button" data-open-bulk-checklist="${escapeHtml(activity.id)}"><svg aria-hidden="true"><use href="#icon-calendar"/></svg>Catat beberapa tanggal</button></div>
-    <span class="item-note${saveError ? ' checklist-save-error' : ''}" role="status">${escapeHtml(saveError ? 'Gagal disimpan — coba lagi' : complete ? 'Dicatat' : 'Belum dicatat')}</span>
+    <button class="square-check" data-activity-id="${escapeHtml(activity.id)}" aria-label="${complete ? 'Batalkan catatan' : 'Catat'} ${escapeHtml(activity.name)}" aria-pressed="${complete}"${canRecord ? '' : ' disabled'}>${checkIcon()}</button>
+    <div><strong>${escapeHtml(activity.name)}</strong><small>${escapeHtml(activityRuleLabel(activity))}${optionalNote}</small>${canRecord ? `<button class="text-button bulk-checklist-trigger" type="button" data-open-bulk-checklist="${escapeHtml(activity.id)}"><svg aria-hidden="true"><use href="#icon-calendar"/></svg>Catat beberapa tanggal</button>` : ''}</div>
+    <span class="item-note${saveError ? ' checklist-save-error' : ''}" role="status">${escapeHtml(saveError ? 'Gagal disimpan — coba lagi' : complete ? 'Dicatat' : canRecord ? 'Belum dicatat' : recordingUnavailableLabel())}</span>
   </div>`;
 }
 
@@ -688,7 +694,11 @@ function applyDashboard(data) {
   participantId = data.participant.id;
   const maxDate = [todayIso(), dateInputValue(data.period.end_date)].sort()[0];
   const isHistoricalDate = selectedChecklistDate !== todayIso();
-  const dateMessage = isHistoricalDate
+  const dateMessage = data.period.recording_available !== true
+    ? data.period.recording_enabled
+      ? 'Rentang pencatatan periode ini telah berakhir. Catatan ditampilkan sebagai referensi.'
+      : 'Pencatatan LKS sedang dijeda oleh Admin. Catatan tetap dapat ditinjau.'
+    : isHistoricalDate
     ? `Anda sedang melihat catatan lampau: ${formatDate(selectedChecklistDate, true)}.`
     : `Catat aktivitas untuk ${formatDate(selectedChecklistDate, true)}.`;
   document.querySelector('.date-rail').innerHTML = `<label class="checklist-date-control">Tanggal pencatatan<input type="date" data-checklist-date value="${escapeHtml(selectedChecklistDate)}" min="${escapeHtml(dateInputValue(data.participant.participation_start_date))}" max="${escapeHtml(maxDate)}"></label><p class="date-note">${escapeHtml(dateMessage)}</p>${isHistoricalDate ? '<button class="text-button" type="button" data-checklist-today>Kembali ke hari ini</button>' : ''}`;
@@ -698,6 +708,7 @@ function applyDashboard(data) {
     quickChecks.innerHTML = data.activities.slice(0, 4).map(renderQuickCheck).join('');
     fullChecklist.innerHTML = data.activities.map(renderFullCheck).join('');
     setChecklistReady();
+    if (data.period.recording_available !== true) document.querySelector('.full-checklist .save-state').hidden = true;
   }
   if (data.personal_summary) renderPersonalSummary(data.personal_summary);
   updateTodayProgress();
@@ -1312,6 +1323,10 @@ async function loadRecap(periodId = '', { showProgress = true, scope = viewer?.r
 async function persistChecklist(button) {
   if (participantId === null) {
     showToast('Checklist belum dapat diisi pada periode ini.');
+    return;
+  }
+  if (activePeriod?.recording_available !== true) {
+    showToast(activePeriod?.recording_enabled ? 'Pencatatan hanya dibuka selama rentang periode.' : 'Pencatatan LKS sedang dijeda oleh Admin.', 'error');
     return;
   }
 
@@ -1978,8 +1993,11 @@ function renderAdminView(name) {
     const participantRows = participantData.participants.map((participant) => `<div class="admin-record-row participant-record-row" role="row"><span role="cell"><strong>${escapeHtml(participant.name)}</strong><small>Mulai ${escapeHtml(formatDate(participant.participation_start_date, true))}</small></span><span role="cell">${escapeHtml(participant.team ?? 'Tanpa tim')}<small>${escapeHtml(participant.department ?? 'Tanpa departemen')}</small></span><span role="cell">${participant.checklists_count ? `${participant.checklists_count} checklist tercatat` : 'Belum ada checklist'}</span><span role="cell">${participant.checklists_count ? '<small>Riwayat tercatat</small>' : `<button class="text-button organization-row-action organization-archive-action" type="button" data-remove-period-participant="${escapeHtml(participant.id)}" data-period-id="${escapeHtml(period.id)}" data-participant-name="${escapeHtml(participant.name)}">Keluarkan</button>`}</span></div>`).join('');
     const activityRows = activities.map((activity) => `<li><strong>${escapeHtml(activity.activity_name_snapshot)}</strong><span>Target ${escapeHtml(activity.target_count)} kali · ${activity.is_active ? 'Aktif' : 'Nonaktif'}</span></li>`).join('');
     const holidayRows = holidays.map((holiday) => `<div class="admin-record-row period-holiday-record-row" role="row"><span role="cell"><strong>${escapeHtml(formatDate(holiday.holiday_date, true))}</strong></span><span role="cell">${escapeHtml(holiday.name)}</span><span role="cell">${holiday.type === 'collective_leave' ? 'Cuti bersama' : 'Tanggal merah'}<small>Checklist opsional · tidak dinilai</small></span><span role="cell">${period.status === 'draft' ? `<button class="text-button organization-row-action" type="button" data-delete-period-holiday="${escapeHtml(holiday.id)}" data-period-id="${escapeHtml(period.id)}" data-holiday-name="${escapeHtml(holiday.name)}">Hapus</button>` : '<small>Terkunci</small>'}</span></div>`).join('');
+    const recordingAction = period.recording_enabled
+      ? `<button class="text-button organization-row-action" type="button" data-update-period-recording="${escapeHtml(period.id)}" data-recording-enabled="false">Jeda pencatatan</button>`
+      : `<button class="text-button organization-row-action" type="button" data-update-period-recording="${escapeHtml(period.id)}" data-recording-enabled="true">Lanjutkan pencatatan</button>`;
     const lifecycleAction = period.status === 'active'
-      ? `<button class="text-button organization-archive-action" type="button" data-close-period="${escapeHtml(period.id)}" data-period-name="${escapeHtml(period.name)}">Tutup periode</button>`
+      ? `<div class="organization-row-actions"><span class="status ${period.recording_enabled ? 'status-active' : 'status-waiting'}">Pencatatan ${period.recording_enabled ? 'dibuka' : 'dijeda'}</span>${recordingAction}<button class="text-button organization-archive-action" type="button" data-close-period="${escapeHtml(period.id)}" data-period-name="${escapeHtml(period.name)}">Tutup periode</button></div>`
       : period.status === 'draft'
         ? `<div class="organization-row-actions"><button class="text-button organization-row-action" type="button" data-open-admin-modal="period-edit" data-period-id="${escapeHtml(period.id)}">Edit periode</button>${availableActivityCount ? `<button class="text-button organization-row-action" type="button" data-sync-period-activities="${escapeHtml(period.id)}" data-missing-activity-count="${availableActivityCount}">Tambahkan ${availableActivityCount} aktivitas</button>` : ''}<button class="text-button organization-row-action" type="button" data-open-admin-modal="period-config" data-period-id="${escapeHtml(period.id)}">Kelola aktivitas (${activities.length})</button>${availableActivityCount ? `<button class="text-button organization-row-action" type="button" data-open-admin-modal="period-activity" data-period-id="${escapeHtml(period.id)}">Tambah satu aktivitas</button>` : ''}<button class="text-button organization-row-action" type="button" data-activate-period="${escapeHtml(period.id)}">Aktifkan</button></div>`
         : '<span class="status status-closed">Ditutup</span>';
@@ -2009,7 +2027,9 @@ function renderAdminView(name) {
       const periodAction = period.status === 'draft'
         ? `<button class="text-button organization-row-action" type="button" data-open-period-detail="${escapeHtml(period.id)}">Tinjau kesiapan</button><button class="text-button organization-row-action" type="button" data-delete-resource="period" data-resource-id="${escapeHtml(period.id)}" data-resource-name="${escapeHtml(period.name)}">Hapus draft</button>`
         : `<button class="text-button organization-row-action" type="button" data-open-period-detail="${escapeHtml(period.id)}">${period.status === 'active' ? 'Kelola periode' : 'Lihat periode'}</button>`;
-      const periodStatus = period.status === 'active' ? '<span class="status status-active">Aktif</span>' : period.status === 'closed' ? '<span class="status status-closed">Ditutup</span>' : '<span class="status status-waiting">Draft</span>';
+      const periodStatus = period.status === 'active'
+        ? `<span class="status status-active">Aktif</span><small>Pencatatan ${period.recording_enabled ? 'dibuka' : 'dijeda'}</small>`
+        : period.status === 'closed' ? '<span class="status status-closed">Ditutup</span>' : '<span class="status status-waiting">Draft</span>';
       return `<div class="admin-record-row period-record-row" role="row"><span role="cell"><strong>${escapeHtml(period.name)}</strong><small>Leader ${period.final_passing_threshold}% · Staff ${period.staff_passing_threshold ?? 85}%</small></span><span role="cell">${escapeHtml(formatDate(period.start_date, true))} — ${escapeHtml(formatDate(period.end_date, true))}<small>${period.period_activities.length} aktivitas · ${activeActivityCount} aktif</small></span><span role="cell">${periodStatus}</span><span role="cell">${periodAction}</span></div>`;
     }).join('');
     const periodContent = !showPeriodEmpty
@@ -2784,6 +2804,36 @@ document.addEventListener('click', async (event) => {
     showToast('Periode berhasil diaktifkan. Konfigurasi terkunci dan peserta dapat mulai mencatat LKS.');
     void loadDashboard();
   } catch (error) { showToast(error.message, 'error'); } finally { setButtonBusy(activate, false); }
+});
+
+document.addEventListener('click', async (event) => {
+  const recording = event.target.closest('[data-update-period-recording]');
+  if (!recording) return;
+  const enabled = recording.dataset.recordingEnabled === 'true';
+  const confirmed = await confirmAction({
+    title: enabled ? 'Lanjutkan pencatatan?' : 'Jeda pencatatan?',
+    message: enabled
+      ? 'Santri dapat kembali mengisi checklist selama tanggal saat ini masih berada dalam rentang periode.'
+      : 'Santri tidak dapat mengubah checklist sampai pencatatan dilanjutkan. Data dan rekap tetap dapat ditinjau.',
+    confirmLabel: enabled ? 'Lanjutkan pencatatan' : 'Jeda pencatatan',
+    tone: enabled ? 'default' : 'danger',
+  });
+  if (!confirmed) return;
+  setButtonBusy(recording, true, enabled ? 'Melanjutkan…' : 'Menjeda…');
+  try {
+    const response = await fetch(`${apiBase}/periods/${recording.dataset.updatePeriodRecording}/recording`, {
+      method: 'PATCH',
+      credentials: 'same-origin',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}) },
+      body: JSON.stringify({ recording_enabled: enabled }),
+    });
+    if (!response.ok) throw new Error(await apiError(response));
+    configurationData = null;
+    activePeriodParticipants = null;
+    await loadAdminView('period-detail', { dataOnly: true });
+    showToast(enabled ? 'Pencatatan dilanjutkan.' : 'Pencatatan dijeda.');
+    void loadDashboard();
+  } catch (error) { showToast(error.message, 'error'); } finally { setButtonBusy(recording, false); }
 });
 
 document.addEventListener('click', async (event) => {

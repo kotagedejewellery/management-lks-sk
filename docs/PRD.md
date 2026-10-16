@@ -82,10 +82,13 @@ Data minimum:
 
 LKS berjalan dalam periode tertentu, umumnya bulanan, misalnya September 2026. Setiap periode memiliki tanggal mulai, tanggal selesai, daftar aktivitas, target tiap aktivitas, dan status.
 
-| Status | Makna |
+| Status periode | Makna |
 |---|---|
-| Aktif | Checklist dapat diisi dan perhitungan berjalan. |
-| Selesai | Periode ditutup; data tetap tersedia sebagai riwayat. |
+| Draft | Konfigurasi aktivitas, hari libur, dan tanggal masih dapat disiapkan. |
+| Aktif | Snapshot peserta dan konfigurasi terkunci; periode tetap dapat ditinjau Admin. |
+| Selesai | Periode ditutup; data tetap tersedia sebagai riwayat dan tidak dapat dibuka kembali. |
+
+Status pencatatan hanya berlaku bagi periode Aktif. Admin dapat memilih **Dibuka** atau **Dijeda** tanpa mengubah status periode. Santri hanya dapat mengisi checklist saat pencatatan dibuka dan tanggal saat ini berada di dalam rentang periode. Di luar rentang, periode tetap dapat ditinjau tetapi checklist terkunci. Admin tetap dapat mengoreksi tanggal valid selama periode masih Aktif; periode Ditutup hanya-baca untuk semua peran.
 
 ## 7. Aktivitas spiritual
 
@@ -194,7 +197,7 @@ Admin membuat periode
 |---|---|
 | FR-01 | Pengguna dapat login dengan akun terdaftar. |
 | FR-02 | Admin dapat menambah, mengubah, menonaktifkan Santri Karya serta menetapkan tim, leader, dan departemen. |
-| FR-03 | Admin dapat membuat, mengatur tanggal, mengaktifkan, dan menutup periode LKS. |
+| FR-03 | Admin dapat membuat, mengatur tanggal, mengaktifkan, menjeda/melanjutkan pencatatan, dan menutup periode LKS. |
 | FR-04 | Admin dapat mengatur nama aktivitas, target, dan status aktif. |
 | FR-05 | Santri Karya dapat mencentang aktivitas berdasarkan tanggal. |
 | FR-06 | Checklist pengguna tersimpan di sistem. |
@@ -214,7 +217,7 @@ Admin membuat periode
 | ID | Aturan |
 |---|---|
 | BR-01 | Satu pengguna memiliki satu data LKS dalam satu periode. |
-| BR-02 | Checklist hanya dapat dilakukan pada periode aktif. |
+| BR-02 | Checklist Santri hanya dapat dilakukan pada periode aktif dengan pencatatan dibuka dan pada tanggal saat ini di dalam rentang periode; periode ditutup bersifat hanya-baca. |
 | BR-03 | Setiap aktivitas dapat memiliki target berbeda. |
 | BR-04 | Nilai dihitung otomatis dari checklist. |
 | BR-05 | Status aktivitas ditentukan oleh pencapaian target. |

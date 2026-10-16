@@ -44,7 +44,14 @@ class DashboardController extends Controller
             ]]);
         }
 
+        if ($selectedDate->gt($period->end_date)) {
+            $selectedDate = $period->end_date->copy()->startOfDay();
+        }
+
         $periodHasStarted = ! today()->startOfDay()->lt($period->start_date);
+        $recordingAvailable = $period->recording_enabled
+            && $periodHasStarted
+            && ! today()->startOfDay()->gt($period->end_date);
         if (! $periodHasStarted) {
             return response()->json(['data' => [
                 'viewer' => $viewerData,
@@ -54,6 +61,8 @@ class DashboardController extends Controller
                     'start_date' => $period->start_date->toDateString(),
                     'end_date' => $period->end_date->toDateString(),
                     'is_open' => false,
+                    'recording_enabled' => $period->recording_enabled,
+                    'recording_available' => false,
                 ],
                 'participant' => null,
                 'personal_summary' => null,
@@ -119,6 +128,8 @@ class DashboardController extends Controller
                 'leader_passing_threshold' => $period->final_passing_threshold,
                 'staff_passing_threshold' => $period->staff_passing_threshold,
                 'is_open' => true,
+                'recording_enabled' => $period->recording_enabled,
+                'recording_available' => $recordingAvailable,
                 'holidays' => $period->holidaySnapshots()
                     ->orderBy('holiday_date')
                     ->get(['holiday_date', 'name'])

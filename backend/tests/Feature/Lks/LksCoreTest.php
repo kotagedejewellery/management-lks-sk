@@ -42,6 +42,104 @@ class LksCoreTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_pause_and_resume_recording_without_changing_an_active_period_lifecycle(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $period = $this->period($admin, ['status' => 'active']);
+
+        $this->actingAs($admin)
+            ->patchJson(route('api.lks.periods.recording.update', $period), ['recording_enabled' => false])
+            ->assertOk()
+            ->assertJsonPath('data.status', 'active')
+            ->assertJsonPath('data.recording_enabled', false);
+
+        $this->assertDatabaseHas('audit_logs', ['actor_user_id' => $admin->id, 'event' => 'period.recording_paused', 'auditable_id' => $period->id]);
+
+        $this->actingAs($admin)
+            ->patchJson(route('api.lks.periods.recording.update', $period), ['recording_enabled' => true])
+            ->assertOk()
+            ->assertJsonPath('data.recording_enabled', true);
+
+        $this->assertDatabaseHas('audit_logs', ['actor_user_id' => $admin->id, 'event' => 'period.recording_resumed', 'auditable_id' => $period->id]);
+    }
+
+    public function test_only_admin_can_change_recording_status(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $period = $this->period($admin, ['status' => 'active']);
+
+        foreach ([$this->userWithRole('leader'), $this->userWithRole('santri')] as $actor) {
+            $this->actingAs($actor)
+                ->patchJson(route('api.lks.periods.recording.update', $period), ['recording_enabled' => false])
+                ->assertForbidden();
+        }
+
+        $this->assertDatabaseHas('lks_periods', ['id' => $period->id, 'recording_enabled' => true]);
+        $this->assertDatabaseMissing('audit_logs', ['event' => 'period.recording_paused', 'auditable_id' => $period->id]);
+    }
+
+    public function test_closed_period_cannot_change_recording_status(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $period = $this->period($admin, ['status' => 'closed', 'recording_enabled' => false]);
+
+        $this->actingAs($admin)
+            ->patchJson(route('api.lks.periods.recording.update', $period), ['recording_enabled' => true])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('period');
+
+        $this->assertDatabaseHas('lks_periods', ['id' => $period->id, 'recording_enabled' => false]);
+        $this->assertDatabaseMissing('audit_logs', ['event' => 'period.recording_resumed', 'auditable_id' => $period->id]);
+    }
+
+    public function test_paused_recording_rejects_santri_checklist_writes(): void
+    {
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($santri, ['status' => 'active', 'recording_enabled' => false]);
+        $activity = $this->periodActivity($period, 1);
+        $this->participant($period, $santri);
+
+        $this->actingAs($santri)
+            ->putJson(route('api.lks.checklists.store'), [
+                'period_activity_id' => $activity->id,
+                'checklist_date' => now()->toDateString(),
+                'is_completed' => true,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('checklist');
+
+        $this->actingAs($santri)
+            ->postJson(route('api.lks.checklists.bulk'), [
+                'period_activity_id' => $activity->id,
+                'checklist_dates' => [now()->toDateString()],
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('checklist');
+    }
+
+    public function test_santri_cannot_write_after_an_active_period_ends_but_admin_can_correct_its_history(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($admin, [
+            'status' => 'active',
+            'start_date' => now()->subWeek()->toDateString(),
+            'end_date' => now()->subDay()->toDateString(),
+        ]);
+        $activity = $this->periodActivity($period, 1);
+        $participant = $this->participant($period, $santri);
+
+        $payload = ['period_activity_id' => $activity->id, 'checklist_date' => $period->end_date->toDateString(), 'is_completed' => true];
+        $this->actingAs($santri)->putJson(route('api.lks.checklists.store'), $payload)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('checklist');
+
+        $this->actingAs($admin)->putJson(route('api.lks.checklists.store'), $payload + [
+            'participant_id' => $participant->id,
+            'reason' => 'Koreksi administrasi setelah periode berakhir',
+        ])->assertOk();
+    }
+
     public function test_recommendation_is_specific_and_snapshotted_when_the_period_closes(): void
     {
         $admin = $this->userWithRole('admin');
@@ -1057,14 +1155,17 @@ class LksCoreTest extends TestCase
 
     private function period(User $creator, array $attributes = []): LksPeriod
     {
-        return LksPeriod::query()->create(array_merge([
+        $defaults = [
             'name' => 'Periode Uji',
             'start_date' => now()->subWeek()->toDateString(),
             'end_date' => now()->addWeek()->toDateString(),
             'status' => 'draft',
             'final_passing_threshold' => 90,
             'created_by' => $creator->id,
-        ], $attributes));
+        ];
+        $defaults['recording_enabled'] = ($attributes['status'] ?? $defaults['status']) === 'active';
+
+        return LksPeriod::query()->create(array_merge($defaults, $attributes));
     }
 
     private function periodActivity(LksPeriod $period, int $target): PeriodActivity

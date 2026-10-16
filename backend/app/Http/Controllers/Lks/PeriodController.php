@@ -103,6 +103,21 @@ class PeriodController extends Controller
         ]]);
     }
 
+    public function updateRecording(
+        Request $request,
+        LksPeriod $period,
+        PeriodActivationService $service,
+    ): JsonResponse {
+        $data = $request->validate(['recording_enabled' => ['required', 'boolean']]);
+        $period = $service->setRecording($request->user(), $period, (bool) $data['recording_enabled']);
+
+        return response()->json(['data' => [
+            'id' => $period->getKey(),
+            'status' => $period->status,
+            'recording_enabled' => $period->recording_enabled,
+        ]]);
+    }
+
     public function history(Request $request): JsonResponse
     {
         $viewer = $request->user();

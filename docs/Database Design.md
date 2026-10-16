@@ -130,6 +130,7 @@ Profil LKS yang melekat pada akun.
 | `start_date` | date | wajib |
 | `end_date` | date | wajib, harus ≥ `start_date` |
 | `status` | varchar(15) | `draft`, `active`, atau `closed` |
+| `recording_enabled` | boolean | default `false`; hanya bermakna pada periode `active`; mengatur apakah Santri dapat mencatat |
 | `final_passing_threshold` | numeric(5,2) | default `90.00`, rentang 0–100 |
 | `activated_at` | timestamptz | nullable |
 | `closed_at` | timestamptz | nullable |

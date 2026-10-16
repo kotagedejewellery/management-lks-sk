@@ -50,6 +50,7 @@ Route::middleware(['auth', 'active-user'])->group(function () {
         Route::put('checklists', [ChecklistController::class, 'store'])->name('checklists.store');
         Route::post('checklists/bulk', [ChecklistController::class, 'storeBulk'])->name('checklists.bulk');
         Route::post('periods/{period}/activate', [PeriodController::class, 'activate'])->name('periods.activate');
+        Route::patch('periods/{period}/recording', [PeriodController::class, 'updateRecording'])->name('periods.recording.update');
         Route::post('periods/{period}/close', [PeriodController::class, 'close'])->name('periods.close');
         Route::get('periods/{period}/participants', [PeriodController::class, 'participants'])->name('periods.participants.index');
         Route::post('periods/{period}/participants/{profile}', [PeriodController::class, 'addParticipant'])

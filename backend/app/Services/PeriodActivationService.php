@@ -71,6 +71,7 @@ class PeriodActivationService
             $period->periodActivities()->where('is_active', true)->update(['weight' => 1]);
             $period->update([
                 'status' => 'active',
+                'recording_enabled' => true,
                 'activated_at' => now(),
                 'signatories_snapshot' => $signatories
                     ->values()
@@ -180,16 +181,46 @@ class PeriodActivationService
                 $participant->update(['recommendation_snapshot' => $this->calculator->calculate($participant)['recommendation']]);
             });
 
+            $wasRecordingEnabled = $period->recording_enabled;
             $closedAt = now();
-            $period->update(['status' => 'closed', 'closed_at' => $closedAt]);
+            $period->update(['status' => 'closed', 'recording_enabled' => false, 'closed_at' => $closedAt]);
 
             AuditLog::create([
                 'actor_user_id' => $actor->getKey(),
                 'event' => 'period.closed',
                 'auditable_type' => $period->getMorphClass(),
                 'auditable_id' => $period->getKey(),
-                'before_data' => ['status' => 'active'],
-                'after_data' => ['status' => 'closed', 'closed_at' => $closedAt->toIso8601String()],
+                'before_data' => ['status' => 'active', 'recording_enabled' => $wasRecordingEnabled],
+                'after_data' => ['status' => 'closed', 'recording_enabled' => false, 'closed_at' => $closedAt->toIso8601String()],
+            ]);
+
+            return $period->refresh();
+        });
+    }
+
+    public function setRecording(User $actor, LksPeriod $period, bool $enabled): LksPeriod
+    {
+        $this->ensureAdmin($actor);
+
+        return DB::transaction(function () use ($actor, $period, $enabled): LksPeriod {
+            $period = LksPeriod::query()->lockForUpdate()->findOrFail($period->getKey());
+
+            if ($period->status !== 'active') {
+                throw ValidationException::withMessages(['period' => 'Pencatatan hanya dapat diatur pada periode aktif yang belum ditutup.']);
+            }
+
+            if ($period->recording_enabled === $enabled) {
+                return $period;
+            }
+
+            $period->update(['recording_enabled' => $enabled]);
+            AuditLog::create([
+                'actor_user_id' => $actor->getKey(),
+                'event' => $enabled ? 'period.recording_resumed' : 'period.recording_paused',
+                'auditable_type' => $period->getMorphClass(),
+                'auditable_id' => $period->getKey(),
+                'before_data' => ['recording_enabled' => ! $enabled],
+                'after_data' => ['recording_enabled' => $enabled],
             ]);
 
             return $period->refresh();
