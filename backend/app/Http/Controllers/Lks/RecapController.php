@@ -88,6 +88,7 @@ class RecapController extends Controller
                         'department' => $this->groupSummary($scores, 'department')->values(),
                         'leader' => $this->groupSummary($scores, 'leader')->values(),
                         'gender' => $this->groupSummary($scores, 'gender')->values(),
+                        'category' => $this->groupSummary($scores, 'category')->values(),
                     ],
                 ];
             })
@@ -145,6 +146,7 @@ class RecapController extends Controller
             return match ($dimension) {
                 'leader' => $score['leader_user_id'] ?? 'unassigned',
                 'gender' => $score['gender'] ?? 'unknown',
+                'category' => $score['category'] ?? 'regular',
                 default => $score['department_id'] ?? 'unassigned',
             };
         })->map(function (Collection $group, string $id) use ($dimension): array {
@@ -152,6 +154,7 @@ class RecapController extends Controller
             $name = match ($dimension) {
                 'leader' => $first['leader'] ?? 'Belum ditetapkan',
                 'gender' => ['ikhwan' => 'Ikhwan', 'akhwat' => 'Akhwat'][$id] ?? 'Tidak dicatat',
+                'category' => $id === 'magang' ? 'Magang' : 'Reguler',
                 default => $first['department'] ?? 'Tanpa departemen',
             };
 

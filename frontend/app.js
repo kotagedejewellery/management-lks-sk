@@ -38,6 +38,7 @@ let selectedTrendGroupId = '';
 let recapDepartmentFilter = '';
 let recapTeamFilter = '';
 let recapCategoryFilter = '';
+let adminDashboardCategoryFilter = 'all';
 let recapMemberFocus = '';
 let recapScope = 'team';
 let selectedChecklistDate = todayIso();
@@ -759,7 +760,7 @@ function renderRoleDashboard() {
   if (!viewer || !recapData) return;
   const role = displayRole(viewer.roles ?? []);
   const dashboard = document.querySelector(`[data-role-panel="${role}"]`);
-  const { period, participants, summary } = recapData;
+  let { period, participants, summary } = recapData;
 
   if (role === 'santri') {
     const trendPanel = dashboard.querySelector('[data-personal-trend]');
@@ -793,6 +794,10 @@ function renderRoleDashboard() {
   }
 
   if (role === 'admin') {
+    const selectedParticipants = adminDashboardCategoryFilter === 'all'
+      ? participants
+      : participants.filter((participant) => lksCategory(participant) === adminDashboardCategoryFilter);
+    summary = dashboardSummaryData(selectedParticipants);
     const departments = [...(summary.departments ?? [])].sort((left, right) => Number(right.average_percentage) - Number(left.average_percentage));
     const departmentRows = departments.map((department) => `<button class="dashboard-department-bar dashboard-department-action" type="button" data-recap-department="${escapeHtml(department.department)}"><span><strong>${escapeHtml(department.department)}</strong><small>${escapeHtml(department.tuntas_count)} dari ${escapeHtml(department.participant_count)} tuntas · Buka rekap</small></span><span class="bar-rail" role="progressbar" aria-label="Capaian ${escapeHtml(department.department)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(Math.max(Number(department.average_percentage) || 0, 0), 100)}"><i style="width:${Math.min(Math.max(Number(department.average_percentage) || 0, 0), 100)}%"></i></span><strong>${percentage(department.average_percentage)}</strong></button>`).join('');
     const startedCount = Number(summary.recording_started_count) || 0;
@@ -805,6 +810,13 @@ function renderRoleDashboard() {
       ? `${startedCount}/${summary.participant_count} peserta sudah mulai mencatat${lowestActivity ? ` · Aktivitas dengan rata-rata terendah: ${lowestActivity.name} (${percentage(lowestActivity.average_percentage)})` : ''}.`
       : 'Belum ada peserta dalam periode ini.';
     dashboard.innerHTML = `${dashboardNotice(isCurrentPeriod ? 'Capaian LKS organisasi' : 'Laporan organisasi terakhir', periodMessage, '<button class="primary-button" type="button" data-go="department">Buka laporan</button>')}<section class="admin-metrics"><article><p>Peserta aktif</p><strong>${summary.participant_count}</strong><span>Peserta periode ini</span></article><article><p>Rata-rata capaian</p><strong>${percentage(summary.average_percentage)}</strong><span>Perhitungan periode</span></article><article><p>Sudah tuntas</p><strong>${summary.tuntas_count}</strong><span>Peserta mencapai ambang</span></article><article><p>Belum tuntas</p><strong>${Math.max(summary.participant_count - summary.tuntas_count, 0)}</strong><span>Perlu tindak lanjut</span></article></section><p class="admin-dashboard-health">${escapeHtml(healthNote)}</p><section class="department-snapshot"><div class="section-head"><div><h2>Capaian seluruh departemen</h2><p class="supporting-copy">Pilih departemen untuk melihat anggota dan melakukan tindak lanjut.</p></div><button class="text-button" type="button" data-go="department">Lihat laporan</button></div><div class="department-bars" role="list">${departmentRows || '<p class="muted">Belum ada data departemen pada periode ini.</p>'}</div></section>`;
+    const categoryLabel = adminDashboardCategoryFilter === 'all' ? 'Semua jenis LKS' : `LKS ${lksCategoryLabel(adminDashboardCategoryFilter)}`;
+    dashboard.querySelector('.admin-metrics')?.insertAdjacentHTML('beforebegin', `<label class="dashboard-category-filter">Jenis LKS<select data-admin-dashboard-category><option value="all"${adminDashboardCategoryFilter === 'all' ? ' selected' : ''}>Semua jenis LKS</option><option value="regular"${adminDashboardCategoryFilter === 'regular' ? ' selected' : ''}>Reguler</option><option value="magang"${adminDashboardCategoryFilter === 'magang' ? ' selected' : ''}>Magang</option></select></label>`);
+    dashboard.querySelector('.admin-metrics article:first-child span').textContent = categoryLabel;
+    dashboard.querySelector('.admin-dashboard-health')?.insertAdjacentHTML('beforebegin', `<p class="dashboard-category-note">${adminDashboardCategoryFilter === 'magang' ? 'Target aktivitas Magang mengikuti konfigurasi Magang. Status tuntas tetap memakai ambang sesuai jabatan.' : 'Ringkasan menampilkan capaian sesuai jenis LKS yang dipilih.'}</p>`);
+    dashboard.querySelectorAll('[data-recap-department]').forEach((button) => {
+      button.dataset.recapCategory = adminDashboardCategoryFilter;
+    });
   }
 }
 
@@ -971,8 +983,87 @@ function renderRecapUnavailable(message) {
   document.querySelector('[data-view-panel="department"]').innerHTML = `<div class="page-intro"><div><h2>Capaian departemen</h2><p>${safeMessage}</p></div></div><p class="empty-search">Coba lagi setelah periode dan peserta tersedia.</p>`;
 }
 
+function lksCategory(participant) {
+  return participant.category === 'magang' ? 'magang' : 'regular';
+}
+
+function lksCategoryLabel(category) {
+  return category === 'magang' ? 'Magang' : 'Reguler';
+}
+
+function summarizeParticipants(participants) {
+  const activityGroups = new Map();
+  let recordingStartedCount = 0;
+
+  participants.forEach((participant) => {
+    const activities = participant.activities ?? [];
+    if (activities.some((activity) => Number(activity.completed_count) > 0)) recordingStartedCount += 1;
+    activities.forEach((activity) => {
+      const group = activityGroups.get(activity.id) ?? { id: activity.id, name: activity.name, totalPercentage: 0, participantCount: 0 };
+      group.totalPercentage += Number(activity.percentage) || 0;
+      group.participantCount += 1;
+      activityGroups.set(activity.id, group);
+    });
+  });
+
+  const participantCount = participants.length;
+  return {
+    participantCount,
+    averagePercentage: participantCount ? participants.reduce((total, participant) => total + (Number(participant.final_percentage) || 0), 0) / participantCount : 0,
+    tuntasCount: participants.filter((participant) => participantStatus(participant) === 'tuntas').length,
+    recordingStartedCount,
+    activityAverages: [...activityGroups.values()]
+      .map((group) => ({ ...group, averagePercentage: group.participantCount ? group.totalPercentage / group.participantCount : 0 }))
+      .sort((left, right) => left.averagePercentage - right.averagePercentage || left.name.localeCompare(right.name, 'id')),
+  };
+}
+
+function dashboardSummaryData(participants) {
+  const summary = summarizeParticipants(participants);
+  return {
+    participant_count: summary.participantCount,
+    average_percentage: summary.averagePercentage,
+    tuntas_count: summary.tuntasCount,
+    belum_tuntas_count: Math.max(summary.participantCount - summary.tuntasCount, 0),
+    recording_started_count: summary.recordingStartedCount,
+    activity_averages: summary.activityAverages.map((activity) => ({
+      ...activity,
+      average_percentage: activity.averagePercentage,
+      participant_count: activity.participantCount,
+    })),
+    departments: reportGroups(participants, 'department').map((department) => ({
+      department: department.name,
+      participant_count: department.participantCount,
+      average_percentage: department.averagePercentage,
+      tuntas_count: department.tuntasCount,
+    })),
+  };
+}
+
+function recapSummaryMarkup(period, participants, personalScope, category = 'all') {
+  const summary = summarizeParticipants(participants);
+  const belumMulaiCount = participants.filter((participant) => Number(participant.final_percentage) === 0).length;
+  const sedangBerjalanCount = Math.max(0, summary.participantCount - summary.tuntasCount - belumMulaiCount);
+  const personalParticipant = personalScope ? participants[0] : null;
+  const grade = personalParticipant?.grade ? `Predikat ${period.status === 'closed' ? 'akhir' : 'sementara'} ${escapeHtml(personalParticipant.grade)}` : 'Predikat belum terbentuk';
+  const threshold = personalParticipant
+    ? `${percentage(personalParticipant.passing_threshold)} · ${grade}`
+    : category === 'magang'
+      ? `Staff ${percentage(period.staff_passing_threshold ?? 85)} · target sesuai aturan Magang`
+      : `Leader ${percentage(period.leader_passing_threshold)} · Staff ${percentage(period.staff_passing_threshold ?? 85)}`;
+
+  return `<dl class="recap-summary" data-recap-summary aria-label="Ringkasan rekap"><div><dt>${personalScope ? 'Status' : 'Peserta'}</dt><dd>${personalScope && personalParticipant ? participantStatus(personalParticipant) === 'tuntas' ? 'Tuntas' : 'Belum tuntas' : summary.participantCount}</dd></div><div><dt>Tuntas</dt><dd>${summary.tuntasCount}</dd></div><div><dt>Berjalan</dt><dd>${sedangBerjalanCount}</dd></div><div><dt>Belum mulai</dt><dd>${belumMulaiCount}</dd></div><div><dt>${personalScope ? 'Nilai akhir' : 'Rata-rata'}</dt><dd>${percentage(summary.averagePercentage)}</dd></div><div><dt>${personalScope ? 'Ambang · Predikat' : 'Ambang'}</dt><dd>${threshold}</dd></div></dl>`;
+}
+
+function refreshRecapSummary(participants) {
+  const summary = document.querySelector('.recap-summary');
+  if (!summary || !recapData) return;
+  const personalScope = !viewer?.roles?.includes('admin') && (!viewer?.roles?.includes('leader') || recapScope === 'personal');
+  summary.outerHTML = recapSummaryMarkup(recapData.period, participants, personalScope, recapCategoryFilter);
+}
+
 function reportDimensionLabel(dimension) {
-  return { department: 'Departemen', leader: 'Leader', gender: 'Ikhwan dan Akhwat' }[dimension] ?? 'Laporan';
+  return { department: 'Departemen', leader: 'Leader', gender: 'Ikhwan dan Akhwat', category: 'Jenis LKS' }[dimension] ?? 'Laporan';
 }
 
 function reportGroups(participants, dimension) {
@@ -983,12 +1074,16 @@ function reportGroups(participants, dimension) {
       ? participant.department_id ?? 'unassigned'
       : dimension === 'leader'
         ? participant.leader_user_id ?? 'unassigned'
-        : participant.gender ?? 'unknown';
+        : dimension === 'category'
+          ? lksCategory(participant)
+          : participant.gender ?? 'unknown';
     const label = dimension === 'department'
       ? participant.department ?? 'Tanpa departemen'
       : dimension === 'leader'
         ? participant.leader ?? 'Belum ditetapkan'
-        : labels[participant.gender] ?? 'Tidak dicatat';
+        : dimension === 'category'
+          ? lksCategoryLabel(lksCategory(participant))
+          : labels[participant.gender] ?? 'Tidak dicatat';
     const group = groups.get(id) ?? { id, name: label, participantCount: 0, totalPercentage: 0, tuntasCount: 0 };
     group.participantCount += 1;
     group.totalPercentage += Number(participant.final_percentage) || 0;
@@ -1078,7 +1173,7 @@ function renderRecapViews() {
   const departmentPanel = document.querySelector('[data-view-panel="department"]');
   if (!recapData) return;
 
-  const { period, participants, summary } = recapData;
+  const { period, participants } = recapData;
   const isAdmin = viewer?.roles?.includes('admin');
   const isLeader = viewer?.roles?.includes('leader');
   const personalScope = !isAdmin && (!isLeader || recapScope === 'personal');
@@ -1091,7 +1186,7 @@ function renderRecapViews() {
     const recommendation = participant.recommendation ? `<details class="recap-recommendation"><summary>Lihat arahan</summary><p>${escapeHtml(participant.recommendation)}</p></details>` : '';
     const department = participant.department ?? 'Tanpa departemen';
     const finalStatus = participantStatus(participant);
-    return `<div class="table-row recap-row" data-participant-id="${escapeHtml(participant.participant_id)}" data-member="${escapeHtml(`${participant.name} ${department}`)}" data-status="${escapeHtml(finalStatus)}" data-gender="${escapeHtml(participant.gender)}" data-department="${escapeHtml(department)}" data-team="${escapeHtml(participant.team ?? '')}"><div class="member-cell"><span class="person-initials tone-${['one', 'two', 'three', 'four'][index % 4]}">${escapeHtml(initials(participant.name))}</span><div><strong>${escapeHtml(participant.name)}</strong><small>${escapeHtml(participant.team ?? 'Tanpa tim')} · Leader: ${escapeHtml(participant.leader ?? 'Belum ditetapkan')}</small></div></div><span class="recap-department"><small>Departemen</small>${escapeHtml(department)}</span><strong class="recap-score"><small>Nilai akhir</small>${percentage(participant.final_percentage)}</strong><span class="recap-status">${statusBadge(finalStatus)}<small>Ambang ${percentage(participant.passing_threshold)}</small>${recommendation}</span>${actions}</div>`;
+    return `<div class="table-row recap-row" data-participant-id="${escapeHtml(participant.participant_id)}" data-member="${escapeHtml(`${participant.name} ${department}`)}" data-status="${escapeHtml(finalStatus)}" data-gender="${escapeHtml(participant.gender)}" data-category="${lksCategory(participant)}" data-department="${escapeHtml(department)}" data-team="${escapeHtml(participant.team ?? '')}"><div class="member-cell"><span class="person-initials tone-${['one', 'two', 'three', 'four'][index % 4]}">${escapeHtml(initials(participant.name))}</span><div><strong>${escapeHtml(participant.name)}</strong><small>${escapeHtml(participant.team ?? 'Tanpa tim')} · Leader: ${escapeHtml(participant.leader ?? 'Belum ditetapkan')}</small></div></div><span class="recap-department"><small>Departemen</small>${escapeHtml(department)}</span><strong class="recap-score"><small>Nilai akhir</small>${percentage(participant.final_percentage)}</strong><span class="recap-status">${statusBadge(finalStatus)}<small>Ambang ${percentage(participant.passing_threshold)}</small>${recommendation}</span>${actions}</div>`;
   }).join('');
   const periodOptions = recapPeriods.map((item) => `<option value="${escapeHtml(item.id)}"${item.id === period.id ? ' selected' : ''}>${escapeHtml(item.name)}${item.status === 'closed' ? ' · Ditutup' : ' · Aktif'}</option>`).join('');
   const departments = [...new Set(participants.map((participant) => participant.department ?? 'Tanpa departemen'))].sort((left, right) => left.localeCompare(right, 'id'));
@@ -1103,12 +1198,7 @@ function renderRecapViews() {
   const focusedParticipant = participants.find((participant) => participant.participant_id === recapMemberFocus);
   if (recapMemberFocus && !focusedParticipant) recapMemberFocus = '';
   const focusNotice = focusedParticipant ? `<p class="recap-focus-note">Menampilkan ${escapeHtml(focusedParticipant.name)} dari ringkasan dashboard. <button class="text-button" type="button" data-clear-recap-member>Tampilkan semua</button></p>` : '';
-  const belumMulaiCount = participants.filter((participant) => Number(participant.final_percentage) === 0).length;
-  const sedangBerjalanCount = Math.max(0, summary.belum_tuntas_count - belumMulaiCount);
-  const personalParticipant = personalScope ? participants[0] : null;
-  const grade = personalParticipant?.grade ? `Predikat ${period.status === 'closed' ? 'akhir' : 'sementara'} ${escapeHtml(personalParticipant.grade)}` : 'Predikat belum terbentuk';
-  const threshold = personalParticipant ? `${percentage(personalParticipant.passing_threshold)} · ${grade}` : `Leader ${percentage(period.leader_passing_threshold)} · Staff ${percentage(period.staff_passing_threshold ?? 85)}`;
-  const recapSummary = `<dl class="recap-summary" aria-label="Ringkasan rekap"><div><dt>${personalScope ? 'Status' : 'Peserta'}</dt><dd>${personalScope && personalParticipant ? participantStatus(personalParticipant) === 'tuntas' ? 'Tuntas' : 'Belum tuntas' : summary.participant_count}</dd></div><div><dt>Tuntas</dt><dd>${summary.tuntas_count}</dd></div><div><dt>Berjalan</dt><dd>${sedangBerjalanCount}</dd></div><div><dt>Belum mulai</dt><dd>${belumMulaiCount}</dd></div><div><dt>${personalScope ? 'Nilai akhir' : 'Rata-rata'}</dt><dd>${percentage(summary.average_percentage)}</dd></div><div><dt>${personalScope ? 'Ambang · Predikat' : 'Ambang'}</dt><dd>${threshold}</dd></div></dl>`;
+  const recapSummary = recapSummaryMarkup(period, participants, personalScope, recapCategoryFilter);
   const title = isAdmin ? 'Perkembangan anggota' : personalScope ? 'Rekap Saya' : 'Perkembangan tim';
   const description = personalScope
     ? `${period.name} · Nilai, aktivitas, dan arahan LKS Anda.`
@@ -1122,10 +1212,6 @@ function renderRecapViews() {
   if (!personalScope) {
     const recapCategoryControl = `<label class="recap-filter-control">Jenis LKS<select data-recap-category-select><option value="all">Semua jenis LKS</option><option value="regular"${recapCategoryFilter === 'regular' ? ' selected' : ''}>Reguler</option><option value="magang"${recapCategoryFilter === 'magang' ? ' selected' : ''}>Magang</option></select></label>`;
     recapPanel.querySelector('[data-reset-recap-filters]')?.insertAdjacentHTML('beforebegin', recapCategoryControl);
-    participants.forEach((participant) => {
-      const row = recapPanel.querySelector(`[data-participant-id="${CSS.escape(participant.participant_id)}"]`);
-      if (row) row.dataset.category = participant.category === 'magang' ? 'magang' : 'regular';
-    });
     filterRecapRows();
   }
 
@@ -1136,10 +1222,10 @@ function renderRecapViews() {
 
   const reportGroupsForDimension = reportGroups(participants, selectedReportDimension);
   const reportLabel = reportDimensionLabel(selectedReportDimension);
-  const tabs = ['department', 'leader', 'gender'].map((dimension) => `<button class="report-tab${selectedReportDimension === dimension ? ' is-active' : ''}" type="button" role="tab" aria-selected="${selectedReportDimension === dimension}" data-report-dimension="${dimension}">${reportDimensionLabel(dimension)}</button>`).join('');
+  const tabs = ['department', 'leader', 'gender', 'category'].map((dimension) => `<button class="report-tab${selectedReportDimension === dimension ? ' is-active' : ''}" type="button" role="tab" aria-selected="${selectedReportDimension === dimension}" data-report-dimension="${dimension}">${reportDimensionLabel(dimension)}</button>`).join('');
   const rankings = selectedReportDimension === 'gender'
     ? renderParticipantRankings(participants)
-    : renderReportRankings(reportGroupsForDimension);
+    : selectedReportDimension === 'category' ? '' : renderReportRankings(reportGroupsForDimension);
   departmentPanel.innerHTML = `<div class="page-intro"><div><h2>Laporan periode</h2><p>${escapeHtml(period.name)} · Bandingkan capaian dari data snapshot periode yang dipilih.</p></div><div class="report-page-actions"><label class="report-period-control">Periode<select data-recap-period>${periodOptions}</select></label><a class="primary-button export-pdf-link" href="${apiBase}/admin/exports/periods/${encodeURIComponent(period.id)}" data-export-pdf>Ekspor PDF</a></div></div><nav class="report-tabs" role="tablist" aria-label="Dimensi laporan">${tabs}</nav><section class="report-overview" aria-live="polite"><div class="section-head"><div><h2>Capaian ${escapeHtml(reportLabel)}</h2><p>Rata-rata nilai akhir per kelompok.</p></div></div>${renderReportBars(reportGroupsForDimension, reportLabel, selectedReportDimension)}</section>${rankings}${renderReportTrend(selectedReportDimension)}`;
 }
 
@@ -1483,6 +1569,7 @@ function filterRecapRows() {
   const category = document.querySelector('[data-recap-category-select]')?.value ?? 'all';
   const department = document.querySelector('[data-recap-department-select]')?.value ?? '';
   const team = document.querySelector('[data-recap-team-select]')?.value ?? '';
+  const visibleParticipantIds = new Set();
   let visible = 0;
   document.querySelectorAll('#recap-rows .table-row').forEach((row) => {
     const statusMatches = status === 'all'
@@ -1496,12 +1583,16 @@ function filterRecapRows() {
       && (!team || row.dataset.team === team)
       && (!recapMemberFocus || row.dataset.participantId === recapMemberFocus);
     row.hidden = !matches;
-    if (matches) visible += 1;
+    if (matches) {
+      visible += 1;
+      visibleParticipantIds.add(row.dataset.participantId);
+    }
   });
   const empty = document.querySelector('#empty-search');
   if (empty) empty.hidden = visible !== 0;
   const resultCount = document.querySelector('#recap-filter-results');
   if (resultCount) resultCount.textContent = `Menampilkan ${visible} dari ${document.querySelectorAll('#recap-rows .table-row').length} anggota.`;
+  if (recapData) refreshRecapSummary(recapData.participants.filter((participant) => visibleParticipantIds.has(participant.participant_id)));
   updateRecapFilterReset();
 }
 
@@ -1578,6 +1669,7 @@ document.addEventListener('click', (event) => {
   const departmentAction = event.target.closest('[data-recap-department]');
   if (departmentAction) {
     recapDepartmentFilter = departmentAction.dataset.recapDepartment;
+    recapCategoryFilter = ['regular', 'magang'].includes(departmentAction.dataset.recapCategory) ? departmentAction.dataset.recapCategory : '';
     openView('recap');
     return;
   }
@@ -1603,6 +1695,10 @@ document.addEventListener('change', (event) => {
   if (event.target.matches('[data-recap-category-select]')) {
     recapCategoryFilter = event.target.value;
     filterRecapRows();
+  }
+  if (event.target.matches('[data-admin-dashboard-category]')) {
+    adminDashboardCategoryFilter = event.target.value;
+    renderRoleDashboard();
   }
   if (event.target.matches('[data-recap-status-select], [data-recap-gender-select]')) filterRecapRows();
   if (event.target.matches('[data-history-year]')) {

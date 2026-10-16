@@ -1013,6 +1013,36 @@ body.is-booting .page-progress { inset: 0; }
   font-size: 12px;
 }
 
+.dashboard-category-filter {
+  display: grid;
+  gap: 6px;
+  width: min(100%, 240px);
+  margin-top: 24px;
+  color: var(--ink-soft, #53645a);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.dashboard-category-filter select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--line-dark, #c5d0c8);
+  border-radius: 9px;
+  background: var(--surface, #fffefa);
+  color: var(--ink, #203329);
+  padding: 8px 10px;
+}
+
+.dashboard-category-note {
+  margin: 16px 0 -4px;
+  color: var(--ink-soft, #53645a);
+  font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  .dashboard-category-filter { width: 100%; }
+}
+
 .dashboard-department-action,
 .report-bar-action {
   width: 100%;

@@ -29,6 +29,7 @@
 | LKS Saya | Record daily activities | Date selector, checklist, saving feedback, score summary |
 | Riwayat | Review a closed period | Period list, score, completion status |
 | Dashboard Leader | Identify members needing attention | Member count, tuntas/belum tuntas, priority rows |
+| Dashboard Admin | Read programme health by participant type | One category selector (all, Reguler, Magang), summary values, and department comparison that share the same selected scope |
 | Rekap | Compare filtered results | Search, role-aware filters, status-first table, detail drawer |
 | Departemen | Read organization trend | Department comparison table and chart |
 | Pengaturan | Configure master data | Plain administrative lists and actions |

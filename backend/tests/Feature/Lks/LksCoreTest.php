@@ -759,13 +759,14 @@ class LksCoreTest extends TestCase
         $member = $this->userWithRole('santri');
         $period = $this->period($admin, ['status' => 'closed']);
         $participant = $this->participant($period, $member, $leader);
-        $participant->update(['gender_snapshot' => 'akhwat']);
+        $participant->update(['gender_snapshot' => 'akhwat', 'category_snapshot' => 'magang']);
 
         $this->actingAs($admin)
             ->getJson(route('api.lks.department-trends'))
             ->assertOk()
             ->assertJsonPath('data.0.groups.leader.0.id', $leader->id)
-            ->assertJsonPath('data.0.groups.gender.0.id', 'akhwat');
+            ->assertJsonPath('data.0.groups.gender.0.id', 'akhwat')
+            ->assertJsonPath('data.0.groups.category.0.id', 'magang');
     }
 
     public function test_role_trends_keep_leader_and_santri_scopes_separate(): void

@@ -239,6 +239,8 @@ Untuk Santri Karya, dashboard menampilkan periode aktif, progres LKS, nilai seme
 
 Untuk Leader dan Admin, dashboard menampilkan jumlah peserta, rata-rata capaian, jumlah Tuntas, jumlah Belum Tuntas, dan capaian departemen.
 
+Dashboard Admin dapat menyaring ringkasan dan capaian departemen berdasarkan jenis LKS: seluruh peserta, Reguler, atau Magang. Filter hanya mengubah sudut pandang laporan; aturan kelulusan tetap mengikuti ambang jabatan pada periode, sedangkan target aktivitas Magang mengikuti konfigurasi Magang.
+
 ## 17. Non-functional requirements
 
 - Dapat digunakan melalui browser desktop dan smartphone.
