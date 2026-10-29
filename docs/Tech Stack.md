@@ -110,6 +110,7 @@ Kebutuhan produksi minimum:
 - Backup PostgreSQL harian serta uji pemulihan berkala.
 - `php artisan migrate --force` pada pipeline deployment.
 - Migration yang menyimpan aturan atau riwayat periode bersifat forward-only. Jangan memakai `migrate:rollback` sebagai strategi rollback produksi; pulihkan kode lalu gunakan migration korektif yang tidak menghapus data bila diperlukan.
+- Jalankan migration forward-only sebelum kode aplikasi yang memakai kolom kebijakan baru. Sampai migration tersedia, aplikasi harus mempertahankan perilaku historis yang aman dan tidak menerapkan aturan baru secara diam-diam.
 - Brevo SMTP untuk tautan reset password; konfigurasi dan verifikasinya ada pada [Panduan Brevo untuk Email Reset Password](Email Reset Password.md).
 - Scheduler Laravel aktif untuk pekerjaan rutin masa depan; tidak diperlukan worker queue permanen sebelum ada job asynchronous yang disetujui.
 - Log aplikasi terpusat atau setidaknya rotasi log server.

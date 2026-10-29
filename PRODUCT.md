@@ -37,6 +37,7 @@ LKS operates in recurring, generally monthly periods. A Santri Karya checks comp
 - PDF LKS and rekap can be previewed before download using the same authorized export file. The first individual PDF generated for a closed period issues one reusable verification record; it never changes the period calculation or snapshot.
 - Period activation locks its snapshots and configuration; a separate recording control lets an administrator pause or resume Santri checklist input without changing that lifecycle. Checklist input remains limited to the configured date range, while an active period can still be reviewed outside it.
 - Santri checklist input is read-only when an active period is paused or its date range has ended. Admin may correct a valid historical date while the period remains active; a closed period is read-only for everyone.
+- A participant added after a period starts records only from their snapshot participation date. Their target and minimum target are prorated to their remaining eligible dates; the addition is rejected when no eligible activity date remains. Previously closed periods retain their original non-prorated calculation.
 
 ## Brand Commitments
 

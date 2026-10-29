@@ -694,13 +694,17 @@ function applyDashboard(data) {
   participantId = data.participant.id;
   const maxDate = [todayIso(), dateInputValue(data.period.end_date)].sort()[0];
   const isHistoricalDate = selectedChecklistDate !== todayIso();
-  const dateMessage = data.period.recording_available !== true
+  const joinedLate = dateInputValue(data.participant.participation_start_date) > dateInputValue(data.period.start_date);
+  const participationNote = joinedLate
+    ? ` Target dihitung sejak ${formatDate(data.participant.participation_start_date, true)}.`
+    : '';
+  const dateMessage = (data.period.recording_available !== true
     ? data.period.recording_enabled
       ? 'Rentang pencatatan periode ini telah berakhir. Catatan ditampilkan sebagai referensi.'
       : 'Pencatatan LKS sedang dijeda oleh Admin. Catatan tetap dapat ditinjau.'
     : isHistoricalDate
     ? `Anda sedang melihat catatan lampau: ${formatDate(selectedChecklistDate, true)}.`
-    : `Catat aktivitas untuk ${formatDate(selectedChecklistDate, true)}.`;
+    : `Catat aktivitas untuk ${formatDate(selectedChecklistDate, true)}.`) + participationNote;
   document.querySelector('.date-rail').innerHTML = `<label class="checklist-date-control">Tanggal pencatatan<input type="date" data-checklist-date value="${escapeHtml(selectedChecklistDate)}" min="${escapeHtml(dateInputValue(data.participant.participation_start_date))}" max="${escapeHtml(maxDate)}"></label><p class="date-note">${escapeHtml(dateMessage)}</p>${isHistoricalDate ? '<button class="text-button" type="button" data-checklist-today>Kembali ke hari ini</button>' : ''}`;
   if (!data.activities.length) {
     setChecklistEmpty(`Tidak ada aktivitas yang dijadwalkan pada ${formatDate(selectedChecklistDate, true)}.`, 'Tidak ada aktivitas terjadwal');
@@ -845,6 +849,15 @@ function renderRoleDashboard() {
     const priorityPanel = `<section class="priority-panel"><div class="section-head"><div><h2>Perlu perhatian</h2><p class="supporting-copy">Urut dari selisih menuju ambang terbesar agar tindak lanjut lebih terarah.</p></div></div><div class="leader-priority-list">${priorityRows || `<p class="muted">${priorityEmpty}</p>`}</div></section>`;
     const teamPanel = `<section class="leader-team-panel" aria-labelledby="leader-team-title"><div class="section-head"><div><h2 id="leader-team-title">Capaian anggota</h2><p class="supporting-copy">Garis penanda menunjukkan ambang pribadi setiap anggota. Komposisi: ${escapeHtml(categorySummary)}.</p></div><button class="text-button" type="button" data-go="recap">Lihat rincian</button></div><div class="leader-team-list" role="list">${memberRows || '<p class="muted">Belum ada anggota dalam bimbingan Anda pada periode ini.</p>'}</div></section>`;
     dashboard.innerHTML = `${dashboardNotice('Ringkasan tim', `${period.name} · ${teamLabel}.`, '<button class="primary-button" type="button" data-go="recap">Buka rekap</button>')}<section class="leader-overview leader-overview-metrics"><article><p>Anggota aktif</p><strong>${summary.participant_count}</strong><small>${escapeHtml(categorySummary)}</small></article><article><p>Rata-rata tim</p><strong>${percentage(summary.average_percentage)}</strong><small>Capaian seluruh anggota</small></article><article><p>Sudah tuntas</p><strong>${summary.tuntas_count}</strong><small>${summary.participant_count ? percentage((summary.tuntas_count / summary.participant_count) * 100) : '0%'} anggota</small></article><article><p>Perlu perhatian</p><strong>${needingAttention.length}</strong><small>Belum mencapai ambang</small></article></section>${priorityPanel}${teamPanel}${renderRoleTrend('leader')}`;
+    const memberOrder = [...participants].sort((left, right) => attentionGap(right) - attentionGap(left));
+    dashboard.querySelectorAll('.leader-team-row').forEach((row, index) => {
+      const note = participationStartNote(memberOrder[index], period);
+      if (note) row.querySelector('small')?.append(note);
+    });
+    dashboard.querySelectorAll('.leader-priority-row').forEach((row, index) => {
+      const note = participationStartNote(needingAttention[index], period);
+      if (note) row.querySelector('small')?.append(note);
+    });
     return;
   }
 
@@ -1046,6 +1059,11 @@ function lksCategoryLabel(category) {
   return category === 'magang' ? 'Magang' : 'Reguler';
 }
 
+function participationStartNote(participant, period) {
+  if (!participant?.participation_start_date || !period?.start_date || dateInputValue(participant.participation_start_date) <= dateInputValue(period.start_date)) return '';
+  return ` - Mulai ${formatDate(participant.participation_start_date, true)}`;
+}
+
 function summarizeParticipants(participants) {
   const activityGroups = new Map();
   let recordingStartedCount = 0;
@@ -1213,6 +1231,8 @@ function openRecapDetail(participantId) {
   adminFormDialog.classList.remove('is-period-config');
   adminFormDialog.dataset.returnView = 'recap';
   adminFormDialogContent.innerHTML = `<section class="admin-modal-form recap-detail-modal"><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">Rincian capaian</h2><p>${escapeHtml(participant.name)} · ${escapeHtml(participant.team ?? 'Tanpa tim')} · ${escapeHtml(recapData.period.name)}</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields"><section class="history-participant-detail"><div class="history-score"><span>Nilai akhir</span><strong>${percentage(participant.final_percentage)}</strong><small>Ambang tuntas ${percentage(participant.passing_threshold)}</small>${statusBadge(participantStatus(participant))}</div>${recommendation}${activities ? `<ul class="history-activity-list">${activities}</ul>` : '<p class="history-empty-detail">Tidak ada aktivitas yang berlaku untuk peserta ini.</p>'}${personalExport}</section></div><div class="admin-modal-actions"><button class="primary-button" type="button" data-close-admin-modal>Tutup</button></div></section>`;
+  const participationNote = participationStartNote(participant, recapData.period);
+  if (participationNote) adminFormDialogContent.querySelector('.admin-modal-heading p')?.append(participationNote);
   adminFormDialog.showModal();
   adminFormDialog.querySelector('[data-close-admin-modal]')?.focus();
 }
@@ -1258,6 +1278,12 @@ function renderRecapViews() {
   const filters = personalScope ? '' : `<div class="recap-filter-toolbar" role="search" aria-label="Cari dan filter anggota"><label class="search-field"><svg aria-hidden="true"><use href="#icon-search"/></svg><span class="sr-only">Cari anggota</span><input id="member-search" type="search" aria-label="Cari anggota" placeholder="Cari nama anggota" /></label><label class="recap-filter-control">Periode<select data-recap-period>${periodOptions}</select></label>${departmentFilter}${teamFilter}<label class="recap-filter-control">Status<select data-recap-status-select><option value="all">Semua status</option><option value="perlu_perhatian">Perlu perhatian</option><option value="belum_mulai">Belum mulai</option><option value="tuntas">Tuntas</option></select></label><label class="recap-filter-control">Gender<select data-recap-gender-select><option value="all">Semua gender</option><option value="ikhwan">Ikhwan</option><option value="akhwat">Akhwat</option></select></label><button class="text-button recap-filter-reset" type="button" data-reset-recap-filters disabled>Reset filter</button></div>`;
 
   recapPanel.innerHTML = `<div class="page-intro recap-intro"><div><h2>${title}</h2><p>${escapeHtml(description)}</p>${periodState}</div>${pageActions}</div>${recapSummary}${filters}${personalScope ? '' : '<p class="filter-result-count" id="recap-filter-results" role="status" aria-live="polite"></p>'}${focusNotice}<section class="recap-table" aria-label="${personalScope ? 'Rekap saya' : 'Rekap anggota'}"><div class="table-head"><span>${personalScope ? 'LKS Saya' : 'Santri Karya'}</span><span>Departemen</span><span>Nilai</span><span>Status</span><span>Aksi</span></div><div id="recap-rows">${recapRows || `<p class="empty-search">${personalScope ? 'Belum ada data LKS pada periode ini.' : 'Belum ada anggota dalam cakupan tim pada periode ini.'}</p>`}</div></section><p class="empty-search" id="empty-search" hidden>Tidak ada anggota yang sesuai dengan pencarian atau filter tersebut.</p>`;
+  recapPanel.querySelectorAll('.recap-row').forEach((row) => {
+    const participant = participants.find((item) => item.participant_id === row.dataset.participantId);
+    const note = participationStartNote(participant, period);
+    if (note) row.querySelector('.member-cell small')?.append(note);
+  });
+
   if (!personalScope) {
     const recapCategoryControl = `<label class="recap-filter-control">Jenis LKS<select data-recap-category-select><option value="all">Semua jenis LKS</option><option value="regular"${recapCategoryFilter === 'regular' ? ' selected' : ''}>Reguler</option><option value="magang"${recapCategoryFilter === 'magang' ? ' selected' : ''}>Magang</option></select></label>`;
     recapPanel.querySelector('[data-reset-recap-filters]')?.insertAdjacentHTML('beforebegin', recapCategoryControl);
@@ -1783,7 +1809,7 @@ document.addEventListener('change', (event) => {
 const settingRoutes = { 'Kelola periode': 'periods', 'Kelola aktivitas': 'activities', 'Kelola Santri': 'people' };
 document.querySelectorAll('.settings-grid .text-action').forEach((button) => button.addEventListener('click', () => openView(settingRoutes[button.textContent.trim()])));
 document.querySelectorAll('[data-demo]').forEach((button) => button.addEventListener('click', () => showToast(`${button.dataset.demo} tersedia setelah integrasi backend`)));
-const adminListState = { organization: { page: 1, search: '', departmentId: '', teamId: '', status: '', level: '', category: '' }, people: { page: 1, search: '', departmentId: '', teamId: '', status: '', level: '', category: '' }, periods: { page: 1, search: '' }, activities: { page: 1, search: '' }, calendar: { year: new Date().getFullYear() }, participants: { page: 1, search: '' } };
+const adminListState = { organization: { page: 1, search: '', departmentId: '', teamId: '', status: '', level: '', category: '' }, people: { page: 1, search: '', departmentId: '', teamId: '', status: '', level: '', category: '' }, periods: { page: 1, search: '' }, activities: { page: 1, search: '' }, calendar: { year: new Date().getFullYear() }, participants: { page: 1, search: '', departmentId: '', teamId: '', checklistStatus: '', category: '' } };
 let latestAdminRequest = 0;
 let activePeriodParticipants = null;
 
@@ -1985,6 +2011,10 @@ function renderAdminView(name) {
     }
     const participantData = activePeriodParticipants ?? { participants: [], pagination: { total: 0, current_page: 1, last_page: 1, per_page: 25 } };
     const participantMeta = participantData.pagination;
+    const participantFilters = adminListState.participants;
+    const selectedParticipantDepartment = departmentOptions.find((department) => department.id === participantFilters.departmentId);
+    const participantTeams = selectedParticipantDepartment?.teams ?? [];
+    const hasParticipantFilters = Boolean(participantFilters.search || participantFilters.departmentId || participantFilters.teamId || participantFilters.checklistStatus || participantFilters.category);
     const activities = period.period_activities ?? [];
     const missingMasterActivities = activityOptions.filter((activity) => activity.is_active && Number(activity.default_target_count) > 0 && !activities.some((periodActivity) => periodActivity.activity_code_snapshot === activity.code));
     const availableActivityCount = missingMasterActivities.length;
@@ -2007,7 +2037,7 @@ function renderAdminView(name) {
       ? `<p class="admin-context-note"><strong>${missingMasterActivities.length} aktivitas master aktif belum dimasukkan:</strong> ${missingMasterActivities.map((activity) => escapeHtml(activity.name)).join(', ')}. <button class="text-button" type="button" data-sync-period-activities="${escapeHtml(period.id)}" data-missing-activity-count="${missingMasterActivities.length}">Tambahkan semuanya</button></p>`
       : '';
     const participantSection = period.status === 'active'
-      ? `<section class="admin-record-section period-participant-section" aria-labelledby="participant-list-title"><div class="organization-section-head"><div><h3 id="participant-list-title">Peserta periode</h3><p>${participantMeta.total} peserta terdaftar pada ${escapeHtml(period.name)}.</p></div><button class="primary-button" type="button" data-open-admin-modal="participant" data-period-id="${escapeHtml(period.id)}">Tambah peserta</button></div><p class="admin-context-note">Peserta baru dapat mencatat sejak dimasukkan. Peserta tanpa checklist masih dapat dikeluarkan.</p><form class="admin-list-search" data-admin-list-search="participants"><label class="sr-only" for="participant-search">Cari peserta periode</label><input id="participant-search" name="search" value="${escapeHtml(adminListState.participants.search)}" placeholder="Cari nama, tim, atau departemen" autocomplete="off"></form>${participantData.participants.length ? `<div class="admin-record-table participant-record-table" role="table" aria-label="Peserta ${escapeHtml(period.name)}"><div class="admin-record-head" role="row"><span role="columnheader">Santri Karya</span><span role="columnheader">Penempatan</span><span role="columnheader">Checklist</span><span role="columnheader">Aksi</span></div>${participantRows}</div>${paginationControls(participantMeta, 'participants')}` : `<p class="admin-empty">${adminListState.participants.search ? 'Tidak ada peserta yang sesuai dengan pencarian.' : 'Belum ada peserta pada periode ini.'}</p>`}</section>`
+      ? `<section class="admin-record-section period-participant-section" aria-labelledby="participant-list-title"><div class="organization-section-head"><div><h3 id="participant-list-title">Peserta periode</h3><p>${hasParticipantFilters ? `${participantMeta.total} peserta ditemukan pada ${escapeHtml(period.name)}.` : `${participantMeta.total} peserta terdaftar pada ${escapeHtml(period.name)}.`}</p></div><button class="primary-button" type="button" data-open-admin-modal="participant" data-period-id="${escapeHtml(period.id)}">Tambah peserta</button></div><p class="admin-context-note">Peserta baru dapat mencatat sejak dimasukkan. Peserta tanpa checklist masih dapat dikeluarkan.</p><form class="admin-list-search participant-filter-form" data-admin-list-search="participants"><label class="sr-only" for="participant-search">Cari peserta periode</label><input id="participant-search" name="search" value="${escapeHtml(participantFilters.search)}" placeholder="Cari nama, tim, atau departemen" autocomplete="off"><label><span class="sr-only">Departemen</span><select name="department_id" data-participant-filter="department"><option value="">Semua departemen</option>${departmentOptions.map((department) => `<option value="${escapeHtml(department.id)}"${department.id === participantFilters.departmentId ? ' selected' : ''}>${escapeHtml(department.name)}</option>`).join('')}</select></label><label><span class="sr-only">Tim</span><select name="team_id" data-participant-filter="team"${participantFilters.departmentId ? '' : ' disabled'}>${participantFilters.departmentId ? `<option value="">Semua tim</option>${participantTeams.map((team) => `<option value="${escapeHtml(team.id)}"${team.id === participantFilters.teamId ? ' selected' : ''}>${escapeHtml(team.name)}</option>`).join('')}` : '<option value="">Pilih departemen terlebih dahulu</option>'}</select></label><label><span class="sr-only">Status checklist</span><select name="checklist_status" data-participant-filter="checklist-status"><option value="">Semua checklist</option><option value="none"${participantFilters.checklistStatus === 'none' ? ' selected' : ''}>Belum ada checklist</option><option value="recorded"${participantFilters.checklistStatus === 'recorded' ? ' selected' : ''}>Sudah memiliki checklist</option></select></label><label><span class="sr-only">Jenis LKS</span><select name="category" data-participant-filter="category"><option value="">Semua jenis LKS</option><option value="regular"${participantFilters.category === 'regular' ? ' selected' : ''}>Reguler</option><option value="magang"${participantFilters.category === 'magang' ? ' selected' : ''}>Magang</option></select></label>${hasParticipantFilters ? '<button class="text-button" type="button" data-reset-participant-filters>Reset filter</button>' : ''}</form>${participantData.participants.length ? `<div class="admin-record-table participant-record-table" role="table" aria-label="Peserta ${escapeHtml(period.name)}"><div class="admin-record-head" role="row"><span role="columnheader">Santri Karya</span><span role="columnheader">Penempatan</span><span role="columnheader">Checklist</span><span role="columnheader">Aksi</span></div>${participantRows}</div>${paginationControls(participantMeta, 'participants')}` : `<p class="admin-empty">${hasParticipantFilters ? 'Tidak ada peserta yang sesuai dengan filter. Ubah atau reset filter untuk melihat data lain.' : 'Belum ada peserta pada periode ini.'}</p>`}</section>`
       : '';
     const holidayActions = period.status === 'draft' ? `<button class="primary-button" type="button" data-open-admin-modal="period-holiday" data-period-id="${escapeHtml(period.id)}">Tambah hari libur</button><button class="text-button admin-add-team" type="button" data-open-admin-modal="period-holiday-import" data-period-id="${escapeHtml(period.id)}">Impor daftar</button><button class="text-button admin-add-team" type="button" data-import-period-calendar="${escapeHtml(period.id)}">Salin ulang kalender kerja</button>` : '';
     const holidaySection = `<section class="admin-record-section period-holiday-section" aria-labelledby="period-holiday-title"><div class="organization-section-head"><div><h3 id="period-holiday-title">Hari efektif dan libur</h3><p>${period.status === 'draft' ? 'Hari libur Kalender Kerja dalam rentang periode disalin otomatis saat draft dibuat. Gunakan Salin ulang kalender kerja bila kalender diperbarui.' : 'Snapshot hari libur periode ini sudah terkunci untuk menjaga perhitungan.'}</p></div>${holidayActions}</div>${holidays.length ? `<div class="admin-record-table period-holiday-record-table" role="table" aria-label="Hari efektif dan libur ${escapeHtml(period.name)}"><div class="admin-record-head" role="row"><span role="columnheader">Tanggal</span><span role="columnheader">Keterangan</span><span role="columnheader">Dampak</span><span role="columnheader">Aksi</span></div>${holidayRows}</div>` : `<p class="admin-empty">${period.status === 'draft' ? 'Belum ada hari libur dalam rentang periode ini. Tambahkan secara manual atau salin ulang Kalender Kerja setelah tanggal referensinya tersedia.' : 'Tidak ada hari libur yang dicatat pada periode ini.'}</p>`}</section>`;
@@ -2126,7 +2156,12 @@ async function loadAdminView(name, { dataOnly = false } = {}) {
     if (name === 'period-detail') {
       const period = (configurationPayload?.data?.period_options ?? []).find((item) => item.id === selectedPeriodId);
       if (period?.status === 'active') {
-        const participantQuery = new URLSearchParams({ search: adminListState.participants.search, page: String(adminListState.participants.page) });
+        const participantFilters = adminListState.participants;
+        const participantQuery = new URLSearchParams({ search: participantFilters.search, page: String(participantFilters.page) });
+        if (participantFilters.departmentId) participantQuery.set('department_id', participantFilters.departmentId);
+        if (participantFilters.teamId) participantQuery.set('team_id', participantFilters.teamId);
+        if (participantFilters.checklistStatus) participantQuery.set('checklist_status', participantFilters.checklistStatus);
+        if (participantFilters.category) participantQuery.set('category', participantFilters.category);
         const response = await fetch(`${apiBase}/periods/${period.id}/participants?${participantQuery}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
         if (!response.ok) throw new Error(await apiError(response));
         activePeriodParticipants = (await response.json()).data;
@@ -2432,6 +2467,24 @@ document.addEventListener('click', (event) => {
   adminListState.people = { page: 1, search: '', departmentId: '', teamId: '', status: '', level: '', category: '' };
   loadAdminView('people', { dataOnly: true });
 });
+document.addEventListener('change', (event) => {
+  const filter = event.target.closest('[data-participant-filter]');
+  if (!filter) return;
+  const participants = adminListState.participants;
+  if (filter.dataset.participantFilter === 'department') {
+    participants.departmentId = filter.value;
+    participants.teamId = '';
+  } else if (filter.dataset.participantFilter === 'team') participants.teamId = filter.value;
+  else if (filter.dataset.participantFilter === 'checklist-status') participants.checklistStatus = filter.value;
+  else if (filter.dataset.participantFilter === 'category') participants.category = filter.value;
+  participants.page = 1;
+  loadAdminView('period-detail', { dataOnly: true });
+});
+document.addEventListener('click', (event) => {
+  if (!event.target.closest('[data-reset-participant-filters]')) return;
+  adminListState.participants = { page: 1, search: '', departmentId: '', teamId: '', checklistStatus: '', category: '' };
+  loadAdminView('period-detail', { dataOnly: true });
+});
 
 function syncMagangJobLevel(form) {
   const category = form?.querySelector('[name="category"]');
@@ -2666,7 +2719,7 @@ document.addEventListener('click', async (event) => {
   const periodDetail = event.target.closest('[data-open-period-detail]');
   if (periodDetail) {
     selectedPeriodId = periodDetail.dataset.openPeriodDetail;
-    adminListState.participants = { page: 1, search: '' };
+    adminListState.participants = { page: 1, search: '', departmentId: '', teamId: '', checklistStatus: '', category: '' };
     activePeriodParticipants = null;
     openView('period-detail');
     return;

@@ -276,6 +276,57 @@ class LksCoreTest extends TestCase
             ->assertJsonPath('data.santri.0.user.name', 'Zhafron Firdaus');
     }
 
+    public function test_admin_can_filter_period_participants_by_placement_checklist_and_category(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $regularUser = $this->userWithRole('santri', ['name' => 'Staff Reguler']);
+        $magangUser = $this->userWithRole('santri', ['name' => 'Staff Magang']);
+        $department = Department::query()->create(['code' => 'MKT', 'name' => 'Marketing', 'is_active' => true]);
+        $team = Team::query()->create(['department_id' => $department->id, 'code' => 'MKT-DIG', 'name' => 'Digital', 'is_active' => true]);
+        $period = $this->period($admin, ['status' => 'active']);
+        $activity = $this->periodActivity($period, 1);
+        $regularParticipant = $this->participant($period, $regularUser);
+        $magangParticipant = $this->participant($period, $magangUser);
+
+        $regularParticipant->update([
+            'department_id_snapshot' => $department->id,
+            'department_name_snapshot' => $department->name,
+            'team_id_snapshot' => $team->id,
+            'team_name_snapshot' => $team->name,
+            'category_snapshot' => 'regular',
+        ]);
+        $magangParticipant->update([
+            'department_id_snapshot' => $department->id,
+            'department_name_snapshot' => $department->name,
+            'team_id_snapshot' => $team->id,
+            'team_name_snapshot' => $team->name,
+            'category_snapshot' => 'magang',
+        ]);
+        $this->checklist($magangParticipant, $activity, $magangUser, now()->toDateString());
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.periods.participants.index', [
+                'period' => $period,
+                'department_id' => $department->id,
+                'team_id' => $team->id,
+                'checklist_status' => 'none',
+                'category' => 'regular',
+            ]))
+            ->assertOk()
+            ->assertJsonPath('data.pagination.total', 1)
+            ->assertJsonPath('data.participants.0.id', $regularParticipant->id);
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.periods.participants.index', [
+                'period' => $period,
+                'checklist_status' => 'recorded',
+                'category' => 'magang',
+            ]))
+            ->assertOk()
+            ->assertJsonPath('data.pagination.total', 1)
+            ->assertJsonPath('data.participants.0.id', $magangParticipant->id);
+    }
+
     public function test_creating_santri_uses_the_selected_team_as_the_single_placement_source(): void
     {
         $admin = $this->userWithRole('admin');
@@ -509,6 +560,85 @@ class LksCoreTest extends TestCase
             'period_activity_id' => $activity->id,
             'checklist_date' => $yesterday,
             'is_completed' => true,
+        ]);
+    }
+
+    public function test_santri_cannot_record_single_or_bulk_checklists_before_participation_starts(): void
+    {
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($santri, ['status' => 'active']);
+        $activity = $this->periodActivity($period, 1);
+        $participant = $this->participant($period, $santri);
+        $participationStart = now()->startOfDay();
+        $beforeParticipation = $participationStart->copy()->subDay()->toDateString();
+        $participant->update(['participation_start_date' => $participationStart->toDateString()]);
+
+        $this->actingAs($santri)
+            ->putJson(route('api.lks.checklists.store'), [
+                'period_activity_id' => $activity->id,
+                'checklist_date' => $beforeParticipation,
+                'is_completed' => true,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('checklist_date');
+
+        $this->actingAs($santri)
+            ->postJson(route('api.lks.checklists.bulk'), [
+                'period_activity_id' => $activity->id,
+                'checklist_dates' => [$beforeParticipation],
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('checklist_dates.'.$beforeParticipation);
+
+        $this->assertDatabaseMissing('lks_checklists', [
+            'period_participant_id' => $participant->id,
+            'period_activity_id' => $activity->id,
+        ]);
+    }
+
+    public function test_dashboard_clamps_a_requested_date_to_the_participation_start_date(): void
+    {
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($santri, ['status' => 'active']);
+        $this->periodActivity($period, 1);
+        $participant = $this->participant($period, $santri);
+        $participationStart = now()->startOfDay();
+        $participant->update(['participation_start_date' => $participationStart->toDateString()]);
+
+        $this->actingAs($santri)
+            ->getJson(route('api.lks.dashboard', ['date' => $participationStart->copy()->subDay()->toDateString()]))
+            ->assertOk()
+            ->assertJsonPath('data.selected_date', $participationStart->toDateString());
+    }
+
+    public function test_admin_cannot_add_a_participant_when_no_eligible_activity_day_remains(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $today = now()->startOfDay();
+        $period = $this->period($admin, [
+            'status' => 'active',
+            'start_date' => $today->copy()->subDay()->toDateString(),
+            'end_date' => $today->toDateString(),
+            'target_proration_enabled' => true,
+        ]);
+        $activity = $this->periodActivity($period, 1);
+        $activity->update(['allowed_weekdays' => '{'.$today->copy()->addDay()->isoWeekday().'}']);
+        $profile = SantriProfile::query()->create([
+            'user_id' => $santri->id,
+            'gender' => 'ikhwan',
+            'level' => 'staff',
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($admin)
+            ->postJson(route('api.lks.periods.participants.store', [$period, $profile]))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('period');
+
+        $this->assertDatabaseMissing('period_participant_snapshots', [
+            'period_id' => $period->id,
+            'user_id' => $santri->id,
         ]);
     }
 

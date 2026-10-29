@@ -70,6 +70,7 @@ class LksScoreCalculator
             'gender' => $participant->gender_snapshot,
             'category' => $this->category($participant),
             'level' => $participant->level_snapshot,
+            'participation_start_date' => $participant->participation_start_date?->toDateString(),
             'department_id' => $participant->department_id_snapshot,
             'department' => $participant->department_name_snapshot,
             'team' => $participant->team_name_snapshot,
@@ -195,29 +196,53 @@ class LksScoreCalculator
         $target = (int) ($magang ? ($activity->magang_target_count ?? $activity->target_count) : $activity->target_count);
         $minimum = (int) ($magang ? ($activity->magang_minimum_target_count ?? $activity->minimum_target_count) : $activity->minimum_target_count);
         $weekdays = $activity->allowedWeekdays();
+        $holidays = array_fill_keys($holidayDates, true);
+        $fullEligibleDays = $this->eligibleDays($period->start_date, $period->end_date, $weekdays, $holidays);
+        $baseTarget = $weekdays === [] ? $target : min($target, $fullEligibleDays);
+        $baseMinimum = $baseTarget === 0 || $target === 0
+            ? 0
+            : min($baseTarget, (int) ceil($minimum / $target * $baseTarget));
 
-        if ($weekdays === []) {
-            return ['target_count' => $target, 'minimum_target_count' => $minimum, 'category' => $magang ? 'magang' : 'regular'];
+        if ($participant === null || $participant->participation_start_date === null || $period->target_proration_enabled !== true) {
+            return ['target_count' => $baseTarget, 'minimum_target_count' => $baseMinimum, 'category' => $magang ? 'magang' : 'regular'];
         }
 
-        $holidays = array_fill_keys($holidayDates, true);
-        $effectiveDays = 0;
-        $date = Carbon::parse($period->start_date)->startOfDay();
-        $endDate = Carbon::parse($period->end_date)->startOfDay();
+        $participationStart = Carbon::parse($participant->participation_start_date)->startOfDay();
+        if ($participationStart->lte($period->start_date)) {
+            return ['target_count' => $baseTarget, 'minimum_target_count' => $baseMinimum, 'category' => $magang ? 'magang' : 'regular'];
+        }
+
+        $participantEligibleDays = $this->eligibleDays($participationStart, $period->end_date, $weekdays, $holidays);
+        if ($fullEligibleDays === 0 || $participantEligibleDays === 0 || $baseTarget === 0) {
+            return ['target_count' => 0, 'minimum_target_count' => 0, 'category' => $magang ? 'magang' : 'regular'];
+        }
+
+        $effectiveTarget = min($participantEligibleDays, (int) ceil($baseTarget * $participantEligibleDays / $fullEligibleDays));
+
+        return [
+            'target_count' => $effectiveTarget,
+            'minimum_target_count' => min($effectiveTarget, (int) ceil($baseMinimum / $baseTarget * $effectiveTarget)),
+            'category' => $magang ? 'magang' : 'regular',
+        ];
+    }
+
+    /** @param list<int> $weekdays
+     *  @param array<string, bool> $holidays
+     */
+    private function eligibleDays($startDate, $endDate, array $weekdays, array $holidays): int
+    {
+        $eligibleDays = 0;
+        $date = Carbon::parse($startDate)->startOfDay();
+        $endDate = Carbon::parse($endDate)->startOfDay();
+
         while ($date->lte($endDate)) {
-            if (in_array($date->isoWeekday(), $weekdays, true) && ! isset($holidays[$date->toDateString()])) {
-                $effectiveDays++;
+            if (($weekdays === [] || in_array($date->isoWeekday(), $weekdays, true)) && ! isset($holidays[$date->toDateString()])) {
+                $eligibleDays++;
             }
             $date->addDay();
         }
 
-        $effectiveTarget = min($target, $effectiveDays);
-
-        return [
-            'target_count' => $effectiveTarget,
-            'minimum_target_count' => $effectiveTarget === 0 ? 0 : (int) ceil($minimum / $target * $effectiveTarget),
-            'category' => $magang ? 'magang' : 'regular',
-        ];
+        return $eligibleDays;
     }
 
     private function category(PeriodParticipantSnapshot $participant): string

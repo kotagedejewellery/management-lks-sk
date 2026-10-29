@@ -92,7 +92,7 @@ Folder merupakan batas pengelompokan, bukan alasan membuat abstraction tambahan.
 - Admin membuat periode dalam status `draft`.
 - Admin menyalin aktivitas master ke konfigurasi periode dan mengatur target/bobot.
 - Aktivasi periode secara atomik memvalidasi konfigurasi lalu membuat snapshot peserta aktif.
-- Santri mengisi checklist pada periode aktif sesuai hak dan rentang tanggal.
+- Santri mengisi checklist pada periode aktif sesuai hak dan rentang tanggal. Snapshot peserta yang masuk belakangan membatasi tanggal awal checklist sekaligus menjadi dasar prorata target; penambahan ditolak apabila tidak ada hari aktivitas layak tersisa.
 - Penutupan periode mengunci perubahan melalui Policy/Service dan mencatat audit.
 
 ### 4.4 Reporting
@@ -150,6 +150,7 @@ sequenceDiagram
 ```text
 lks_checklists (completed)
   + period_activities (target, weight, aktif)
+  + participation_start_date (batas checklist dan prorata peserta terlambat)
   + lks_periods (ambang Leader, Staff Reguler, dan Staff Magang)
   → LksScoreCalculator
   → hasil individu

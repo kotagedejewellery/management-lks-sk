@@ -44,7 +44,9 @@ class DashboardController extends Controller
             ]]);
         }
 
-        if ($selectedDate->gt($period->end_date)) {
+        if ($selectedDate->lt($period->start_date)) {
+            $selectedDate = $period->start_date->copy()->startOfDay();
+        } elseif ($selectedDate->gt($period->end_date)) {
             $selectedDate = $period->end_date->copy()->startOfDay();
         }
 
@@ -73,8 +75,13 @@ class DashboardController extends Controller
 
         $participant = $period->participants()
             ->where('user_id', $request->user()->getKey())
-            ->with(['checklists' => fn ($query) => $query->whereDate('checklist_date', $selectedDate)])
             ->first();
+        if ($participant !== null && $selectedDate->lt($participant->participation_start_date)) {
+            $selectedDate = $participant->participation_start_date->copy()->startOfDay();
+        }
+        $participant?->load([
+            'checklists' => fn ($query) => $query->whereDate('checklist_date', $selectedDate),
+        ]);
         $recordedDatesByActivity = $participant === null
             ? collect()
             : $participant->checklists()

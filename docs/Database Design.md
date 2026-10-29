@@ -131,6 +131,7 @@ Profil LKS yang melekat pada akun.
 | `end_date` | date | wajib, harus ≥ `start_date` |
 | `status` | varchar(15) | `draft`, `active`, atau `closed` |
 | `recording_enabled` | boolean | default `false`; hanya bermakna pada periode `active`; mengatur apakah Santri dapat mencatat |
+| `target_proration_enabled` | boolean | default `true`; memakai tanggal mulai partisipasi untuk target peserta yang masuk setelah periode dimulai; periode tertutup lama bernilai `false` agar hasil historis tidak berubah |
 | `final_passing_threshold` | numeric(5,2) | ambang Leader; default `90.00`, rentang 0–100 |
 | `staff_passing_threshold` | numeric(5,2) | ambang Staff Reguler; default `85.00`, rentang 0–100 |
 | `magang_passing_threshold` | numeric(5,2) | ambang Staff Magang; default `75.00`, rentang 0–100 |
@@ -212,6 +213,7 @@ Peserta LKS dan struktur organisasi saat periode diaktifkan.
 | `leader_name_snapshot` | varchar(150) | nullable |
 | `category_snapshot` | varchar(100) | `regular` atau `magang`; nilai lama diperlakukan sebagai `regular` |
 | `level_snapshot` | varchar(100) | nullable |
+| `participation_start_date` | date | wajib; tanggal paling awal peserta dapat mencatat dan titik awal prorata target peserta yang ditambahkan setelah periode dimulai |
 | `created_at` | timestamptz | wajib |
 
 Constraint unik: `period_id, user_id`.
@@ -319,7 +321,7 @@ Keputusan berikut menjadi aturan implementasi MVP:
 2. Admin dapat mengoreksi checklist milik Santri dengan alasan wajib dan audit log.
 3. Semua aktivitas memakai bobot sama pada MVP. Kolom `weight` tetap tersedia untuk evolusi berikutnya, tetapi Service menetapkan nilai `1.00` dan UI admin belum mengubahnya.
 4. Setiap tim wajib berada pada satu departemen. Validasi aplikasi memastikan departemen profil sesuai dengan departemen tim.
-5. Admin dapat menambahkan peserta secara manual ke periode aktif. Snapshot menyimpan `participation_start_date`, sehingga checklist tidak dapat diisi mundur sebelum tanggal tersebut.
+5. Admin dapat menambahkan peserta secara manual ke periode aktif. Snapshot menyimpan `participation_start_date`, sehingga checklist tidak dapat diisi mundur sebelum tanggal tersebut dan target/minimum target diprorata terhadap hari layak yang tersisa. Penambahan ditolak bila tidak terdapat aktivitas yang berlaku pada hari layak tersisa.
 
 Implementasi schema menegakkan departemen wajib pada tim serta menyediakan `participation_start_date` dan `audit_logs.reason`. Validasi lintas tabel dan aturan edit tetap berada pada Service/Policy Laravel.
 

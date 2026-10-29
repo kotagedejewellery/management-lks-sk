@@ -6,33 +6,33 @@
     "semantic_hash": ""
   },
   "PRODUCT.md": {
-    "mtime": 1792143610.2685266,
-    "seen": 1792143776.1669428,
-    "ast_hash": "be1d3bcf63235626ca121be81138c9ef",
+    "mtime": 1793237983.4839425,
+    "seen": 1793238052.5964668,
+    "ast_hash": "d0faf1568550435caaf24a0b846d96a3",
     "semantic_hash": ""
   },
   "docs/Architecture System.md": {
-    "mtime": 1792136767.3184154,
-    "seen": 1792136842.2991085,
-    "ast_hash": "3d32293b1d171df25cefb16ad23295f0",
+    "mtime": 1793238012.9643886,
+    "seen": 1793238052.5964842,
+    "ast_hash": "87dd80d5c3fbd7b0beb1c2f8aee70222",
     "semantic_hash": ""
   },
   "docs/Database Design.md": {
-    "mtime": 1792136767.3154154,
-    "seen": 1792136842.29911,
-    "ast_hash": "a3545b8ff93d5f4bb75d101fb48d6b06",
+    "mtime": 1793237983.4851782,
+    "seen": 1793238052.5964868,
+    "ast_hash": "b11655015563e3eb418f3414eb39bc2a",
     "semantic_hash": ""
   },
   "docs/PRD.md": {
-    "mtime": 1792136767.316412,
-    "seen": 1792136842.299117,
-    "ast_hash": "4ed902744dbc31336cd6eaa23952930f",
+    "mtime": 1793237983.4824917,
+    "seen": 1793238052.5965033,
+    "ast_hash": "f8b26373de365a0267b4fa0dac24f093",
     "semantic_hash": ""
   },
   "docs/Tech Stack.md": {
-    "mtime": 1792136767.3174124,
-    "seen": 1792136842.29912,
-    "ast_hash": "c9dc1d89f97b14414dd45b5c5ea43305",
+    "mtime": 1793238012.96539,
+    "seen": 1793238052.59651,
+    "ast_hash": "fdfcd9898ef06a92a9597d4560dd658e",
     "semantic_hash": ""
   },
   "backend/app/Actions/Fortify/CreateNewUser.php": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1792136635.8753366,
-    "seen": 1792136842.2990923,
-    "ast_hash": "1a2d45f56701a09558a13915fbbbb582",
+    "mtime": 1793239167.6901686,
+    "seen": 1793239227.4490006,
+    "ast_hash": "b56c86c277b48ab54064f655ba6cb3ef",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -708,9 +708,9 @@
     "semantic_hash": ""
   },
   "backend/app/Models/LksPeriod.php": {
-    "mtime": 1792134627.9959178,
-    "seen": 1792135346.3654876,
-    "ast_hash": "f014021a58d85d6195da53c0f9852be4",
+    "mtime": 1793235680.4469924,
+    "seen": 1793235772.0664248,
+    "ast_hash": "d8ab5a408f096f8456c396476d3b1bb7",
     "semantic_hash": ""
   },
   "backend/app/Models/PeriodActivity.php": {
@@ -762,9 +762,9 @@
     "semantic_hash": ""
   },
   "backend/app/Services/PeriodActivationService.php": {
-    "mtime": 1792124726.7697625,
-    "seen": 1792124987.7521908,
-    "ast_hash": "c13025d080b84c1e7e4b31132774b1df",
+    "mtime": 1793237718.4246278,
+    "seen": 1793238052.596118,
+    "ast_hash": "a803ec5dee9bc44c98497142037d4798",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/ChecklistController.php": {
@@ -774,15 +774,15 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/DashboardController.php": {
-    "mtime": 1792134628.0012548,
-    "seen": 1792135346.3654466,
-    "ast_hash": "7b413a271c8ceb7ea37f74fd830ff4f9",
+    "mtime": 1793237718.4256313,
+    "seen": 1793238052.5959542,
+    "ast_hash": "347ebd3eaa916ff9f29f210c455ea528",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodController.php": {
-    "mtime": 1792124713.3170285,
-    "seen": 1792124987.7521377,
-    "ast_hash": "0d75e7ede53c71306e785e6fc0c4a936",
+    "mtime": 1793239167.6866174,
+    "seen": 1793239227.4484553,
+    "ast_hash": "a9dc3bb09b2ee938ad14c31699241e4b",
     "semantic_hash": ""
   },
   "backend/app/Http/Requests/Lks/ActivatePeriodRequest.php": {
@@ -828,9 +828,9 @@
     "semantic_hash": ""
   },
   "backend/app/Services/LksScoreCalculator.php": {
-    "mtime": 1792134627.998125,
-    "seen": 1792135346.365509,
-    "ast_hash": "e41ae2a320601c6d17779d3bc8479659",
+    "mtime": 1793237718.4236183,
+    "seen": 1793238052.5961144,
+    "ast_hash": "7c305297eb355b83c46817fab2dee611",
     "semantic_hash": ""
   },
   ".impeccable/critique/2026-09-29T06-52-35Z__frontend-index-html.md": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1792136550.5249662,
-    "seen": 1792136842.2990782,
-    "ast_hash": "dbbbd61c1f2588d03dcc417fd0df0ee1",
+    "mtime": 1793239167.6927347,
+    "seen": 1793239227.4489675,
+    "ast_hash": "437ef72b366b83f9af88f74ef72b9415",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {
@@ -918,9 +918,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Unit/EffectiveActivityTargetTest.php": {
-    "mtime": 1792035598.1125658,
-    "seen": 1792035720.4511147,
-    "ast_hash": "84d70c7aafc2ebe9ccff2400c55126da",
+    "mtime": 1793237545.1336305,
+    "seen": 1793238052.5964334,
+    "ast_hash": "081b83a13374de83a4f8c21e058985a3",
     "semantic_hash": ""
   },
   "backend/public/brand/apple-touch-icon.png": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1792144442.6912727,
-    "seen": 1792144466.123414,
-    "ast_hash": "7e2d48f1260acaea541b80d04cf7b147",
+    "mtime": 1793239167.6947587,
+    "seen": 1793239227.4490187,
+    "ast_hash": "2823e0539a3241e9b12e287b235f5606",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_16_000001_add_recording_enabled_to_lks_periods_table.php": {
@@ -1107,6 +1107,12 @@
     "mtime": 1778557693.94193,
     "seen": 1792143776.167023,
     "ast_hash": "feedd275eb6a053208560e4b4798fd7e",
+    "semantic_hash": ""
+  },
+  "backend/database/migrations/2026_10_29_000001_add_target_proration_enabled_to_lks_periods_table.php": {
+    "mtime": 1793235680.4763796,
+    "seen": 1793235772.0665329,
+    "ast_hash": "8ee32bd65a782984485da687c623cf69",
     "semantic_hash": ""
   }
 }

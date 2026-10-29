@@ -111,6 +111,8 @@ Admin dapat mengatur aktivitas aktif dan target pada tiap periode sesuai kebijak
 
 Santri Karya membuka periode aktif. Sistem menampilkan daftar aktivitas menurut tanggal, lalu pengguna mencentang aktivitas yang sudah dilakukan. Checklist tersimpan menurut pengguna, aktivitas, tanggal, dan periode; data tersebut menjadi dasar semua perhitungan.
 
+Santri Karya yang ditambahkan setelah periode dimulai hanya dapat mencatat sejak tanggal partisipasi yang tersimpan pada periode. Target dan minimum targetnya dihitung prorata dari tanggal tersebut hingga akhir periode, berdasarkan hari aktivitas yang masih memenuhi jadwal dan bukan hari libur.
+
 | Tanggal | Dhuha | Tahajud | Tilawah | Dzikir | Subuh |
 |---|---|---|---|---|---|
 | 1 Sep | Ya | Ya | Ya | Ya | Ya |
@@ -219,6 +221,7 @@ Admin membuat periode
 | BR-01 | Satu pengguna memiliki satu data LKS dalam satu periode. |
 | BR-02 | Checklist Santri hanya dapat dilakukan pada periode aktif dengan pencatatan dibuka dan pada tanggal saat ini di dalam rentang periode; periode ditutup bersifat hanya-baca. |
 | BR-02a | Ambang nilai akhir periode mengikuti peserta: Leader memakai ambang Leader, Staff Reguler memakai ambang Staff Reguler, dan Staff Magang memakai ambang Staff Magang; default masing-masing 90%, 85%, dan 75%. Ambang yang sudah tersimpan pada periode tertutup tidak diubah oleh aturan kategori baru. |
+| BR-02b | Peserta yang masuk setelah periode dimulai tidak dapat mencatat sebelum `participation_start_date`; target dan minimum target aktivitasnya diprorata terhadap hari layak tersisa. Penambahan ditolak bila tidak ada hari aktivitas yang layak tersisa. Periode tertutup yang sudah ada mempertahankan perhitungan historisnya. |
 | BR-03 | Setiap aktivitas dapat memiliki target berbeda. |
 | BR-04 | Nilai dihitung otomatis dari checklist. |
 | BR-05 | Status aktivitas ditentukan oleh pencapaian target. |

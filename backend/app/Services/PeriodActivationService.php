@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\AuditLog;
 use App\Models\DocumentSignatory;
 use App\Models\LksPeriod;
+use App\Models\PeriodActivity;
 use App\Models\PeriodParticipantSnapshot;
 use App\Models\SantriProfile;
 use App\Models\User;
@@ -114,6 +115,33 @@ class PeriodActivationService
             }
 
             $this->assertProfileOrganization($profile);
+            $existingSnapshot = PeriodParticipantSnapshot::query()
+                ->where('period_id', $period->getKey())
+                ->where('user_id', $profile->getKey())
+                ->first();
+            if ($existingSnapshot !== null) {
+                return $existingSnapshot;
+            }
+
+            $candidate = new PeriodParticipantSnapshot([
+                'gender_snapshot' => $profile->gender,
+                'category_snapshot' => $profile->category,
+                'level_snapshot' => $profile->level,
+                'participation_start_date' => $today->toDateString(),
+            ]);
+            $holidayDates = $this->calculator->periodHolidayDates($period);
+            $hasEligibleActivity = $period->periodActivities()
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->get()
+                ->contains(fn (PeriodActivity $activity): bool => $activity->appliesTo($candidate)
+                    && $this->calculator->effectiveTargets($activity, $period, $holidayDates, $candidate)['target_count'] > 0);
+            if (! $hasEligibleActivity) {
+                throw ValidationException::withMessages([
+                    'period' => 'Peserta tidak dapat ditambahkan karena tidak ada hari aktivitas yang tersisa pada periode ini.',
+                ]);
+            }
+
             $snapshot = $this->snapshot($period, $profile, $today->toDateString());
 
             if ($snapshot->wasRecentlyCreated) {

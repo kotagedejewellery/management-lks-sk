@@ -48,13 +48,28 @@ class PeriodController extends Controller
     {
         abort_unless($request->user()->isAdmin(), 403);
 
-        $search = trim((string) $request->query('search', ''));
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:120'],
+            'department_id' => ['nullable', 'uuid'],
+            'team_id' => ['nullable', 'uuid'],
+            'checklist_status' => ['nullable', 'in:none,recorded'],
+            'category' => ['nullable', 'in:regular,magang'],
+        ]);
+        $search = trim((string) ($filters['search'] ?? ''));
         $participants = $period->participants()
             ->withCount('checklists')
             ->when($search !== '', fn ($query) => $query->where(function ($query) use ($search) {
                 $query->where('participant_name_snapshot', 'ilike', "%{$search}%")
                     ->orWhere('department_name_snapshot', 'ilike', "%{$search}%")
                     ->orWhere('team_name_snapshot', 'ilike', "%{$search}%");
+            }))
+            ->when($filters['department_id'] ?? null, fn ($query, $departmentId) => $query->where('department_id_snapshot', $departmentId))
+            ->when($filters['team_id'] ?? null, fn ($query, $teamId) => $query->where('team_id_snapshot', $teamId))
+            ->when(($filters['checklist_status'] ?? null) === 'none', fn ($query) => $query->doesntHave('checklists'))
+            ->when(($filters['checklist_status'] ?? null) === 'recorded', fn ($query) => $query->has('checklists'))
+            ->when(($filters['category'] ?? null) === 'magang', fn ($query) => $query->where('category_snapshot', 'magang'))
+            ->when(($filters['category'] ?? null) === 'regular', fn ($query) => $query->where(function ($query) {
+                $query->where('category_snapshot', 'regular')->orWhereNull('category_snapshot');
             }))
             ->orderBy('participant_name_snapshot')
             ->paginate(25);
