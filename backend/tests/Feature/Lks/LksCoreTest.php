@@ -152,7 +152,7 @@ class LksCoreTest extends TestCase
 
         $recommendation = app(LksScoreCalculator::class)->calculate($participant)['recommendation'];
 
-        $this->assertSame('Nilai Anda 25% masih 60 poin dari ambang 85%. Prioritaskan: Tahajud.', $recommendation);
+        $this->assertSame('Semangat, capaian Anda saat ini 25%. Masih ada 60 poin menuju ambang 85%. Mari fokus bertahap pada Tahajud.', $recommendation);
 
         $this->actingAs($admin)->postJson(route('api.lks.periods.close', $period))->assertOk();
 
@@ -160,6 +160,98 @@ class LksCoreTest extends TestCase
             'id' => $participant->id,
             'recommendation_snapshot' => $recommendation,
         ]);
+    }
+
+    public function test_recommendation_encourages_a_participant_close_to_their_threshold(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active', 'start_date' => now()->subMonth()->toDateString(), 'staff_passing_threshold' => 85]);
+        $activity = $this->periodActivity($period, 10);
+        $activity->update(['activity_name_snapshot' => 'Tahajud', 'minimum_target_count' => 9]);
+        $participant = $this->participant($period, $santri);
+
+        foreach (range(1, 8) as $day) {
+            $this->checklist($participant, $activity, $santri, now()->subDays($day)->toDateString());
+        }
+
+        $recommendation = app(LksScoreCalculator::class)->calculate($participant)['recommendation'];
+
+        $this->assertSame('Alhamdulillah, capaian Anda sudah 80%. Tinggal 5 poin lagi untuk mencapai ambang 85%. Yuk prioritaskan Tahajud.', $recommendation);
+    }
+
+    public function test_recommendation_names_lowest_activities_when_minimums_are_met_but_score_is_not(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active', 'start_date' => now()->subMonth()->toDateString(), 'staff_passing_threshold' => 85]);
+        $tahajud = $this->periodActivity($period, 10);
+        $dhuha = $this->periodActivity($period, 10);
+        $tahajud->update(['activity_name_snapshot' => 'Tahajud', 'minimum_target_count' => 7]);
+        $dhuha->update(['activity_name_snapshot' => 'Shalat Dhuha', 'minimum_target_count' => 7]);
+        $participant = $this->participant($period, $santri);
+
+        foreach (range(1, 7) as $day) {
+            $this->checklist($participant, $tahajud, $santri, now()->subDays($day)->toDateString());
+            $this->checklist($participant, $dhuha, $santri, now()->subDays($day)->toDateString());
+        }
+
+        $recommendation = app(LksScoreCalculator::class)->calculate($participant)['recommendation'];
+
+        $this->assertSame('Alhamdulillah, batas minimal seluruh aktivitas sudah terpenuhi. Nilai Anda 70% masih 15 poin menuju ambang 85%. Yuk tingkatkan Tahajud dan Shalat Dhuha secara bertahap.', $recommendation);
+    }
+
+    public function test_recommendation_uses_magang_and_leader_thresholds(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $magang = $this->userWithRole('santri');
+        $leader = $this->userWithRole('leader');
+        $period = $this->period($admin, ['status' => 'active', 'start_date' => now()->subMonth()->toDateString(), 'magang_passing_threshold' => 75, 'final_passing_threshold' => 90]);
+        $activity = $this->periodActivity($period, 10);
+        $activity->update(['activity_name_snapshot' => 'Tahajud', 'minimum_target_count' => 9, 'magang_minimum_target_count' => 9]);
+        $magangParticipant = $this->participant($period, $magang);
+        $magangParticipant->update(['category_snapshot' => 'magang']);
+        $leaderParticipant = $this->participant($period, $leader, level: 'leader');
+
+        foreach (range(1, 7) as $day) {
+            $this->checklist($magangParticipant, $activity, $magang, now()->subDays($day)->toDateString());
+        }
+        foreach (range(1, 8) as $day) {
+            $this->checklist($leaderParticipant, $activity, $leader, now()->subDays($day)->toDateString());
+        }
+
+        $calculator = app(LksScoreCalculator::class);
+
+        $this->assertSame('Alhamdulillah, capaian Anda sudah 70%. Tinggal 5 poin lagi untuk mencapai ambang 75%. Yuk prioritaskan Tahajud.', $calculator->calculate($magangParticipant)['recommendation']);
+        $this->assertSame('Alhamdulillah, capaian Anda sudah 80%. Tinggal 10 poin lagi untuk mencapai ambang 90%. Yuk prioritaskan Tahajud.', $calculator->calculate($leaderParticipant)['recommendation']);
+    }
+
+    public function test_recommendation_encourages_a_participant_with_no_checklists_to_start_small(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active']);
+        $this->periodActivity($period, 1);
+        $participant = $this->participant($period, $santri);
+
+        $recommendation = app(LksScoreCalculator::class)->calculate($participant)['recommendation'];
+
+        $this->assertSame('Belum ada checklist pada periode ini. Yuk mulai dari satu aktivitas yang paling mudah hari ini, lalu lanjutkan secara bertahap.', $recommendation);
+    }
+
+    public function test_recommendation_celebrates_a_very_good_completed_target(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active', 'staff_passing_threshold' => 85]);
+        $activity = $this->periodActivity($period, 1);
+        $activity->update(['activity_name_snapshot' => 'Tahajud', 'minimum_target_count' => 1]);
+        $participant = $this->participant($period, $santri);
+        $this->checklist($participant, $activity, $santri, now()->subDay()->toDateString());
+
+        $recommendation = app(LksScoreCalculator::class)->calculate($participant)['recommendation'];
+
+        $this->assertSame('MasyaAllah, capaian Anda sangat baik. Pertahankan kebiasaan baik ini hingga periode berakhir.', $recommendation);
     }
 
     public function test_admin_can_activate_a_draft_period_and_snapshot_active_santri(): void
@@ -1030,6 +1122,7 @@ class LksCoreTest extends TestCase
         $admin = $this->userWithRole('admin');
         $leader = $this->userWithRole('leader');
         $member = $this->userWithRole('santri');
+        $department = Department::query()->create(['code' => 'OPS', 'name' => 'Operasional', 'is_active' => true]);
         $period = $this->period($admin, ['status' => 'closed']);
         $participant = $this->participant($period, $member, $leader);
         $participant->update(['gender_snapshot' => 'akhwat', 'category_snapshot' => 'magang']);
@@ -1039,7 +1132,8 @@ class LksCoreTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.0.groups.leader.0.id', $leader->id)
             ->assertJsonPath('data.0.groups.gender.0.id', 'akhwat')
-            ->assertJsonPath('data.0.groups.category.0.id', 'magang');
+            ->assertJsonPath('data.0.groups.category.0.id', 'magang')
+            ->assertJsonPath('meta.department_options.0.id', $department->id);
     }
 
     public function test_role_trends_keep_leader_and_santri_scopes_separate(): void

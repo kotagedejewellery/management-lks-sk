@@ -33,11 +33,12 @@ LKS operates in recurring, generally monthly periods. A Santri Karya checks comp
 - The first release includes login, personal LKS, history, role-scoped recaps, organization data, period settings, and activity settings.
 - The first release excludes gamification, AI, complex notifications, external integrations, multilevel approvals, rewards, and social features.
 - The approved calculation baseline is capped activity achievement and equal default weights. Each period stores final thresholds: Leader 90%, Staff Reguler 85%, and Staff Magang 75% by default.
-- Individual rankings are limited to Staff; Leader, department, and category reporting remain aggregate comparisons.
+- Individual rankings are limited to Staff; the gender report shows up to three highest and three lowest Staff separately for Ikhwan and Akhwat. Leader, department, and category reporting remain aggregate comparisons.
 - PDF LKS and rekap can be previewed before download using the same authorized export file. The first individual PDF generated for a closed period issues one reusable verification record; it never changes the period calculation or snapshot.
 - Period activation locks its snapshots and configuration; a separate recording control lets an administrator pause or resume Santri checklist input without changing that lifecycle. Checklist input remains limited to the configured date range, while an active period can still be reviewed outside it.
 - Santri checklist input is read-only when an active period is paused or its date range has ended. Admin may correct a valid historical date while the period remains active; a closed period is read-only for everyone.
 - A participant added after a period starts records only from their snapshot participation date. Their target and minimum target are prorated to their remaining eligible dates; the addition is rejected when no eligible activity date remains. Previously closed periods retain their original non-prorated calculation.
+- Recommendations are deterministic, warm, and data-specific: they state the current score or threshold gap and name at most two activities needing attention. When every activity meets its minimum but the final threshold is still missed, the two lowest activities are named instead. Closed-period recommendations remain immutable snapshots.
 
 ## Brand Commitments
 

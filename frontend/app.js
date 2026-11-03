@@ -1,4 +1,4 @@
-const viewLabels = { dashboard: ['Ruang pribadi', 'Dashboard'], lks: ['Catatan pribadi', 'LKS Saya'], recap: ['Pemantauan', 'Rekap'], department: ['Laporan organisasi', 'Departemen'], history: ['Catatan pribadi', 'Riwayat'], account: ['Akun', 'Akun Saya'], settings: ['Administrasi', 'Pengaturan'], organization: ['Pengaturan', 'Struktur Organisasi'], people: ['Pengaturan', 'Data Santri Karya'], periods: ['Pengaturan', 'Periode LKS'], 'period-detail': ['Pengaturan', 'Kelola Periode'], activities: ['Pengaturan', 'Aktivitas & Aturan'], calendar: ['Pengaturan', 'Kalender Kerja'], documents: ['Pengaturan', 'Dokumen & Tanda Tangan'] };
+const viewLabels = { dashboard: ['Ruang pribadi', 'Dashboard'], lks: ['Catatan pribadi', 'Aktivitas Ibadah Saya'], recap: ['Pemantauan', 'Rekap'], department: ['Laporan organisasi', 'Departemen'], history: ['Catatan pribadi', 'Riwayat'], account: ['Akun', 'Akun Saya'], settings: ['Administrasi', 'Pengaturan'], organization: ['Pengaturan', 'Struktur Organisasi'], people: ['Pengaturan', 'Data Santri Karya'], periods: ['Pengaturan', 'Periode LKS'], 'period-detail': ['Pengaturan', 'Kelola Periode'], activities: ['Pengaturan', 'Aktivitas & Aturan'], calendar: ['Pengaturan', 'Kalender Kerja'], documents: ['Pengaturan', 'Dokumen & Tanda Tangan'] };
 const navButtons = document.querySelectorAll('[data-view]');
 const viewPanels = document.querySelectorAll('[data-view-panel]');
 const pageTitle = document.querySelector('#page-title');
@@ -33,6 +33,7 @@ let historyDetailRequest = 0;
 let historyDetailPeriodId = '';
 let recapPeriods = [];
 let departmentTrendData = [];
+let departmentTrendDepartmentOptions = [];
 let roleTrendData = [];
 let roleTrendError = '';
 let selectedReportDimension = 'department';
@@ -932,7 +933,7 @@ function renderHistory() {
       : 'Periode LKS Anda yang sudah ditutup akan tersimpan di sini.';
     const emptyAction = viewingTeam
       ? '<button class="primary-button" type="button" data-go="recap">Buka rekap tim</button>'
-      : '<button class="primary-button" type="button" data-go="lks">Buka LKS Saya</button>';
+      : '<button class="primary-button" type="button" data-go="lks">Buka Aktivitas Ibadah Saya</button>';
     panel.innerHTML = `<div class="page-intro"><div><h2>Belum ada riwayat periode</h2><p>${emptyMessage}</p></div><div class="history-page-actions">${scopeToggle}${emptyAction}</div></div>`;
     return;
   }
@@ -1185,12 +1186,30 @@ function renderParticipantRankings(participants) {
   const staff = participants.filter((participant) => participant.level === 'staff');
   if (!staff.length) return '<p class="empty-search">Belum ada Staff untuk diperingkatkan pada periode ini.</p>';
   const genderLabel = { ikhwan: 'Ikhwan', akhwat: 'Akhwat' };
-  const ranked = [...staff].sort((left, right) => Number(right.final_percentage) - Number(left.final_percentage)
-    || left.name.localeCompare(right.name, 'id'));
   const list = (items) => `<ol>${items.map((participant) => `<li><button class="report-ranking-action" type="button" data-go="recap" data-recap-member="${escapeHtml(participant.participant_id)}" aria-label="Buka rekap ${escapeHtml(participant.name)}"><span>${escapeHtml(participant.name)}</span><strong>${percentage(participant.final_percentage)}</strong><small>${escapeHtml(genderLabel[participant.gender] ?? 'Tidak dicatat')} · ${escapeHtml(participant.team ?? participant.department ?? 'Tanpa tim')} · LKS ${lksCategoryLabel(lksCategory(participant))} · ${participantStatus(participant) === 'tuntas' ? 'Tuntas' : 'Belum tuntas'}</small></button></li>`).join('')}</ol>`;
-  if (ranked.length <= 5) return `<section class="report-rankings report-rankings-single" aria-label="Urutan capaian Staff"><div><h3>Urutan capaian Staff</h3>${list(ranked)}</div></section>`;
-  const rankCount = Math.min(3, Math.floor(ranked.length / 2));
-  return `<section class="report-rankings" aria-label="Peringkat capaian Staff"><div><h3>${rankCount} capaian Staff tertinggi</h3>${list(ranked.slice(0, rankCount))}</div><div><h3>${rankCount} capaian Staff terendah</h3>${list(ranked.slice(-rankCount).reverse())}</div></section>`;
+  const rankedByGender = (gender) => staff
+    .filter((participant) => participant.gender === gender)
+    .sort((left, right) => Number(right.final_percentage) - Number(left.final_percentage)
+      || left.name.localeCompare(right.name, 'id'));
+  const rankingCard = (gender, direction) => {
+    const ranked = rankedByGender(gender);
+    const label = genderLabel[gender];
+    const top = ranked.slice(0, 3);
+    const bottom = ranked.slice(Math.max(top.length, ranked.length - 3)).reverse();
+    const items = direction === 'top' ? top : bottom;
+    const title = direction === 'top'
+      ? items.length
+        ? `${items.length} capaian Staff ${label} tertinggi`
+        : `Capaian Staff ${label} tertinggi`
+      : items.length
+        ? `${items.length} capaian Staff ${label} terendah`
+        : `Capaian Staff ${label} terendah`;
+    const empty = ranked.length
+      ? 'Belum ada Staff lain untuk peringkat terendah yang terpisah.'
+      : `Belum ada Staff ${label} pada periode ini.`;
+    return `<div><h3>${title}</h3>${items.length ? list(items) : `<p class="report-ranking-empty">${empty}</p>`}</div>`;
+  };
+  return `<section class="report-rankings" aria-label="Peringkat capaian Staff menurut gender">${['ikhwan', 'akhwat'].map((gender) => rankingCard(gender, 'top')).join('')}${['ikhwan', 'akhwat'].map((gender) => rankingCard(gender, 'bottom')).join('')}</section>`;
 }
 
 function renderReportTrend(dimension) {
@@ -1200,15 +1219,25 @@ function renderReportTrend(dimension) {
   periods.forEach((item) => (item.groups?.[dimension] ?? []).forEach((group) => {
     if (!groups.has(group.id)) groups.set(group.id, { id: group.id, name: group.name });
   }));
+  if (dimension === 'department') {
+    departmentTrendDepartmentOptions.forEach((department) => {
+      groups.set(department.id, { ...(groups.get(department.id) ?? {}), ...department });
+    });
+  }
   const options = [...groups.values()];
+  if (dimension === 'department') options.sort((left, right) => left.name.localeCompare(right.name, 'id'));
   if (!options.length) return '<p class="report-trend-empty">Belum ada kelompok untuk ditampilkan pada tren ini.</p>';
   if (!options.some((group) => group.id === selectedTrendGroupId)) selectedTrendGroupId = options[0].id;
   const selected = options.find((group) => group.id === selectedTrendGroupId);
+  const trendLabel = { department: 'Departemen', leader: 'Leader', gender: 'Gender', category: 'Jenis LKS' }[dimension] ?? 'Kelompok';
+  const trendDescription = dimension === 'department'
+    ? 'Perubahan capaian enam periode terakhir. Daftar memuat Departemen aktif dan riwayat enam periode terakhir. Tanda — berarti Departemen belum memiliki peserta pada periode tersebut.'
+    : 'Perubahan capaian enam periode terakhir. Tanda — berarti kelompok belum memiliki peserta pada periode tersebut.';
   const points = periods.map((item) => {
     const group = (item.groups?.[dimension] ?? []).find((candidate) => candidate.id === selected.id);
     return { label: item.period.name, value: group ? Number(group.average_percentage) || 0 : null };
   });
-  return `<section class="report-trend" aria-labelledby="report-trend-title"><div class="section-head"><div><h2 id="report-trend-title">Tren bulanan</h2><p>Perubahan capaian enam periode terakhir. Tanda — berarti kelompok belum memiliki peserta pada periode tersebut.</p></div><label class="report-period-control">Kelompok<select data-trend-group>${options.map((group) => `<option value="${escapeHtml(group.id)}"${group.id === selected.id ? ' selected' : ''}>${escapeHtml(group.name)}</option>`).join('')}</select></label></div><div class="report-trend-bars" role="list" aria-label="Tren ${escapeHtml(selected.name)}">${points.map((point) => `<div class="report-trend-point" role="listitem"><strong>${point.value === null ? '—' : percentage(point.value)}</strong><span class="report-trend-meter">${point.value === null ? '' : `<i style="height:${Math.max(point.value, 2)}%"></i>`}</span><small>${escapeHtml(point.label)}</small></div>`).join('')}</div></section>`;
+  return `<section class="report-trend" aria-labelledby="report-trend-title"><div class="section-head"><div><h2 id="report-trend-title">Tren bulanan</h2><p>${trendDescription}</p></div><label class="report-period-control">${trendLabel}<select data-trend-group>${options.map((group) => `<option value="${escapeHtml(group.id)}"${group.id === selected.id ? ' selected' : ''}>${escapeHtml(group.name)}</option>`).join('')}</select></label></div><div class="report-trend-bars" role="list" aria-label="Tren ${escapeHtml(selected.name)}">${points.map((point) => `<div class="report-trend-point" role="listitem"><strong>${point.value === null ? '—' : percentage(point.value)}</strong><span class="report-trend-meter">${point.value === null ? '' : `<i style="height:${Math.max(point.value, 2)}%"></i>`}</span><small>${escapeHtml(point.label)}</small></div>`).join('')}</div></section>`;
 }
 
 function renderRecapActivities(participant) {
@@ -1329,7 +1358,14 @@ async function loadRecap(periodId = '', { showProgress = true, scope = viewer?.r
       const periods = (await historyResponse.json()).data;
       recapPeriods.push(...periods.filter((item) => item.id !== recapData.period.id));
     }
-    departmentTrendData = trendResponse?.ok ? (await trendResponse.json()).data : [];
+    if (trendResponse?.ok) {
+      const trendPayload = await trendResponse.json();
+      departmentTrendData = trendPayload.data ?? [];
+      departmentTrendDepartmentOptions = trendPayload.meta?.department_options ?? [];
+    } else {
+      departmentTrendData = [];
+      departmentTrendDepartmentOptions = [];
+    }
     roleTrendData = roleTrendResponse?.ok ? (await roleTrendResponse.json()).data : [];
     roleTrendError = roleTrendResponse && !roleTrendResponse.ok
       ? 'Tren belum dapat dimuat. Coba lagi beberapa saat lagi.'

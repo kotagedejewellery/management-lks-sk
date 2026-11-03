@@ -9,7 +9,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="overrides.css" />
   </head>
@@ -30,14 +30,14 @@
 
     <div class="app-shell">
       <aside class="sidebar" aria-label="Navigasi utama">
-        <a class="brand" href="#dashboard" aria-label="LKS Santri Karya - Dashboard">
+        <a class="brand" href="#dashboard" aria-label="Lembar Kendali Spiritual - Dashboard">
           <img class="brand-mark" src="/brand/yayasan-rji-mark.png" alt="" />
-          <span><strong>LKS</strong><small>Santri Karya</small></span>
+          <span><strong>LKS</strong><small>Lembar Kendali Spiritual</small></span>
         </a>
 
         <nav class="nav-list">
           <button class="nav-item" data-view="dashboard"><svg><use href="#icon-home"/></svg><span>Dashboard</span></button>
-          <button class="nav-item" data-view="lks"><svg><use href="#icon-check"/></svg><span>LKS Saya</span></button>
+          <button class="nav-item" data-view="lks"><svg><use href="#icon-check"/></svg><span>Aktivitas Ibadah Saya</span></button>
           <button class="nav-item" data-view="recap"><svg><use href="#icon-users"/></svg><span>Rekap</span></button>
           <button class="nav-item" data-view="department"><svg><use href="#icon-chart"/></svg><span>Departemen</span></button>
           <button class="nav-item" data-view="history"><svg><use href="#icon-history"/></svg><span>Riwayat</span></button>
@@ -95,7 +95,7 @@
             </div>
 
             <section class="activity-section">
-              <div class="section-head"><div><p class="section-label">Perjalanan periode</p><h2>Capaian amalan</h2></div><button class="text-button" data-go="lks">Buka LKS Saya</button></div>
+              <div class="section-head"><div><p class="section-label">Perjalanan periode</p><h2>Capaian amalan</h2></div><button class="text-button" data-go="lks">Buka Aktivitas Ibadah Saya</button></div>
               <div class="activity-list">
                 <article class="activity-row"><div class="activity-name"><span class="activity-dot completed"></span><strong>Shalat Dhuha</strong><small>18 dari target 20 kali</small></div><div class="activity-track"><span style="width:90%"></span></div><strong class="activity-value">90%</strong><span class="status status-waiting">Hampir</span></article>
                 <article class="activity-row"><div class="activity-name"><span class="activity-dot completed"></span><strong>Tilawah Harian</strong><small>25 dari target 25 kali</small></div><div class="activity-track"><span style="width:100%"></span></div><strong class="activity-value">100%</strong><span class="status status-done">Tuntas</span></article>
@@ -119,7 +119,7 @@
         </section>
 
         <section class="view" data-view-panel="lks">
-          <div class="page-intro"><div><p class="section-label">September 2026</p><h2>LKS Saya</h2><p>Catat amalan harian dan lihat capaian periode secara utuh.</p></div><div class="score-box"><span>Nilai sementara</span><strong>88,6%</strong><small>Belum tuntas</small></div></div>
+          <div class="page-intro"><div><p class="section-label">September 2026</p><h2>Aktivitas Ibadah Saya</h2><p>Catat amalan harian dan lihat capaian periode secara utuh.</p></div><div class="score-box"><span>Nilai sementara</span><strong>88,6%</strong><small>Belum tuntas</small></div></div>
           <div class="lks-grid"><section class="date-rail"><p class="section-label">Pilih tanggal</p><div class="date-scroller"><button class="date-chip"><span>Jum</span><strong>25</strong></button><button class="date-chip"><span>Sab</span><strong>26</strong></button><button class="date-chip"><span>Min</span><strong>27</strong></button><button class="date-chip is-today"><span>Sen</span><strong>28</strong><i>Hari ini</i></button><button class="date-chip"><span>Sel</span><strong>29</strong></button><button class="date-chip"><span>Rab</span><strong>30</strong></button></div></section>
             <section class="full-checklist"><div class="section-head"><div><p class="section-label" id="full-checklist-date">Senin, 28 September</p><h2>Catatan hari ini</h2></div><span class="save-state" role="status" aria-live="polite"><i></i><span class="save-state-message">Tersimpan</span></span></div><div class="checklist-groups" id="full-checklist"><div class="checklist-item is-done"><button class="square-check" aria-pressed="true"><svg><use href="#icon-check"/></svg></button><div><strong>Absen Subuh</strong><small>Rutinitas pagi</small></div><span class="item-note">Dicatat</span></div><div class="checklist-item is-done"><button class="square-check" aria-pressed="true"><svg><use href="#icon-check"/></svg></button><div><strong>Shalawat Munjiyat</strong><small>Rutinitas pagi</small></div><span class="item-note">Dicatat</span></div><div class="checklist-item"><button class="square-check" aria-pressed="false"><svg><use href="#icon-check"/></svg></button><div><strong>Shalat Tepat Waktu di Jam Kerja</strong><small>Amalan harian</small></div><span class="item-note">Belum dicatat</span></div><div class="checklist-item"><button class="square-check" aria-pressed="false"><svg><use href="#icon-check"/></svg></button><div><strong>Dzikir Pagi Petang</strong><small>Amalan harian</small></div><span class="item-note">Belum dicatat</span></div><div class="checklist-item"><button class="square-check" aria-pressed="false"><svg><use href="#icon-check"/></svg></button><div><strong>Tilawah Harian</strong><small>Amalan harian</small></div><span class="item-note">Belum dicatat</span></div><div class="checklist-item"><button class="square-check" aria-pressed="false"><svg><use href="#icon-check"/></svg></button><div><strong>Shalat Dhuha</strong><small>Amalan harian</small></div><span class="item-note">Belum dicatat</span></div></div></section>
             <aside class="period-summary"><p class="section-label">Ringkasan periode</p><h3>Masih ada ruang untuk bertumbuh.</h3><div class="summary-score"><strong>88,6%</strong><span>Nilai sementara</span></div><ul><li><span>3</span> amalan sudah tuntas</li><li><span>4</span> amalan masih berjalan</li><li><span>2</span> amalan mendekati target</li></ul><button class="text-action" data-go="history">Lihat riwayat <svg><use href="#icon-arrow"/></svg></button></aside></div>

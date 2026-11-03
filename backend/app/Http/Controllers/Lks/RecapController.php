@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Lks;
 
 use App\Http\Controllers\Controller;
+use App\Models\Department;
 use App\Models\LksPeriod;
 use App\Services\LksScoreCalculator;
 use Illuminate\Http\JsonResponse;
@@ -69,6 +70,13 @@ class RecapController extends Controller
     {
         abort_unless($request->user()?->isAdmin(), 403);
 
+        $departmentOptions = Department::query()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->map(fn (Department $department): array => ['id' => $department->getKey(), 'name' => $department->name])
+            ->values();
+
         $trends = LksPeriod::query()
             ->whereIn('status', ['active', 'closed'])
             ->orderBy('start_date')
@@ -95,7 +103,10 @@ class RecapController extends Controller
             })
             ->values();
 
-        return response()->json(['data' => $trends]);
+        return response()->json([
+            'data' => $trends,
+            'meta' => ['department_options' => $departmentOptions],
+        ]);
     }
 
     public function roleTrends(Request $request, LksScoreCalculator $calculator): JsonResponse

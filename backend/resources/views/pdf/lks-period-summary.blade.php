@@ -7,7 +7,7 @@
         * { box-sizing: border-box; }
         body { color: #17313a; font-family: DejaVu Sans, sans-serif; font-size: 8pt; line-height: 1.35; }
         h1, h2, h3, p { margin: 0; }
-        h1, h2, h3 { font-family: DejaVu Serif, serif; }
+        h1, h2, h3 { font-family: inherit; }
         .document-header { border-bottom: 1px solid #17313a; display: table; padding-bottom: 10px; width: 100%; }
         .document-header > div { display: table-cell; vertical-align: middle; }
         .brand-mark { width: 42px; }
@@ -18,7 +18,7 @@
         .summary { border-collapse: collapse; margin-top: 14px; width: 100%; }
         .summary td { border: 1px solid #c5d0c8; padding: 8px; text-align: center; width: 25%; }
         .summary span { color: #52646a; display: block; font-size: 7pt; }
-        .summary strong { display: block; font-family: DejaVu Serif, serif; font-size: 15pt; margin: 2px 0; }
+        .summary strong { display: block; font-family: inherit; font-size: 15pt; margin: 2px 0; }
         .section-title { border-bottom: 1px solid #c5d0c8; font-size: 12pt; margin: 18px 0 0; padding-bottom: 5px; }
         .department-table, .report-table { border-collapse: collapse; margin-top: 9px; width: 100%; }
         .department-table th, .report-table th { background: #edf3ee; color: #52646a; font-size: 6.5pt; padding: 6px 4px; text-align: left; }

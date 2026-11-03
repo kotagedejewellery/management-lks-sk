@@ -33,7 +33,8 @@ Pengelolaan spreadsheet membutuhkan rekap manual dan akan semakin sulit dikendal
 - Pengisian aktivitas harian.
 - Perhitungan capaian, nilai, dan status Tuntas/Belum Tuntas.
 - Rekap individu, Ikhwan, Akhwat, leader, dan departemen.
-- Grafik capaian spiritual departemen serta riwayat periode.
+- Grafik capaian spiritual departemen serta riwayat periode, dengan filter seluruh departemen aktif dan tren historis yang menandai periode tanpa peserta.
+- Rekomendasi capaian menggunakan bahasa suportif, berbasis nilai dan maksimal dua aktivitas prioritas. Jika seluruh batas minimum aktivitas terpenuhi tetapi ambang nilai akhir belum tercapai, dua aktivitas dengan capaian terendah tetap ditampilkan sebagai arahan. Rekomendasi tersimpan tetap saat periode ditutup.
 
 Sistem tidak mencakup proses di luar LKS.
 

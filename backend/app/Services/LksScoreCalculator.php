@@ -104,27 +104,34 @@ class LksScoreCalculator
         }
 
         if ($finalPercentage === 0.0) {
-            return 'Belum ada checklist. Mulai pencatatan hari ini dan fokus memenuhi batas minimal setiap aktivitas yang berlaku.';
+            return 'Belum ada checklist pada periode ini. Yuk mulai dari satu aktivitas yang paling mudah hari ini, lalu lanjutkan secara bertahap.';
         }
 
-        $priorities = $activities->where('status', 'belum_tuntas')->sortBy('percentage')->take(3)->pluck('name')->implode(', ');
+        $priorityActivities = $activities->where('status', 'belum_tuntas')->sortBy('percentage');
+        $allMinimumsMet = $priorityActivities->isEmpty();
+        if ($allMinimumsMet && $finalStatus !== 'tuntas') {
+            $priorityActivities = $activities->sortBy('percentage');
+        }
+        $priorities = $priorityActivities->take(2)->pluck('name')->implode(' dan ');
         if ($finalStatus !== 'tuntas') {
             $gap = $this->formatPercentage($passingThreshold - $finalPercentage);
             $score = $this->formatPercentage($finalPercentage);
             $threshold = $this->formatPercentage($passingThreshold);
 
-            return $priorities === ''
-                ? "Semua batas minimal aktivitas sudah terpenuhi, tetapi nilai Anda {$score}% masih {$gap} poin dari ambang {$threshold}%. Lanjutkan pencatatan untuk memperkuat capaian."
-                : "Nilai Anda {$score}% masih {$gap} poin dari ambang {$threshold}%. Prioritaskan: {$priorities}.";
+            return $allMinimumsMet
+                ? "Alhamdulillah, batas minimal seluruh aktivitas sudah terpenuhi. Nilai Anda {$score}% masih {$gap} poin menuju ambang {$threshold}%. Yuk tingkatkan {$priorities} secara bertahap."
+                : ($passingThreshold - $finalPercentage <= 10
+                    ? "Alhamdulillah, capaian Anda sudah {$score}%. Tinggal {$gap} poin lagi untuk mencapai ambang {$threshold}%. Yuk prioritaskan {$priorities}."
+                    : "Semangat, capaian Anda saat ini {$score}%. Masih ada {$gap} poin menuju ambang {$threshold}%. Mari fokus bertahap pada {$priorities}.");
         }
 
         if ($priorities !== '') {
-            return "Target periode sudah tercapai. Untuk menjaga konsistensi, tingkatkan: {$priorities}.";
+            return "Alhamdulillah, target periode sudah tercapai. Agar semakin konsisten, yuk tingkatkan {$priorities}.";
         }
 
         return $finalPercentage >= min($passingThreshold + 10, 100)
-            ? 'Capaian sangat baik dan konsisten. Pertahankan kebiasaan ini hingga periode berakhir.'
-            : 'Target periode tercapai. Pertahankan konsistensi pencatatan hingga periode berakhir.';
+            ? 'MasyaAllah, capaian Anda sangat baik. Pertahankan kebiasaan baik ini hingga periode berakhir.'
+            : 'Alhamdulillah, target periode sudah tercapai. Pertahankan konsistensi pencatatan hingga periode berakhir.';
     }
 
     private function formatPercentage(float $value): string

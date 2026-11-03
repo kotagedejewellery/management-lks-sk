@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "PRODUCT.md": {
-    "mtime": 1793237983.4839425,
-    "seen": 1793238052.5964668,
-    "ast_hash": "d0faf1568550435caaf24a0b846d96a3",
+    "mtime": 1793672798.6934657,
+    "seen": 1793672819.8751392,
+    "ast_hash": "e0410db6c9c11909d7690e5e7ecaefc8",
     "semantic_hash": ""
   },
   "docs/Architecture System.md": {
@@ -24,9 +24,9 @@
     "semantic_hash": ""
   },
   "docs/PRD.md": {
-    "mtime": 1793237983.4824917,
-    "seen": 1793238052.5965033,
-    "ast_hash": "f8b26373de365a0267b4fa0dac24f093",
+    "mtime": 1793672798.6963627,
+    "seen": 1793672819.8751585,
+    "ast_hash": "79dfafcfe4081f72fe8cf6603fef6b6c",
     "semantic_hash": ""
   },
   "docs/Tech Stack.md": {
@@ -384,15 +384,15 @@
     "semantic_hash": ""
   },
   "backend/resources/views/pages/auth/forgot-password.blade.php": {
-    "mtime": 1791530372.1342278,
-    "seen": 1791531760.891453,
-    "ast_hash": "0fa4a7c5672ac09ef28aed23ad9adb59",
+    "mtime": 1793668683.04682,
+    "seen": 1793668735.983041,
+    "ast_hash": "dde9fcde9bc0eeb6635ebdcf7fd88f89",
     "semantic_hash": ""
   },
   "backend/resources/views/pages/auth/login.blade.php": {
-    "mtime": 1791531882.8078249,
-    "seen": 1791531947.5912666,
-    "ast_hash": "2f5906db28585304dd6f460fa15c7cf1",
+    "mtime": 1793668683.033342,
+    "seen": 1793668735.9830458,
+    "ast_hash": "e124a97ae9c6231b5d72aec69208ceb2",
     "semantic_hash": ""
   },
   "backend/resources/views/pages/auth/register.blade.php": {
@@ -402,9 +402,9 @@
     "semantic_hash": ""
   },
   "backend/resources/views/pages/auth/reset-password.blade.php": {
-    "mtime": 1791530517.6838605,
-    "seen": 1791531760.8914623,
-    "ast_hash": "91a4a6c6323517d49fb0dcdd730c3c05",
+    "mtime": 1793668683.0488372,
+    "seen": 1793668735.9830544,
+    "ast_hash": "edd8b651d4f777d43ba6e7b69fafb542",
     "semantic_hash": ""
   },
   "backend/resources/views/pages/auth/two-factor-challenge.blade.php": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1793239167.6901686,
-    "seen": 1793239227.4490006,
-    "ast_hash": "b56c86c277b48ab54064f655ba6cb3ef",
+    "mtime": 1793671096.042952,
+    "seen": 1793671109.5065715,
+    "ast_hash": "6a0ef137bc102d9bd13815299f3ad0d7",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -576,9 +576,9 @@
     "semantic_hash": ""
   },
   "frontend/index.html": {
-    "mtime": 1792122244.6547863,
-    "seen": 1792122349.3793504,
-    "ast_hash": "afefeb390f1398f9741d231d2550d539",
+    "mtime": 1793668683.0213573,
+    "seen": 1793668735.98335,
+    "ast_hash": "958a4746fab541421815287fc51ee5ba",
     "semantic_hash": ""
   },
   "backend/public/apple-touch-icon.png": {
@@ -648,9 +648,9 @@
     "semantic_hash": ""
   },
   "frontend/login.html": {
-    "mtime": 1790584628.057171,
-    "seen": 1790584667.816537,
-    "ast_hash": "c8baa7ca25d7ba6eabfff00374d2fcab",
+    "mtime": 1793668683.028455,
+    "seen": 1793668735.9833548,
+    "ast_hash": "febc38bb0586356a82171932783b38e8",
     "semantic_hash": ""
   },
   "compose.yml": {
@@ -822,15 +822,15 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/RecapController.php": {
-    "mtime": 1792134628.0001316,
-    "seen": 1792135346.3654602,
-    "ast_hash": "aad3f0a22554d8626ecebc09ce2f55f4",
+    "mtime": 1793670455.1848822,
+    "seen": 1793670493.0068276,
+    "ast_hash": "1268a69c27b0cdea16491de422bae18e",
     "semantic_hash": ""
   },
   "backend/app/Services/LksScoreCalculator.php": {
-    "mtime": 1793237718.4236183,
-    "seen": 1793238052.5961144,
-    "ast_hash": "7c305297eb355b83c46817fab2dee611",
+    "mtime": 1793672753.968652,
+    "seen": 1793672819.8748157,
+    "ast_hash": "b1ca9380b37a5c1ed796d922de05a1f1",
     "semantic_hash": ""
   },
   ".impeccable/critique/2026-09-29T06-52-35Z__frontend-index-html.md": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1793239167.6927347,
-    "seen": 1793239227.4489675,
-    "ast_hash": "437ef72b366b83f9af88f74ef72b9415",
+    "mtime": 1793672736.6720607,
+    "seen": 1793672819.875111,
+    "ast_hash": "b03d1994781d74733d0ec8168d8f5409",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {
@@ -972,15 +972,15 @@
     "semantic_hash": ""
   },
   "backend/resources/views/pdf/lks-individual.blade.php": {
-    "mtime": 1792144442.1924174,
-    "seen": 1792144466.1233037,
-    "ast_hash": "36bb1f6b9b356555adc739cf480ecdc1",
+    "mtime": 1793668683.0646832,
+    "seen": 1793668735.9831314,
+    "ast_hash": "b9a40417600bfb55f0e18780bfb3291b",
     "semantic_hash": ""
   },
   "backend/resources/views/pdf/lks-period-summary.blade.php": {
-    "mtime": 1792136735.9514153,
-    "seen": 1792136842.2990584,
-    "ast_hash": "378460d8498d5ca7e8df474c37ff2e64",
+    "mtime": 1793668683.07191,
+    "seen": 1793668735.9831367,
+    "ast_hash": "dca16ab225a79ca1b0864e70559d25bc",
     "semantic_hash": ""
   },
   "docs/PDF Export LKS.md": {
@@ -1074,9 +1074,9 @@
     "semantic_hash": ""
   },
   "backend/resources/views/lks/document-verification.blade.php": {
-    "mtime": 1792047404.490213,
-    "seen": 1792048307.1637971,
-    "ast_hash": "d017c3b2d958eb3ed14e262e022243b7",
+    "mtime": 1793668683.0528631,
+    "seen": 1793668735.9830236,
+    "ast_hash": "f1e2cf18d5ca7a64d923b877a12c4113",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_15_000002_remove_legacy_signature_uploads.php": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1793239167.6947587,
-    "seen": 1793239227.4490187,
-    "ast_hash": "2823e0539a3241e9b12e287b235f5606",
+    "mtime": 1793672798.6985195,
+    "seen": 1793672819.8751378,
+    "ast_hash": "31c4c95ffbc5a94e64aa02e235994acb",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_16_000001_add_recording_enabled_to_lks_periods_table.php": {

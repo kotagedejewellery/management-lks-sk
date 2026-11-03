@@ -7,7 +7,7 @@
         * { box-sizing: border-box; }
         body { color: #18333a; font-family: DejaVu Sans, sans-serif; font-size: 8.3pt; line-height: 1.3; }
         h1, h2, p { margin: 0; }
-        h1, h2 { font-family: DejaVu Serif, serif; }
+        h1, h2 { font-family: inherit; }
         .document-header { border-bottom: 1px solid #6e8278; display: table; min-height: 86px; padding-bottom: 7px; width: 100%; }
         .brand-mark, .document-title { display: table-cell; vertical-align: middle; }
         .brand-mark { width: 88px; }
@@ -26,7 +26,7 @@
         .summary { border-collapse: separate; border-spacing: 6px 0; margin: 18px -6px 0; width: calc(100% + 12px); }
         .summary td { border: 1px solid #c7d4c8; padding: 7px 6px; text-align: center; width: 25%; }
         .summary span { color: #5a706d; display: block; font-size: 6.6pt; }
-        .summary strong { display: block; font-family: DejaVu Serif, serif; font-size: 12.5pt; line-height: 1.1; margin: 1px 0; }
+        .summary strong { display: block; font-family: inherit; font-size: 12.5pt; line-height: 1.1; margin: 1px 0; }
         .section-title { border-bottom: 1px solid #c7d4c8; font-size: 11.5pt; margin: 17px 0 0; padding-bottom: 4px; }
         .summary + .section-title { margin-top: 24px; }
         .activity-table { border-collapse: collapse; margin-top: 6px; width: 100%; }
