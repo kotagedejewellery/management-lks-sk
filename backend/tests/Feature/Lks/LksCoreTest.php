@@ -328,6 +328,22 @@ class LksCoreTest extends TestCase
             ->assertJsonPath('data.activities.0.minimum_target_count', 11);
     }
 
+    public function test_dashboard_returns_an_empty_participant_payload_when_santri_is_not_enrolled_in_the_active_period(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active']);
+        $this->periodActivity($period, 1);
+
+        $this->actingAs($santri)
+            ->getJson(route('api.lks.dashboard', ['date' => now()->toDateString()]))
+            ->assertOk()
+            ->assertJsonPath('data.participant', null)
+            ->assertJsonPath('data.activities.0.max_per_week', null)
+            ->assertJsonPath('data.activities.0.menstruation_exempt', false)
+            ->assertJsonPath('data.activities.0.allowed_weekdays', []);
+    }
+
     public function test_puasa_senin_kamis_master_rule_applies_to_both_levels_once_per_week(): void
     {
         $activity = LksActivity::query()->where('code', 'PUASA_SENIN_KAMIS')->firstOrFail();

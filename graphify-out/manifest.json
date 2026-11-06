@@ -774,9 +774,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/DashboardController.php": {
-    "mtime": 1793956117.7288897,
-    "seen": 1793956970.006985,
-    "ast_hash": "b09d5e0706bc9ea4ea5d8990e9679578",
+    "mtime": 1793959662.7222948,
+    "seen": 1793959753.2902524,
+    "ast_hash": "472fa2a8b4026f80e5c5faaaf4d65c69",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodController.php": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1793958654.081561,
-    "seen": 1793958722.6757932,
-    "ast_hash": "c74d2a34b23b2581d9453e920ca7a09a",
+    "mtime": 1793959571.3769422,
+    "seen": 1793959753.2905855,
+    "ast_hash": "94644a7c9897e704853818d575dc233e",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {

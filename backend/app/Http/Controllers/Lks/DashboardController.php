@@ -108,6 +108,9 @@ class DashboardController extends Controller
             ->map(function ($activity) use ($participant, $calculator, $period, $holidayDates, $holiday, $recordedDatesByActivity, $isDispensationDate): array {
                 $checklist = $participant?->checklists->firstWhere('period_activity_id', $activity->getKey());
                 $rule = $calculator->effectiveTargets($activity, $period, $holidayDates, $participant);
+                $maxPerWeek = $participant === null ? null : $activity->maxPerWeekFor($participant);
+                $menstruationExempt = $participant !== null && $activity->menstruationExemptFor($participant);
+                $allowedWeekdays = $participant === null ? [] : $activity->allowedWeekdaysFor($participant);
 
                 return [
                     'id' => $activity->getKey(),
@@ -116,14 +119,14 @@ class DashboardController extends Controller
                     'target_count' => $rule['target_count'],
                     'minimum_target_count' => $rule['minimum_target_count'],
                     'lks_category' => $rule['category'],
-                    'max_per_week' => $activity->maxPerWeekFor($participant),
-                    'menstruation_exempt' => $activity->menstruationExemptFor($participant),
+                    'max_per_week' => $maxPerWeek,
+                    'menstruation_exempt' => $menstruationExempt,
                     'is_completed' => $checklist?->is_completed ?? false,
                     'recorded_dates' => $recordedDatesByActivity->get($activity->getKey(), []),
-                    'allowed_weekdays' => $activity->allowedWeekdaysFor($participant),
+                    'allowed_weekdays' => $allowedWeekdays,
                     'is_optional_today' => $holiday !== null,
                     'holiday_name' => $holiday?->name,
-                    'is_dispensation_today' => $isDispensationDate && $activity->menstruationExemptFor($participant),
+                    'is_dispensation_today' => $isDispensationDate && $menstruationExempt,
                 ];
             })
             ->filter(fn (array $activity): bool => $activity['target_count'] > 0 || $activity['is_dispensation_today'])
