@@ -81,6 +81,7 @@ class DashboardController extends Controller
         }
         $participant?->load([
             'checklists' => fn ($query) => $query->whereDate('checklist_date', $selectedDate),
+            'menstruationDispensations',
         ]);
         $recordedDatesByActivity = $participant === null
             ? collect()
@@ -96,6 +97,8 @@ class DashboardController extends Controller
                 ->map(fn ($checklists) => $checklists->pluck('checklist_date')->map->toDateString()->values()->all());
         $holiday = $period->holidaySnapshots()->whereDate('holiday_date', $selectedDate)->first();
         $holidayDates = $calculator->periodHolidayDates($period);
+        $isDispensationDate = $participant?->gender_snapshot === 'akhwat'
+            && $participant->menstruationDispensations->contains(fn ($dispensation): bool => $selectedDate->betweenIncluded($dispensation->start_date, $dispensation->end_date));
 
         $activities = $period->periodActivities()
             ->where('is_active', true)
@@ -103,7 +106,7 @@ class DashboardController extends Controller
             ->get()
             ->filter(fn ($activity) => ($participant === null || $activity->appliesTo($participant))
                 && ($activity->allowedWeekdays() === [] || in_array($selectedDate->isoWeekday(), $activity->allowedWeekdays(), true)))
-            ->map(function ($activity) use ($participant, $calculator, $period, $holidayDates, $holiday, $recordedDatesByActivity): array {
+            ->map(function ($activity) use ($participant, $calculator, $period, $holidayDates, $holiday, $recordedDatesByActivity, $isDispensationDate): array {
                 $checklist = $participant?->checklists->firstWhere('period_activity_id', $activity->getKey());
                 $rule = $calculator->effectiveTargets($activity, $period, $holidayDates, $participant);
 
@@ -115,14 +118,16 @@ class DashboardController extends Controller
                     'minimum_target_count' => $rule['minimum_target_count'],
                     'lks_category' => $rule['category'],
                     'max_per_week' => $activity->max_per_week,
+                    'menstruation_exempt' => $activity->menstruation_exempt,
                     'is_completed' => $checklist?->is_completed ?? false,
                     'recorded_dates' => $recordedDatesByActivity->get($activity->getKey(), []),
                     'allowed_weekdays' => $activity->allowedWeekdays(),
                     'is_optional_today' => $holiday !== null,
                     'holiday_name' => $holiday?->name,
+                    'is_dispensation_today' => $isDispensationDate && $activity->menstruation_exempt,
                 ];
             })
-            ->filter(fn (array $activity): bool => $activity['target_count'] > 0)
+            ->filter(fn (array $activity): bool => $activity['target_count'] > 0 || $activity['is_dispensation_today'])
             ->values();
 
         return response()->json(['data' => [
@@ -151,6 +156,15 @@ class DashboardController extends Controller
                 'id' => $participant->getKey(),
                 'participation_start_date' => $participant->participation_start_date->toDateString(),
                 'category' => $participant->category_snapshot === 'magang' ? 'magang' : 'regular',
+                'gender' => $participant->gender_snapshot,
+                'menstruation_dispensations' => $participant->menstruationDispensations
+                    ->sortBy('start_date')
+                    ->map(fn ($dispensation): array => [
+                        'id' => $dispensation->getKey(),
+                        'start_date' => $dispensation->start_date->toDateString(),
+                        'end_date' => $dispensation->end_date->toDateString(),
+                    ])
+                    ->values(),
             ],
             'personal_summary' => $participant === null ? null : $calculator->calculate($participant),
             'activities' => $activities,

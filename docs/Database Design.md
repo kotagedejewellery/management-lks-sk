@@ -162,6 +162,7 @@ Master katalog aktivitas yang dapat digunakan kembali.
 | `default_max_per_week` | smallint | nullable; batas pencatatan per minggu |
 | `default_allowed_weekdays` | smallint[] | nullable; 1–7 untuk pembatasan hari |
 | `default_applicable_genders`, `default_applicable_levels` | varchar(10)[] | nullable; sasaran aktivitas |
+| `default_menstruation_exempt` | boolean | default `false`; nilai awal aturan dispensasi pada periode draft baru |
 | `is_active` | boolean | default `true` |
 | `sort_order` | smallint | default `0` |
 | `created_at`, `updated_at` | timestamptz | wajib |
@@ -184,6 +185,7 @@ Snapshot konfigurasi aktivitas untuk satu periode.
 | `applicable_genders`, `applicable_levels` | varchar(10)[] | nullable; sasaran aktivitas snapshot |
 | `weight` | numeric(8,2) | default `1.00`, > 0 |
 | `allowed_weekdays` | smallint[] | nullable; 1–7 untuk pembatasan hari, misalnya Kamis |
+| `menstruation_exempt` | boolean | default `false`; tanggal dispensasi Akhwat mengurangi hari layak aktivitas ini |
 | `is_active` | boolean | default `true` |
 | `sort_order` | smallint | default `0` |
 | `created_at`, `updated_at` | timestamptz | wajib |
@@ -236,7 +238,21 @@ Constraint unik: `period_participant_id, period_activity_id, checklist_date`.
 
 Validasi aplikasi wajib memastikan tanggal berada dalam rentang periode, aktivitas milik periode yang sama, aktivitas aktif, serta hari pengisian sesuai `allowed_weekdays` apabila dikonfigurasi.
 
-### 6.3 `audit_logs`
+### 6.3 `period_menstruation_dispensations`
+
+Rentang dispensasi privat untuk satu peserta Akhwat pada periode aktif.
+
+| Kolom | Tipe | Aturan |
+|---|---|---|
+| `id` | uuid | PK |
+| `period_participant_id` | uuid | FK → `period_participant_snapshots.id` |
+| `start_date`, `end_date` | date | berada dalam masa partisipasi dan tidak melewati hari ini |
+| `recorded_by_user_id` | uuid | FK → `users.id` |
+| `created_at` | timestamptz | wajib |
+
+Kombinasi peserta dan rentang unik. Validasi aplikasi menolak rentang yang tumpang tindih; kalkulator tetap menghapus duplikasi tanggal secara defensif agar data historis yang tidak sempurna tidak pernah mengurangi target dua kali.
+
+### 6.4 `audit_logs`
 
 Jejak perubahan yang berdampak pada integritas data.
 
@@ -259,6 +275,11 @@ Perhitungan dilakukan dalam `LksScoreCalculator` dan tidak ditulis ulang pada co
 
 ```text
 completed_count(activity) = jumlah checklist dengan is_completed = true
+
+untuk activity.menstruation_exempt pada peserta Akhwat:
+  hari_layak = hari terjadwal - hari_libur - tanggal_dispensasi_unik
+  target_efektif dan minimum_efektif diprorata menurut hari_layak
+  checklist pada tanggal dispensasi tidak dihitung
 
 activity_percentage = min(completed_count / target_count, 1) × 100
 

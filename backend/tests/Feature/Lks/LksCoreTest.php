@@ -4,6 +4,7 @@ namespace Tests\Feature\Lks;
 
 use App\Models\Department;
 use App\Models\DocumentSignatory;
+use App\Models\AuditLog;
 use App\Models\LksActivity;
 use App\Models\LksDocumentVerification;
 use App\Models\LksChecklist;
@@ -17,6 +18,7 @@ use App\Models\Team;
 use App\Models\User;
 use App\Services\LksScoreCalculator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
@@ -432,6 +434,7 @@ class LksCoreTest extends TestCase
                 'name' => 'Anggota Baru',
                 'email' => 'anggota-baru@example.test',
                 'temporary_password' => 'passwordsementara123',
+                'temporary_password_confirmation' => 'passwordsementara123',
                 'gender' => 'akhwat',
                 'team_id' => $team->id,
                 'level' => 'staff',
@@ -447,6 +450,71 @@ class LksCoreTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_reset_an_active_santri_password_without_auditing_the_secret(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri', ['password' => 'passwordlama123']);
+        $department = Department::query()->create(['code' => 'OPS', 'name' => 'Operasional', 'is_active' => true]);
+        $team = Team::query()->create(['department_id' => $department->id, 'code' => 'OPS-1', 'name' => 'Operasional Satu', 'is_active' => true]);
+        $profile = SantriProfile::query()->create(['user_id' => $santri->id, 'gender' => 'ikhwan', 'department_id' => $department->id, 'team_id' => $team->id, 'level' => 'staff', 'status' => 'active']);
+        DB::table('sessions')->insert(['id' => 'santri-session', 'user_id' => $santri->id, 'ip_address' => '127.0.0.1', 'user_agent' => 'PHPUnit', 'payload' => 'test', 'last_activity' => now()->timestamp]);
+
+        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
+            ->patchJson(route('api.lks.admin.santri.password.reset', $profile), [
+                'password' => 'passwordbaru123',
+                'password_confirmation' => 'passwordbaru123',
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.must_change_password', true);
+
+        $santri->refresh();
+        $this->assertTrue(Hash::check('passwordbaru123', $santri->password));
+        $this->assertTrue($santri->must_change_password);
+        $audit = AuditLog::query()->where('event', 'santri.password_reset')->sole();
+        $this->assertSame($admin->id, $audit->actor_user_id);
+        $this->assertSame($profile->getKey(), $audit->auditable_id);
+        $this->assertSame(['must_change_password' => false], $audit->before_data);
+        $this->assertSame(['must_change_password' => true], $audit->after_data);
+        $this->assertDatabaseMissing('sessions', ['id' => 'santri-session']);
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.admin.organization.index'))
+            ->assertOk()
+            ->assertJsonPath('data.santri.0.last_password_reset.actor_name', $admin->name);
+    }
+
+    public function test_non_admin_and_inactive_santri_cannot_reset_a_santri_password(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $actor = $this->userWithRole('santri');
+        $santri = $this->userWithRole('santri', ['password' => 'passwordlama123', 'is_active' => false]);
+        $department = Department::query()->create(['code' => 'OPS', 'name' => 'Operasional', 'is_active' => true]);
+        $team = Team::query()->create(['department_id' => $department->id, 'code' => 'OPS-1', 'name' => 'Operasional Satu', 'is_active' => true]);
+        $profile = SantriProfile::query()->create(['user_id' => $santri->id, 'gender' => 'ikhwan', 'department_id' => $department->id, 'team_id' => $team->id, 'level' => 'staff', 'status' => 'inactive']);
+
+        $this->actingAs($actor)
+            ->patchJson(route('api.lks.admin.santri.password.reset', $profile), ['password' => 'passwordbaru123', 'password_confirmation' => 'passwordbaru123'])
+            ->assertForbidden();
+
+        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
+            ->patchJson(route('api.lks.admin.santri.password.reset', $profile), ['password' => 'passwordbaru123', 'password_confirmation' => 'berbeda123'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('password');
+
+        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
+            ->patchJson(route('api.lks.admin.santri.password.reset', $profile), ['password' => 'passwordbaru123', 'password_confirmation' => 'passwordbaru123'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('santri');
+
+        $profile->update(['status' => 'active']);
+        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
+            ->patchJson(route('api.lks.admin.santri.password.reset', $profile), ['password' => 'passwordbaru123', 'password_confirmation' => 'passwordbaru123'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('santri');
+
+        $this->assertTrue(Hash::check('passwordlama123', $santri->fresh()->password));
+    }
+
     public function test_admin_cannot_create_magang_leader(): void
     {
         $admin = $this->userWithRole('admin');
@@ -458,6 +526,7 @@ class LksCoreTest extends TestCase
                 'name' => 'Magang Leader',
                 'email' => 'magang-leader@example.test',
                 'temporary_password' => 'passwordsementara123',
+                'temporary_password_confirmation' => 'passwordsementara123',
                 'gender' => 'ikhwan',
                 'team_id' => $team->id,
                 'category' => 'magang',
@@ -619,11 +688,190 @@ class LksCoreTest extends TestCase
         $this->actingAs($actor)
             ->putJson(route('api.lks.checklists.store'), [
                 'period_activity_id' => $activity->id,
+                'checklist_date' => now()->toDateString(),
+                'is_completed' => false,
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.is_completed', false);
+
+        $this->actingAs($actor)
+            ->putJson(route('api.lks.checklists.store'), [
+                'period_activity_id' => $activity->id,
+                'checklist_date' => now()->toDateString(),
+                'is_completed' => true,
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.is_completed', true);
+
+        $this->actingAs($actor)
+            ->putJson(route('api.lks.checklists.store'), [
+                'period_activity_id' => $activity->id,
                 'participant_id' => $otherParticipant->id,
                 'checklist_date' => now()->toDateString(),
                 'is_completed' => true,
             ])
             ->assertForbidden();
+    }
+
+    public function test_magang_can_toggle_own_checklist(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $magang = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active']);
+        $activity = $this->periodActivity($period, 1);
+        $participant = $this->participant($period, $magang);
+        $participant->update(['category_snapshot' => 'magang']);
+
+        foreach ([true, false, true] as $isCompleted) {
+            $this->actingAs($magang)
+                ->putJson(route('api.lks.checklists.store'), [
+                    'period_activity_id' => $activity->id,
+                    'checklist_date' => now()->toDateString(),
+                    'is_completed' => $isCompleted,
+                ])
+                ->assertOk()
+                ->assertJsonPath('data.is_completed', $isCompleted);
+        }
+
+        $this->assertDatabaseHas('lks_checklists', [
+            'period_participant_id' => $participant->id,
+            'period_activity_id' => $activity->id,
+            'is_completed' => true,
+        ]);
+    }
+
+    public function test_akhwat_can_record_a_dispensation_that_blocks_only_exempt_checklists(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $akhwat = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active']);
+        $exemptActivity = $this->periodActivity($period, 4);
+        $exemptActivity->update(['menstruation_exempt' => true]);
+        $regularActivity = $this->periodActivity($period, 4);
+        $participant = $this->participant($period, $akhwat);
+        $participant->update(['gender_snapshot' => 'akhwat']);
+
+        $this->actingAs($akhwat)
+            ->postJson(route('api.lks.menstruation-dispensations.store'), [
+                'start_date' => now()->toDateString(),
+                'end_date' => now()->toDateString(),
+            ])
+            ->assertCreated()
+            ->assertJsonPath('data.start_date', now()->toDateString());
+
+        $this->actingAs($akhwat)
+            ->putJson(route('api.lks.checklists.store'), [
+                'period_activity_id' => $exemptActivity->id,
+                'checklist_date' => now()->toDateString(),
+                'is_completed' => true,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('checklist_date');
+
+        $this->actingAs($akhwat)
+            ->putJson(route('api.lks.checklists.store'), [
+                'period_activity_id' => $regularActivity->id,
+                'checklist_date' => now()->toDateString(),
+                'is_completed' => true,
+            ])
+            ->assertOk();
+
+        $this->actingAs($akhwat)
+            ->getJson(route('api.lks.dashboard', ['date' => now()->toDateString()]))
+            ->assertOk()
+            ->assertJsonPath('data.activities.0.is_dispensation_today', true);
+    }
+
+    public function test_ikhwan_cannot_record_a_menstruation_dispensation(): void
+    {
+        $ikhwan = $this->userWithRole('santri');
+        $period = $this->period($ikhwan, ['status' => 'active']);
+        $this->participant($period, $ikhwan);
+
+        $this->actingAs($ikhwan)
+            ->postJson(route('api.lks.menstruation-dispensations.store'), [
+                'start_date' => now()->toDateString(),
+                'end_date' => now()->toDateString(),
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('dispensation');
+    }
+
+    public function test_existing_checklist_on_a_later_dispensation_date_is_excluded_from_the_score(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $akhwat = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active']);
+        $activity = $this->periodActivity($period, 4);
+        $activity->update(['menstruation_exempt' => true]);
+        $participant = $this->participant($period, $akhwat);
+        $participant->update(['gender_snapshot' => 'akhwat']);
+        $this->checklist($participant, $activity, $akhwat, now()->toDateString());
+
+        $this->actingAs($akhwat)
+            ->postJson(route('api.lks.menstruation-dispensations.store'), [
+                'start_date' => now()->toDateString(),
+                'end_date' => now()->toDateString(),
+            ])
+            ->assertCreated();
+
+        $score = app(LksScoreCalculator::class)->calculate($participant->fresh());
+
+        $this->assertSame(0, $score['activities'][0]['completed_count']);
+        $this->assertDatabaseHas('lks_checklists', ['period_participant_id' => $participant->id, 'period_activity_id' => $activity->id, 'is_completed' => true]);
+    }
+
+    public function test_akhwat_cannot_create_overlapping_dispensation_ranges(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $akhwat = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active']);
+        $participant = $this->participant($period, $akhwat);
+        $participant->update(['gender_snapshot' => 'akhwat']);
+
+        $this->actingAs($akhwat)
+            ->postJson(route('api.lks.menstruation-dispensations.store'), [
+                'start_date' => now()->toDateString(),
+                'end_date' => now()->toDateString(),
+            ])
+            ->assertCreated();
+
+        $this->actingAs($akhwat)
+            ->postJson(route('api.lks.menstruation-dispensations.store'), [
+                'start_date' => now()->subDay()->toDateString(),
+                'end_date' => now()->toDateString(),
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('start_date');
+    }
+
+    public function test_admin_dispensation_correction_requires_a_reason_for_create_and_delete(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $akhwat = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active']);
+        $participant = $this->participant($period, $akhwat);
+        $participant->update(['gender_snapshot' => 'akhwat']);
+        $payload = ['start_date' => now()->toDateString(), 'end_date' => now()->toDateString()];
+
+        $this->actingAs($admin)
+            ->postJson(route('api.lks.admin.participants.menstruation-dispensations.store', [$period, $participant]), $payload)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('reason');
+
+        $response = $this->actingAs($admin)
+            ->postJson(route('api.lks.admin.participants.menstruation-dispensations.store', [$period, $participant]), $payload + ['reason' => 'Koreksi data peserta'])
+            ->assertCreated();
+
+        $dispensation = $response->json('data.id');
+        $this->actingAs($admin)
+            ->deleteJson(route('api.lks.admin.participants.menstruation-dispensations.destroy', [$period, $participant, $dispensation]))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('reason');
+
+        $this->actingAs($admin)
+            ->deleteJson(route('api.lks.admin.participants.menstruation-dispensations.destroy', [$period, $participant, $dispensation]), ['reason' => 'Rentang dicatat keliru'])
+            ->assertNoContent();
     }
 
     public function test_santri_can_bulk_record_personal_checklists_and_existing_dates_are_skipped(): void
@@ -1117,6 +1365,77 @@ class LksCoreTest extends TestCase
         $this->assertNotSame($older->id, $latest->id);
     }
 
+    public function test_recap_period_options_keep_active_and_closed_periods_available(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $closed = $this->period($admin, ['name' => 'Oktober 2026', 'status' => 'closed', 'end_date' => now()->subMonth()->toDateString()]);
+        $active = $this->period($admin, ['name' => 'November 2026', 'status' => 'active']);
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.recap'))
+            ->assertOk()
+            ->assertJsonPath('data.period.id', $active->id)
+            ->assertJsonPath('data.periods.0.id', $active->id)
+            ->assertJsonPath('data.periods.1.id', $closed->id);
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.recap', ['period_id' => $closed->id]))
+            ->assertOk()
+            ->assertJsonPath('data.period.id', $closed->id)
+            ->assertJsonPath('data.periods.0.id', $active->id)
+            ->assertJsonPath('data.periods.1.id', $closed->id);
+    }
+
+    public function test_leader_recap_period_options_follow_the_selected_scope(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $leader = $this->userWithRole('leader');
+        $member = $this->userWithRole('santri');
+        $teamActive = $this->period($admin, ['name' => 'Aktif Tim', 'status' => 'active']);
+        $teamClosed = $this->period($admin, ['name' => 'Riwayat Tim', 'status' => 'closed', 'end_date' => now()->subMonth()->toDateString()]);
+        $personalClosed = $this->period($admin, ['name' => 'Riwayat Pribadi', 'status' => 'closed', 'end_date' => now()->subMonths(2)->toDateString()]);
+        $otherClosed = $this->period($admin, ['name' => 'Riwayat Lain', 'status' => 'closed', 'end_date' => now()->subMonths(3)->toDateString()]);
+        $this->participant($teamActive, $member, $leader);
+        $this->participant($teamClosed, $member, $leader);
+        $this->participant($personalClosed, $leader);
+        $this->participant($otherClosed, $this->userWithRole('santri'));
+
+        $this->actingAs($leader)
+            ->getJson(route('api.lks.recap', ['scope' => 'team']))
+            ->assertOk()
+            ->assertJsonCount(2, 'data.periods')
+            ->assertJsonPath('data.periods.0.id', $teamActive->id)
+            ->assertJsonPath('data.periods.1.id', $teamClosed->id)
+            ->assertJsonMissing(['id' => $personalClosed->id]);
+
+        $this->actingAs($leader)
+            ->getJson(route('api.lks.recap', ['scope' => 'personal']))
+            ->assertOk()
+            ->assertJsonCount(1, 'data.periods')
+            ->assertJsonPath('data.periods.0.id', $personalClosed->id)
+            ->assertJsonMissing(['id' => $teamActive->id]);
+    }
+
+    public function test_santri_recap_period_options_only_include_own_periods(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $active = $this->period($admin, ['name' => 'Aktif Saya', 'status' => 'active']);
+        $closed = $this->period($admin, ['name' => 'Riwayat Saya', 'status' => 'closed', 'end_date' => now()->subMonth()->toDateString()]);
+        $otherClosed = $this->period($admin, ['name' => 'Riwayat Orang Lain', 'status' => 'closed', 'end_date' => now()->subMonths(2)->toDateString()]);
+        $this->participant($active, $santri);
+        $this->participant($closed, $santri);
+        $this->participant($otherClosed, $this->userWithRole('santri'));
+
+        $this->actingAs($santri)
+            ->getJson(route('api.lks.recap'))
+            ->assertOk()
+            ->assertJsonCount(2, 'data.periods')
+            ->assertJsonPath('data.periods.0.id', $active->id)
+            ->assertJsonPath('data.periods.1.id', $closed->id)
+            ->assertJsonMissing(['id' => $otherClosed->id]);
+    }
+
     public function test_admin_recap_trends_include_stable_leader_and_gender_groups(): void
     {
         $admin = $this->userWithRole('admin');
@@ -1134,6 +1453,52 @@ class LksCoreTest extends TestCase
             ->assertJsonPath('data.0.groups.gender.0.id', 'akhwat')
             ->assertJsonPath('data.0.groups.category.0.id', 'magang')
             ->assertJsonPath('meta.department_options.0.id', $department->id);
+    }
+
+    public function test_admin_recap_trends_return_only_the_latest_six_periods_in_chronological_order(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $periods = [];
+
+        foreach (range(1, 7) as $index) {
+            $periods[$index] = $this->period($admin, [
+                'name' => "Periode Tren {$index}",
+                'status' => 'closed',
+                'start_date' => now()->subMonths(8 - $index)->startOfMonth()->toDateString(),
+                'end_date' => now()->subMonths(8 - $index)->endOfMonth()->toDateString(),
+            ]);
+        }
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.department-trends'))
+            ->assertOk()
+            ->assertJsonCount(6, 'data')
+            ->assertJsonPath('data.0.period.id', $periods[2]->id)
+            ->assertJsonPath('data.5.period.id', $periods[7]->id)
+            ->assertJsonMissing(['id' => $periods[1]->id]);
+    }
+
+    public function test_admin_recap_trends_end_at_the_selected_report_period(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $periods = [];
+
+        foreach (range(1, 7) as $index) {
+            $periods[$index] = $this->period($admin, [
+                'name' => "Periode Pilihan {$index}",
+                'status' => 'closed',
+                'start_date' => now()->subMonths(8 - $index)->startOfMonth()->toDateString(),
+                'end_date' => now()->subMonths(8 - $index)->endOfMonth()->toDateString(),
+            ]);
+        }
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.department-trends', ['period_id' => $periods[6]->id]))
+            ->assertOk()
+            ->assertJsonCount(6, 'data')
+            ->assertJsonPath('data.0.period.id', $periods[1]->id)
+            ->assertJsonPath('data.5.period.id', $periods[6]->id)
+            ->assertJsonMissing(['id' => $periods[7]->id]);
     }
 
     public function test_role_trends_keep_leader_and_santri_scopes_separate(): void

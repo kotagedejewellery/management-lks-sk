@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Lks;
 
+use App\Concerns\PasswordValidationRules;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -11,6 +12,8 @@ use Illuminate\Validation\ValidationException;
 
 class AccountController extends Controller
 {
+    use PasswordValidationRules;
+
     public function show(Request $request): JsonResponse
     {
         $user = $request->user()->loadMissing('roles:id,code');
@@ -44,7 +47,7 @@ class AccountController extends Controller
         $user = $request->user();
         $data = $request->validate([
             'current_password' => ['required', 'string'],
-            'password' => ['required', 'string', 'min:8', 'max:255', 'confirmed'],
+            'password' => [...$this->passwordRules(), 'max:255'],
         ]);
 
         if (! Hash::check($data['current_password'], $user->password)) {

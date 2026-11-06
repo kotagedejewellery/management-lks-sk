@@ -47,7 +47,7 @@
         .manual-signature-space { border-bottom: 1px solid #18333a; width: 88%; }
         .signature-name { font-weight: bold; min-height: 15px; }
         .verification-strip { border-top: 1px solid #d9e1da; margin-top: 8px; padding-top: 7px; text-align: center; }
-        .verification-qr { display: inline-block; height: 48px; margin-right: 7px; vertical-align: middle; width: 48px; }
+        .signature-qr { display: block; height: 40px; margin: 5px auto 0; width: 40px; }
         .verification-copy { display: inline-block; text-align: left; vertical-align: middle; }
         .verification-copy strong { color: #16604c; display: block; font-size: 7pt; }
         .verification-copy span { color: #5a706d; display: block; font-size: 6.2pt; }
@@ -90,13 +90,13 @@
     <p class="signature-location">{{ $signatureDate }}</p>
     <section class="signature-grid">
         @foreach($signatories as $signatory)
-            <div><p class="signature-label">{{ $loop->first ? 'Disetujui oleh,' : 'Diketahui oleh,' }}</p><p class="signature-title">{{ $signatory['title'] }}</p><p class="signature-name">{{ $signatory['name'] }}</p></div>
+            <div><p class="signature-label">{{ $loop->first ? 'Disetujui oleh,' : 'Diketahui oleh,' }}</p><p class="signature-title">{{ $signatory['title'] }}</p><p class="signature-name">{{ $signatory['name'] }}</p>@if($verification && in_array($signatory['role'], ['general_manager', 'kabid_pengembangan_spiritual'], true))<img class="signature-qr" src="{{ $verificationQrDataUri }}" alt="QR verifikasi dokumen">@endif</div>
         @endforeach
         <div><p class="signature-label">Diterima oleh,</p><p class="signature-title">Santri Karya</p><div class="manual-signature-space"></div><p class="signature-name">{{ $report['name'] }}</p></div>
     </section>
 
     @if($verification)
-        <section class="verification-strip"><img class="verification-qr" src="{{ $verificationQrDataUri }}" alt="QR verifikasi dokumen"><span class="verification-copy"><strong>Dokumen ini Resmi &amp; Sah</strong><span>Scan QR untuk verifikasi · {{ $verification->document_code }}</span></span></section>
+        <section class="verification-strip"><span class="verification-copy"><strong>Dokumen ini Resmi &amp; Sah</strong><span>Scan QR di bawah nama pejabat untuk verifikasi · {{ $verification->document_code }}</span></span></section>
     @else
         <section class="verification-strip"><span class="verification-copy"><strong>Dokumen sementara</strong><span>QR verifikasi tersedia setelah periode ditutup.</span></span></section>
     @endif

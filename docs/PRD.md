@@ -61,6 +61,7 @@ Leader melihat hasil anggota yang berada di bawah tanggung jawabnya.
 Admin mengelola konfigurasi serta data utama sistem.
 
 - Mengelola data Santri Karya dan struktur organisasinya.
+- Mengatur ulang password sementara akun Santri Karya aktif untuk pemulihan akses; sesi akun yang lama berakhir, akun wajib menggantinya saat masuk kembali, dan setiap password baru mengikuti kebijakan keamanan sistem.
 - Mengelola periode, aktivitas, dan target LKS.
 - Melihat seluruh rekap dan laporan departemen.
 
@@ -108,11 +109,15 @@ Aktivitas awal yang dicatat:
 
 Admin dapat mengatur aktivitas aktif dan target pada tiap periode sesuai kebijakan LKS.
 
+Setiap aktivitas dapat ditandai sebagai berlaku untuk dispensasi menstruasi. Tanda tersebut merupakan aturan snapshot periode: Admin menentukannya pada default aktivitas untuk periode baru, lalu periode draft dapat menyimpan aturannya sebelum aktivasi.
+
 ## 8. Pengisian LKS harian
 
 Santri Karya membuka periode aktif. Sistem menampilkan daftar aktivitas menurut tanggal, lalu pengguna mencentang aktivitas yang sudah dilakukan. Checklist tersimpan menurut pengguna, aktivitas, tanggal, dan periode; data tersebut menjadi dasar semua perhitungan.
 
 Santri Karya yang ditambahkan setelah periode dimulai hanya dapat mencatat sejak tanggal partisipasi yang tersimpan pada periode. Target dan minimum targetnya dihitung prorata dari tanggal tersebut hingga akhir periode, berdasarkan hari aktivitas yang masih memenuhi jadwal dan bukan hari libur.
+
+Peserta Akhwat dapat mencatat rentang dispensasi menstruasi pada periode aktif. Rentang hanya boleh berada dalam masa partisipasi hingga hari ini dan tidak boleh tumpang tindih dengan rentang yang telah ada. Pada aktivitas yang dikonfigurasi berlaku, tanggal tersebut tidak dihitung sebagai hari layak maupun checklist selesai; aktivitas lain tetap berjalan normal. Catatan ini tidak ditampilkan pada rekap, Leader, atau PDF. Admin dapat mengoreksi catatan tersebut dengan alasan wajib yang tercatat pada audit.
 
 | Tanggal | Dhuha | Tahajud | Tilawah | Dzikir | Subuh |
 |---|---|---|---|---|---|
@@ -123,6 +128,8 @@ Santri Karya yang ditambahkan setelah periode dimulai hanya dapat mencatat sejak
 ## 9. Perhitungan capaian dan nilai
 
 Sistem membandingkan jumlah aktivitas yang selesai dengan target aktivitas.
+
+Untuk aktivitas yang berlaku dispensasi menstruasi, target dan minimum target dihitung ulang secara proporsional terhadap hari layak setelah hari libur, tanggal partisipasi, dan tanggal dispensasi dikeluarkan. Jika tidak tersisa hari layak, aktivitas itu tidak ikut membentuk nilai, bukan dinilai 0. Checklist yang sudah tersimpan pada tanggal dispensasi tetap tersimpan sebagai audit, tetapi tidak dihitung.
 
 Contoh: target Shalat Dhuha 20 kali dan capaian 18 kali menghasilkan capaian `18 / 20 × 100 = 90%`.
 
@@ -199,7 +206,7 @@ Admin membuat periode
 | ID | Kebutuhan |
 |---|---|
 | FR-01 | Pengguna dapat login dengan akun terdaftar. |
-| FR-02 | Admin dapat menambah, mengubah, menonaktifkan Santri Karya serta menetapkan tim, leader, dan departemen. |
+| FR-02 | Admin dapat menambah, mengubah, menonaktifkan, dan mengatur ulang password sementara Santri Karya aktif serta menetapkan tim, leader, dan departemen. |
 | FR-03 | Admin dapat membuat, mengatur tanggal, mengaktifkan, menjeda/melanjutkan pencatatan, dan menutup periode LKS. |
 | FR-04 | Admin dapat mengatur nama aktivitas, target, dan status aktif. |
 | FR-05 | Santri Karya dapat mencentang aktivitas berdasarkan tanggal. |
@@ -223,6 +230,7 @@ Admin membuat periode
 | BR-02 | Checklist Santri hanya dapat dilakukan pada periode aktif dengan pencatatan dibuka dan pada tanggal saat ini di dalam rentang periode; periode ditutup bersifat hanya-baca. |
 | BR-02a | Ambang nilai akhir periode mengikuti peserta: Leader memakai ambang Leader, Staff Reguler memakai ambang Staff Reguler, dan Staff Magang memakai ambang Staff Magang; default masing-masing 90%, 85%, dan 75%. Ambang yang sudah tersimpan pada periode tertutup tidak diubah oleh aturan kategori baru. |
 | BR-02b | Peserta yang masuk setelah periode dimulai tidak dapat mencatat sebelum `participation_start_date`; target dan minimum target aktivitasnya diprorata terhadap hari layak tersisa. Penambahan ditolak bila tidak ada hari aktivitas yang layak tersisa. Periode tertutup yang sudah ada mempertahankan perhitungan historisnya. |
+| BR-02c | Dispensasi menstruasi hanya dapat dicatat untuk Akhwat pada periode Aktif dan tanggal yang telah berlangsung. Rentang tidak boleh bertumpang tindih. Hanya aktivitas snapshot yang ditandai dapat memakai dispensasi; dispensasi tidak memberi nilai otomatis dan periode Ditutup tidak dapat diubah. Koreksi Admin wajib menyimpan alasan audit. |
 | BR-03 | Setiap aktivitas dapat memiliki target berbeda. |
 | BR-04 | Nilai dihitung otomatis dari checklist. |
 | BR-05 | Status aktivitas ditentukan oleh pencapaian target. |

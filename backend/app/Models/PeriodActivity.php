@@ -17,12 +17,12 @@ class PeriodActivity extends Model
         'period_id', 'activity_id', 'activity_code_snapshot', 'activity_name_snapshot',
         'target_count', 'minimum_target_count', 'magang_target_count', 'magang_minimum_target_count',
         'max_per_week', 'weight', 'allowed_weekdays',
-        'applicable_genders', 'applicable_levels', 'is_active', 'sort_order',
+        'applicable_genders', 'applicable_levels', 'menstruation_exempt', 'is_active', 'sort_order',
     ];
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean', 'weight' => 'decimal:2'];
+        return ['is_active' => 'boolean', 'menstruation_exempt' => 'boolean', 'weight' => 'decimal:2'];
     }
 
     /** @return BelongsTo<LksPeriod, $this> */

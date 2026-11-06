@@ -42,4 +42,10 @@ class PeriodParticipantSnapshot extends Model
     {
         return $this->hasMany(LksChecklist::class, 'period_participant_id');
     }
+
+    /** @return HasMany<PeriodMenstruationDispensation, $this> */
+    public function menstruationDispensations(): HasMany
+    {
+        return $this->hasMany(PeriodMenstruationDispensation::class, 'period_participant_id');
+    }
 }

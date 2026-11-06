@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\LksChecklist;
 use App\Models\LksPeriod;
+use App\Models\PeriodMenstruationDispensation;
 use App\Models\PeriodParticipantSnapshot;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Carbon;
@@ -13,7 +14,7 @@ class LksScoreCalculator
     /** @return array<string, mixed> */
     public function calculate(PeriodParticipantSnapshot $participant): array
     {
-        $participant->loadMissing('period');
+        $participant->loadMissing(['period', 'menstruationDispensations']);
         $activities = $participant->period->periodActivities()
             ->where('is_active', true)
             ->orderBy('sort_order')
@@ -21,8 +22,15 @@ class LksScoreCalculator
             ->filter(fn ($activity) => $activity->appliesTo($participant))
             ->values();
         $holidayDates = $this->periodHolidayDates($participant->period);
+        $dispensationDates = PeriodMenstruationDispensation::datesFor($participant);
         $effectiveTargets = $activities
-            ->mapWithKeys(fn ($activity): array => [$activity->getKey() => $this->effectiveTargets($activity, $participant->period, $holidayDates, $participant)])
+            ->mapWithKeys(fn ($activity): array => [$activity->getKey() => $this->effectiveTargets(
+                $activity,
+                $participant->period,
+                $holidayDates,
+                $participant,
+                $activity->menstruation_exempt ? $dispensationDates : [],
+            )])
             ->filter(fn (array $rule): bool => $rule['target_count'] > 0);
         $activities = $activities->filter(fn ($activity): bool => $effectiveTargets->has($activity->getKey()))->values();
         $completed = LksChecklist::query()
@@ -30,9 +38,13 @@ class LksScoreCalculator
             ->where('is_completed', true)
             ->whereIn('period_activity_id', $activities->modelKeys())
             ->when($holidayDates !== [], fn ($query) => $query->whereNotIn('checklist_date', $holidayDates))
-            ->groupBy('period_activity_id')
-            ->selectRaw('period_activity_id, count(*) as total')
-            ->pluck('total', 'period_activity_id');
+            ->get(['period_activity_id', 'checklist_date'])
+            ->reject(fn (LksChecklist $checklist): bool => in_array(
+                $checklist->checklist_date->toDateString(),
+                $activities->firstWhere('id', $checklist->period_activity_id)?->menstruation_exempt ? $dispensationDates : [],
+                true,
+            ))
+            ->countBy('period_activity_id');
 
         $totalWeight = 0.0;
         $weightedScore = 0.0;
@@ -142,7 +154,7 @@ class LksScoreCalculator
     /** @return Collection<int, array<string, mixed>> */
     public function calculatePeriod(LksPeriod $period, ?string $leaderUserId = null, ?string $userId = null): Collection
     {
-        $participants = $period->participants()->orderBy('participant_name_snapshot');
+        $participants = $period->participants()->with('menstruationDispensations')->orderBy('participant_name_snapshot');
         if ($leaderUserId !== null) {
             $participants
                 ->where('leader_user_id_snapshot', $leaderUserId)
@@ -197,7 +209,7 @@ class LksScoreCalculator
     /** @param list<string> $holidayDates
      *  @return array{target_count: int, minimum_target_count: int, category: string}
      */
-    public function effectiveTargets($activity, LksPeriod $period, array $holidayDates = [], ?PeriodParticipantSnapshot $participant = null): array
+    public function effectiveTargets($activity, LksPeriod $period, array $holidayDates = [], ?PeriodParticipantSnapshot $participant = null, array $dispensationDates = []): array
     {
         $magang = $participant !== null && $this->category($participant) === 'magang';
         $target = (int) ($magang ? ($activity->magang_target_count ?? $activity->target_count) : $activity->target_count);
@@ -210,25 +222,37 @@ class LksScoreCalculator
             ? 0
             : min($baseTarget, (int) ceil($minimum / $target * $baseTarget));
 
-        if ($participant === null || $participant->participation_start_date === null || $period->target_proration_enabled !== true) {
-            return ['target_count' => $baseTarget, 'minimum_target_count' => $baseMinimum, 'category' => $magang ? 'magang' : 'regular'];
+        $effectiveTarget = $baseTarget;
+        $effectiveMinimum = $baseMinimum;
+        $eligibleStart = Carbon::parse($period->start_date)->startOfDay();
+        if ($participant !== null && $participant->participation_start_date !== null && $period->target_proration_enabled === true) {
+            $participationStart = Carbon::parse($participant->participation_start_date)->startOfDay();
+            if ($participationStart->gt($eligibleStart)) {
+                $participantEligibleDays = $this->eligibleDays($participationStart, $period->end_date, $weekdays, $holidays);
+                if ($fullEligibleDays === 0 || $participantEligibleDays === 0 || $baseTarget === 0) {
+                    return ['target_count' => 0, 'minimum_target_count' => 0, 'category' => $magang ? 'magang' : 'regular'];
+                }
+                $effectiveTarget = min($participantEligibleDays, (int) ceil($baseTarget * $participantEligibleDays / $fullEligibleDays));
+                $effectiveMinimum = min($effectiveTarget, (int) ceil($baseMinimum / $baseTarget * $effectiveTarget));
+                $eligibleStart = $participationStart;
+            }
         }
 
-        $participationStart = Carbon::parse($participant->participation_start_date)->startOfDay();
-        if ($participationStart->lte($period->start_date)) {
-            return ['target_count' => $baseTarget, 'minimum_target_count' => $baseMinimum, 'category' => $magang ? 'magang' : 'regular'];
+        if ($dispensationDates === [] || $effectiveTarget === 0) {
+            return ['target_count' => $effectiveTarget, 'minimum_target_count' => $effectiveMinimum, 'category' => $magang ? 'magang' : 'regular'];
         }
 
-        $participantEligibleDays = $this->eligibleDays($participationStart, $period->end_date, $weekdays, $holidays);
-        if ($fullEligibleDays === 0 || $participantEligibleDays === 0 || $baseTarget === 0) {
+        $normalEligibleDays = $this->eligibleDays($eligibleStart, $period->end_date, $weekdays, $holidays);
+        $adjustedEligibleDays = $this->eligibleDays($eligibleStart, $period->end_date, $weekdays, $holidays + array_fill_keys($dispensationDates, true));
+        if ($normalEligibleDays === 0 || $adjustedEligibleDays === 0) {
             return ['target_count' => 0, 'minimum_target_count' => 0, 'category' => $magang ? 'magang' : 'regular'];
         }
 
-        $effectiveTarget = min($participantEligibleDays, (int) ceil($baseTarget * $participantEligibleDays / $fullEligibleDays));
+        $adjustedTarget = min($adjustedEligibleDays, (int) ceil($effectiveTarget * $adjustedEligibleDays / $normalEligibleDays));
 
         return [
-            'target_count' => $effectiveTarget,
-            'minimum_target_count' => min($effectiveTarget, (int) ceil($baseMinimum / $baseTarget * $effectiveTarget)),
+            'target_count' => $adjustedTarget,
+            'minimum_target_count' => min($adjustedTarget, (int) ceil($effectiveMinimum / $effectiveTarget * $adjustedTarget)),
             'category' => $magang ? 'magang' : 'regular',
         ];
     }
@@ -256,4 +280,5 @@ class LksScoreCalculator
     {
         return $participant->category_snapshot === 'magang' ? 'magang' : 'regular';
     }
+
 }

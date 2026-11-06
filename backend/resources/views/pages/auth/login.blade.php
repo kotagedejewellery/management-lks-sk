@@ -46,29 +46,34 @@
         </section>
 
         <section class="auth-panel" aria-labelledby="login-title">
-            <div class="auth-card">
+            <div class="auth-card auth-card-login">
                 <div class="auth-card-head">
-                    <p>Masuk ke akun Anda</p>
-                    <h2 id="login-title">Selamat datang kembali.</h2>
-                    <span>Gunakan email dan password sementara yang diberikan Admin.</span>
+                    <h2 id="login-title">Masuk ke LKS</h2>
+                    <span>Masukkan email dan password Anda untuk melanjutkan catatan hari ini.</span>
                 </div>
 
                 <form method="POST" action="{{ route('login.store') }}" class="auth-form" data-login-form>
                     @csrf
                     <div class="auth-field">
                         <label for="email">Email</label>
-                        <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus autocomplete="email" placeholder="nama@perusahaan.com">
+                        <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus autocomplete="email" placeholder="nama@perusahaan.com" @error('email') aria-invalid="true" aria-describedby="email-error" @enderror>
+                        @error('email')
+                            <p id="email-error" class="auth-field-error">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div class="auth-field">
                         <div class="auth-label-row"><label for="password">Password</label>@if (Route::has('password.request'))<a href="{{ route('password.request') }}">Lupa password?</a>@endif</div>
                         <div class="password-control">
-                            <input id="password" name="password" type="password" required autocomplete="current-password" placeholder="Masukkan password">
+                            <input id="password" name="password" type="password" required autocomplete="current-password" placeholder="Masukkan password" @error('password') aria-invalid="true" aria-describedby="password-error" @enderror>
                             <button class="password-toggle" type="button" data-password-toggle aria-controls="password" aria-pressed="false" aria-label="Tampilkan password">
                                 <svg class="password-toggle-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.8"/></svg>
                                 <svg class="password-toggle-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18M10.6 5.2A10.4 10.4 0 0 1 12 5c6.1 0 9.5 7 9.5 7a17.1 17.1 0 0 1-3.1 3.8M6.2 6.2A17.2 17.2 0 0 0 2.5 12S5.9 19 12 19a9.9 9.9 0 0 0 2.2-.3M9.8 9.8a3.1 3.1 0 0 0 4.4 4.4"/></svg>
                                 <span class="sr-only" data-password-toggle-label>Tampilkan password</span>
                             </button>
                         </div>
+                        @error('password')
+                            <p id="password-error" class="auth-field-error">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div class="auth-remember">
                         <label class="auth-check"><input type="checkbox" name="remember" value="1" @checked(old('remember'))><span>Ingat saya di perangkat ini</span></label>
@@ -76,7 +81,7 @@
                     </div>
                     <button class="auth-submit" type="submit" data-test="login-button"><span class="auth-submit-label">Masuk ke LKS</span><span class="auth-submit-loading" aria-live="polite" hidden><i aria-hidden="true"></i><span>Memeriksa akses…</span></span></button>
                 </form>
-                <p class="auth-help">Belum menerima akun? Hubungi Admin LKS untuk dibuatkan akses.</p>
+                <p class="auth-help">Akun dikelola oleh Admin LKS. Belum menerima akun? Hubungi Admin LKS untuk dibuatkan akses.</p>
             </div>
         </section>
     </main>

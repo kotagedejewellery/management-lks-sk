@@ -34,6 +34,7 @@ let historyDetailPeriodId = '';
 let recapPeriods = [];
 let departmentTrendData = [];
 let departmentTrendDepartmentOptions = [];
+let departmentTrendError = '';
 let roleTrendData = [];
 let roleTrendError = '';
 let selectedReportDimension = 'department';
@@ -50,6 +51,7 @@ let activePeriod = null;
 let activeParticipant = null;
 let bulkChecklistState = null;
 const checklistSaveErrors = new Map();
+const checklistSaveLocks = new Set();
 let correctionParticipantId = null;
 let accountData = null;
 let selectedPeriodId = null;
@@ -159,7 +161,17 @@ function downloadPdfPreview() {
   showToast('PDF berhasil diunduh');
 }
 
-function openPdfPreview(blob, filename) {
+function openPdfPreview(blob, filename, mobilePreviewWindow = null) {
+  if (window.matchMedia('(max-width: 760px)').matches) {
+    const objectUrl = URL.createObjectURL(blob);
+    if (mobilePreviewWindow && !mobilePreviewWindow.closed) {
+      mobilePreviewWindow.location.replace(objectUrl);
+    } else {
+      window.location.assign(objectUrl);
+    }
+    return;
+  }
+
   clearPdfPreview();
   pdfPreviewObjectUrl = URL.createObjectURL(blob);
   pdfPreviewFilename = filename;
@@ -170,6 +182,12 @@ function openPdfPreview(blob, filename) {
 
 async function previewPdf(link) {
   if (link.dataset.exporting === 'true') return;
+  const mobilePreviewWindow = window.matchMedia('(max-width: 760px)').matches ? window.open('about:blank', '_blank') : null;
+  if (mobilePreviewWindow) {
+    mobilePreviewWindow.opener = null;
+    mobilePreviewWindow.document.title = 'Menyiapkan preview PDF';
+    mobilePreviewWindow.document.body.textContent = 'Menyiapkan preview PDF…';
+  }
   link.dataset.exporting = 'true';
   link.dataset.exportMarkup = link.innerHTML;
   link.textContent = 'Menyiapkan preview…';
@@ -184,8 +202,9 @@ async function previewPdf(link) {
         : 'PDF belum dapat dibuat. Coba lagi beberapa saat lagi.');
     }
     const blob = await response.blob();
-    openPdfPreview(blob, pdfFilename(response));
+    openPdfPreview(blob, pdfFilename(response), mobilePreviewWindow);
   } catch (error) {
+    mobilePreviewWindow?.close();
     showToast(error.message || 'PDF belum dapat dibuat. Coba lagi beberapa saat lagi.', 'error');
   } finally {
     link.dataset.exporting = 'false';
@@ -201,6 +220,11 @@ document.addEventListener('click', (event) => {
   const action = event.target.closest('[data-go]');
   if (action) {
     recapMemberFocus = action.dataset.go === 'recap' ? (action.dataset.recapMember ?? recapMemberFocus) : '';
+    if (action.dataset.go === 'recap' && action.dataset.recapPeriodId) {
+      openView('recap', { load: false });
+      loadRecap(action.dataset.recapPeriodId);
+      return;
+    }
     openView(action.dataset.go);
   }
 });
@@ -335,6 +359,10 @@ function formatDate(date, withYear = false) {
   }).format(new Date(`${dateValue}T00:00:00`));
 }
 
+function formatDateTime(date) {
+  return new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(date));
+}
+
 function dateInputValue(date) {
   return String(date ?? '').slice(0, 10);
 }
@@ -351,16 +379,18 @@ function checkIcon() {
   return '<svg><use href="#icon-check"/></svg>';
 }
 
-function recordingUnavailableLabel() {
+function recordingUnavailableLabel(activity = null) {
+  if (activity?.is_dispensation_today === true) return 'Dispensasi tercatat';
   return activePeriod?.recording_enabled ? 'Pencatatan telah berakhir' : 'Pencatatan dijeda oleh Admin';
 }
 
 function renderQuickCheck(activity) {
   const complete = activity.is_completed ?? activity.is_completed_today;
   const saveError = checklistSaveErrors.get(checklistSaveErrorKey(activity.id));
-  const canRecord = activePeriod?.recording_available === true;
-  return `<button class="quick-check${complete ? ' is-done' : ''}" data-activity-id="${escapeHtml(activity.id)}" aria-pressed="${complete}"${canRecord ? '' : ' disabled'}>
-    <span class="check-mark">${checkIcon()}</span><span><strong>${escapeHtml(activity.name)}</strong><small${saveError ? ' class="checklist-save-error"' : ''}>${escapeHtml(saveError ? 'Gagal disimpan — coba lagi' : complete ? 'Sudah dicatat' : canRecord ? 'Belum dicatat' : recordingUnavailableLabel())}</small></span>
+  const isSaving = checklistSaveLocks.has(checklistSaveErrorKey(activity.id));
+  const canRecord = activePeriod?.recording_available === true && activity.is_dispensation_today !== true;
+  return `<button class="quick-check${complete ? ' is-done' : ''}${activity.is_dispensation_today ? ' is-dispensed' : ''}${isSaving ? ' is-busy' : ''}" data-activity-id="${escapeHtml(activity.id)}" aria-pressed="${complete}"${isSaving ? ' aria-busy="true"' : ''}${canRecord && !isSaving ? '' : ' disabled'}>
+    <span class="check-mark">${checkIcon()}</span><span><strong>${escapeHtml(activity.name)}</strong><small${saveError ? ' class="checklist-save-error"' : ''}>${escapeHtml(isSaving ? 'Menyimpan…' : saveError || (complete ? 'Sudah dicatat' : canRecord ? 'Belum dicatat' : recordingUnavailableLabel()))}</small></span>
   </button>`;
 }
 
@@ -368,11 +398,12 @@ function renderFullCheck(activity) {
   const complete = activity.is_completed ?? activity.is_completed_today;
   const optionalNote = activity.is_optional_today ? ` · Opsional${activity.holiday_name ? ` (${escapeHtml(activity.holiday_name)})` : ''}` : '';
   const saveError = checklistSaveErrors.get(checklistSaveErrorKey(activity.id));
-  const canRecord = activePeriod?.recording_available === true;
+  const isSaving = checklistSaveLocks.has(checklistSaveErrorKey(activity.id));
+  const canRecord = activePeriod?.recording_available === true && activity.is_dispensation_today !== true;
   return `<div class="checklist-item${complete ? ' is-done' : ''}${saveError ? ' has-save-error' : ''}">
-    <button class="square-check" data-activity-id="${escapeHtml(activity.id)}" aria-label="${complete ? 'Batalkan catatan' : 'Catat'} ${escapeHtml(activity.name)}" aria-pressed="${complete}"${canRecord ? '' : ' disabled'}>${checkIcon()}</button>
+    <button class="square-check${isSaving ? ' is-busy' : ''}" data-activity-id="${escapeHtml(activity.id)}" aria-label="${complete ? 'Batalkan catatan' : 'Catat'} ${escapeHtml(activity.name)}" aria-pressed="${complete}"${isSaving ? ' aria-busy="true"' : ''}${canRecord && !isSaving ? '' : ' disabled'}>${checkIcon()}</button>
     <div><strong>${escapeHtml(activity.name)}</strong><small>${escapeHtml(activityRuleLabel(activity))}${optionalNote}</small>${canRecord ? `<button class="text-button bulk-checklist-trigger" type="button" data-open-bulk-checklist="${escapeHtml(activity.id)}"><svg aria-hidden="true"><use href="#icon-calendar"/></svg>Catat beberapa tanggal</button>` : ''}</div>
-    <span class="item-note${saveError ? ' checklist-save-error' : ''}" role="status">${escapeHtml(saveError ? 'Gagal disimpan — coba lagi' : complete ? 'Dicatat' : canRecord ? 'Belum dicatat' : recordingUnavailableLabel())}</span>
+    <span class="item-note${saveError ? ' checklist-save-error' : ''}" role="status">${escapeHtml(isSaving ? 'Menyimpan…' : saveError || (complete ? 'Dicatat' : canRecord ? 'Belum dicatat' : recordingUnavailableLabel()))}</span>
   </div>`;
 }
 
@@ -384,6 +415,14 @@ function bulkChecklistMonths(activity) {
   const allowedWeekdays = new Set(weekdayValues(activity.allowed_weekdays));
   const holidays = new Map((activePeriod.holidays ?? []).map((holiday) => [dateInputValue(holiday.date), holiday.name]));
   const recordedDates = new Set(activity.recorded_dates ?? []);
+  const dispensedDates = new Set();
+  if (activity.menstruation_exempt) {
+    (activeParticipant.menstruation_dispensations ?? []).forEach((entry) => {
+      for (const date = new Date(`${entry.start_date}T00:00:00`); date <= new Date(`${entry.end_date}T00:00:00`); date.setDate(date.getDate() + 1)) {
+        dispensedDates.add(localDateValue(date));
+      }
+    });
+  }
   const recordedByWeek = new Map();
   const months = new Map();
 
@@ -392,7 +431,7 @@ function bulkChecklistMonths(activity) {
     const weekStart = new Date(date);
     weekStart.setDate(date.getDate() - ((date.getDay() + 6) % 7));
     const weekKey = localDateValue(weekStart);
-    if (recordedDates.has(value) && !holidays.has(value)) recordedByWeek.set(weekKey, (recordedByWeek.get(weekKey) ?? 0) + 1);
+    if (recordedDates.has(value) && !holidays.has(value) && !dispensedDates.has(value)) recordedByWeek.set(weekKey, (recordedByWeek.get(weekKey) ?? 0) + 1);
   }
 
   for (const date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
@@ -412,9 +451,10 @@ function bulkChecklistMonths(activity) {
     months.get(monthKey).days.push({
       value,
       day: date.getDate(),
-      selectable: allowedWeekdays.size === 0 || allowedWeekdays.has(weekday),
+      selectable: (allowedWeekdays.size === 0 || allowedWeekdays.has(weekday)) && !dispensedDates.has(value),
       recorded: recordedDates.has(value),
       holidayName: holidays.get(value) ?? null,
+      dispensed: dispensedDates.has(value),
       weekKey,
       recordedInWeek: recordedByWeek.get(weekKey) ?? 0,
     });
@@ -457,7 +497,7 @@ function updateBulkChecklistSelection(form) {
   const submit = form.querySelector('[data-bulk-submit]');
   if (summary) summary.textContent = selected
     ? selected === 366 ? '366 tanggal dipilih. Ini batas maksimal dalam satu kali pencatatan.' : `${selected} tanggal dipilih.`
-    : 'Pilih tanggal yang masih tersedia pada kalender.';
+    : 'Pilih tanggal yang masih tersedia pada kalender. Tanggal dispensasi tidak dapat dicatat.';
   if (submit) {
     submit.disabled = selected === 0;
     submit.textContent = selected ? `Catat ${selected} tanggal` : 'Catat tanggal terpilih';
@@ -474,8 +514,9 @@ function renderBulkChecklistCalendar(months) {
     const cells = Array.from({ length: leadingDays + lastDay }, (_, index) => {
       const day = days.get(`${month.key}-${String(index - leadingDays + 1).padStart(2, '0')}`);
       if (!day) return '<span class="bulk-calendar-blank" aria-hidden="true"></span>';
+      if (day.dispensed) return `<span class="bulk-calendar-day is-unavailable" title="${escapeHtml(`${formatDate(day.value, true)} berstatus dispensasi`)}"><span>${day.day}</span></span>`;
       if (day.recorded) return `<span class="bulk-calendar-day is-recorded" title="${escapeHtml(formatDate(day.value, true))} sudah dicatat"><span>${day.day}</span><svg aria-hidden="true"><use href="#icon-check"/></svg></span>`;
-      if (!day.selectable) return `<span class="bulk-calendar-day is-unavailable" title="${escapeHtml(formatDate(day.value, true))} tidak dijadwalkan"><span>${day.day}</span></span>`;
+      if (!day.selectable) return `<span class="bulk-calendar-day is-unavailable" title="${escapeHtml(`${formatDate(day.value, true)} ${day.dispensed ? 'berstatus dispensasi' : 'tidak dijadwalkan'}`)}"><span>${day.day}</span></span>`;
       const invalidMessage = bulkChecklistState?.invalidDates.get(day.value);
       const title = invalidMessage ?? (day.holidayName ? `${formatDate(day.value, true)} · ${day.holidayName} (opsional)` : formatDate(day.value, true));
       return `<label class="bulk-calendar-day${day.holidayName ? ' is-holiday' : ''}${invalidMessage ? ' is-invalid' : ''}" title="${escapeHtml(title)}"><input type="checkbox" value="${escapeHtml(day.value)}" data-bulk-checklist-date data-week-key="${escapeHtml(day.weekKey)}" data-recorded-in-week="${day.recordedInWeek}"${bulkChecklistState?.selectedDates.has(day.value) ? ' checked' : ''} aria-label="${escapeHtml(`Catat ${formatDate(day.value, true)}${invalidMessage ? `, tidak dapat dicatat: ${invalidMessage}` : day.holidayName ? `, hari libur ${day.holidayName}` : ''}`)}"><span>${day.day}</span>${invalidMessage ? '<b aria-hidden="true">!</b>' : ''}</label>`;
@@ -545,12 +586,15 @@ function openBulkChecklist(activityId) {
 
 function updateTodayProgress() {
   const checks = [...document.querySelectorAll('.quick-check')];
-  const done = checks.filter((check) => check.classList.contains('is-done')).length;
+  const eligibleChecks = checks.filter((check) => !check.classList.contains('is-dispensed'));
+  const dispensed = checks.length - eligibleChecks.length;
+  const done = eligibleChecks.filter((check) => check.classList.contains('is-done')).length;
   document.querySelector('#daily-done').textContent = done;
-  document.querySelector('#daily-line').style.width = `${checks.length === 0 ? 0 : (done / checks.length) * 100}%`;
+  document.querySelector('#daily-line').style.width = `${eligibleChecks.length === 0 ? 0 : (done / eligibleChecks.length) * 100}%`;
   document.querySelector('#daily-copy').textContent = checks.length === 0
     ? 'Belum ada amalan untuk ditampilkan pada tanggal ini.'
-    : done === checks.length ? 'Semua amalan pada tanggal ini sudah tercatat.' : `${done} amalan pada tanggal ini sudah tercatat.`;
+    : eligibleChecks.length === 0 && dispensed > 0 ? 'Aktivitas hari ini dibebaskan oleh dispensasi.'
+      : done === eligibleChecks.length ? 'Semua amalan pada tanggal ini sudah tercatat.' : `${done} amalan pada tanggal ini sudah tercatat.`;
 }
 
 function setChecklistState(button, complete) {
@@ -567,31 +611,45 @@ function setChecklistState(button, complete) {
   item.querySelector('.item-note').textContent = complete ? 'Dicatat' : 'Belum dicatat';
 }
 
-function checklistSaveErrorKey(activityId) {
-  return `${selectedChecklistDate}:${activityId}`;
+function checklistSaveErrorKey(activityId, checklistDate = selectedChecklistDate) {
+  return `${checklistDate}:${activityId}`;
 }
 
-function setChecklistSaveError(activityId, message = '') {
-  const key = checklistSaveErrorKey(activityId);
+function setChecklistSaveError(activityId, message = '', checklistDate = selectedChecklistDate) {
+  const key = checklistSaveErrorKey(activityId, checklistDate);
   if (message) checklistSaveErrors.set(key, message);
   else checklistSaveErrors.delete(key);
+  if (checklistDate !== selectedChecklistDate) return;
   document.querySelectorAll(`[data-activity-id="${CSS.escape(activityId)}"]`).forEach((button) => {
     const error = checklistSaveErrors.get(key);
     if (button.classList.contains('quick-check')) {
       const label = button.querySelector('small');
-      label.textContent = error ? 'Gagal disimpan — coba lagi' : button.classList.contains('is-done') ? 'Sudah dicatat' : 'Belum dicatat';
+      label.textContent = error || (button.classList.contains('is-done') ? 'Sudah dicatat' : 'Belum dicatat');
       label.classList.toggle('checklist-save-error', Boolean(error));
       return;
     }
     const item = button.closest('.checklist-item');
     const note = item.querySelector('.item-note');
     item.classList.toggle('has-save-error', Boolean(error));
-    note.textContent = error ? 'Gagal disimpan — coba lagi' : item.classList.contains('is-done') ? 'Dicatat' : 'Belum dicatat';
+    note.textContent = error || (item.classList.contains('is-done') ? 'Dicatat' : 'Belum dicatat');
     note.classList.toggle('checklist-save-error', Boolean(error));
   });
 }
 
-function syncChecklist(activityId, complete) {
+function setChecklistSaving(activityId, isSaving, checklistDate = selectedChecklistDate) {
+  if (checklistDate !== selectedChecklistDate) return;
+  document.querySelectorAll(`[data-activity-id="${CSS.escape(activityId)}"]`).forEach((button) => {
+    button.disabled = isSaving;
+    button.classList.toggle('is-busy', isSaving);
+    button.toggleAttribute('aria-busy', isSaving);
+    if (!isSaving) return;
+    if (button.classList.contains('quick-check')) button.querySelector('small').textContent = 'Menyimpan…';
+    else button.closest('.checklist-item').querySelector('.item-note').textContent = 'Menyimpan…';
+  });
+}
+
+function syncChecklist(activityId, complete, checklistDate = selectedChecklistDate) {
+  if (checklistDate !== selectedChecklistDate) return;
   document.querySelectorAll(`[data-activity-id="${CSS.escape(activityId)}"]`).forEach((button) => setChecklistState(button, complete));
   updateTodayProgress();
 }
@@ -707,11 +765,20 @@ function applyDashboard(data) {
     ? `Anda sedang melihat catatan lampau: ${formatDate(selectedChecklistDate, true)}.`
     : `Catat aktivitas untuk ${formatDate(selectedChecklistDate, true)}.`) + participationNote;
   document.querySelector('.date-rail').innerHTML = `<label class="checklist-date-control">Tanggal pencatatan<input type="date" data-checklist-date value="${escapeHtml(selectedChecklistDate)}" min="${escapeHtml(dateInputValue(data.participant.participation_start_date))}" max="${escapeHtml(maxDate)}"></label><p class="date-note">${escapeHtml(dateMessage)}</p>${isHistoricalDate ? '<button class="text-button" type="button" data-checklist-today>Kembali ke hari ini</button>' : ''}`;
+  if (data.participant.gender === 'akhwat') {
+    document.querySelector('.date-rail').insertAdjacentHTML('beforeend', '<button class="text-button" type="button" data-open-menstruation-dispensation>Kelola dispensasi menstruasi</button>');
+  }
   if (!data.activities.length) {
     setChecklistEmpty(`Tidak ada aktivitas yang dijadwalkan pada ${formatDate(selectedChecklistDate, true)}.`, 'Tidak ada aktivitas terjadwal');
   } else {
     quickChecks.innerHTML = data.activities.slice(0, 4).map(renderQuickCheck).join('');
     fullChecklist.innerHTML = data.activities.map(renderFullCheck).join('');
+    data.activities.filter((activity) => activity.is_dispensation_today).forEach((activity) => {
+      document.querySelectorAll(`[data-activity-id="${CSS.escape(activity.id)}"]`).forEach((control) => {
+        const note = control.classList.contains('quick-check') ? control.querySelector('small') : control.closest('.checklist-item')?.querySelector('.item-note');
+        if (note) note.textContent = 'Dispensasi tercatat';
+      });
+    });
     setChecklistReady();
     if (data.period.recording_available !== true) document.querySelector('.full-checklist .save-state').hidden = true;
   }
@@ -1173,30 +1240,23 @@ function reportGroups(participants, dimension) {
 
 function renderReportBars(groups, label, dimension) {
   if (!groups.length) return '<p class="empty-search">Belum ada peserta pada periode ini.</p>';
+  const periodAttribute = dimension === 'department' && recapData?.period?.id ? ` data-recap-period-id="${escapeHtml(recapData.period.id)}"` : '';
   return `<div class="report-bar-list" aria-label="Capaian berdasarkan ${escapeHtml(label)}">${groups.map((group) => {
     const value = Math.min(Math.max(group.averagePercentage, 0), 100);
     const row = `<span><strong>${escapeHtml(group.name)}</strong><small>${group.tuntasCount} dari ${group.participantCount} tuntas${dimension === 'department' ? ' · Buka rekap' : ''}</small></span><span class="report-bar-meter" role="progressbar" aria-label="Rata-rata capaian ${escapeHtml(group.name)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${value}"><i style="width:${value}%"></i></span><strong>${percentage(value)}</strong>`;
     return dimension === 'department'
-      ? `<button class="report-bar-row report-bar-action" type="button" data-recap-department="${escapeHtml(group.name)}" aria-label="Buka rekap ${escapeHtml(group.name)}">${row}</button>`
+      ? `<button class="report-bar-row report-bar-action" type="button" data-recap-department="${escapeHtml(group.name)}"${periodAttribute} aria-label="Buka rekap ${escapeHtml(group.name)}">${row}</button>`
       : `<article class="report-bar-row" role="listitem">${row}</article>`;
   }).join('')}</div>`;
 }
 
-function renderParticipantRankings(participants) {
-  const staff = participants.filter((participant) => participant.level === 'staff');
-  if (!staff.length) return '<p class="empty-search">Belum ada Staff untuk diperingkatkan pada periode ini.</p>';
+function renderParticipantRankings(rankings = {}) {
   const genderLabel = { ikhwan: 'Ikhwan', akhwat: 'Akhwat' };
   const list = (items) => `<ol>${items.map((participant) => `<li><button class="report-ranking-action" type="button" data-go="recap" data-recap-member="${escapeHtml(participant.participant_id)}" aria-label="Buka rekap ${escapeHtml(participant.name)}"><span>${escapeHtml(participant.name)}</span><strong>${percentage(participant.final_percentage)}</strong><small>${escapeHtml(genderLabel[participant.gender] ?? 'Tidak dicatat')} · ${escapeHtml(participant.team ?? participant.department ?? 'Tanpa tim')} · LKS ${lksCategoryLabel(lksCategory(participant))} · ${participantStatus(participant) === 'tuntas' ? 'Tuntas' : 'Belum tuntas'}</small></button></li>`).join('')}</ol>`;
-  const rankedByGender = (gender) => staff
-    .filter((participant) => participant.gender === gender)
-    .sort((left, right) => Number(right.final_percentage) - Number(left.final_percentage)
-      || left.name.localeCompare(right.name, 'id'));
   const rankingCard = (gender, direction) => {
-    const ranked = rankedByGender(gender);
+    const ranked = rankings[gender] ?? { participant_count: 0, highest: [], lowest: [] };
     const label = genderLabel[gender];
-    const top = ranked.slice(0, 3);
-    const bottom = ranked.slice(Math.max(top.length, ranked.length - 3)).reverse();
-    const items = direction === 'top' ? top : bottom;
+    const items = direction === 'top' ? ranked.highest : ranked.lowest;
     const title = direction === 'top'
       ? items.length
         ? `${items.length} capaian Staff ${label} tertinggi`
@@ -1204,7 +1264,7 @@ function renderParticipantRankings(participants) {
       : items.length
         ? `${items.length} capaian Staff ${label} terendah`
         : `Capaian Staff ${label} terendah`;
-    const empty = ranked.length
+    const empty = ranked.participant_count
       ? 'Belum ada Staff lain untuk peringkat terendah yang terpisah.'
       : `Belum ada Staff ${label} pada periode ini.`;
     return `<div><h3>${title}</h3>${items.length ? list(items) : `<p class="report-ranking-empty">${empty}</p>`}</div>`;
@@ -1212,8 +1272,102 @@ function renderParticipantRankings(participants) {
   return `<section class="report-rankings" aria-label="Peringkat capaian Staff menurut gender">${['ikhwan', 'akhwat'].map((gender) => rankingCard(gender, 'top')).join('')}${['ikhwan', 'akhwat'].map((gender) => rankingCard(gender, 'bottom')).join('')}</section>`;
 }
 
+function departmentReportGroups(periods, participants) {
+  const groups = new Map();
+  periods.forEach((item) => (item.groups?.department ?? []).forEach((group) => {
+    groups.set(group.id, { id: group.id, name: group.name });
+  }));
+  departmentTrendDepartmentOptions.forEach((department) => {
+    groups.set(department.id, { ...(groups.get(department.id) ?? {}), ...department });
+  });
+  reportGroups(participants, 'department').forEach((group) => {
+    groups.set(group.id, { ...(groups.get(group.id) ?? {}), id: group.id, name: group.name });
+  });
+  return [...groups.values()].sort((left, right) => left.name.localeCompare(right.name, 'id'));
+}
+
+function departmentFollowUpActivityNames(participant) {
+  return (participant.activities ?? [])
+    .filter((activity) => activity.status !== 'tuntas')
+    .sort((left, right) => Number(left.percentage) - Number(right.percentage))
+    .slice(0, 2)
+    .map((activity) => activity.name)
+    .join(' · ');
+}
+
+function renderDepartmentFollowUp(groups, participants, period) {
+  const periodAttribute = period.id ? ` data-recap-period-id="${escapeHtml(period.id)}"` : '';
+  const cards = groups.map((group) => {
+    const members = participants.filter((participant) => (participant.department_id ?? 'unassigned') === group.id);
+    if (!members.length) return `<article class="department-follow-up-card"><div><h3>${escapeHtml(group.name)}</h3><span class="status status-waiting">Belum dinilai</span></div><p>Belum ada peserta pada periode ini.</p></article>`;
+    const completed = members.filter((participant) => participantStatus(participant) === 'tuntas');
+    if (completed.length === members.length) return `<article class="department-follow-up-card"><div><h3>${escapeHtml(group.name)}</h3><span class="status status-done">Capaian terjaga</span></div><p>Seluruh ${members.length} anggota telah tuntas. Pertahankan konsistensi pencatatan.</p><button class="text-button" type="button" data-recap-department="${escapeHtml(group.name)}"${periodAttribute}>Buka rekap departemen</button></article>`;
+    const names = members
+      .filter((participant) => participantStatus(participant) !== 'tuntas')
+      .sort((left, right) => (Number(right.passing_threshold) - Number(right.final_percentage)) - (Number(left.passing_threshold) - Number(left.final_percentage)))
+      .slice(0, 3)
+      .map((participant) => {
+        const gap = Math.max(Number(participant.passing_threshold) - Number(participant.final_percentage), 0);
+        const activities = departmentFollowUpActivityNames(participant);
+        return `<li><button class="department-follow-up-member" type="button" data-go="recap" data-recap-member="${escapeHtml(participant.participant_id)}"${periodAttribute}><strong>${escapeHtml(participant.name)}</strong><span>${percentage(participant.final_percentage)} · kurang ${percentage(gap)}${activities ? ` · ${escapeHtml(activities)}` : ''}</span></button></li>`;
+      }).join('');
+    return `<article class="department-follow-up-card"><div><h3>${escapeHtml(group.name)}</h3><span class="status status-open">Perlu tindak lanjut</span></div><p>${completed.length} dari ${members.length} anggota tuntas. Tinjau anggota dengan selisih ambang terbesar:</p><ol>${names}</ol><button class="text-button" type="button" data-recap-department="${escapeHtml(group.name)}"${periodAttribute}>Buka rekap departemen</button></article>`;
+  }).join('');
+  return `<section class="department-follow-up" aria-labelledby="department-follow-up-title"><div class="section-head"><div><h2 id="department-follow-up-title">Catatan tindak lanjut · ${escapeHtml(period.name)}</h2><p>Nama hanya ditampilkan untuk Admin pada departemen yang masih memiliki anggota belum tuntas.</p></div></div><div class="department-follow-up-grid">${cards || '<p class="report-trend-empty">Belum ada departemen untuk ditinjau.</p>'}</div></section>`;
+}
+
+function renderAllDepartmentTrends(periods, participants) {
+  const groups = departmentReportGroups(periods, participants);
+  const period = recapData?.period ?? { id: '', name: 'periode yang dipilih' };
+  const periodAttribute = period.id ? ` data-recap-period-id="${escapeHtml(period.id)}"` : '';
+  const trend = departmentTrendError
+    ? `<p class="report-trend-empty">${escapeHtml(departmentTrendError)} <button class="text-button" type="button" data-retry-department-trend>Coba lagi</button></p>`
+    : periods.length < 2
+    ? '<p class="report-trend-empty">Tren tersedia setelah minimal dua periode memiliki data.</p>'
+    : !groups.length
+      ? '<p class="report-trend-empty">Belum ada departemen untuk ditampilkan pada tren ini.</p>'
+      : `<p id="trend-scroll-note" class="department-trend-scroll-note">Geser tabel untuk melihat periode lain.</p><div class="department-trend-table" role="table" aria-label="Tren seluruh departemen" aria-describedby="trend-scroll-note" tabindex="0"><div class="department-trend-head" role="row"><span role="columnheader">Departemen</span>${periods.map((item) => `<span role="columnheader">${escapeHtml(item.period.name)}</span>`).join('')}</div>${groups.map((group) => {
+        const points = periods.map((item) => {
+          const match = (item.groups?.department ?? []).find((candidate) => candidate.id === group.id);
+          const value = match ? Math.min(Math.max(Number(match.average_percentage) || 0, 0), 100) : null;
+          return `<span class="department-trend-value" role="cell"${value === null ? '' : ` aria-label="${escapeHtml(group.name)} ${escapeHtml(item.period.name)} ${percentage(value)}"`}><strong>${value === null ? '—' : percentage(value)}</strong><i${value === null ? '' : ` style="width:${Math.max(value, 2)}%"`}></i></span>`;
+        }).join('');
+        return `<div class="department-trend-row" role="row"><span role="cell"><button class="text-button" type="button" data-recap-department="${escapeHtml(group.name)}"${periodAttribute}>${escapeHtml(group.name)}</button></span>${points}</div>`;
+      }).join('')}</div>`;
+  return `<section class="report-trend department-trend" aria-labelledby="report-trend-title"><div class="section-head"><div><h2 id="report-trend-title">Tren seluruh departemen</h2><p>Perubahan capaian enam periode terakhir. Tanda — berarti departemen belum memiliki peserta pada periode tersebut.</p></div></div>${trend}</section>${renderDepartmentFollowUp(groups, participants, period)}`;
+}
+
+function renderAllGroupTrends(dimension, periods) {
+  const label = { leader: 'Leader', gender: 'Ikhwan dan Akhwat', category: 'Jenis LKS' }[dimension] ?? 'Kelompok';
+  if (departmentTrendError) return `<section class="report-trend group-trend" aria-labelledby="report-trend-title"><div class="section-head"><div><h2 id="report-trend-title">Tren ${escapeHtml(label)}</h2><p>${escapeHtml(departmentTrendError)} <button class="text-button" type="button" data-retry-department-trend>Coba lagi</button></p></div></div></section>`;
+  if (periods.length < 2) return '<p class="report-trend-empty">Tren tersedia setelah minimal dua periode memiliki data.</p>';
+  const groups = new Map();
+  periods.forEach((item) => (item.groups?.[dimension] ?? []).forEach((group) => {
+    groups.set(group.id, { id: group.id, name: group.name });
+  }));
+  const preferredOrder = dimension === 'gender' ? ['ikhwan', 'akhwat'] : dimension === 'category' ? ['regular', 'magang'] : [];
+  const options = [...groups.values()].sort((left, right) => {
+    const leftOrder = preferredOrder.indexOf(left.id);
+    const rightOrder = preferredOrder.indexOf(right.id);
+    if (leftOrder !== rightOrder) return (leftOrder === -1 ? Infinity : leftOrder) - (rightOrder === -1 ? Infinity : rightOrder);
+    return left.name.localeCompare(right.name, 'id');
+  });
+  if (!options.length) return '<p class="report-trend-empty">Belum ada kelompok untuk ditampilkan pada tren ini.</p>';
+  return `<section class="report-trend group-trend" aria-labelledby="report-trend-title"><div class="section-head"><div><h2 id="report-trend-title">Tren ${escapeHtml(label)}</h2><p>Perubahan rata-rata capaian hingga enam periode terakhir. Tanda — berarti kelompok belum memiliki peserta pada periode tersebut.</p></div></div><p id="trend-scroll-note" class="department-trend-scroll-note">Geser tabel untuk melihat periode lain.</p><div class="department-trend-table" role="table" aria-label="Tren ${escapeHtml(label)}" aria-describedby="trend-scroll-note" tabindex="0"><div class="department-trend-head" role="row"><span role="columnheader">${escapeHtml(label)}</span>${periods.map((item) => `<span role="columnheader">${escapeHtml(item.period.name)}</span>`).join('')}</div>${options.map((group) => {
+    const points = periods.map((item) => {
+      const match = (item.groups?.[dimension] ?? []).find((candidate) => candidate.id === group.id);
+      const value = match ? Math.min(Math.max(Number(match.average_percentage) || 0, 0), 100) : null;
+      const count = match ? Number(match.participant_count) : 0;
+      return `<span class="department-trend-value" role="cell"${value === null ? '' : ` aria-label="${escapeHtml(group.name)} ${escapeHtml(item.period.name)} ${percentage(value)} dari ${count} peserta"`}><strong>${value === null ? '—' : percentage(value)}</strong>${value === null ? '' : `<small>${count} peserta</small><i style="width:${Math.max(value, 2)}%"></i>`}</span>`;
+    }).join('');
+    return `<div class="department-trend-row" role="row"><span role="cell"><strong>${escapeHtml(group.name)}</strong></span>${points}</div>`;
+  }).join('')}</div></section>`;
+}
+
 function renderReportTrend(dimension) {
   const periods = departmentTrendData.slice(-6);
+  if (dimension === 'department') return renderAllDepartmentTrends(periods, recapData?.participants ?? []);
+  if (['leader', 'gender', 'category'].includes(dimension)) return renderAllGroupTrends(dimension, periods);
   if (periods.length < 2) return '<p class="report-trend-empty">Tren tersedia setelah minimal dua periode memiliki data.</p>';
   const groups = new Map();
   periods.forEach((item) => (item.groups?.[dimension] ?? []).forEach((group) => {
@@ -1286,7 +1440,13 @@ function renderRecapViews() {
     const finalStatus = participantStatus(participant);
     return `<div class="table-row recap-row" data-participant-id="${escapeHtml(participant.participant_id)}" data-member="${escapeHtml(`${participant.name} ${department}`)}" data-status="${escapeHtml(finalStatus)}" data-gender="${escapeHtml(participant.gender)}" data-category="${lksCategory(participant)}" data-department="${escapeHtml(department)}" data-team="${escapeHtml(participant.team ?? '')}"><div class="member-cell"><span class="person-initials tone-${['one', 'two', 'three', 'four'][index % 4]}">${escapeHtml(initials(participant.name))}</span><div><strong>${escapeHtml(participant.name)}</strong><small>${escapeHtml(participant.team ?? 'Tanpa tim')} · Leader: ${escapeHtml(participant.leader ?? 'Belum ditetapkan')}</small></div></div><span class="recap-department"><small>Departemen</small>${escapeHtml(department)}</span><strong class="recap-score"><small>Nilai akhir</small>${percentage(participant.final_percentage)}</strong><span class="recap-status">${statusBadge(finalStatus)}<small>Ambang ${percentage(participant.passing_threshold)}</small>${recommendation}</span>${actions}</div>`;
   }).join('');
-  const periodOptions = recapPeriods.map((item) => `<option value="${escapeHtml(item.id)}"${item.id === period.id ? ' selected' : ''}>${escapeHtml(item.name)}${item.status === 'closed' ? ' · Ditutup' : ' · Aktif'}</option>`).join('');
+  const periodOption = (item) => `<option value="${escapeHtml(item.id)}"${item.id === period.id ? ' selected' : ''}>${escapeHtml(item.name)}${item.status === 'closed' ? ' · Ditutup' : ' · Aktif'}</option>`;
+  const activePeriodOptions = recapPeriods.filter((item) => item.status === 'active');
+  const closedPeriodOptions = recapPeriods.filter((item) => item.status === 'closed');
+  const periodOptions = [
+    activePeriodOptions.length ? `<optgroup label="Periode aktif">${activePeriodOptions.map(periodOption).join('')}</optgroup>` : '',
+    closedPeriodOptions.length ? `<optgroup label="Riwayat periode">${closedPeriodOptions.map(periodOption).join('')}</optgroup>` : '',
+  ].join('');
   const departments = [...new Set(participants.map((participant) => participant.department ?? 'Tanpa departemen'))].sort((left, right) => left.localeCompare(right, 'id'));
   const teams = [...new Set(participants.map((participant) => participant.team).filter(Boolean))].sort((left, right) => left.localeCompare(right, 'id'));
   if (!departments.includes(recapDepartmentFilter)) recapDepartmentFilter = '';
@@ -1327,8 +1487,11 @@ function renderRecapViews() {
   const reportGroupsForDimension = reportGroups(participants, selectedReportDimension);
   const reportLabel = reportDimensionLabel(selectedReportDimension);
   const tabs = ['department', 'leader', 'gender', 'category'].map((dimension) => `<button class="report-tab${selectedReportDimension === dimension ? ' is-active' : ''}" type="button" role="tab" aria-selected="${selectedReportDimension === dimension}" data-report-dimension="${dimension}">${reportDimensionLabel(dimension)}</button>`).join('');
-  const rankings = selectedReportDimension === 'gender' ? renderParticipantRankings(participants) : '';
-  departmentPanel.innerHTML = `<div class="page-intro"><div><h2>Laporan periode</h2><p>${escapeHtml(period.name)} · Bandingkan capaian dari data snapshot periode yang dipilih.</p></div><div class="report-page-actions"><label class="report-period-control">Periode<select data-recap-period>${periodOptions}</select></label><a class="primary-button export-pdf-link" href="${apiBase}/admin/exports/periods/${encodeURIComponent(period.id)}" data-export-pdf>Preview PDF Rekap</a></div></div><nav class="report-tabs" role="tablist" aria-label="Dimensi laporan">${tabs}</nav><section class="report-overview" aria-live="polite"><div class="section-head"><div><h2>Capaian ${escapeHtml(reportLabel)}</h2><p>Rata-rata nilai akhir per kelompok.</p></div></div>${renderReportBars(reportGroupsForDimension, reportLabel, selectedReportDimension)}</section>${rankings}${renderReportTrend(selectedReportDimension)}`;
+  const rankings = selectedReportDimension === 'gender' ? renderParticipantRankings(recapData.rankings) : '';
+  const reportPeriodDescription = period.status === 'closed'
+    ? `${period.name} · Hasil akhir periode yang sudah ditutup. Pilih tab untuk membandingkan kelompok.`
+    : `${period.name} · Capaian sementara yang tercatat hingga hari ini. Pilih tab untuk membandingkan kelompok.`;
+  departmentPanel.innerHTML = `<div class="page-intro"><div><h2>Laporan periode</h2><p>${escapeHtml(reportPeriodDescription)}</p></div><div class="report-page-actions"><label class="report-period-control">Periode<select data-recap-period>${periodOptions}</select></label><a class="primary-button export-pdf-link" href="${apiBase}/admin/exports/periods/${encodeURIComponent(period.id)}" data-export-pdf>Preview PDF Rekap</a></div></div><nav class="report-tabs" role="tablist" aria-label="Dimensi laporan">${tabs}</nav><section class="report-overview" aria-live="polite"><div class="section-head"><div><h2>Capaian ${escapeHtml(reportLabel)}</h2><p>Rata-rata nilai akhir per kelompok.</p></div></div>${renderReportBars(reportGroupsForDimension, reportLabel, selectedReportDimension)}</section>${rankings}${renderReportTrend(selectedReportDimension)}`;
 }
 
 async function loadRecap(periodId = '', { showProgress = true, scope = viewer?.roles?.includes('leader') ? recapScope : 'personal' } = {}) {
@@ -1343,28 +1506,30 @@ async function loadRecap(periodId = '', { showProgress = true, scope = viewer?.r
     if (periodId) recapQuery.set('period_id', periodId);
     if (!viewer?.roles?.includes('admin')) recapQuery.set('scope', scope);
     const recapUrl = `${apiBase}/recap${recapQuery.size ? `?${recapQuery}` : ''}`;
-    const historyScope = viewer?.roles?.includes('leader') ? scope : 'personal';
-    const [response, historyResponse, trendResponse, roleTrendResponse] = await Promise.all([
+    const trendUrl = `${apiBase}/department-trends${periodId ? `?period_id=${encodeURIComponent(periodId)}` : ''}`;
+    const [response, trendResponse, roleTrendResponse] = await Promise.all([
       fetch(recapUrl, { headers: { Accept: 'application/json' }, credentials: 'same-origin', signal }),
-      fetch(`${apiBase}/periods/history?scope=${encodeURIComponent(historyScope)}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin', signal }),
-      viewer?.roles?.includes('admin') ? fetch(`${apiBase}/department-trends`, { headers: { Accept: 'application/json' }, credentials: 'same-origin', signal }) : Promise.resolve(null),
+      viewer?.roles?.includes('admin') ? fetch(trendUrl, { headers: { Accept: 'application/json' }, credentials: 'same-origin', signal }) : Promise.resolve(null),
       canUsePersonalLks(viewer?.roles ?? []) ? fetch(`${apiBase}/role-trends`, { headers: { Accept: 'application/json' }, credentials: 'same-origin', signal }) : Promise.resolve(null),
     ]);
+    if (response.status === 404 && periodId) {
+      if (requestId !== recapRequest) return;
+      showToast('Periode yang dipilih sudah tidak tersedia. Menampilkan periode yang tersedia.', 'error');
+      return loadRecap('', { showProgress, scope });
+    }
     if (!response.ok) throw new Error(await apiError(response));
     if (requestId !== recapRequest) return;
     recapData = (await response.json()).data;
-    recapPeriods = [recapData.period];
-    if (historyResponse.ok) {
-      const periods = (await historyResponse.json()).data;
-      recapPeriods.push(...periods.filter((item) => item.id !== recapData.period.id));
-    }
+    recapPeriods = recapData.periods ?? [recapData.period];
     if (trendResponse?.ok) {
       const trendPayload = await trendResponse.json();
       departmentTrendData = trendPayload.data ?? [];
       departmentTrendDepartmentOptions = trendPayload.meta?.department_options ?? [];
+      departmentTrendError = '';
     } else {
       departmentTrendData = [];
       departmentTrendDepartmentOptions = [];
+      departmentTrendError = trendResponse ? 'Tren departemen belum dapat dimuat.' : '';
     }
     roleTrendData = roleTrendResponse?.ok ? (await roleTrendResponse.json()).data : [];
     roleTrendError = roleTrendResponse && !roleTrendResponse.ok
@@ -1393,14 +1558,18 @@ async function persistChecklist(button) {
     return;
   }
 
+  const checklistDate = selectedChecklistDate;
+  const activityId = button.dataset.activityId;
+  const saveKey = checklistSaveErrorKey(activityId, checklistDate);
+  const dashboardRequestAtStart = dashboardRequest;
+  if (checklistSaveLocks.has(saveKey)) return;
+
   const complete = !button.classList.contains('quick-check')
     ? !button.closest('.checklist-item').classList.contains('is-done')
     : !button.classList.contains('is-done');
-  const activityId = button.dataset.activityId;
-  setChecklistSaveError(activityId);
-  button.disabled = true;
-  button.classList.add('is-busy');
-  button.setAttribute('aria-busy', 'true');
+  checklistSaveLocks.add(saveKey);
+  setChecklistSaveError(activityId, '', checklistDate);
+  setChecklistSaving(activityId, true, checklistDate);
   setSaving(true);
 
   try {
@@ -1408,23 +1577,26 @@ async function persistChecklist(button) {
       method: 'PUT',
       credentials: 'same-origin',
       headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}) },
-      body: JSON.stringify({ period_activity_id: activityId, participant_id: participantId, checklist_date: selectedChecklistDate, is_completed: complete }),
+      body: JSON.stringify({ period_activity_id: activityId, participant_id: participantId, checklist_date: checklistDate, is_completed: complete }),
     });
 
     if (!response.ok) throw new Error(await apiError(response));
 
-    syncChecklist(activityId, complete);
-    await loadDashboard({ date: selectedChecklistDate, reloadRecap: false });
-    setSaving(false, complete ? 'Dicatat barusan' : 'Perubahan tersimpan');
+    const savedChecklist = (await response.json()).data;
+    syncChecklist(activityId, savedChecklist.is_completed, checklistDate);
+    if (checklistDate === selectedChecklistDate && dashboardRequest === dashboardRequestAtStart) {
+      await loadDashboard({ date: checklistDate, reloadRecap: false });
+    }
+    if (checklistSaveLocks.size === 1) setSaving(false, savedChecklist.is_completed ? 'Dicatat barusan' : 'Perubahan tersimpan');
   } catch (error) {
-    setSaving(false, 'Gagal disimpan', 'error');
+    if (checklistSaveLocks.size === 1) setSaving(false, 'Gagal disimpan', 'error');
     const message = error.message || 'Perubahan belum tersimpan. Periksa koneksi lalu coba lagi.';
-    setChecklistSaveError(activityId, message);
+    setChecklistSaveError(activityId, message, checklistDate);
     showToast(message, 'error');
   } finally {
-    button.disabled = false;
-    button.classList.remove('is-busy');
-    button.removeAttribute('aria-busy');
+    checklistSaveLocks.delete(saveKey);
+    setChecklistSaving(activityId, false, checklistDate);
+    setChecklistSaveError(activityId, checklistSaveErrors.get(saveKey) ?? '', checklistDate);
   }
 }
 
@@ -1468,6 +1640,40 @@ document.addEventListener('click', (event) => {
 
 document.addEventListener('click', (event) => {
   if (event.target.closest('[data-checklist-today]')) loadDashboard({ date: todayIso(), reloadRecap: false });
+  if (event.target.closest('[data-open-menstruation-dispensation]')) openAdminFormModal('menstruation-dispensation');
+});
+
+document.addEventListener('click', async (event) => {
+  const remove = event.target.closest('[data-delete-menstruation-dispensation]');
+  if (!remove) return;
+  const confirmed = await confirmAction({ title: 'Hapus dispensasi?', message: 'Tanggal ini akan kembali dihitung untuk aktivitas yang berlaku.', confirmLabel: 'Hapus dispensasi', tone: 'danger' });
+  if (!confirmed) return;
+  setButtonBusy(remove, true, 'Menghapus…');
+  try {
+    const response = await fetch(`${apiBase}/menstruation-dispensations/${encodeURIComponent(remove.dataset.deleteMenstruationDispensation)}`, { method: 'DELETE', credentials: 'same-origin', headers: { Accept: 'application/json', ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}) } });
+    if (!response.ok) throw new Error(await apiError(response));
+    adminFormDialog.close();
+    showToast('Dispensasi dihapus');
+    loadDashboard({ date: selectedChecklistDate, showProgress: false, reloadRecap: true });
+  } catch (error) { showToast(error.message || 'Dispensasi belum dapat dihapus.', 'error'); } finally { setButtonBusy(remove, false); }
+});
+
+document.addEventListener('click', async (event) => {
+  const remove = event.target.closest('[data-delete-admin-dispensation]');
+  if (!remove) return;
+  const form = remove.closest('[data-admin-form="admin-dispensation"]');
+  const reason = form?.elements.reason?.value.trim();
+  if (!reason) return setFormError(form, 'Alasan koreksi wajib diisi sebelum dispensasi dihapus.');
+  const confirmed = await confirmAction({ title: 'Hapus dispensasi?', message: 'Tanggal ini akan kembali dihitung untuk aktivitas yang berlaku.', confirmLabel: 'Hapus dispensasi', tone: 'danger' });
+  if (!confirmed) return;
+  setFormError(form);
+  setButtonBusy(remove, true, 'Menghapus…');
+  try {
+    const response = await fetch(`${apiBase}/admin/periods/${encodeURIComponent(form.dataset.periodId)}/participants/${encodeURIComponent(form.dataset.participantId)}/menstruation-dispensations/${encodeURIComponent(remove.dataset.deleteAdminDispensation)}`, { method: 'DELETE', credentials: 'same-origin', headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}) }, body: JSON.stringify({ reason }) });
+    if (!response.ok) throw await apiFormError(response);
+    showToast('Dispensasi berhasil dihapus');
+    await loadChecklistCorrectionContext(form.dataset.correctionDate);
+  } catch (error) { setFormError(form, error.message || 'Dispensasi belum dapat dihapus.', error.fieldErrors); } finally { setButtonBusy(remove, false); }
 });
 
 function displayRole(roles) {
@@ -1590,7 +1796,7 @@ function renderAccount(data) {
     ? 'Kelola identitas akun dan keamanan password Anda. Pengaturan data serta akses akun lain tersedia di menu Pengaturan.'
     : 'Kelola identitas akun dan keamanan password Anda. Penempatan, level jabatan, dan status akun diatur oleh Admin LKS.';
   const requirement = mustChangePassword ? '<p class="account-required-notice" role="alert">Password sementara wajib diganti sebelum Anda dapat membuka atau mencatat LKS.</p>' : '';
-  panel.innerHTML = `<div class="page-intro account-intro"><div><h2>Akun Saya</h2><p>${intro}</p>${requirement}</div></div><div class="account-layout">${mustChangePassword ? '' : `<section class="account-section" aria-labelledby="account-profile-title"><div class="account-section-intro"><h2 id="account-profile-title">Informasi akun</h2><p>Nama dan email dipakai untuk identitas serta proses masuk ke LKS.</p></div><form class="account-form" data-account-form="profile"><div class="account-fields"><label class="account-field">Nama<input name="name" maxlength="150" autocomplete="name" value="${escapeHtml(data.name)}" required></label><label class="account-field">Email<input name="email" type="email" maxlength="255" autocomplete="email" value="${escapeHtml(data.email)}" required></label></div><div class="account-actions"><button class="primary-button" type="submit">Simpan informasi</button></div></form></section>`}<section class="account-section" aria-labelledby="account-password-title"><div class="account-section-intro"><h2 id="account-password-title">Ganti password</h2><p>Masukkan password saat ini sebelum memilih password baru.</p></div><form class="account-form" data-account-form="password"><div class="account-fields">${accountPasswordField('account-current-password', 'current_password', 'Password saat ini', 'current-password')}${accountPasswordField('account-password', 'password', 'Password baru', 'new-password')}${accountPasswordField('account-password-confirmation', 'password_confirmation', 'Konfirmasi password baru', 'new-password')}</div><p class="account-help">Gunakan minimal 8 karakter dan simpan password baru Anda di tempat yang aman.</p><div class="account-actions"><button class="primary-button" type="submit">Perbarui password</button></div></form></section></div>`;
+  panel.innerHTML = `<div class="page-intro account-intro"><div><h2>Akun Saya</h2><p>${intro}</p>${requirement}</div></div><div class="account-layout">${mustChangePassword ? '' : `<section class="account-section" aria-labelledby="account-profile-title"><div class="account-section-intro"><h2 id="account-profile-title">Informasi akun</h2><p>Nama dan email dipakai untuk identitas serta proses masuk ke LKS.</p></div><form class="account-form" data-account-form="profile"><div class="account-fields"><label class="account-field">Nama<input name="name" maxlength="150" autocomplete="name" value="${escapeHtml(data.name)}" required></label><label class="account-field">Email<input name="email" type="email" maxlength="255" autocomplete="email" value="${escapeHtml(data.email)}" required></label></div><div class="account-actions"><button class="primary-button" type="submit">Simpan informasi</button></div></form></section>`}<section class="account-section" aria-labelledby="account-password-title"><div class="account-section-intro"><h2 id="account-password-title">Ganti password</h2><p>Masukkan password saat ini sebelum memilih password baru.</p></div><form class="account-form" data-account-form="password"><div class="account-fields">${accountPasswordField('account-current-password', 'current_password', 'Password saat ini', 'current-password')}${accountPasswordField('account-password', 'password', 'Password baru', 'new-password')}${accountPasswordField('account-password-confirmation', 'password_confirmation', 'Konfirmasi password baru', 'new-password')}</div><p class="account-help">Gunakan password kuat sesuai kebijakan keamanan dan simpan password baru Anda di tempat yang aman.</p><div class="account-actions"><button class="primary-button" type="submit">Perbarui password</button></div></form></section></div>`;
   if (mustChangePassword) requestAnimationFrame(() => panel.querySelector('#account-current-password')?.focus());
 }
 
@@ -1739,6 +1945,10 @@ document.addEventListener('click', (event) => {
     loadRecap('', { showProgress: false });
     return;
   }
+  if (event.target.closest('[data-retry-department-trend]')) {
+    loadRecap(recapData?.period?.id ?? '', { showProgress: false });
+    return;
+  }
   if (event.target.closest('[data-clear-recap-member]')) {
     recapMemberFocus = '';
     filterRecapRows();
@@ -1793,6 +2003,12 @@ document.addEventListener('click', (event) => {
   if (departmentAction) {
     recapDepartmentFilter = departmentAction.dataset.recapDepartment;
     recapCategoryFilter = ['regular', 'magang'].includes(departmentAction.dataset.recapCategory) ? departmentAction.dataset.recapCategory : '';
+    if (departmentAction.dataset.recapPeriodId) {
+      recapMemberFocus = '';
+      openView('recap', { load: false });
+      loadRecap(departmentAction.dataset.recapPeriodId);
+      return;
+    }
     openView('recap');
     return;
   }
@@ -1845,7 +2061,7 @@ document.addEventListener('change', (event) => {
 const settingRoutes = { 'Kelola periode': 'periods', 'Kelola aktivitas': 'activities', 'Kelola Santri': 'people' };
 document.querySelectorAll('.settings-grid .text-action').forEach((button) => button.addEventListener('click', () => openView(settingRoutes[button.textContent.trim()])));
 document.querySelectorAll('[data-demo]').forEach((button) => button.addEventListener('click', () => showToast(`${button.dataset.demo} tersedia setelah integrasi backend`)));
-const adminListState = { organization: { page: 1, search: '', departmentId: '', teamId: '', status: '', level: '', category: '' }, people: { page: 1, search: '', departmentId: '', teamId: '', status: '', level: '', category: '' }, periods: { page: 1, search: '' }, activities: { page: 1, search: '' }, calendar: { year: new Date().getFullYear() }, participants: { page: 1, search: '', departmentId: '', teamId: '', checklistStatus: '', category: '' } };
+const adminListState = { organization: { page: 1, search: '', departmentId: '', teamId: '', status: '', level: '', category: '' }, people: { page: 1, search: '', departmentId: '', teamId: '', status: '', level: '', category: '' }, periods: { page: 1, search: '' }, activities: { page: 1, search: '', ruleFocus: 'regular' }, calendar: { year: new Date().getFullYear() }, participants: { page: 1, search: '', departmentId: '', teamId: '', checklistStatus: '', category: '' } };
 let latestAdminRequest = 0;
 let activePeriodParticipants = null;
 
@@ -1899,6 +2115,28 @@ function activityAudience(activity) {
   return `${genders} · ${levels}`;
 }
 
+function activityRuleFocusTabs(selected = 'regular') {
+  return `<nav class="history-scope-toggle" aria-label="Fokus pengaturan aktivitas"><button class="filter-pill${selected === 'regular' ? ' is-on' : ''}" type="button" data-activity-rule-focus="regular" aria-pressed="${selected === 'regular'}">Reguler</button><button class="filter-pill${selected === 'magang' ? ' is-on' : ''}" type="button" data-activity-rule-focus="magang" aria-pressed="${selected === 'magang'}">Magang</button><button class="filter-pill${selected === 'shared' ? ' is-on' : ''}" type="button" data-activity-rule-focus="shared" aria-pressed="${selected === 'shared'}">Aturan bersama</button></nav>`;
+}
+
+function masterActivityRuleSummary(activity, focus) {
+  const target = activity.default_target_count;
+  const minimum = activity.default_minimum_target_count ?? target;
+  if (!target) return '<span>Belum diatur</span>';
+  if (focus === 'shared') {
+    const weekly = activity.default_max_per_week ? `Maksimal ${activity.default_max_per_week} kali/pekan` : 'Tanpa batas per pekan';
+    const schedule = activityScheduleLabel({ allowed_weekdays: activity.default_allowed_weekdays });
+    const audience = activityAudience({ applicable_genders: activity.default_applicable_genders, applicable_levels: activity.default_applicable_levels });
+    const dispensation = activity.default_menstruation_exempt ? 'Dispensasi Akhwat berlaku' : 'Tanpa dispensasi Akhwat';
+    return `<strong>${escapeHtml(weekly)}</strong><small>Jadwal ${escapeHtml(schedule)} · ${escapeHtml(audience)} · ${dispensation}</small>`;
+  }
+
+  const magang = focus === 'magang';
+  const categoryTarget = magang ? activity.default_magang_target_count ?? Math.max(1, Math.round(target * 0.75)) : target;
+  const categoryMinimum = magang ? activity.default_magang_minimum_target_count ?? Math.max(1, Math.round(minimum * 0.75)) : minimum;
+  return `<strong>Maksimal ${escapeHtml(categoryTarget)} kali</strong><small>Minimal tuntas ${escapeHtml(categoryMinimum)} kali</small>`;
+}
+
 function audiencePicker(genders = ['ikhwan', 'akhwat'], levels = ['leader', 'staff'], genderField = 'applicable_genders', levelField = 'applicable_levels') {
   const selectedGenders = ruleList(genders, ['ikhwan', 'akhwat']);
   const selectedLevels = ruleList(levels, ['leader', 'staff']);
@@ -1936,19 +2174,25 @@ function periodActivityConfigurationFields(period) {
   const activities = period.period_activities ?? [];
   if (!activities.length) return '<p class="admin-form-note">Belum ada aktivitas pada periode ini. Tambahkan aktivitas terlebih dahulu.</p>';
 
-  const activityButtons = activities.map((activity, index) => `<button class="period-config-nav-item${index === 0 ? ' is-selected' : ''}" type="button" data-period-config-select="${escapeHtml(activity.id)}" aria-pressed="${index === 0 ? 'true' : 'false'}"><strong>${escapeHtml(activity.activity_name_snapshot)}</strong><small>${activity.is_active ? 'Aktif' : 'Nonaktif'} · Reguler ${escapeHtml(activity.target_count)} · Magang ${escapeHtml(activity.magang_target_count ?? Math.max(1, Math.round(activity.target_count * 0.75)))}</small></button>`).join('');
-  const activityForms = activities.map((activity, index) => `<fieldset class="period-config-row" data-period-activity-id="${escapeHtml(activity.id)}"${index === 0 ? '' : ' disabled hidden'}><legend class="sr-only">Atur ${escapeHtml(activity.activity_name_snapshot)}</legend><div class="period-config-row-title"><strong>${escapeHtml(activity.activity_name_snapshot)}</strong><small>Nilai berdasarkan checklist ÷ target maksimum, dibatasi 100%. Tuntas saat target minimal tercapai.</small></div><div class="admin-modal-inline-fields"><label>Target Reguler maksimum<input type="number" min="1" value="${activity.target_count}" data-target-count required></label><label>Target Reguler minimal<input type="number" min="1" max="${activity.target_count}" value="${activity.minimum_target_count ?? activity.target_count}" data-minimum-target-count required></label></div><div class="admin-modal-inline-fields"><label>Target Magang maksimum<input type="number" min="1" value="${activity.magang_target_count ?? Math.max(1, Math.round(activity.target_count * 0.75))}" data-magang-target-count required></label><label>Target Magang minimal<input type="number" min="1" max="${activity.magang_target_count ?? Math.max(1, Math.round(activity.target_count * 0.75))}" value="${activity.magang_minimum_target_count ?? Math.max(1, Math.round((activity.minimum_target_count ?? activity.target_count) * 0.75))}" data-magang-minimum-target-count required></label></div><p class="admin-form-note">Target Magang bawaan adalah 75% dari target Reguler dan dapat disesuaikan untuk aktivitas ini.</p><label>Maksimal per pekan<input type="number" min="1" value="${activity.max_per_week ?? ''}" data-max-per-week><small>Kosongkan bila tidak dibatasi.</small></label><label class="admin-modal-checkbox"><input type="checkbox" data-is-active${activity.is_active ? ' checked' : ''}> Aktivitas aktif</label><div class="period-weekday-control">${weekdayPicker(activity.allowed_weekdays)}</div>${audiencePicker(activity.applicable_genders_list ?? activity.applicable_genders, activity.applicable_levels_list ?? activity.applicable_levels)}</fieldset>`).join('');
+  const activityButtons = activities.map((activity, index) => `<button class="period-config-nav-item${index === 0 ? ' is-selected' : ''}" type="button" data-period-config-select="${escapeHtml(activity.id)}" aria-pressed="${index === 0 ? 'true' : 'false'}"><strong>${escapeHtml(activity.activity_name_snapshot)}</strong><small>${activity.is_active ? 'Aktif' : 'Nonaktif'} · Pilih untuk atur target dan aturan</small></button>`).join('');
+  const activityForms = activities.map((activity, index) => {
+    const magangTarget = activity.magang_target_count ?? Math.max(1, Math.round(activity.target_count * 0.75));
+    const magangMinimum = activity.magang_minimum_target_count ?? Math.max(1, Math.round((activity.minimum_target_count ?? activity.target_count) * 0.75));
+    return `<fieldset class="period-config-row" data-period-activity-id="${escapeHtml(activity.id)}"${index === 0 ? '' : ' disabled hidden'}><legend class="sr-only">Atur ${escapeHtml(activity.activity_name_snapshot)}</legend><div class="period-config-row-title"><strong>${escapeHtml(activity.activity_name_snapshot)}</strong><small>Nilai berdasarkan checklist ÷ target maksimum, dibatasi 100%. Tuntas saat target minimal tercapai.</small></div><div class="activity-rule-scope">${activityRuleFocusTabs()}<section data-activity-rule-pane="regular"><div class="admin-modal-inline-fields"><label>Target maksimum<input type="number" min="1" value="${activity.target_count}" data-target-count required></label><label>Target minimal<input type="number" min="1" max="${activity.target_count}" value="${activity.minimum_target_count ?? activity.target_count}" data-minimum-target-count required></label></div></section><section data-activity-rule-pane="magang" hidden><div class="admin-modal-inline-fields"><label>Target maksimum<input type="number" min="1" value="${magangTarget}" data-magang-target-count required></label><label>Target minimal<input type="number" min="1" max="${magangTarget}" value="${magangMinimum}" data-magang-minimum-target-count required></label></div><p class="admin-form-note">Target Magang dapat berbeda dari target Reguler untuk periode ini.</p></section><section data-activity-rule-pane="shared" hidden><label>Maksimal per pekan<input type="number" min="1" value="${activity.max_per_week ?? ''}" data-max-per-week><small>Kosongkan bila tidak dibatasi.</small></label><label class="admin-modal-checkbox"><input type="checkbox" data-is-active${activity.is_active ? ' checked' : ''}> Aktivitas aktif</label><div class="period-weekday-control">${weekdayPicker(activity.allowed_weekdays)}</div>${audiencePicker(activity.applicable_genders_list ?? activity.applicable_genders, activity.applicable_levels_list ?? activity.applicable_levels)}</section></div></fieldset>`;
+  }).join('');
 
   return `<div class="period-config-manager"><aside class="period-config-navigation" aria-label="Daftar aktivitas periode"><p>${activities.length} aktivitas pada periode ini</p><div>${activityButtons}</div></aside><section class="period-config-editor" aria-label="Pengaturan aktivitas"><button class="text-button period-config-back" type="button" data-period-config-back>Kembali ke daftar aktivitas</button><p class="admin-form-note">Perubahan hanya berlaku untuk periode ini dan akan terkunci setelah periode diaktifkan.</p><div class="period-config-list">${activityForms}</div></section></div>`;
 }
 
-function masterActivityRuleFields(activity = {}) {
+function masterActivityRuleFields(activity = {}, focus = 'regular') {
+  const selectedFocus = ['regular', 'magang', 'shared'].includes(focus) ? focus : 'regular';
   const target = activity.default_target_count ?? '';
   const minimum = activity.default_minimum_target_count ?? '';
   const magangTarget = activity.default_magang_target_count ?? '';
   const magangMinimum = activity.default_magang_minimum_target_count ?? '';
   const weekly = activity.default_max_per_week ?? '';
-  return `<div class="admin-modal-inline-fields"><label>Target Reguler maksimum<input type="number" name="default_target_count" min="1" value="${escapeHtml(target)}" required></label><label>Target Reguler minimal tuntas<input type="number" name="default_minimum_target_count" min="1" value="${escapeHtml(minimum)}" required></label></div><div class="admin-modal-inline-fields"><label>Target Magang maksimum<input type="number" name="default_magang_target_count" min="1" value="${escapeHtml(magangTarget)}"><small>Kosongkan untuk memakai 75% dari target Reguler.</small></label><label>Target Magang minimal tuntas<input type="number" name="default_magang_minimum_target_count" min="1" value="${escapeHtml(magangMinimum)}"><small>Kosongkan untuk memakai 75% dari minimum Reguler.</small></label></div><label>Maksimal per pekan<input type="number" name="default_max_per_week" min="1" value="${escapeHtml(weekly)}"><small>Kosongkan bila tidak ada batas mingguan.</small></label>${weekdayPicker(activity.default_allowed_weekdays, 'default_allowed_weekdays')}${audiencePicker(activity.default_applicable_genders, activity.default_applicable_levels, 'default_applicable_genders', 'default_applicable_levels')}<p class="admin-form-note">Nilai dihitung dari jumlah checklist dibanding target maksimum dan dibatasi 100%. Aktivitas berstatus tuntas saat mencapai target minimal.</p>`;
+  const statusControl = `${activity.id ? `<label class="admin-modal-checkbox"><input type="checkbox" name="is_active"${activity.is_active ? ' checked' : ''}> Aktivitas aktif</label>` : ''}<label class="admin-modal-checkbox"><input type="checkbox" name="default_menstruation_exempt"${activity.default_menstruation_exempt ? ' checked' : ''}> Berlaku dispensasi menstruasi untuk Akhwat</label><small>Hari dispensasi mengurangi target aktivitas ini, tanpa memberi checklist atau nilai otomatis.</small>`;
+  return `<div class="activity-rule-scope">${activityRuleFocusTabs(selectedFocus)}<section data-activity-rule-pane="regular"${selectedFocus === 'regular' ? '' : ' hidden'}><div class="admin-modal-inline-fields"><label>Target maksimum<input type="number" name="default_target_count" min="1" value="${escapeHtml(target)}" required></label><label>Target minimal tuntas<input type="number" name="default_minimum_target_count" min="1" value="${escapeHtml(minimum)}" required></label></div></section><section data-activity-rule-pane="magang"${selectedFocus === 'magang' ? '' : ' hidden'}><div class="admin-modal-inline-fields"><label>Target maksimum<input type="number" name="default_magang_target_count" min="1" value="${escapeHtml(magangTarget)}"><small>Kosongkan untuk memakai 75% dari target Reguler.</small></label><label>Target minimal tuntas<input type="number" name="default_magang_minimum_target_count" min="1" value="${escapeHtml(magangMinimum)}"><small>Kosongkan untuk memakai 75% dari minimum Reguler.</small></label></div></section><section data-activity-rule-pane="shared"${selectedFocus === 'shared' ? '' : ' hidden'}><label>Maksimal per pekan<input type="number" name="default_max_per_week" min="1" value="${escapeHtml(weekly)}"><small>Kosongkan bila tidak ada batas mingguan.</small></label>${weekdayPicker(activity.default_allowed_weekdays, 'default_allowed_weekdays')}${audiencePicker(activity.default_applicable_genders, activity.default_applicable_levels, 'default_applicable_genders', 'default_applicable_levels')}${statusControl}</section><p class="admin-form-note">Nilai dihitung dari jumlah checklist dibanding target maksimum dan dibatasi 100%. Aktivitas berstatus tuntas saat mencapai target minimal.</p></div>`;
 }
 
 function paginationControls(meta, list) {
@@ -2024,7 +2268,13 @@ function renderAdminView(name) {
     const peopleTeams = selectedPeopleDepartment?.teams ?? [];
     const hasPeopleFilters = Boolean(peopleFilters.search || peopleFilters.departmentId || peopleFilters.teamId || peopleFilters.status || peopleFilters.level || peopleFilters.category);
     const showPeopleEmpty = hasTeams && peopleMeta.total === 0 && !hasPeopleFilters;
-    const peopleRows = people.map((profile) => `<div class="admin-record-row people-record-row" role="row"><span role="cell"><strong>${escapeHtml(profile.user.name)}</strong><small>${escapeHtml(profile.user.email)}</small></span><span role="cell"><strong>${escapeHtml(profile.department?.name ?? 'Tanpa departemen')}</strong><small>Tim: ${escapeHtml(profile.team?.name ?? 'Belum ditetapkan')} · Leader: ${escapeHtml(profile.team?.leader?.name ?? 'Belum ditetapkan')}</small></span><span role="cell">${profile.status === 'active' ? 'Aktif' : 'Nonaktif'} · ${profile.level === 'leader' ? 'Leader' : 'Staff'} · LKS ${profile.category === 'magang' ? 'Magang' : 'Reguler'}</span><span role="cell"><button class="text-button organization-row-action" type="button" data-open-admin-modal="santri-edit" data-santri-id="${escapeHtml(profile.user_id)}">Edit</button><button class="text-button organization-row-action" type="button" data-delete-resource="santri" data-resource-id="${escapeHtml(profile.user_id)}" data-resource-name="${escapeHtml(profile.user.name)}">Hapus</button></span></div>`).join('');
+    const peopleRows = people.map((profile) => {
+      const accountIsActive = profile.status === 'active' && profile.user?.is_active;
+      const passwordResetAction = accountIsActive
+        ? `<button class="text-button organization-row-action" type="button" data-open-admin-modal="santri-password-reset" data-santri-id="${escapeHtml(profile.user_id)}">Atur ulang password</button>`
+        : `<button class="text-button organization-row-action" type="button" disabled title="${profile.status === 'active' ? 'Status akses akun belum aktif. Buka Edit untuk menyelaraskan status.' : 'Aktifkan akun sebelum mengatur ulang password'}">Atur ulang password</button>`;
+      return `<div class="admin-record-row people-record-row" role="row"><span role="cell"><strong>${escapeHtml(profile.user.name)}</strong><small>${escapeHtml(profile.user.email)}</small></span><span role="cell"><strong>${escapeHtml(profile.department?.name ?? 'Tanpa departemen')}</strong><small>Tim: ${escapeHtml(profile.team?.name ?? 'Belum ditetapkan')} · Leader: ${escapeHtml(profile.team?.leader?.name ?? 'Belum ditetapkan')}</small></span><span role="cell">${accountIsActive ? 'Aktif' : 'Nonaktif'} · ${profile.level === 'leader' ? 'Leader' : 'Staff'} · LKS ${profile.category === 'magang' ? 'Magang' : 'Reguler'}</span><span role="cell"><button class="text-button organization-row-action" type="button" data-open-admin-modal="santri-edit" data-santri-id="${escapeHtml(profile.user_id)}">Edit</button>${passwordResetAction}<button class="text-button organization-row-action" type="button" data-delete-resource="santri" data-resource-id="${escapeHtml(profile.user_id)}" data-resource-name="${escapeHtml(profile.user.name)}">Hapus</button></span></div>`;
+    }).join('');
     const peopleFilterControls = `<form class="admin-list-search people-filter-form" data-admin-list-search="people"><label class="sr-only" for="people-search">Cari Santri Karya</label><input id="people-search" name="search" value="${escapeHtml(peopleFilters.search)}" placeholder="Cari nama, email, tim, atau Leader" autocomplete="off"><label><span class="sr-only">Departemen</span><select name="department_id" data-people-filter="department"><option value="">Semua departemen</option>${departmentOptions.map((department) => `<option value="${escapeHtml(department.id)}"${department.id === peopleFilters.departmentId ? ' selected' : ''}>${escapeHtml(department.name)}</option>`).join('')}</select></label><label><span class="sr-only">Tim</span><select name="team_id" data-people-filter="team"${peopleFilters.departmentId ? '' : ' disabled'}>${peopleFilters.departmentId ? `<option value="">Semua tim</option>${peopleTeams.map((team) => `<option value="${escapeHtml(team.id)}"${team.id === peopleFilters.teamId ? ' selected' : ''}>${escapeHtml(team.name)}</option>`).join('')}` : '<option value="">Pilih departemen terlebih dahulu</option>'}</select></label><label><span class="sr-only">Status akses</span><select name="status" data-people-filter="status"><option value="">Semua status</option><option value="active"${peopleFilters.status === 'active' ? ' selected' : ''}>Aktif</option><option value="inactive"${peopleFilters.status === 'inactive' ? ' selected' : ''}>Nonaktif</option></select></label><label><span class="sr-only">Level jabatan</span><select name="level" data-people-filter="level"><option value="">Semua level</option><option value="leader"${peopleFilters.level === 'leader' ? ' selected' : ''}>Leader</option><option value="staff"${peopleFilters.level === 'staff' ? ' selected' : ''}>Staff</option></select></label>${hasPeopleFilters ? '<button class="text-button" type="button" data-reset-people-filters>Reset filter</button>' : ''}</form>`;
     const peopleContent = !hasTeams
       ? `<section class="organization-empty-state" aria-labelledby="people-prerequisite-title"><h3 id="people-prerequisite-title">Siapkan tim terlebih dahulu</h3><p>Santri Karya perlu ditempatkan di dalam tim. Buat departemen dan tim sebelum membuat akun Santri Karya.</p><button class="primary-button" type="button" data-go="organization">Kelola struktur organisasi</button></section>`
@@ -2122,11 +2372,11 @@ function renderAdminView(name) {
   const drafts = periodOptions.filter((period) => period.status === 'draft');
   const hasActivitySearch = Boolean(adminListState.activities.search);
   const showActivityEmpty = activityMeta.total === 0 && !hasActivitySearch;
+  const activityRuleFocus = adminListState.activities.ruleFocus;
+  const activityRuleFocusLabel = activityRuleFocus === 'magang' ? 'Magang' : activityRuleFocus === 'shared' ? 'bersama' : 'Reguler';
   const activityRows = configuration.activities.map((activity) => {
     const assignments = activity.period_activities ?? [];
-    const defaultRule = activity.default_target_count
-      ? `<strong>${escapeHtml(activityRuleLabel({ target_count: activity.default_target_count, minimum_target_count: activity.default_minimum_target_count, magang_target_count: activity.default_magang_target_count, magang_minimum_target_count: activity.default_magang_minimum_target_count, max_per_week: activity.default_max_per_week, allowed_weekdays: activity.default_allowed_weekdays }))}</strong>`
-      : '<span>Belum diatur</span>';
+    const defaultRule = masterActivityRuleSummary(activity, activityRuleFocus);
     const usage = assignments.length
       ? `<span class="activity-usage">${assignments.length} periode</span>`
       : '<span class="activity-usage is-empty">Belum digunakan</span>';
@@ -2139,10 +2389,12 @@ function renderAdminView(name) {
         : '<button class="text-button organization-row-action" type="button" data-go="periods">Lihat periode</button>');
     const usageNote = hasHistoricalUsage ? '<small>Terkunci oleh periode aktif atau riwayat</small>' : draftPeriodCount ? '<small>Hanya dipakai di draft</small>' : '';
     const deleteAction = !hasHistoricalUsage ? `<button class="text-button organization-row-action" type="button" data-delete-resource="activity" data-resource-id="${escapeHtml(activity.id)}" data-resource-name="${escapeHtml(activity.name)}" data-draft-period-count="${draftPeriodCount}">Hapus</button>` : '';
-    return `<div class="admin-record-row activity-record-row" role="row"><span role="cell"><strong>${escapeHtml(activity.name)}</strong><small>${escapeHtml(activity.code)}</small></span><span class="activity-default-rule" role="cell">${defaultRule}</span><span role="cell"><span class="status ${activity.is_active ? 'status-active' : 'status-closed'}">${activity.is_active ? 'Aktif' : 'Nonaktif'}</span></span><span role="cell">${usage}${usageNote}</span><span role="cell"><button class="text-button organization-row-action" type="button" data-open-admin-modal="activity-edit" data-activity-id="${escapeHtml(activity.id)}">Edit aturan</button>${periodAction}${deleteAction}</span></div>`;
+    return `<div class="admin-record-row activity-record-row" role="row"><span role="cell"><strong>${escapeHtml(activity.name)}</strong><small>${escapeHtml(activity.code)}</small></span><span class="activity-default-rule" role="cell">${defaultRule}</span><span role="cell"><span class="status ${activity.is_active ? 'status-active' : 'status-closed'}">${activity.is_active ? 'Aktif' : 'Nonaktif'}</span></span><span role="cell">${usage}${usageNote}</span><span role="cell"><button class="text-button organization-row-action" type="button" data-open-admin-modal="activity-edit" data-activity-id="${escapeHtml(activity.id)}">Edit default ${activityRuleFocusLabel}</button>${periodAction}${deleteAction}</span></div>`;
   }).join('');
+  const activityRuleFocusControl = `<nav class="history-scope-toggle activity-rule-focus-control" aria-label="Fokus aturan default"><button class="filter-pill${activityRuleFocus === 'regular' ? ' is-on' : ''}" type="button" data-activity-list-rule-focus="regular" aria-pressed="${activityRuleFocus === 'regular'}">Reguler</button><button class="filter-pill${activityRuleFocus === 'magang' ? ' is-on' : ''}" type="button" data-activity-list-rule-focus="magang" aria-pressed="${activityRuleFocus === 'magang'}">Magang</button><button class="filter-pill${activityRuleFocus === 'shared' ? ' is-on' : ''}" type="button" data-activity-list-rule-focus="shared" aria-pressed="${activityRuleFocus === 'shared'}">Aturan bersama</button></nav>`;
+  const activityRuleHeading = activityRuleFocus === 'magang' ? 'Default Magang' : activityRuleFocus === 'shared' ? 'Default bersama' : 'Default Reguler';
   const activityContent = !showActivityEmpty
-    ? `<section class="admin-record-section" aria-labelledby="activity-list-title"><div class="organization-section-head"><div><h3 id="activity-list-title">Daftar Aktivitas</h3><p>${hasActivitySearch ? `${activityMeta.total} aktivitas ditemukan.` : `${activityMeta.total} aktivitas master tersimpan.`}</p></div></div><form class="admin-list-search" data-admin-list-search="activities"><label class="sr-only" for="activity-search">Cari aktivitas LKS</label><input id="activity-search" name="search" value="${escapeHtml(adminListState.activities.search)}" placeholder="Cari nama atau kode aktivitas" autocomplete="off"></form>${configuration.activities.length ? `<div class="admin-record-table activity-record-table" role="table" aria-label="Daftar aktivitas LKS"><div class="admin-record-head" role="row"><span role="columnheader">Aktivitas</span><span role="columnheader">Aturan default</span><span role="columnheader">Status</span><span role="columnheader">Pemakaian</span><span role="columnheader">Aksi</span></div>${activityRows}</div>${paginationControls(activityMeta, 'activities')}` : '<p class="admin-empty">Tidak ada aktivitas yang sesuai dengan pencarian.</p>'}${drafts.length ? '<p class="admin-context-note">Aktivitas yang hanya dipakai di draft dapat dihapus. Aktivitas pada periode aktif atau riwayat harus dinonaktifkan agar data LKS tetap terjaga.</p>' : '<p class="admin-context-note">Buat periode draft terlebih dahulu sebelum memasukkan aktivitas ke periode.</p>'}</section>`
+    ? `<section class="admin-record-section" aria-labelledby="activity-list-title"><div class="organization-section-head activity-rule-heading"><div><h3 id="activity-list-title">Daftar Aktivitas</h3><p>${hasActivitySearch ? `${activityMeta.total} aktivitas ditemukan.` : `${activityMeta.total} aktivitas master tersimpan.`}</p></div>${activityRuleFocusControl}</div><form class="admin-list-search" data-admin-list-search="activities"><label class="sr-only" for="activity-search">Cari aktivitas LKS</label><input id="activity-search" name="search" value="${escapeHtml(adminListState.activities.search)}" placeholder="Cari nama atau kode aktivitas" autocomplete="off"></form>${configuration.activities.length ? `<div class="admin-record-table activity-record-table" role="table" aria-label="Daftar aktivitas LKS"><div class="admin-record-head" role="row"><span role="columnheader">Aktivitas</span><span role="columnheader">${activityRuleHeading}</span><span role="columnheader">Status</span><span role="columnheader">Pemakaian</span><span role="columnheader">Aksi</span></div>${activityRows}</div>${paginationControls(activityMeta, 'activities')}` : '<p class="admin-empty">Tidak ada aktivitas yang sesuai dengan pencarian.</p>'}${drafts.length ? '<p class="admin-context-note">Aktivitas yang hanya dipakai di draft dapat dihapus. Aktivitas pada periode aktif atau riwayat harus dinonaktifkan agar data LKS tetap terjaga.</p>' : '<p class="admin-context-note">Buat periode draft terlebih dahulu sebelum memasukkan aktivitas ke periode.</p>'}</section>`
     : `<section class="organization-empty-state" aria-labelledby="activity-empty-title"><h3 id="activity-empty-title">Belum ada aktivitas LKS</h3><p>Tambahkan aktivitas master yang akan digunakan dalam periode LKS.</p><button class="primary-button" type="button" data-open-admin-modal="activity">Tambah aktivitas</button></section>`;
   const activityActions = !showActivityEmpty ? '<button class="primary-button" type="button" data-open-admin-modal="activity">Tambah aktivitas</button>' : '';
   panel.innerHTML = adminPanel('Aktivitas & Aturan', 'Aturan default dipakai saat aktivitas dimasukkan ke periode draft. Target periode dapat disesuaikan di sana.', `<nav class="admin-back-link" aria-label="Navigasi pengaturan"><button class="text-button" type="button" data-go="settings">Kembali ke Pengaturan</button></nav>${activityContent}`, activityActions, !showActivityEmpty);
@@ -2242,6 +2494,12 @@ async function submitAdminForm(form) {
     endpoint = `/admin/santri/${form.dataset.santriId}`;
     method = 'PATCH';
   }
+  if (type === 'santri-password-reset') {
+    endpoint = `/admin/santri/${form.dataset.santriId}/password`;
+    method = 'PATCH';
+  }
+  if (type === 'menstruation-dispensation') endpoint = '/menstruation-dispensations';
+  if (type === 'admin-dispensation') endpoint = `/admin/periods/${form.dataset.periodId}/participants/${form.dataset.participantId}/menstruation-dispensations`;
   if (type === 'period-edit') {
     endpoint = `/admin/periods/${form.dataset.periodId}`;
     method = 'PATCH';
@@ -2254,6 +2512,7 @@ async function submitAdminForm(form) {
     payload.is_active = form.elements.is_active.checked;
   }
   if (type === 'activity' || type === 'activity-edit') {
+    payload.default_menstruation_exempt = form.elements.default_menstruation_exempt.checked;
     payload.default_allowed_weekdays = [...form.querySelectorAll('[name="default_allowed_weekdays"]:checked')].map((input) => Number(input.value));
     payload.default_applicable_genders = [...form.querySelectorAll('[name="default_applicable_genders"]:checked')].map((input) => input.value);
     payload.default_applicable_levels = [...form.querySelectorAll('[name="default_applicable_levels"]:checked')].map((input) => input.value);
@@ -2298,7 +2557,20 @@ async function submitAdminForm(form) {
       allowed_weekdays: [...row.querySelectorAll('[name="allowed_weekdays"]:checked')].map((input) => Number(input.value)),
       applicable_genders: [...row.querySelectorAll('[name="applicable_genders"]:checked')].map((input) => input.value),
       applicable_levels: [...row.querySelectorAll('[name="applicable_levels"]:checked')].map((input) => input.value),
+      menstruation_exempt: row.querySelector('[data-menstruation-exempt]').checked,
     })) };
+  }
+  if (type === 'menstruation-dispensation' && activeParticipant && activePeriod) {
+    const entries = activeParticipant.menstruation_dispensations ?? [];
+    const entryList = entries.length
+      ? `<ul class="admin-form-note">${entries.map((entry) => `<li>${escapeHtml(formatDate(entry.start_date, true))}${entry.start_date === entry.end_date ? '' : ` sampai ${escapeHtml(formatDate(entry.end_date, true))}`} <button class="text-button" type="button" data-delete-menstruation-dispensation="${escapeHtml(entry.id)}">Hapus</button></li>`).join('')}</ul>`
+      : '<p class="admin-form-note">Belum ada dispensasi tercatat pada periode ini.</p>';
+    definitions['menstruation-dispensation'] = {
+      title: 'Dispensasi menstruasi',
+      description: 'Catatan ini pribadi. Hanya mengurangi target aktivitas yang memang ditandai Admin; tidak memberi checklist atau nilai otomatis.',
+      submitLabel: 'Simpan dispensasi',
+      fields: `<div class="admin-modal-inline-fields"><label>Tanggal mulai<input type="date" name="start_date" min="${escapeHtml(dateInputValue(activeParticipant.participation_start_date))}" max="${escapeHtml(dateInputValue(activePeriod.end_date < todayIso() ? activePeriod.end_date : todayIso()))}" required></label><label>Tanggal selesai<input type="date" name="end_date" min="${escapeHtml(dateInputValue(activeParticipant.participation_start_date))}" max="${escapeHtml(dateInputValue(activePeriod.end_date < todayIso() ? activePeriod.end_date : todayIso()))}" required></label></div>${entryList}`,
+    };
   }
   if (type === 'period-activity') {
     payload.allowed_weekdays = [...form.querySelectorAll('[name="allowed_weekdays"]:checked')].map((input) => Number(input.value));
@@ -2320,6 +2592,10 @@ async function submitAdminForm(form) {
     const confirmed = await confirmAction({ title: 'Nonaktifkan akun ini?', message: 'Santri Karya tidak dapat masuk atau dipilih untuk penempatan baru. Data periode yang sudah tersimpan tetap utuh.', confirmLabel: 'Nonaktifkan akun', tone: 'danger' });
     if (!confirmed) return;
   }
+  if (type === 'santri-password-reset') {
+    const confirmed = await confirmAction({ title: 'Atur ulang password?', message: `${form.dataset.santriName} akan menerima password sementara baru dan wajib menggantinya saat masuk kembali. Sesi yang sedang berjalan akan berakhir.`, confirmLabel: 'Atur ulang password' });
+    if (!confirmed) return;
+  }
   if (type === 'activity-edit' && !payload.is_active) {
     const confirmed = await confirmAction({ title: 'Nonaktifkan aktivitas ini?', message: 'Aktivitas tidak tersedia untuk ditambahkan ke periode draft berikutnya. Konfigurasi periode yang sudah ada tidak berubah.', confirmLabel: 'Nonaktifkan aktivitas', tone: 'danger' });
     if (!confirmed) return;
@@ -2331,15 +2607,26 @@ async function submitAdminForm(form) {
     const response = await fetch(`${apiBase}${endpoint}`, { method, credentials: 'same-origin', headers: { Accept: 'application/json', ...(!multipart ? { 'Content-Type': 'application/json' } : {}), ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}) }, body: multipart ? formData : JSON.stringify(payload) });
     if (!response.ok) throw await apiFormError(response);
     const result = await response.json().catch(() => ({}));
-    showToast(type === 'checklist-correction'
+    showToast(type === 'santri-password-reset'
+      ? 'Password sementara berhasil disimpan'
+      : type === 'checklist-correction'
       ? 'Koreksi tersimpan dan nilai telah diperbarui'
       : result.meta?.calendar_review_required
         ? 'Rentang periode berubah. Hari libur referensi telah disesuaikan; tinjau kembali sebelum aktivasi.'
         : 'Data berhasil disimpan');
+    if (type === 'admin-dispensation') {
+      showToast('Dispensasi berhasil dikoreksi');
+      await loadChecklistCorrectionContext(form.dataset.correctionDate);
+      return;
+    }
     form.closest('dialog')?.close();
     if (type === 'checklist-correction') {
       correctionParticipantId = null;
       loadRecap(recapData?.period?.id ?? '', { showProgress: false });
+      return;
+    }
+    if (type === 'menstruation-dispensation') {
+      loadDashboard({ date: selectedChecklistDate, showProgress: false, reloadRecap: true });
       return;
     }
     organizationData = null;
@@ -2390,6 +2677,15 @@ async function submitBulkChecklistForm(form) {
   }
 }
 
+function renderAdminDispensationManager(context) {
+  if (context.participant.gender !== 'akhwat') return '';
+  const entries = context.menstruation_dispensations ?? [];
+  const entryList = entries.length
+    ? `<ul class="admin-form-note">${entries.map((entry) => `<li>${escapeHtml(formatDate(entry.start_date, true))}${entry.start_date === entry.end_date ? '' : ` sampai ${escapeHtml(formatDate(entry.end_date, true))}`} <button class="text-button" type="button" data-delete-admin-dispensation="${escapeHtml(entry.id)}">Hapus</button></li>`).join('')}</ul>`
+    : '<p class="admin-form-note">Belum ada dispensasi tercatat pada periode ini.</p>';
+  return `<form class="admin-modal-form correction-dispensation-form" data-admin-form="admin-dispensation" data-period-id="${escapeHtml(recapData.period.id)}" data-participant-id="${escapeHtml(context.participant.id)}" data-correction-date="${escapeHtml(context.date)}"><section class="correction-checklist" aria-label="Koreksi dispensasi menstruasi"><h3>Dispensasi menstruasi</h3><p>Gunakan hanya untuk koreksi catatan peserta Akhwat. Alasan koreksi wajib disimpan pada audit.</p>${entryList}<div class="admin-modal-inline-fields"><label>Tanggal mulai<input type="date" name="start_date" min="${escapeHtml(context.minimum_date)}" max="${escapeHtml(context.maximum_date)}" required></label><label>Tanggal selesai<input type="date" name="end_date" min="${escapeHtml(context.minimum_date)}" max="${escapeHtml(context.maximum_date)}" required></label></div><label>Alasan koreksi<textarea name="reason" maxlength="1000" required></textarea></label><div class="admin-modal-actions"><button class="primary-button" type="submit">Simpan dispensasi</button></div></section></form>`;
+}
+
 async function loadChecklistCorrectionContext(date) {
   if (!recapData || !correctionParticipantId) return;
   adminFormDialogContent.setAttribute('aria-busy', 'true');
@@ -2399,7 +2695,7 @@ async function loadChecklistCorrectionContext(date) {
     const context = (await response.json()).data;
     const rows = context.activities.map((activity) => `<label class="correction-checklist-row"><span><strong>${escapeHtml(activity.name)}</strong><small>${activity.is_completed ? 'Tercatat selesai' : 'Belum dicatat'}</small></span><input type="checkbox" value="${escapeHtml(activity.id)}" data-correction-activity data-original-completed="${activity.is_completed ? 'true' : 'false'}"${activity.is_completed ? ' checked' : ''}><span class="sr-only">${escapeHtml(activity.name)}</span></label>`).join('');
     const auditTrail = context.corrections?.length ? `<section class="correction-audit" aria-label="Riwayat koreksi"><h3>Riwayat koreksi tanggal ini</h3>${context.corrections.map((correction) => `<p><strong>${escapeHtml(correction.activity ?? 'Aktivitas')}</strong> · ${escapeHtml(correction.actor)}<small>${correction.before === null ? 'Belum dicatat' : correction.before ? 'Selesai' : 'Tidak selesai'} → ${correction.after ? 'Selesai' : 'Tidak selesai'} · ${escapeHtml(correction.reason ?? '')}</small></p>`).join('')}</section>` : '';
-    adminFormDialogContent.innerHTML = `<form class="admin-modal-form" data-admin-form="checklist-correction" data-period-id="${escapeHtml(recapData.period.id)}" data-participant-id="${escapeHtml(context.participant.id)}"><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">Lihat &amp; koreksi catatan</h2><p>${escapeHtml(context.participant.name)} · ${escapeHtml(context.participant.team ?? 'Tanpa tim')} · ${escapeHtml(context.participant.department ?? 'Tanpa departemen')}</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields"><label>Tanggal pencatatan<input type="date" name="checklist_date" data-correction-date min="${escapeHtml(context.minimum_date)}" max="${escapeHtml(context.maximum_date)}" value="${escapeHtml(context.date)}" required></label><section class="correction-checklist" aria-label="Checklist ${escapeHtml(context.participant.name)}"><p>Ubah hanya aktivitas yang perlu dikoreksi. Nilai dan status akan dihitung ulang setelah disimpan.</p>${rows || '<p class="admin-form-note">Tidak ada aktivitas yang berlaku untuk peserta ini.</p>'}</section>${auditTrail}<label>Alasan koreksi<textarea name="reason" maxlength="1000" required></textarea><small>Alasan tersimpan pada riwayat audit.</small></label></div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit">Simpan koreksi</button></div></form>`;
+    adminFormDialogContent.innerHTML = `<form class="admin-modal-form" data-admin-form="checklist-correction" data-period-id="${escapeHtml(recapData.period.id)}" data-participant-id="${escapeHtml(context.participant.id)}"><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">Lihat &amp; koreksi catatan</h2><p>${escapeHtml(context.participant.name)} · ${escapeHtml(context.participant.team ?? 'Tanpa tim')} · ${escapeHtml(context.participant.department ?? 'Tanpa departemen')}</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields"><label>Tanggal pencatatan<input type="date" name="checklist_date" data-correction-date min="${escapeHtml(context.minimum_date)}" max="${escapeHtml(context.maximum_date)}" value="${escapeHtml(context.date)}" required></label><section class="correction-checklist" aria-label="Checklist ${escapeHtml(context.participant.name)}"><p>Ubah hanya aktivitas yang perlu dikoreksi. Nilai dan status akan dihitung ulang setelah disimpan.</p>${rows || '<p class="admin-form-note">Tidak ada aktivitas yang berlaku untuk peserta ini.</p>'}</section>${auditTrail}<label>Alasan koreksi<textarea name="reason" maxlength="1000" required></textarea><small>Alasan tersimpan pada riwayat audit.</small></label></div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit">Simpan koreksi</button></div></form>${renderAdminDispensationManager(context)}`;
     markAdminFormPristine();
     adminFormDialog.querySelector('[data-correction-date]')?.focus();
   } catch (error) {
@@ -2464,6 +2760,12 @@ adminFormDialog.addEventListener('cancel', async (event) => {
 
 document.addEventListener('submit', (event) => { if (event.target.matches('[data-admin-form]')) { event.preventDefault(); submitAdminForm(event.target); } });
 let adminSearchTimer;
+document.addEventListener('click', (event) => {
+  const focus = event.target.closest('[data-activity-list-rule-focus]');
+  if (!focus) return;
+  adminListState.activities.ruleFocus = focus.dataset.activityListRuleFocus;
+  renderAdminView('activities');
+});
 document.addEventListener('input', (event) => {
   const form = event.target.closest('[data-admin-list-search]');
   if (!form || event.target.name !== 'search') return;
@@ -2561,6 +2863,8 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
   const availableParticipants = participants.filter((participant) => !enrolledParticipantIds.has(participant.id));
   const configuredPeriod = periodOptions.find((period) => period.id === departmentId);
   const selectedProfile = (organization.santri ?? []).find((profile) => profile.user_id === departmentId);
+  const lastPasswordReset = selectedProfile?.last_password_reset;
+  const passwordResetHistory = lastPasswordReset ? ` Password terakhir diatur ulang oleh ${escapeHtml(lastPasswordReset.actor_name ?? 'Admin')} pada ${escapeHtml(formatDateTime(lastPasswordReset.created_at))}.` : '';
   const teamLeaderOptions = (organization.team_leader_options ?? []).filter((profile) => profile.team_id === selectedTeam?.id).map((profile) => ({ id: profile.user_id, name: profile.user.name }));
   const selectedJobLevel = selectedProfile?.level === 'leader' ? 'leader' : 'staff';
   const selectedActivity = activityOptions.find((activity) => activity.id === departmentId);
@@ -2591,11 +2895,15 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
     } : null,
     santri: {
       title: selectedTeam ? `Tambah Santri Baru ke Tim · ${escapeHtml(selectedTeam.name)}` : 'Tambah Santri Karya', description: selectedTeam ? 'Form ini membuat akun Santri Karya yang sama dengan menu Data Santri Karya. Penempatannya mengikuti Tim yang dipilih dari Struktur Organisasi.' : 'Pilih Tim untuk akun baru. Departemen dan Leader Tim akan mengikuti pilihan tersebut secara otomatis.', submitLabel: 'Buat akun Santri',
-      fields: `<label>Nama<input name="name" maxlength="150" autocomplete="name" required></label><label>Email<input type="email" name="email" autocomplete="email" required></label><label>Password sementara<input type="password" name="temporary_password" minlength="8" autocomplete="new-password" required></label><div class="admin-modal-inline-fields"><label>Gender<select name="gender" required><option value="ikhwan">Ikhwan</option><option value="akhwat">Akhwat</option></select></label><label>Jenis LKS<select name="category" required><option value="regular" selected>Reguler</option><option value="magang">Magang</option></select><small>Menentukan target aktivitas pada periode baru.</small></label></div>${santriTeamField}<label>Level jabatan<select name="level" required><option value="staff" selected>Staff</option><option value="leader">Leader</option></select><small>Untuk menetapkan Leader Tim, pilih akun Leader dari menu Kelola tim.</small></label>`,
+      fields: `<label>Nama<input name="name" maxlength="150" autocomplete="name" required></label><label>Email<input type="email" name="email" autocomplete="email" required></label><label>Password sementara<input type="password" name="temporary_password" minlength="8" maxlength="255" autocomplete="new-password" required><small>Gunakan password kuat sesuai kebijakan keamanan.</small></label><label>Konfirmasi password sementara<input type="password" name="temporary_password_confirmation" minlength="8" maxlength="255" autocomplete="new-password" required></label><div class="admin-modal-inline-fields"><label>Gender<select name="gender" required><option value="ikhwan">Ikhwan</option><option value="akhwat">Akhwat</option></select></label><label>Jenis LKS<select name="category" required><option value="regular" selected>Reguler</option><option value="magang">Magang</option></select><small>Menentukan target aktivitas pada periode baru.</small></label></div>${santriTeamField}<label>Level jabatan<select name="level" required><option value="staff" selected>Staff</option><option value="leader">Leader</option></select><small>Untuk menetapkan Leader Tim, pilih akun Leader dari menu Kelola tim.</small></label>`,
     },
     'santri-edit': selectedProfile ? {
-      title: `Kelola Santri Karya · ${escapeHtml(selectedProfile.user.name)}`, description: 'Perubahan penempatan dan jenis LKS berlaku untuk periode berikutnya. Riwayat periode yang sudah berjalan tetap menggunakan snapshot sebelumnya. Leader mengikuti Tim yang dipilih.', submitLabel: 'Simpan perubahan',
+      title: `Kelola Santri Karya · ${escapeHtml(selectedProfile.user.name)}`, description: `Perubahan penempatan dan jenis LKS berlaku untuk periode berikutnya. Riwayat periode yang sudah berjalan tetap menggunakan snapshot sebelumnya. Leader mengikuti Tim yang dipilih.${passwordResetHistory}`, submitLabel: 'Simpan perubahan',
       fields: `<label>Nama<input name="name" maxlength="150" autocomplete="name" value="${escapeHtml(selectedProfile.user.name)}" required></label><label>Email<input type="email" name="email" autocomplete="email" value="${escapeHtml(selectedProfile.user.email)}" required></label><div class="admin-modal-inline-fields"><label>Gender<select name="gender" required><option value="ikhwan"${selectedProfile.gender === 'ikhwan' ? ' selected' : ''}>Ikhwan</option><option value="akhwat"${selectedProfile.gender === 'akhwat' ? ' selected' : ''}>Akhwat</option></select></label><label>Jenis LKS<select name="category" required><option value="regular"${selectedProfile.category !== 'magang' ? ' selected' : ''}>Reguler</option><option value="magang"${selectedProfile.category === 'magang' ? ' selected' : ''}>Magang</option></select><small>Menentukan target aktivitas pada periode berikutnya.</small></label></div><label>Tim<select name="team_id" required>${adminOptions(teams.filter((team) => team.is_active), selectedProfile.team_id)}</select><small>Leader Tim diatur dari pengaturan Tim.</small></label><label>Level jabatan<select name="level" required><option value="staff"${selectedJobLevel === 'staff' ? ' selected' : ''}>Staff</option><option value="leader"${selectedJobLevel === 'leader' ? ' selected' : ''}>Leader</option></select></label><label>Status akun<select name="status" required><option value="active"${selectedProfile.status === 'active' ? ' selected' : ''}>Aktif</option><option value="inactive"${selectedProfile.status === 'inactive' ? ' selected' : ''}>Nonaktif</option></select></label>`,
+    } : null,
+    'santri-password-reset': selectedProfile ? {
+      title: `Atur ulang password · ${escapeHtml(selectedProfile.user.name)}`, description: 'Simpan password sementara baru melalui saluran yang aman. Santri Karya wajib menggantinya saat masuk kembali; sesi yang sedang berjalan akan berakhir.', submitLabel: 'Simpan password sementara',
+      fields: '<label>Password sementara baru<input type="password" name="password" minlength="8" maxlength="255" autocomplete="new-password" required><small>Gunakan password kuat sesuai kebijakan keamanan.</small></label><label>Konfirmasi password sementara<input type="password" name="password_confirmation" minlength="8" maxlength="255" autocomplete="new-password" required></label>',
     } : null,
     'signatory-edit': selectedSignatory ? {
       title: `Kelola identitas pejabat · ${escapeHtml(selectedSignatory.title)}`, description: 'Nama pejabat dicantumkan pada PDF dan disimpan sebagai snapshot saat periode diaktifkan. Tidak diperlukan unggahan TTD.', submitLabel: 'Simpan identitas pejabat',
@@ -2642,7 +2950,7 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
     definitions.activity.description = 'Atur rumus default untuk periode baru. Periode yang sudah aktif tetap memakai snapshot aturannya.';
   }
   if (type === 'activity-edit' && selectedActivity) {
-    definitions['activity-edit'].fields = `<label>Kode<input name="code" maxlength="50" autocomplete="off" value="${escapeHtml(selectedActivity.code)}" required></label><label>Nama aktivitas<input name="name" maxlength="150" value="${escapeHtml(selectedActivity.name)}" required></label>${masterActivityRuleFields(selectedActivity)}<label class="admin-modal-checkbox"><input type="checkbox" name="is_active"${selectedActivity.is_active ? ' checked' : ''}> Aktivitas aktif</label>`;
+    definitions['activity-edit'].fields = `<label>Kode<input name="code" maxlength="50" autocomplete="off" value="${escapeHtml(selectedActivity.code)}" required></label><label>Nama aktivitas<input name="name" maxlength="150" value="${escapeHtml(selectedActivity.name)}" required></label>${masterActivityRuleFields(selectedActivity, adminListState.activities.ruleFocus)}`;
     definitions['activity-edit'].description = 'Aturan ini menjadi default periode baru. Snapshot aktivitas pada periode aktif atau tertutup tetap terjaga.';
   }
   definitions.holiday = {
@@ -2664,7 +2972,15 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
   const definition = definitions[type];
   if (!definition) return;
   const disableSubmit = (type === 'period-config' && configuredPeriod.period_activities.length === 0) || (type === 'period-activity' && availablePeriodActivityOptions.length === 0) || (type === 'participant' && (!selectedParticipantPeriod || availableParticipants.length === 0));
-  adminFormDialogContent.innerHTML = `<form class="admin-modal-form" data-admin-form="${type}"${['period-config', 'period-edit', 'period-holiday', 'period-holiday-import'].includes(type) ? ` data-period-id="${escapeHtml(departmentId)}"` : ''}${type === 'participant' ? ` data-period-name="${escapeHtml(selectedParticipantPeriod?.name ?? '')}"` : ''}${type === 'department-edit' || type === 'team-edit' ? ` data-organization-id="${escapeHtml(departmentId)}"` : ''}${type === 'santri-edit' ? ` data-santri-id="${escapeHtml(departmentId)}"` : ''}${type === 'activity-edit' ? ` data-activity-id="${escapeHtml(departmentId)}"` : ''}><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">${definition.title}</h2><p>${definition.description}</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields">${definition.fields}</div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit"${disableSubmit ? ' disabled' : ''}>${definition.submitLabel}</button></div></form>`;
+  adminFormDialogContent.innerHTML = `<form class="admin-modal-form" data-admin-form="${type}"${['period-config', 'period-edit', 'period-holiday', 'period-holiday-import'].includes(type) ? ` data-period-id="${escapeHtml(departmentId)}"` : ''}${type === 'participant' ? ` data-period-name="${escapeHtml(selectedParticipantPeriod?.name ?? '')}"` : ''}${type === 'department-edit' || type === 'team-edit' ? ` data-organization-id="${escapeHtml(departmentId)}"` : ''}${['santri-edit', 'santri-password-reset'].includes(type) ? ` data-santri-id="${escapeHtml(departmentId)}"` : ''}${type === 'santri-password-reset' ? ` data-santri-name="${escapeHtml(selectedProfile?.user?.name ?? 'Santri Karya ini')}"` : ''}${type === 'activity-edit' ? ` data-activity-id="${escapeHtml(departmentId)}"` : ''}><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">${definition.title}</h2><p>${definition.description}</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields">${definition.fields}</div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit"${disableSubmit ? ' disabled' : ''}>${definition.submitLabel}</button></div></form>`;
+  if (type === 'period-config') {
+    adminFormDialog.querySelectorAll('[data-period-activity-id]').forEach((row) => {
+      const activity = configuredPeriod.period_activities.find((item) => item.id === row.dataset.periodActivityId);
+      const sharedPane = row.querySelector('[data-activity-rule-pane="shared"]');
+      if (!sharedPane || !activity) return;
+      sharedPane.insertAdjacentHTML('afterbegin', `<label class="admin-modal-checkbox"><input type="checkbox" data-menstruation-exempt${activity.menstruation_exempt ? ' checked' : ''}> Berlaku dispensasi menstruasi untuk Akhwat</label><small>Hari dispensasi tidak dihitung pada target aktivitas ini.</small>`);
+    });
+  }
   if (type === 'santri' || type === 'santri-edit') syncMagangJobLevel(adminFormDialog.querySelector('[data-admin-form]'));
   adminFormDialog.classList.toggle('is-period-config', type === 'period-config');
   adminFormDialog.dataset.returnView = returnView;
@@ -2674,6 +2990,21 @@ function openAdminFormModal(type, departmentId = '', returnView = '') {
 }
 
 document.addEventListener('click', async (event) => {
+  const ruleFocus = event.target.closest('[data-activity-rule-focus]');
+  if (ruleFocus) {
+    const scope = ruleFocus.closest('.activity-rule-scope');
+    const selected = ruleFocus.dataset.activityRuleFocus;
+    scope?.querySelectorAll('[data-activity-rule-focus]').forEach((button) => {
+      const isSelected = button.dataset.activityRuleFocus === selected;
+      button.classList.toggle('is-on', isSelected);
+      button.setAttribute('aria-pressed', String(isSelected));
+    });
+    scope?.querySelectorAll('[data-activity-rule-pane]').forEach((pane) => {
+      pane.hidden = pane.dataset.activityRulePane !== selected;
+    });
+    scope?.querySelector(`[data-activity-rule-pane="${CSS.escape(selected)}"] input, [data-activity-rule-pane="${CSS.escape(selected)}"] select`)?.focus();
+    return;
+  }
   const activitySelection = event.target.closest('[data-period-config-select]');
   if (activitySelection) {
     const manager = activitySelection.closest('.period-config-manager');

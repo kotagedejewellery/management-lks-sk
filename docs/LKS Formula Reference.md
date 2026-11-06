@@ -86,6 +86,10 @@ Sistem memakai rumus nilai aktivitas yang sama dengan spreadsheet: `min(checklis
 
 Rekap organisasi menampilkan rata-rata, jumlah tuntas, dan jumlah belum tuntas sebagai indikator agregat. Rekap tidak lagi memberi keputusan global `ACHIEVE` atau `NOT ACHIEVE`, karena setiap peserta dapat memiliki ambang kelulusan yang berbeda.
 
+## Aturan tambahan sistem
+
+Untuk peserta Akhwat dan hanya pada aktivitas snapshot yang ditandai Admin, tanggal dispensasi menstruasi dikeluarkan dari hari layak lalu target dan minimum diprorata kembali. Tidak ada checklist maupun nilai otomatis; rentang baru yang bertumpang tindih ditolak dan tanggal yang sama tetap dihitung satu kali secara defensif.
+
 ## Catatan validasi spreadsheet
 
 1. Nilai setiap aktivitas dihitung dari `jumlah checklist ÷ target × 100`.

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Lks;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\LksPeriod;
+use App\Services\LksParticipantRanking;
 use App\Services\LksScoreCalculator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,7 +13,7 @@ use Illuminate\Support\Collection;
 
 class RecapController extends Controller
 {
-    public function __invoke(Request $request, LksScoreCalculator $calculator): JsonResponse
+    public function __invoke(Request $request, LksScoreCalculator $calculator, LksParticipantRanking $ranking): JsonResponse
     {
         $viewer = $request->user();
         $personalScope = $request->query('scope') === 'personal' && ! $viewer->isAdmin();
@@ -25,6 +26,17 @@ class RecapController extends Controller
                 ->where('leader_user_id_snapshot', $viewer->getKey())
                 ->where('user_id', '!=', $viewer->getKey()));
         }
+
+        $periodOptions = (clone $periods)
+            ->orderByRaw("case when status = 'active' then 0 else 1 end")
+            ->orderByDesc('end_date')
+            ->get(['id', 'name', 'status', 'start_date', 'end_date'])
+            ->map(fn (LksPeriod $period): array => [
+                'id' => $period->getKey(),
+                'name' => $period->name,
+                'status' => $period->status,
+            ])
+            ->values();
 
         $period = isset($request->period_id)
             ? $periods->findOrFail($request->period_id)
@@ -53,7 +65,9 @@ class RecapController extends Controller
                 'staff_passing_threshold' => $period->staff_passing_threshold,
                 'magang_passing_threshold' => $period->magang_passing_threshold,
             ],
+            'periods' => $periodOptions,
             'participants' => $scores->values(),
+            'rankings' => $ranking->forScores($scores),
             'summary' => [
                 'participant_count' => $scores->count(),
                 'average_percentage' => round($scores->avg('final_percentage') ?? 0, 2),
@@ -69,6 +83,7 @@ class RecapController extends Controller
     public function departmentTrends(Request $request, LksScoreCalculator $calculator): JsonResponse
     {
         abort_unless($request->user()?->isAdmin(), 403);
+        $selectedPeriodId = $request->validate(['period_id' => ['nullable', 'uuid']])['period_id'] ?? null;
 
         $departmentOptions = Department::query()
             ->where('is_active', true)
@@ -77,10 +92,21 @@ class RecapController extends Controller
             ->map(fn (Department $department): array => ['id' => $department->getKey(), 'name' => $department->name])
             ->values();
 
-        $trends = LksPeriod::query()
-            ->whereIn('status', ['active', 'closed'])
-            ->orderBy('start_date')
+        $periodQuery = LksPeriod::query()
+            ->whereIn('status', ['active', 'closed']);
+
+        if ($selectedPeriodId !== null) {
+            $selectedPeriod = (clone $periodQuery)->findOrFail($selectedPeriodId);
+            $periodQuery->where('start_date', '<=', $selectedPeriod->start_date);
+        }
+
+        $periods = $periodQuery
+            ->orderByDesc('start_date')
+            ->limit(6)
             ->get()
+            ->sortBy('start_date');
+
+        $trends = $periods
             ->map(function (LksPeriod $period) use ($calculator): array {
                 $scores = $calculator->calculatePeriod($period);
 

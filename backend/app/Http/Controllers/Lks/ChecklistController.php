@@ -75,6 +75,7 @@ class ChecklistController extends Controller
     {
         abort_unless($request->user()?->isAdmin(), 403);
         $this->ensureParticipantBelongsToPeriod($period, $participant);
+        $participant->loadMissing('menstruationDispensations');
 
         $date = Carbon::parse($request->validate(['date' => ['nullable', 'date']])['date'] ?? now())->startOfDay();
         $minimumDate = $participant->participation_start_date->copy()->startOfDay();
@@ -128,6 +129,7 @@ class ChecklistController extends Controller
                 'name' => $participant->participant_name_snapshot,
                 'team' => $participant->team_name_snapshot,
                 'department' => $participant->department_name_snapshot,
+                'gender' => $participant->gender_snapshot,
             ],
             'date' => $date->toDateString(),
             'minimum_date' => $minimumDate->toDateString(),
@@ -138,6 +140,13 @@ class ChecklistController extends Controller
                 'is_completed' => (bool) ($checklists->get($activity->getKey())?->is_completed ?? false),
             ])->values(),
             'corrections' => $corrections,
+            'menstruation_dispensations' => $participant->gender_snapshot === 'akhwat'
+                ? $participant->menstruationDispensations->sortBy('start_date')->map(fn ($dispensation): array => [
+                    'id' => $dispensation->getKey(),
+                    'start_date' => $dispensation->start_date->toDateString(),
+                    'end_date' => $dispensation->end_date->toDateString(),
+                ])->values()
+                : [],
         ]]);
     }
 

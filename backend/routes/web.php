@@ -7,6 +7,7 @@ use App\Http\Controllers\Lks\DashboardController;
 use App\Http\Controllers\Lks\DocumentSignatoryController;
 use App\Http\Controllers\Lks\DocumentVerificationController;
 use App\Http\Controllers\Lks\LksExportController;
+use App\Http\Controllers\Lks\MenstruationDispensationController;
 use App\Http\Controllers\Lks\PeriodController;
 use App\Http\Controllers\Lks\OrganizationController;
 use App\Http\Controllers\Lks\PeriodConfigurationController;
@@ -49,6 +50,8 @@ Route::middleware(['auth', 'active-user'])->group(function () {
         Route::get('periods/history', [PeriodController::class, 'history'])->name('periods.history');
         Route::put('checklists', [ChecklistController::class, 'store'])->name('checklists.store');
         Route::post('checklists/bulk', [ChecklistController::class, 'storeBulk'])->name('checklists.bulk');
+        Route::post('menstruation-dispensations', [MenstruationDispensationController::class, 'store'])->name('menstruation-dispensations.store');
+        Route::delete('menstruation-dispensations/{dispensation}', [MenstruationDispensationController::class, 'destroy'])->name('menstruation-dispensations.destroy');
         Route::post('periods/{period}/activate', [PeriodController::class, 'activate'])->name('periods.activate');
         Route::patch('periods/{period}/recording', [PeriodController::class, 'updateRecording'])->name('periods.recording.update');
         Route::post('periods/{period}/close', [PeriodController::class, 'close'])->name('periods.close');
@@ -63,6 +66,10 @@ Route::middleware(['auth', 'active-user'])->group(function () {
                 ->name('participants.checklists.context');
             Route::put('periods/{period}/participants/{participant}/checklists', [ChecklistController::class, 'correct'])
                 ->name('participants.checklists.correct');
+            Route::post('periods/{period}/participants/{participant}/menstruation-dispensations', [MenstruationDispensationController::class, 'storeForParticipant'])
+                ->name('participants.menstruation-dispensations.store');
+            Route::delete('periods/{period}/participants/{participant}/menstruation-dispensations/{dispensation}', [MenstruationDispensationController::class, 'destroyForParticipant'])
+                ->name('participants.menstruation-dispensations.destroy');
             Route::get('exports/periods/{period}', [LksExportController::class, 'summary'])->name('exports.periods.summary');
             Route::get('exports/periods/{period}/participants/{participant}', [LksExportController::class, 'participant'])->name('exports.participants.show');
             Route::get('organization', [OrganizationController::class, 'index'])->name('organization.index');
@@ -76,6 +83,7 @@ Route::middleware(['auth', 'active-user'])->group(function () {
             Route::delete('teams/{team}', [OrganizationController::class, 'destroyTeam'])->name('teams.destroy');
             Route::post('santri', [OrganizationController::class, 'storeSantri'])->name('santri.store');
             Route::patch('santri/{profile}', [OrganizationController::class, 'updateSantri'])->name('santri.update');
+            Route::patch('santri/{profile}/password', [OrganizationController::class, 'resetSantriPassword'])->name('santri.password.reset');
             Route::delete('santri/{user}', [OrganizationController::class, 'destroySantri'])->name('santri.destroy');
             Route::get('configuration', [PeriodConfigurationController::class, 'index'])->name('configuration.index');
             Route::post('periods', [PeriodConfigurationController::class, 'storePeriod'])->name('periods.store');

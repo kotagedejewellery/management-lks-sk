@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Lks;
 
+use App\Concerns\PasswordValidationRules;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Department;
@@ -14,11 +15,14 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class OrganizationController extends Controller
 {
+    use PasswordValidationRules;
+
     public function index(Request $request): JsonResponse
     {
         $this->ensureAdmin($request);
@@ -48,6 +52,22 @@ class OrganizationController extends Controller
             }))
             ->orderBy('created_at', 'desc');
         $santri = $santriQuery->paginate(25, ['*'], 'people_page');
+        $lastPasswordResets = AuditLog::query()
+            ->where('event', 'santri.password_reset')
+            ->where('auditable_type', (new SantriProfile)->getMorphClass())
+            ->whereIn('auditable_id', $santri->pluck('user_id'))
+            ->with('actor:id,name')
+            ->latest('created_at')
+            ->get()
+            ->unique('auditable_id')
+            ->keyBy('auditable_id');
+        $santri->getCollection()->each(function (SantriProfile $profile) use ($lastPasswordResets): void {
+            $lastPasswordReset = $lastPasswordResets->get($profile->getKey());
+            $profile->setAttribute('last_password_reset', $lastPasswordReset === null ? null : [
+                'created_at' => $lastPasswordReset->created_at->toISOString(),
+                'actor_name' => $lastPasswordReset->actor?->name,
+            ]);
+        });
         $organizationSearch = trim((string) $request->query('organization_search'));
         $departments = Department::query()
             ->with(['teams' => fn ($query) => $query->with(['leader:id,name'])->withCount('santriProfiles')->orderBy('name')])
@@ -207,7 +227,7 @@ class OrganizationController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:150'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'temporary_password' => ['required', 'string', 'min:8', 'max:255'],
+            'temporary_password' => [...$this->passwordRules(), 'max:255'],
             'gender' => ['required', 'in:ikhwan,akhwat'],
             'team_id' => ['required', 'uuid', 'exists:teams,id'],
             'category' => ['nullable', Rule::in(['regular', 'magang'])],
@@ -315,6 +335,40 @@ class OrganizationController extends Controller
         }
 
         return response()->json(['data' => $profile->load(['user:id,name,email,is_active', 'user.roles:id,code', 'department:id,name', 'team:id,name', 'leader:id,name'])]);
+    }
+
+    public function resetSantriPassword(Request $request, SantriProfile $profile): JsonResponse
+    {
+        $this->ensureAdmin($request);
+        $data = $request->validate([
+            'password' => [...$this->passwordRules(), 'max:255'],
+        ]);
+
+        $profile->loadMissing('user');
+        $user = $profile->user;
+        if ($profile->status !== 'active' || $user === null || ! $user->is_active) {
+            throw ValidationException::withMessages(['santri' => 'Aktifkan akun Santri Karya sebelum mengatur ulang password.']);
+        }
+
+        $previousMustChangePassword = $user->must_change_password;
+        DB::transaction(function () use ($data, $request, $profile, $user, $previousMustChangePassword): void {
+            $user->password = $data['password'];
+            $user->must_change_password = true;
+            $user->remember_token = Str::random(60);
+            $user->save();
+            DB::table('sessions')->where('user_id', $user->getAuthIdentifier())->delete();
+
+            AuditLog::create([
+                'actor_user_id' => $request->user()->getKey(),
+                'event' => 'santri.password_reset',
+                'auditable_type' => $profile->getMorphClass(),
+                'auditable_id' => $profile->getKey(),
+                'before_data' => ['must_change_password' => $previousMustChangePassword],
+                'after_data' => ['must_change_password' => true],
+            ]);
+        });
+
+        return response()->json(['data' => ['must_change_password' => true]]);
     }
 
     public function destroySantri(Request $request, User $user): Response

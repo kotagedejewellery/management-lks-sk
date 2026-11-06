@@ -150,7 +150,9 @@ class PeriodConfigurationController extends Controller
             'default_applicable_genders.*' => ['in:ikhwan,akhwat', 'distinct'],
             'default_applicable_levels' => ['required', 'array', 'min:1'],
             'default_applicable_levels.*' => ['in:leader,staff', 'distinct'],
+            'default_menstruation_exempt' => ['nullable', 'boolean'],
         ]);
+        $data['default_menstruation_exempt'] ??= false;
         $this->ensureMinimumDoesNotExceedTarget($data['default_minimum_target_count'], $data['default_target_count']);
         $this->completeMagangTargets($data, 'default_');
         $data = $this->serializeMasterRules($data);
@@ -222,7 +224,9 @@ class PeriodConfigurationController extends Controller
             'default_applicable_genders.*' => ['in:ikhwan,akhwat', 'distinct'],
             'default_applicable_levels' => ['required', 'array', 'min:1'],
             'default_applicable_levels.*' => ['in:leader,staff', 'distinct'],
+            'default_menstruation_exempt' => ['nullable', 'boolean'],
         ]);
+        $data['default_menstruation_exempt'] ??= $activity->default_menstruation_exempt;
         $this->ensureMinimumDoesNotExceedTarget($data['default_minimum_target_count'], $data['default_target_count']);
         $this->completeMagangTargets($data, 'default_');
         $data = $this->serializeMasterRules($data);
@@ -424,12 +428,14 @@ class PeriodConfigurationController extends Controller
             'applicable_genders.*' => ['in:ikhwan,akhwat', 'distinct'],
             'applicable_levels' => ['nullable', 'array', 'min:1'],
             'applicable_levels.*' => ['in:leader,staff', 'distinct'],
+            'menstruation_exempt' => ['nullable', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:32767'],
         ]);
         $data['minimum_target_count'] ??= $data['target_count'];
         $this->ensureMinimumDoesNotExceedTarget($data['minimum_target_count'], $data['target_count']);
         $this->completeMagangTargets($data);
         $activity = LksActivity::query()->findOrFail($data['activity_id']);
+        $data['menstruation_exempt'] ??= $activity->default_menstruation_exempt;
 
         if ($period->periodActivities()->where('activity_code_snapshot', $activity->code)->exists()) {
             throw ValidationException::withMessages(['activity_id' => 'Aktivitas ini sudah ada pada periode.']);
@@ -454,6 +460,7 @@ class PeriodConfigurationController extends Controller
             'applicable_levels' => isset($data['applicable_levels'])
                 ? '{'.implode(',', $data['applicable_levels']).'}'
                 : null,
+            'menstruation_exempt' => $data['menstruation_exempt'],
             'weight' => 1,
             'sort_order' => $data['sort_order'] ?? 0,
         ]);
@@ -483,6 +490,7 @@ class PeriodConfigurationController extends Controller
             'activities.*.applicable_genders.*' => ['in:ikhwan,akhwat', 'distinct'],
             'activities.*.applicable_levels' => ['required', 'array', 'min:1'],
             'activities.*.applicable_levels.*' => ['in:leader,staff', 'distinct'],
+            'activities.*.menstruation_exempt' => ['nullable', 'boolean'],
         ]);
 
         $periodActivities = $period->periodActivities()->whereIn('id', collect($data['activities'])->pluck('id'))->get()->keyBy('id');
@@ -500,11 +508,13 @@ class PeriodConfigurationController extends Controller
             'allowed_weekdays' => $activity->allowedWeekdays(),
             'applicable_genders' => $activity->applicableGenders(),
             'applicable_levels' => $activity->applicableLevels(),
+            'menstruation_exempt' => $activity->menstruation_exempt,
         ])->values()->all();
 
         foreach ($data['activities'] as $activity) {
             $this->ensureMinimumDoesNotExceedTarget($activity['minimum_target_count'], $activity['target_count']);
             $this->completeMagangTargets($activity);
+            $activity['menstruation_exempt'] ??= $periodActivities[$activity['id']]->menstruation_exempt;
             $periodActivities[$activity['id']]->update([
                 'target_count' => $activity['target_count'],
                 'minimum_target_count' => $activity['minimum_target_count'],
@@ -517,6 +527,7 @@ class PeriodConfigurationController extends Controller
                     : null,
                 'applicable_genders' => '{'.implode(',', $activity['applicable_genders']).'}',
                 'applicable_levels' => '{'.implode(',', $activity['applicable_levels']).'}',
+                'menstruation_exempt' => $activity['menstruation_exempt'],
             ]);
         }
 
@@ -603,6 +614,7 @@ class PeriodConfigurationController extends Controller
                 'allowed_weekdays' => $activity->default_allowed_weekdays,
                 'applicable_genders' => $activity->default_applicable_genders,
                 'applicable_levels' => $activity->default_applicable_levels,
+                'menstruation_exempt' => $activity->default_menstruation_exempt,
                 'weight' => 1,
                 'sort_order' => $activity->sort_order,
             ],

@@ -7,6 +7,7 @@ use App\Models\DocumentSignatory;
 use App\Models\LksDocumentVerification;
 use App\Models\LksPeriod;
 use App\Models\PeriodParticipantSnapshot;
+use App\Services\LksParticipantRanking;
 use App\Services\LksScoreCalculator;
 use Barryvdh\DomPDF\Facade\Pdf;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
@@ -40,7 +41,7 @@ class LksExportController extends Controller
         return $this->individualPdf($period, $participant, $calculator);
     }
 
-    public function summary(Request $request, LksPeriod $period, LksScoreCalculator $calculator)
+    public function summary(Request $request, LksPeriod $period, LksScoreCalculator $calculator, LksParticipantRanking $ranking)
     {
         abort_unless($request->user()->isAdmin(), 403);
         $this->ensureExportable($period);
@@ -53,7 +54,6 @@ class LksExportController extends Controller
             ->map(fn ($activity): array => ['id' => $activity->getKey(), 'name' => $activity->activity_name_snapshot])
             ->values();
         $rows = $scores->map(fn (array $score): array => $this->reportRow($score, $activityColumns));
-        $ranking = $rows->sortByDesc('final_percentage')->values();
 
         return Pdf::loadView('pdf.lks-period-summary', [
             'period' => $period,
@@ -68,8 +68,7 @@ class LksExportController extends Controller
             ],
             'activityColumns' => $activityColumns,
             'rows' => $rows,
-            'highest' => $ranking->take(3),
-            'lowest' => $ranking->reverse()->take(3)->values(),
+            'rankings' => $ranking->forScores($scores),
             'signatories' => $this->signatoriesForPeriod($period),
             'signatureDate' => $this->signatureDate($period),
             'generatedAt' => now()->format('d-m-Y H:i'),

@@ -116,4 +116,26 @@ class EffectiveActivityTargetTest extends TestCase
         $this->assertSame(20, $result['target_count']);
         $this->assertSame(14, $result['minimum_target_count']);
     }
+
+    public function test_menstruation_dispensation_reduces_only_the_configured_activity_target(): void
+    {
+        $period = new LksPeriod([
+            'start_date' => '2026-10-01',
+            'end_date' => '2026-10-31',
+        ]);
+        $activity = new PeriodActivity([
+            'target_count' => 20,
+            'minimum_target_count' => 14,
+            'allowed_weekdays' => '{1,2,3,4,5}',
+            'menstruation_exempt' => true,
+        ]);
+        $participant = new PeriodParticipantSnapshot(['gender_snapshot' => 'akhwat']);
+
+        $result = (new LksScoreCalculator())->effectiveTargets($activity, $period, [], $participant, [
+            '2026-10-05', '2026-10-06', '2026-10-07', '2026-10-08', '2026-10-09',
+        ]);
+
+        $this->assertSame(16, $result['target_count']);
+        $this->assertSame(12, $result['minimum_target_count']);
+    }
 }

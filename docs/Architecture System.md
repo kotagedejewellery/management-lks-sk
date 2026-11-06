@@ -23,7 +23,7 @@ flowchart LR
 
 ## 2. Prinsip arsitektur
 
-1. **Checklist adalah sumber kebenaran.** Nilai, status, dan rekap selalu dapat dijelaskan dari checklist, target, bobot, serta ambang periode menurut level dan kategori LKS peserta.
+1. **Checklist adalah sumber kebenaran.** Nilai, status, dan rekap selalu dapat dijelaskan dari checklist, target, bobot, serta ambang periode menurut level dan kategori LKS peserta. Dispensasi menstruasi hanya mengeluarkan hari layak pada aktivitas snapshot yang ditandai; ia tidak membuat checklist atau kredit nilai.
 2. **Konfigurasi periode tidak mengubah masa lalu.** Aktivasi periode membuat snapshot peserta dan aktivitas agar riwayat tetap akurat.
 3. **Akses dibatasi di server.** Menyembunyikan menu bukan otorisasi; route, Policy, query, dan endpoint grafik wajib memeriksa hak akses.
 4. **Satu aturan perhitungan.** `LksScoreCalculator` digunakan oleh dashboard, LKS Saya, rekap, dan grafik.
@@ -151,6 +151,7 @@ sequenceDiagram
 lks_checklists (completed)
   + period_activities (target, weight, aktif)
   + participation_start_date (batas checklist dan prorata peserta terlambat)
+  + period_menstruation_dispensations (privat, hanya untuk aktivitas yang ditandai)
   + lks_periods (ambang Leader, Staff Reguler, dan Staff Magang)
   → LksScoreCalculator
   → hasil individu

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\AuditLog;
 use App\Models\LksChecklist;
 use App\Models\PeriodActivity;
+use App\Models\PeriodMenstruationDispensation;
 use App\Models\PeriodParticipantSnapshot;
 use App\Models\User;
 use Carbon\CarbonInterface;
@@ -28,7 +29,7 @@ class ChecklistRecordingService
         $this->ensureCanRecord($actor, $participant);
 
         return DB::transaction(function () use ($actor, $participant, $activity, $checklistDates): array {
-            $participant = PeriodParticipantSnapshot::query()->with('period.holidaySnapshots')->lockForUpdate()->findOrFail($participant->getKey());
+            $participant = PeriodParticipantSnapshot::query()->with(['period.holidaySnapshots', 'menstruationDispensations'])->lockForUpdate()->findOrFail($participant->getKey());
             $activity = PeriodActivity::query()->lockForUpdate()->findOrFail($activity->getKey());
             $dates = collect($checklistDates)
                 ->map(fn (string $date): Carbon => Carbon::parse($date)->startOfDay())
@@ -40,6 +41,7 @@ class ChecklistRecordingService
             $pendingWeeklyCounts = [];
             $errors = [];
             $holidayDates = $this->holidayDates($participant->period);
+            $dispensationDates = PeriodMenstruationDispensation::datesFor($participant);
 
             foreach ($dates as $date) {
                 $checklist = LksChecklist::query()
@@ -55,7 +57,7 @@ class ChecklistRecordingService
                 }
 
                 try {
-                    $this->validateRecord($actor, $participant, $activity, $date, true, $holidayDates, $pendingWeeklyCounts);
+                    $this->validateRecord($actor, $participant, $activity, $date, true, $holidayDates, $pendingWeeklyCounts, $dispensationDates);
                 } catch (ValidationException $exception) {
                     $errors['checklist_dates.'.$date->toDateString()] = collect($exception->errors())->flatten()->first();
                     continue;
@@ -98,11 +100,11 @@ class ChecklistRecordingService
         $this->ensureCanRecord($actor, $participant);
 
         return DB::transaction(function () use ($actor, $participant, $activity, $checklistDate, $isCompleted, $reason): LksChecklist {
-            $participant = PeriodParticipantSnapshot::query()->with('period.holidaySnapshots')->lockForUpdate()->findOrFail($participant->getKey());
+            $participant = PeriodParticipantSnapshot::query()->with(['period.holidaySnapshots', 'menstruationDispensations'])->lockForUpdate()->findOrFail($participant->getKey());
             $activity = PeriodActivity::query()->lockForUpdate()->findOrFail($activity->getKey());
             $date = Carbon::parse($checklistDate)->startOfDay();
 
-            $this->validateRecord($actor, $participant, $activity, $date, $isCompleted, $this->holidayDates($participant->period));
+            $this->validateRecord($actor, $participant, $activity, $date, $isCompleted, $this->holidayDates($participant->period), [], PeriodMenstruationDispensation::datesFor($participant));
 
             $checklist = LksChecklist::query()
                 ->where('period_participant_id', $participant->getKey())
@@ -153,8 +155,9 @@ class ChecklistRecordingService
 
     /** @param list<string> $holidayDates
      *  @param array<string, int> $pendingWeeklyCounts
+     *  @param list<string> $dispensationDates
      */
-    private function validateRecord(User $actor, PeriodParticipantSnapshot $participant, PeriodActivity $activity, Carbon $date, bool $isCompleted, array $holidayDates = [], array $pendingWeeklyCounts = []): void
+    private function validateRecord(User $actor, PeriodParticipantSnapshot $participant, PeriodActivity $activity, Carbon $date, bool $isCompleted, array $holidayDates = [], array $pendingWeeklyCounts = [], array $dispensationDates = []): void
     {
         $period = $participant->period;
 
@@ -188,6 +191,10 @@ class ChecklistRecordingService
             throw ValidationException::withMessages(['checklist' => 'Aktivitas ini tidak berlaku untuk kategori peserta tersebut.']);
         }
 
+        if ($isCompleted && $activity->menstruation_exempt && in_array($date->toDateString(), $dispensationDates, true)) {
+            throw ValidationException::withMessages(['checklist_date' => 'Aktivitas ini dibebaskan pada tanggal dispensasi yang tercatat.']);
+        }
+
         if ($isCompleted && $activity->max_per_week !== null && ! in_array($date->toDateString(), $holidayDates, true)) {
             $weeklyCount = LksChecklist::query()
                 ->where('period_participant_id', $participant->getKey())
@@ -196,6 +203,7 @@ class ChecklistRecordingService
                 ->whereBetween('checklist_date', [$date->copy()->startOfWeek(), $date->copy()->endOfWeek()])
                 ->whereDate('checklist_date', '!=', $date)
                 ->when($holidayDates !== [], fn ($query) => $query->whereNotIn('checklist_date', $holidayDates))
+                ->when($activity->menstruation_exempt && $dispensationDates !== [], fn ($query) => $query->whereNotIn('checklist_date', $dispensationDates))
                 ->count();
 
             $weeklyCount += $pendingWeeklyCounts[$date->copy()->startOfWeek()->toDateString()] ?? 0;
