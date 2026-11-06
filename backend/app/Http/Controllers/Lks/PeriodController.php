@@ -9,6 +9,7 @@ use App\Models\LksPeriod;
 use App\Models\PeriodParticipantSnapshot;
 use App\Models\SantriProfile;
 use App\Services\PeriodActivationService;
+use App\Services\LksScoreCalculator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -133,11 +134,12 @@ class PeriodController extends Controller
         ]]);
     }
 
-    public function history(Request $request): JsonResponse
+    public function history(Request $request, LksScoreCalculator $calculator): JsonResponse
     {
         $viewer = $request->user();
         $personalScope = $request->query('scope') === 'personal';
-        $periods = LksPeriod::query()
+        $filters = $request->validate(['year' => ['nullable', 'integer', 'between:2000,2100']]);
+        $periodQuery = LksPeriod::query()
             ->where('status', 'closed')
             ->when(
                 ! $viewer->isAdmin() && ($personalScope || ! $viewer->hasRole('leader')),
@@ -148,17 +150,46 @@ class PeriodController extends Controller
                 fn ($query) => $query->whereHas('participants', fn ($participants) => $participants
                     ->where('leader_user_id_snapshot', $viewer->getKey())
                     ->where('user_id', '!=', $viewer->getKey())),
-            )
+            );
+        $availableYears = (clone $periodQuery)
+            ->selectRaw('EXTRACT(YEAR FROM start_date) AS year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year')
+            ->map(fn ($year): string => (string) $year)
+            ->values();
+        $selectedYear = isset($filters['year']) ? (string) $filters['year'] : $availableYears->first();
+        $periods = $periodQuery
+            ->when($selectedYear !== null, fn ($query) => $query->whereYear('start_date', $selectedYear))
             ->orderByDesc('end_date')
             ->get()
-            ->map(fn (LksPeriod $period) => [
-                'id' => $period->getKey(),
-                'name' => $period->name,
-                'start_date' => $period->start_date->toDateString(),
-                'end_date' => $period->end_date->toDateString(),
-                'closed_at' => $period->closed_at?->toIso8601String(),
-            ]);
+            ->map(function (LksPeriod $period) use ($calculator, $viewer, $personalScope): array {
+                $scores = $viewer->isAdmin()
+                    ? $calculator->calculatePeriod($period)
+                    : ($personalScope || ! $viewer->hasRole('leader')
+                        ? $calculator->calculatePeriod($period, userId: $viewer->getKey())
+                        : $calculator->calculatePeriod($period, leaderUserId: $viewer->getKey()));
+                $personal = $scores->first();
 
-        return response()->json(['data' => $periods]);
+                return [
+                    'id' => $period->getKey(),
+                    'name' => $period->name,
+                    'start_date' => $period->start_date->toDateString(),
+                    'end_date' => $period->end_date->toDateString(),
+                    'closed_at' => $period->closed_at?->toIso8601String(),
+                    'statement' => [
+                        'participant_count' => $scores->count(),
+                        'final_percentage' => $personal['final_percentage'] ?? null,
+                        'final_status' => $personal['final_status'] ?? null,
+                        'grade' => $personal['grade'] ?? null,
+                        'average_percentage' => $scores->isEmpty() ? null : round($scores->avg('final_percentage'), 2),
+                    ],
+                ];
+            });
+
+        return response()->json(['data' => $periods, 'meta' => [
+            'available_years' => $availableYears,
+            'selected_year' => $selectedYear,
+        ]]);
     }
 }

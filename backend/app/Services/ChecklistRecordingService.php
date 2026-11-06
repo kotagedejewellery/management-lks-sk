@@ -63,7 +63,7 @@ class ChecklistRecordingService
                     continue;
                 }
 
-                if ($activity->max_per_week !== null && ! in_array($date->toDateString(), $holidayDates, true)) {
+                if ($activity->maxPerWeekFor($participant) !== null && ! in_array($date->toDateString(), $holidayDates, true)) {
                     $weekKey = $date->copy()->startOfWeek()->toDateString();
                     $pendingWeeklyCounts[$weekKey] = ($pendingWeeklyCounts[$weekKey] ?? 0) + 1;
                 }
@@ -161,7 +161,7 @@ class ChecklistRecordingService
     {
         $period = $participant->period;
 
-        if ($period->status !== 'active' || $activity->period_id !== $period->getKey() || ! $activity->is_active) {
+        if ($period->status !== 'active' || $activity->period_id !== $period->getKey() || ! $activity->isActiveFor($participant)) {
             throw ValidationException::withMessages(['checklist' => 'Checklist hanya dapat diisi pada aktivitas periode yang aktif.']);
         }
 
@@ -182,7 +182,7 @@ class ChecklistRecordingService
             throw ValidationException::withMessages(['checklist_date' => 'Checklist tidak dapat diisi untuk tanggal mendatang.']);
         }
 
-        $allowedWeekdays = $activity->allowedWeekdays();
+        $allowedWeekdays = $activity->allowedWeekdaysFor($participant);
         if ($allowedWeekdays !== [] && ! in_array($date->isoWeekday(), $allowedWeekdays, true)) {
             throw ValidationException::withMessages(['checklist_date' => 'Aktivitas tidak dijadwalkan pada hari tersebut.']);
         }
@@ -191,11 +191,13 @@ class ChecklistRecordingService
             throw ValidationException::withMessages(['checklist' => 'Aktivitas ini tidak berlaku untuk kategori peserta tersebut.']);
         }
 
-        if ($isCompleted && $activity->menstruation_exempt && in_array($date->toDateString(), $dispensationDates, true)) {
+        if ($isCompleted && $activity->menstruationExemptFor($participant) && in_array($date->toDateString(), $dispensationDates, true)) {
             throw ValidationException::withMessages(['checklist_date' => 'Aktivitas ini dibebaskan pada tanggal dispensasi yang tercatat.']);
         }
 
-        if ($isCompleted && $activity->max_per_week !== null && ! in_array($date->toDateString(), $holidayDates, true)) {
+        $maxPerWeek = $activity->maxPerWeekFor($participant);
+        $menstruationExempt = $activity->menstruationExemptFor($participant);
+        if ($isCompleted && $maxPerWeek !== null && ! in_array($date->toDateString(), $holidayDates, true)) {
             $weeklyCount = LksChecklist::query()
                 ->where('period_participant_id', $participant->getKey())
                 ->where('period_activity_id', $activity->getKey())
@@ -203,12 +205,12 @@ class ChecklistRecordingService
                 ->whereBetween('checklist_date', [$date->copy()->startOfWeek(), $date->copy()->endOfWeek()])
                 ->whereDate('checklist_date', '!=', $date)
                 ->when($holidayDates !== [], fn ($query) => $query->whereNotIn('checklist_date', $holidayDates))
-                ->when($activity->menstruation_exempt && $dispensationDates !== [], fn ($query) => $query->whereNotIn('checklist_date', $dispensationDates))
+                ->when($menstruationExempt && $dispensationDates !== [], fn ($query) => $query->whereNotIn('checklist_date', $dispensationDates))
                 ->count();
 
             $weeklyCount += $pendingWeeklyCounts[$date->copy()->startOfWeek()->toDateString()] ?? 0;
 
-            if ($weeklyCount >= $activity->max_per_week) {
+            if ($weeklyCount >= $maxPerWeek) {
                 throw ValidationException::withMessages(['checklist' => 'Batas pencatatan aktivitas untuk pekan ini sudah tercapai.']);
             }
         }

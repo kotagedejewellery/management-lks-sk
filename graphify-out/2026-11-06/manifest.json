@@ -6,33 +6,33 @@
     "semantic_hash": ""
   },
   "PRODUCT.md": {
-    "mtime": 1793928747.153595,
-    "seen": 1793928879.0755486,
-    "ast_hash": "44c93a9500fae7332e8b13433e3feef7",
+    "mtime": 1793956803.2804935,
+    "seen": 1793956970.007507,
+    "ast_hash": "4bbe209483732b5892e56dc470fc7574",
     "semantic_hash": ""
   },
   "docs/Architecture System.md": {
-    "mtime": 1793927473.4214847,
-    "seen": 1793927695.4289682,
-    "ast_hash": "a78ebdaae53dce8545cb08310cc0fbed",
+    "mtime": 1793956849.6661773,
+    "seen": 1793956970.0075235,
+    "ast_hash": "bcfdec4cb42b8d66a93e3230c5677129",
     "semantic_hash": ""
   },
   "docs/Database Design.md": {
-    "mtime": 1793928760.202697,
-    "seen": 1793928879.075561,
-    "ast_hash": "a4d734dc25d363013f0887539550816a",
+    "mtime": 1793956849.66714,
+    "seen": 1793956970.0075266,
+    "ast_hash": "ac01b34c47045c434be71b3b0d16ce6c",
     "semantic_hash": ""
   },
   "docs/PRD.md": {
-    "mtime": 1793928747.153595,
-    "seen": 1793928879.0755713,
-    "ast_hash": "ec6279278d0ffdcf76983a4ca8bc68a9",
+    "mtime": 1793956836.9110892,
+    "seen": 1793956970.0075424,
+    "ast_hash": "b041f63905f7e7b52158971d808e7bfa",
     "semantic_hash": ""
   },
   "docs/Tech Stack.md": {
-    "mtime": 1793927473.4214847,
-    "seen": 1793927695.4289863,
-    "ast_hash": "6ba32ffc7aedd3561c08cb13caf1f639",
+    "mtime": 1793956849.66714,
+    "seen": 1793956970.007548,
+    "ast_hash": "214ff927291a9cf4e229d7729d715111",
     "semantic_hash": ""
   },
   "backend/app/Actions/Fortify/CreateNewUser.php": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1793928696.2626746,
-    "seen": 1793928879.075536,
-    "ast_hash": "7737b043aaadbe0abf5198b4b905b250",
+    "mtime": 1793956641.2657788,
+    "seen": 1793956970.0074885,
+    "ast_hash": "68db22a782de44fc5bc57eb0a8137a63",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -696,9 +696,9 @@
     "semantic_hash": ""
   },
   "backend/app/Models/LksActivity.php": {
-    "mtime": 1793926837.155527,
-    "seen": 1793927695.428601,
-    "ast_hash": "83dae394013d99ed7cbf491bc7ce611c",
+    "mtime": 1793956075.3312802,
+    "seen": 1793956970.0070548,
+    "ast_hash": "07fe1524c5364db8a4d336c5ea734ece",
     "semantic_hash": ""
   },
   "backend/app/Models/LksChecklist.php": {
@@ -714,9 +714,9 @@
     "semantic_hash": ""
   },
   "backend/app/Models/PeriodActivity.php": {
-    "mtime": 1793926837.1574502,
-    "seen": 1793927695.428611,
-    "ast_hash": "2a19cf41b658675c2070fa5e7d55ae97",
+    "mtime": 1793956075.4209948,
+    "seen": 1793956970.0070684,
+    "ast_hash": "c2ae0eb5da6cd19d35dc3efd5e28d996",
     "semantic_hash": ""
   },
   "backend/app/Models/PeriodParticipantSnapshot.php": {
@@ -732,9 +732,9 @@
     "semantic_hash": ""
   },
   "backend/app/Models/SantriProfile.php": {
-    "mtime": 1790648596.7867227,
-    "seen": 1790649139.620069,
-    "ast_hash": "57370cc259e6594e94bc4919cc7d316e",
+    "mtime": 1793956259.0402584,
+    "seen": 1793956970.0070841,
+    "ast_hash": "d392911296a4cfefdc1c73fedefc00df",
     "semantic_hash": ""
   },
   "backend/app/Models/Team.php": {
@@ -756,33 +756,33 @@
     "semantic_hash": ""
   },
   "backend/app/Services/ChecklistRecordingService.php": {
-    "mtime": 1793928575.7929554,
-    "seen": 1793928879.0752988,
-    "ast_hash": "94bef9fa5acdf3f0482d66204fcec588",
+    "mtime": 1793956117.7278893,
+    "seen": 1793956970.0071056,
+    "ast_hash": "838366f007b912776c1c06f8758cbbbc",
     "semantic_hash": ""
   },
   "backend/app/Services/PeriodActivationService.php": {
-    "mtime": 1793237718.4246278,
-    "seen": 1793238052.596118,
-    "ast_hash": "a803ec5dee9bc44c98497142037d4798",
+    "mtime": 1793956259.0402584,
+    "seen": 1793956970.007114,
+    "ast_hash": "f30bc03494e567f2efb0b973822488d3",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/ChecklistController.php": {
-    "mtime": 1793928575.788035,
-    "seen": 1793928879.075212,
-    "ast_hash": "23dcac1b0e2351fadf161bfbcc33479b",
+    "mtime": 1793956117.729889,
+    "seen": 1793956970.0069814,
+    "ast_hash": "ddbd03d261222312a4a7a62c75ae0501",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/DashboardController.php": {
-    "mtime": 1793928575.7900448,
-    "seen": 1793928879.0752156,
-    "ast_hash": "1425f9ba30fc4b1eb1f6798bfd1e3204",
+    "mtime": 1793956117.7288897,
+    "seen": 1793956970.006985,
+    "ast_hash": "b09d5e0706bc9ea4ea5d8990e9679578",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodController.php": {
-    "mtime": 1793239167.6866174,
-    "seen": 1793239227.4484553,
-    "ast_hash": "a9dc3bb09b2ee938ad14c31699241e4b",
+    "mtime": 1793956625.4031408,
+    "seen": 1793956970.0070086,
+    "ast_hash": "3764cb46150ce9e0e815a0b9b9043752",
     "semantic_hash": ""
   },
   "backend/app/Http/Requests/Lks/ActivatePeriodRequest.php": {
@@ -804,15 +804,15 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/OrganizationController.php": {
-    "mtime": 1793871470.4270246,
-    "seen": 1793871484.1025307,
-    "ast_hash": "3c8e81297abf459787242d0e2d9bc25c",
+    "mtime": 1793956730.6717594,
+    "seen": 1793956970.007003,
+    "ast_hash": "cf4719901af46c5d201dbe4b590e8a62",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php": {
-    "mtime": 1793927037.2538302,
-    "seen": 1793927695.4285452,
-    "ast_hash": "8b82c25bac1cb81634862e9b3dc96078",
+    "mtime": 1793957019.54162,
+    "seen": 1793957039.8877323,
+    "ast_hash": "e6f3cb3c75f718465964170422af465d",
     "semantic_hash": ""
   },
   ".impeccable/config.json": {
@@ -828,9 +828,9 @@
     "semantic_hash": ""
   },
   "backend/app/Services/LksScoreCalculator.php": {
-    "mtime": 1793928575.7929554,
-    "seen": 1793928879.075303,
-    "ast_hash": "1e9fd672f497f36168f627c0dc17ebd5",
+    "mtime": 1793956117.7278893,
+    "seen": 1793956970.0071113,
+    "ast_hash": "cff6d4b65fdc7a5fd176d925bb421715",
     "semantic_hash": ""
   },
   ".impeccable/critique/2026-09-29T06-52-35Z__frontend-index-html.md": {
@@ -894,9 +894,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Unit/PeriodActivityRuleTest.php": {
-    "mtime": 1791355116.2086928,
-    "seen": 1791355453.3612497,
-    "ast_hash": "cc2aae3cbbfb9b6a77a36b087d568fb7",
+    "mtime": 1793956877.199567,
+    "seen": 1793956970.0074792,
+    "ast_hash": "0dbf11aaa21423042646a318c96394f5",
     "semantic_hash": ""
   },
   "backend/app/Models/CalendarHoliday.php": {
@@ -960,9 +960,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/LksExportController.php": {
-    "mtime": 1793847908.3681598,
-    "seen": 1793848180.2499478,
-    "ast_hash": "493825a3fc7e95c164a9683d8ccf77b3",
+    "mtime": 1793956117.7308905,
+    "seen": 1793956970.0069957,
+    "ast_hash": "ede2c782fd0ab5baad2e535f02308cd0",
     "semantic_hash": ""
   },
   "backend/config/lks-export.php": {
@@ -972,9 +972,9 @@
     "semantic_hash": ""
   },
   "backend/resources/views/pdf/lks-individual.blade.php": {
-    "mtime": 1793849127.9577484,
-    "seen": 1793849191.5550172,
-    "ast_hash": "02aaeb5e6407cd21efb1a68a1d705993",
+    "mtime": 1793956688.0665588,
+    "seen": 1793956970.0074058,
+    "ast_hash": "02d59a82e4af767f66f3496f4cac1063",
     "semantic_hash": ""
   },
   "backend/resources/views/pdf/lks-period-summary.blade.php": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1793928747.172891,
-    "seen": 1793928879.0755467,
-    "ast_hash": "a398eec9d3b67394b762b623fb6de890",
+    "mtime": 1793956818.155518,
+    "seen": 1793956970.0075047,
+    "ast_hash": "f2be411f935f58da1712cce09ebe1127",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_16_000001_add_recording_enabled_to_lks_periods_table.php": {
@@ -1128,9 +1128,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Unit/IndividualPdfTemplateTest.php": {
-    "mtime": 1793849128.4544182,
-    "seen": 1793849191.55505,
-    "ast_hash": "d8da8e82e97cc56545198564afceb180",
+    "mtime": 1793956894.9375029,
+    "seen": 1793956970.0074735,
+    "ast_hash": "42486d9ca69680a164b63d7fe46f28a4",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/MenstruationDispensationController.php": {
@@ -1149,6 +1149,18 @@
     "mtime": 1793926837.1512144,
     "seen": 1793927695.4287524,
     "ast_hash": "8d4ef5b7ceb4422bf26b8aafd861b9da",
+    "semantic_hash": ""
+  },
+  "backend/database/migrations/2026_11_06_010000_separate_magang_rules_and_add_employment_start_dates.php": {
+    "mtime": 1793956075.328272,
+    "seen": 1793956970.0072527,
+    "ast_hash": "11ce089050bcc024b4c0cc5a30767219",
+    "semantic_hash": ""
+  },
+  "backend/tests/Unit/SantriProfileCategoryTest.php": {
+    "mtime": 1793956877.7064002,
+    "seen": 1793956970.0074818,
+    "ast_hash": "8598d175c212c67ad334ee9165db72ee",
     "semantic_hash": ""
   }
 }

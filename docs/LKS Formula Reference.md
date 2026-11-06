@@ -88,6 +88,10 @@ Rekap organisasi menampilkan rata-rata, jumlah tuntas, dan jumlah belum tuntas s
 
 ## Aturan tambahan sistem
 
+Untuk kategori snapshot peserta, Leader memakai ambang 90%, Staff Reguler 85%, dan Staff Magang 75% sebagai default. Aturan aktivitas Reguler dan Magang—target, batas mingguan, jadwal, sasaran, status aktif, serta dispensasi—disimpan terpisah pada snapshot periode.
+
+Peserta dengan tanggal mulai kerja memakai Magang sampai sehari sebelum tanggal ulang tiga bulan, lalu Reguler mulai tanggal ulang tersebut. Bila tanggal yang sama tidak ada pada bulan ketiga, sistem memakai hari terakhir bulan itu. Profil lama tanpa tanggal mulai kerja tetap memakai kategori tersimpan sampai Admin melengkapinya; snapshot aktif dan tertutup tidak dihitung ulang.
+
 Untuk peserta Akhwat dan hanya pada aktivitas snapshot yang ditandai Admin, tanggal dispensasi menstruasi dikeluarkan dari hari layak lalu target dan minimum diprorata kembali. Tidak ada checklist maupun nilai otomatis; rentang baru yang bertumpang tindih ditolak dan tanggal yang sama tetap dihitung satu kali secara defensif.
 
 ## Catatan validasi spreadsheet

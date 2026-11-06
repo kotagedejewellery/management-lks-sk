@@ -90,7 +90,7 @@
     <p class="signature-location">{{ $signatureDate }}</p>
     <section class="signature-grid">
         @foreach($signatories as $signatory)
-            <div><p class="signature-label">{{ $loop->first ? 'Disetujui oleh,' : 'Diketahui oleh,' }}</p><p class="signature-title">{{ $signatory['title'] }}</p><p class="signature-name">{{ $signatory['name'] }}</p>@if($verification && in_array($signatory['role'], ['general_manager', 'kabid_pengembangan_spiritual'], true))<img class="signature-qr" src="{{ $verificationQrDataUri }}" alt="QR verifikasi dokumen">@endif</div>
+            <div><p class="signature-label">{{ $loop->first ? 'Disetujui oleh,' : 'Diketahui oleh,' }}</p>@if($verification && in_array($signatory['role'], ['general_manager', 'kabid_pengembangan_spiritual'], true))<img class="signature-qr" src="{{ $verificationQrDataUri }}" alt="QR verifikasi dokumen">@endif<p class="signature-name">{{ $signatory['name'] }}</p><p class="signature-title">{{ $signatory['title'] }}</p></div>
         @endforeach
         <div><p class="signature-label">Diterima oleh,</p><p class="signature-title">Santri Karya</p><div class="manual-signature-space"></div><p class="signature-name">{{ $report['name'] }}</p></div>
     </section>

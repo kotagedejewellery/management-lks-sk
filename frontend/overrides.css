@@ -257,6 +257,9 @@ body.is-booting .page-progress { inset: 0; }
 .admin-workbench form.admin-list-search { display: flex; align-items: center; gap: 10px; max-width: 460px; margin: 0 0 16px; padding: 0; border: 0; }
 .admin-workbench form.admin-list-search.people-filter-form, .admin-workbench form.admin-list-search.participant-filter-form { display: grid; grid-template-columns: minmax(230px, 1.45fr) repeat(4, minmax(128px, .72fr)) auto; max-width: none; }
 .people-filter-form, .people-filter-form > label, .people-filter-form input, .people-filter-form select, .participant-filter-form, .participant-filter-form > label, .participant-filter-form input, .participant-filter-form select { min-width: 0; max-width: 100%; }
+.people-filter-toggle { display: inline-flex; align-items: center; gap: 7px; min-height: 42px; color: var(--ink-soft, #53645a); font-size: 13px; font-weight: 700; }
+.people-filter-toggle input { width: 16px; height: 16px; accent-color: var(--evergreen, #25705b); }
+.employment-date-missing { color: #8a570f; font-weight: 800; }
 .admin-list-search + .organization-hierarchy-table, .admin-list-search + .admin-record-table { border-top: 0; }
 .admin-list-search input { min-height: 42px; width: 100%; border: 1px solid var(--line-dark, #c5d0c8); border-radius: 9px; background: var(--surface, #fffefa); color: var(--ink, #203329); padding: 9px 11px; outline: none; }
 .admin-list-search select { min-height: 42px; width: 100%; border: 1px solid var(--line-dark, #c5d0c8); border-radius: 9px; background: var(--surface, #fffefa); color: var(--ink, #203329); padding: 9px 30px 9px 11px; outline: none; }
@@ -415,6 +418,17 @@ body.is-booting .page-progress { inset: 0; }
 .checklist-date-control input, .report-period-control select { min-width: 0; max-width: 100%; min-height: 42px; border: 1px solid var(--line-dark, #c5d0c8); border-radius: 9px; background: var(--surface, #fffefa); color: var(--ink, #203329); padding: 8px 10px; }
 .date-rail { display: flex; flex-wrap: wrap; align-items: end; gap: 14px 20px; }
 .date-rail .date-note { margin: 0; }
+.lks-entry-reminder { flex-basis: 100%; margin: 0; padding: 9px 12px; border: 1px solid #d39a42; border-radius: 8px; background: #fff3d8; color: #75470d; font-size: 13px; font-weight: 700; line-height: 1.45; }
+.annual-lks-statement { display: grid; gap: 14px; margin: 22px 0; padding: 18px; border: 1px solid var(--line, #d9ddd5); border-radius: 12px; background: var(--surface, #fffefa); }
+.annual-lks-statement h3, .annual-lks-statement p { margin: 0; }
+.annual-lks-statement p { color: var(--ink-soft, #53645a); font-size: 13px; }
+.annual-lks-statement-list { display: grid; gap: 1px; overflow: hidden; border: 1px solid var(--line, #d9ddd5); border-radius: 9px; }
+.annual-lks-statement-list button { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 14px; align-items: center; width: 100%; padding: 11px 12px; border: 0; background: var(--surface, #fffefa); color: inherit; text-align: left; cursor: pointer; }
+.annual-lks-statement-list button + button { border-top: 1px solid var(--line, #d9ddd5); }
+.annual-lks-statement-list span { display: grid; gap: 3px; }
+.annual-lks-statement-list span:nth-child(2) { justify-items: end; font-variant-numeric: tabular-nums; }
+.annual-lks-statement-list small { color: var(--ink-soft, #53645a); }
+@media (max-width: 560px) { .annual-lks-statement-list button { grid-template-columns: minmax(0, 1fr) auto; } .annual-lks-statement-list .status { grid-column: 2; justify-self: end; } }
 .weekday-picker { display: grid; gap: 7px; margin: 0; padding: 0; border: 0; }
 .weekday-picker legend { color: var(--ink-soft, #53645a); font-size: 12px; font-weight: 700; }
 .weekday-picker > small { color: var(--ink-soft, #53645a); font-size: 12px; font-weight: 400; line-height: 1.5; }

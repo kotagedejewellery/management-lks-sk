@@ -38,7 +38,7 @@ class PeriodActivationService
                 throw ValidationException::withMessages(['period' => 'Masih ada periode LKS aktif.']);
             }
 
-            if (! $period->periodActivities()->where('is_active', true)->exists()) {
+            if (! $period->periodActivities()->where(fn ($query) => $query->where('is_active', true)->orWhere('magang_is_active', true))->exists()) {
                 throw ValidationException::withMessages(['period_activities' => 'Periode aktif harus memiliki minimal satu aktivitas aktif.']);
             }
 
@@ -69,7 +69,7 @@ class PeriodActivationService
             }
 
             // MVP memakai bobot setara untuk seluruh aktivitas pada saat periode dikunci aktif.
-            $period->periodActivities()->where('is_active', true)->update(['weight' => 1]);
+            $period->periodActivities()->where(fn ($query) => $query->where('is_active', true)->orWhere('magang_is_active', true))->update(['weight' => 1]);
             $period->update([
                 'status' => 'active',
                 'recording_enabled' => true,
@@ -125,13 +125,12 @@ class PeriodActivationService
 
             $candidate = new PeriodParticipantSnapshot([
                 'gender_snapshot' => $profile->gender,
-                'category_snapshot' => $profile->category,
+                'category_snapshot' => $this->categoryAt($profile, $today),
                 'level_snapshot' => $profile->level,
                 'participation_start_date' => $today->toDateString(),
             ]);
             $holidayDates = $this->calculator->periodHolidayDates($period);
             $hasEligibleActivity = $period->periodActivities()
-                ->where('is_active', true)
                 ->orderBy('sort_order')
                 ->get()
                 ->contains(fn (PeriodActivity $activity): bool => $activity->appliesTo($candidate)
@@ -284,7 +283,7 @@ class PeriodActivationService
                 'team_name_snapshot' => $profile->team?->name,
                 'leader_user_id_snapshot' => $profile->team?->leader?->getKey(),
                 'leader_name_snapshot' => $profile->team?->leader?->name,
-                'category_snapshot' => $profile->category,
+                'category_snapshot' => $this->categoryAt($profile, $participationStartDate),
                 'level_snapshot' => $profile->level,
                 'participation_start_date' => $participationStartDate,
             ],
@@ -295,5 +294,10 @@ class PeriodActivationService
     private function snapshotSignatory(DocumentSignatory $signatory): array
     {
         return $signatory->only(['role', 'title', 'name']);
+    }
+
+    private function categoryAt(SantriProfile $profile, Carbon|string $date): string
+    {
+        return $profile->lksCategoryAt($date);
     }
 }

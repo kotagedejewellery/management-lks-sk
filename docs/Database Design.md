@@ -40,7 +40,7 @@ erDiagram
 |---|---|
 | Satu orang, satu LKS per periode | Kombinasi unik `period_id + user_id` pada `period_participant_snapshots`. |
 | Satu checklist per tanggal dan aktivitas | Kombinasi unik `period_participant_id + period_activity_id + checklist_date`. |
-| Target bisa berubah tiap periode | Target berada di `period_activities`, bukan di checklist atau master aktivitas. |
+| Aturan bisa berubah tiap periode | Target serta aturan Reguler/Magang (batas mingguan, jadwal, sasaran, status aktif, dan dispensasi) berada di `period_activities`, bukan di checklist atau master aktivitas. |
 | Laporan historis tidak berubah | Nama dan struktur organisasi peserta disalin ke `period_participant_snapshots`; konfigurasi aktivitas dan ambang kelulusan tersimpan pada periode. Periode tertutup selalu memakai ambang yang telah tersimpan. |
 | Periode selesai tidak dapat diubah | Dicegah pada Policy/Service Laravel; database tetap menjaga foreign key dan constraint. |
 

@@ -8,7 +8,7 @@ use Tests\TestCase;
 
 class IndividualPdfTemplateTest extends TestCase
 {
-    public function test_closed_document_places_the_same_verification_qr_under_both_officials(): void
+    public function test_closed_document_places_the_same_verification_qr_above_both_official_names(): void
     {
         $period = new LksPeriod([
             'start_date' => now()->startOfMonth(),
@@ -49,5 +49,6 @@ class IndividualPdfTemplateTest extends TestCase
 
         $this->assertSame(2, substr_count($html, 'class="signature-qr"'));
         $this->assertStringContainsString('LKS-VERIFY123', $html);
+        $this->assertLessThan(strpos($html, 'Pejabat Satu'), strpos($html, 'class="signature-qr"'));
     }
 }

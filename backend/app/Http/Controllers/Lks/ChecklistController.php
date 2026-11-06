@@ -89,10 +89,9 @@ class ChecklistController extends Controller
         }
 
         $activities = $period->periodActivities()
-            ->where('is_active', true)
             ->orderBy('sort_order')
             ->get()
-            ->filter(fn (PeriodActivity $activity): bool => $activity->appliesTo($participant) && ($activity->allowedWeekdays() === [] || in_array($date->isoWeekday(), $activity->allowedWeekdays(), true)))
+            ->filter(fn (PeriodActivity $activity): bool => $activity->appliesTo($participant) && ($activity->allowedWeekdaysFor($participant) === [] || in_array($date->isoWeekday(), $activity->allowedWeekdaysFor($participant), true)))
             ->values();
         $checklists = LksChecklist::query()
             ->where('period_participant_id', $participant->getKey())

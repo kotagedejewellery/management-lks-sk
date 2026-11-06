@@ -24,7 +24,7 @@ flowchart LR
 ## 2. Prinsip arsitektur
 
 1. **Checklist adalah sumber kebenaran.** Nilai, status, dan rekap selalu dapat dijelaskan dari checklist, target, bobot, serta ambang periode menurut level dan kategori LKS peserta. Dispensasi menstruasi hanya mengeluarkan hari layak pada aktivitas snapshot yang ditandai; ia tidak membuat checklist atau kredit nilai.
-2. **Konfigurasi periode tidak mengubah masa lalu.** Aktivasi periode membuat snapshot peserta dan aktivitas agar riwayat tetap akurat.
+2. **Konfigurasi periode tidak mengubah masa lalu.** Aktivasi periode membuat snapshot peserta dan aktivitas agar riwayat tetap akurat. Snapshot memuat kategori hasil masa kerja serta seluruh aturan Reguler/Magang yang terpisah.
 3. **Akses dibatasi di server.** Menyembunyikan menu bukan otorisasi; route, Policy, query, dan endpoint grafik wajib memeriksa hak akses.
 4. **Satu aturan perhitungan.** `LksScoreCalculator` digunakan oleh dashboard, LKS Saya, rekap, dan grafik.
 5. **Sederhana dahulu.** Tidak ada API publik, microservice, cache cluster, atau queue wajib pada MVP.

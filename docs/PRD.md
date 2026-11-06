@@ -76,7 +76,7 @@ Data minimum:
 | Tim | Tim pengguna |
 | Leader | Leader pengguna |
 | Departemen | Departemen pengguna |
-| Kategori | Kategori LKS, apabila digunakan |
+| Kategori | Ditentukan otomatis dari tanggal mulai kerja: Magang selama tiga bulan kalender pertama, lalu Reguler; profil lama tanpa tanggal mempertahankan kategori tersimpan. |
 | Level | Level pengguna, apabila digunakan |
 | Status | Aktif atau Tidak Aktif |
 
@@ -107,7 +107,7 @@ Aktivitas awal yang dicatat:
 9. Subuhan di Masjid
 10. Puasa Kamis
 
-Admin dapat mengatur aktivitas aktif dan target pada tiap periode sesuai kebijakan LKS.
+Admin dapat mengatur aktivitas aktif, target, batas mingguan, jadwal, sasaran, dan dispensasi pada tiap periode sesuai kebijakan LKS. Seluruh aturan tersebut tersedia terpisah untuk Reguler dan Magang; periode aktif atau tertutup mempertahankan snapshot aturannya.
 
 Setiap aktivitas dapat ditandai sebagai berlaku untuk dispensasi menstruasi. Tanda tersebut merupakan aturan snapshot periode: Admin menentukannya pada default aktivitas untuk periode baru, lalu periode draft dapat menyimpan aturannya sebelum aktivasi.
 
@@ -221,6 +221,8 @@ Admin membuat periode
 | FR-14 | Sistem menampilkan grafik capaian spiritual departemen per periode. |
 | FR-15 | Pengguna berhak dapat melihat data periode sebelumnya. |
 | FR-16 | Pengguna yang berhak dapat melihat preview PDF LKS atau rekap sebelum mengunduh file yang sama. |
+| FR-17 | Dashboard Santri memberi peringatan tekstual berwarna peringatan hanya bila belum ada aktivitas LKS hari ini yang berlaku tercatat. Progres yang belum lengkap setelah pencatatan dimulai tidak diperlakukan sebagai peringatan. |
+| FR-18 | Riwayat pribadi dan Riwayat tim Leader dapat menampilkan ringkasan capaian periode tertutup dalam tahun yang dipilih serta mengunduh CSV dari data yang berada dalam cakupan aksesnya. |
 
 ## 14. Business rules
 
@@ -232,6 +234,8 @@ Admin membuat periode
 | BR-02b | Peserta yang masuk setelah periode dimulai tidak dapat mencatat sebelum `participation_start_date`; target dan minimum target aktivitasnya diprorata terhadap hari layak tersisa. Penambahan ditolak bila tidak ada hari aktivitas yang layak tersisa. Periode tertutup yang sudah ada mempertahankan perhitungan historisnya. |
 | BR-02c | Dispensasi menstruasi hanya dapat dicatat untuk Akhwat pada periode Aktif dan tanggal yang telah berlangsung. Rentang tidak boleh bertumpang tindih. Hanya aktivitas snapshot yang ditandai dapat memakai dispensasi; dispensasi tidak memberi nilai otomatis dan periode Ditutup tidak dapat diubah. Koreksi Admin wajib menyimpan alasan audit. |
 | BR-03 | Setiap aktivitas dapat memiliki target berbeda. |
+| BR-03a | Target, batas mingguan, jadwal, sasaran, status aktif, dan dispensasi aktivitas dapat berbeda antara Reguler dan Magang. |
+| BR-03b | Dengan `employment_started_on`, kategori snapshot peserta adalah Magang sebelum tanggal ulang tiga bulan dan Reguler sejak tanggal ulang tersebut. Bila tanggal yang sama tidak ada pada bulan ketiga, tanggal ulang adalah hari terakhir bulan itu; snapshot yang sudah dibuat tidak dihitung ulang. |
 | BR-04 | Nilai dihitung otomatis dari checklist. |
 | BR-05 | Status aktivitas ditentukan oleh pencapaian target. |
 | BR-06 | Standar ketercapaian keseluruhan mengikuti konfigurasi LKS yang berlaku. |

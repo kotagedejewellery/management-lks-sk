@@ -48,7 +48,7 @@ class LksExportController extends Controller
 
         $scores = $calculator->calculatePeriod($period);
         $activityColumns = $period->periodActivities()
-            ->where('is_active', true)
+            ->where(fn ($query) => $query->where('is_active', true)->orWhere('magang_is_active', true))
             ->orderBy('sort_order')
             ->get()
             ->map(fn ($activity): array => ['id' => $activity->getKey(), 'name' => $activity->activity_name_snapshot])

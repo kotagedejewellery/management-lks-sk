@@ -11,18 +11,23 @@ class PeriodActivity extends Model
 {
     use HasUuids;
 
-    protected $appends = ['applicable_genders_list', 'applicable_levels_list'];
+    protected $appends = ['applicable_genders_list', 'applicable_levels_list', 'magang_applicable_genders_list', 'magang_applicable_levels_list'];
 
     protected $fillable = [
         'period_id', 'activity_id', 'activity_code_snapshot', 'activity_name_snapshot',
         'target_count', 'minimum_target_count', 'magang_target_count', 'magang_minimum_target_count',
         'max_per_week', 'weight', 'allowed_weekdays',
-        'applicable_genders', 'applicable_levels', 'menstruation_exempt', 'is_active', 'sort_order',
+        'applicable_genders', 'applicable_levels', 'menstruation_exempt', 'is_active',
+        'magang_max_per_week', 'magang_allowed_weekdays', 'magang_applicable_genders',
+        'magang_applicable_levels', 'magang_menstruation_exempt', 'magang_is_active', 'sort_order',
     ];
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean', 'menstruation_exempt' => 'boolean', 'weight' => 'decimal:2'];
+        return [
+            'is_active' => 'boolean', 'menstruation_exempt' => 'boolean', 'weight' => 'decimal:2',
+            'magang_is_active' => 'boolean', 'magang_menstruation_exempt' => 'boolean',
+        ];
     }
 
     /** @return BelongsTo<LksPeriod, $this> */
@@ -55,6 +60,12 @@ class PeriodActivity extends Model
             : array_map('intval', array_filter(explode(',', trim((string) $this->allowed_weekdays, '{}'))));
     }
 
+    /** @return list<int> */
+    public function magangAllowedWeekdays(): array
+    {
+        return $this->intArray($this->magang_allowed_weekdays);
+    }
+
     /** @return list<string> */
     public function applicableGenders(): array
     {
@@ -67,10 +78,47 @@ class PeriodActivity extends Model
         return $this->stringArray($this->applicable_levels, ['leader', 'staff']);
     }
 
+    /** @return list<string> */
+    public function magangApplicableGenders(): array
+    {
+        return $this->stringArray($this->magang_applicable_genders, ['ikhwan', 'akhwat']);
+    }
+
+    /** @return list<string> */
+    public function magangApplicableLevels(): array
+    {
+        return $this->stringArray($this->magang_applicable_levels, ['leader', 'staff']);
+    }
+
+    public function isActiveFor(PeriodParticipantSnapshot $participant): bool
+    {
+        return $this->isMagang($participant) ? $this->magang_is_active : $this->is_active;
+    }
+
+    public function maxPerWeekFor(PeriodParticipantSnapshot $participant): ?int
+    {
+        return $this->isMagang($participant) ? $this->magang_max_per_week : $this->max_per_week;
+    }
+
+    /** @return list<int> */
+    public function allowedWeekdaysFor(PeriodParticipantSnapshot $participant): array
+    {
+        return $this->isMagang($participant) ? $this->magangAllowedWeekdays() : $this->allowedWeekdays();
+    }
+
+    public function menstruationExemptFor(PeriodParticipantSnapshot $participant): bool
+    {
+        return $this->isMagang($participant) ? $this->magang_menstruation_exempt : $this->menstruation_exempt;
+    }
+
     public function appliesTo(PeriodParticipantSnapshot $participant): bool
     {
-        return in_array($participant->gender_snapshot, $this->applicableGenders(), true)
-            && in_array($participant->level_snapshot, $this->applicableLevels(), true);
+        $genders = $this->isMagang($participant) ? $this->magangApplicableGenders() : $this->applicableGenders();
+        $levels = $this->isMagang($participant) ? $this->magangApplicableLevels() : $this->applicableLevels();
+
+        return $this->isActiveFor($participant)
+            && in_array($participant->gender_snapshot, $genders, true)
+            && in_array($participant->level_snapshot, $levels, true);
     }
 
     /** @return list<string> */
@@ -83,6 +131,33 @@ class PeriodActivity extends Model
     public function getApplicableLevelsListAttribute(): array
     {
         return $this->applicableLevels();
+    }
+
+    /** @return list<string> */
+    public function getMagangApplicableGendersListAttribute(): array
+    {
+        return $this->magangApplicableGenders();
+    }
+
+    /** @return list<string> */
+    public function getMagangApplicableLevelsListAttribute(): array
+    {
+        return $this->magangApplicableLevels();
+    }
+
+    private function isMagang(PeriodParticipantSnapshot $participant): bool
+    {
+        return $participant->category_snapshot === 'magang';
+    }
+
+    /** @return list<int> */
+    private function intArray(mixed $value): array
+    {
+        if (is_array($value)) {
+            return array_map('intval', $value);
+        }
+
+        return $value === null ? [] : array_map('intval', array_filter(explode(',', trim((string) $value, '{}'))));
     }
 
     /** @param array<int, string> $fallback

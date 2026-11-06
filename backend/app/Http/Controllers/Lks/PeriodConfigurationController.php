@@ -77,7 +77,7 @@ class PeriodConfigurationController extends Controller
             $period = LksPeriod::create($data);
 
             LksActivity::query()
-                ->where('is_active', true)
+                ->where(fn ($query) => $query->where('is_active', true)->orWhere('default_magang_is_active', true))
                 ->whereNotNull('default_target_count')
                 ->orderBy('sort_order')
                 ->each(function (LksActivity $activity) use ($period): void {
@@ -108,7 +108,7 @@ class PeriodConfigurationController extends Controller
 
         $addedCount = DB::transaction(function () use ($period, $request): int {
             $added = LksActivity::query()
-                ->where('is_active', true)
+                ->where(fn ($query) => $query->where('is_active', true)->orWhere('default_magang_is_active', true))
                 ->whereNotNull('default_target_count')
                 ->whereNotIn('code', $period->periodActivities()->select('activity_code_snapshot'))
                 ->orderBy('sort_order')
@@ -144,17 +144,27 @@ class PeriodConfigurationController extends Controller
             'default_magang_target_count' => ['nullable', 'integer', 'min:1'],
             'default_magang_minimum_target_count' => ['nullable', 'integer', 'min:1'],
             'default_max_per_week' => ['nullable', 'integer', 'min:1'],
+            'default_magang_max_per_week' => ['nullable', 'integer', 'min:1'],
             'default_allowed_weekdays' => ['nullable', 'array'],
             'default_allowed_weekdays.*' => ['integer', 'between:1,7', 'distinct'],
+            'default_magang_allowed_weekdays' => ['nullable', 'array'],
+            'default_magang_allowed_weekdays.*' => ['integer', 'between:1,7', 'distinct'],
             'default_applicable_genders' => ['required', 'array', 'min:1'],
             'default_applicable_genders.*' => ['in:ikhwan,akhwat', 'distinct'],
+            'default_magang_applicable_genders' => ['nullable', 'array', 'min:1'],
+            'default_magang_applicable_genders.*' => ['in:ikhwan,akhwat', 'distinct'],
             'default_applicable_levels' => ['required', 'array', 'min:1'],
             'default_applicable_levels.*' => ['in:leader,staff', 'distinct'],
+            'default_magang_applicable_levels' => ['nullable', 'array', 'min:1'],
+            'default_magang_applicable_levels.*' => ['in:leader,staff', 'distinct'],
             'default_menstruation_exempt' => ['nullable', 'boolean'],
+            'default_magang_menstruation_exempt' => ['nullable', 'boolean'],
+            'default_magang_is_active' => ['nullable', 'boolean'],
         ]);
         $data['default_menstruation_exempt'] ??= false;
         $this->ensureMinimumDoesNotExceedTarget($data['default_minimum_target_count'], $data['default_target_count']);
         $this->completeMagangTargets($data, 'default_');
+        $this->completeMagangRules($data, 'default_');
         $data = $this->serializeMasterRules($data);
         $data['sort_order'] = ((int) LksActivity::query()->max('sort_order')) + 1;
         $activity = LksActivity::create($data);
@@ -218,17 +228,27 @@ class PeriodConfigurationController extends Controller
             'default_magang_target_count' => ['nullable', 'integer', 'min:1'],
             'default_magang_minimum_target_count' => ['nullable', 'integer', 'min:1'],
             'default_max_per_week' => ['nullable', 'integer', 'min:1'],
+            'default_magang_max_per_week' => ['nullable', 'integer', 'min:1'],
             'default_allowed_weekdays' => ['nullable', 'array'],
             'default_allowed_weekdays.*' => ['integer', 'between:1,7', 'distinct'],
+            'default_magang_allowed_weekdays' => ['nullable', 'array'],
+            'default_magang_allowed_weekdays.*' => ['integer', 'between:1,7', 'distinct'],
             'default_applicable_genders' => ['required', 'array', 'min:1'],
             'default_applicable_genders.*' => ['in:ikhwan,akhwat', 'distinct'],
+            'default_magang_applicable_genders' => ['nullable', 'array', 'min:1'],
+            'default_magang_applicable_genders.*' => ['in:ikhwan,akhwat', 'distinct'],
             'default_applicable_levels' => ['required', 'array', 'min:1'],
             'default_applicable_levels.*' => ['in:leader,staff', 'distinct'],
+            'default_magang_applicable_levels' => ['nullable', 'array', 'min:1'],
+            'default_magang_applicable_levels.*' => ['in:leader,staff', 'distinct'],
             'default_menstruation_exempt' => ['nullable', 'boolean'],
+            'default_magang_menstruation_exempt' => ['nullable', 'boolean'],
+            'default_magang_is_active' => ['nullable', 'boolean'],
         ]);
         $data['default_menstruation_exempt'] ??= $activity->default_menstruation_exempt;
         $this->ensureMinimumDoesNotExceedTarget($data['default_minimum_target_count'], $data['default_target_count']);
         $this->completeMagangTargets($data, 'default_');
+        $this->completeMagangRules($data, 'default_');
         $data = $this->serializeMasterRules($data);
         $activity->update($data);
         if ($wasActive !== $activity->is_active) {
@@ -422,13 +442,22 @@ class PeriodConfigurationController extends Controller
             'magang_target_count' => ['nullable', 'integer', 'min:1'],
             'magang_minimum_target_count' => ['nullable', 'integer', 'min:1'],
             'max_per_week' => ['nullable', 'integer', 'min:1'],
+            'magang_max_per_week' => ['nullable', 'integer', 'min:1'],
             'allowed_weekdays' => ['nullable', 'array'],
             'allowed_weekdays.*' => ['integer', 'between:1,7', 'distinct'],
+            'magang_allowed_weekdays' => ['nullable', 'array'],
+            'magang_allowed_weekdays.*' => ['integer', 'between:1,7', 'distinct'],
             'applicable_genders' => ['nullable', 'array', 'min:1'],
             'applicable_genders.*' => ['in:ikhwan,akhwat', 'distinct'],
+            'magang_applicable_genders' => ['nullable', 'array', 'min:1'],
+            'magang_applicable_genders.*' => ['in:ikhwan,akhwat', 'distinct'],
             'applicable_levels' => ['nullable', 'array', 'min:1'],
             'applicable_levels.*' => ['in:leader,staff', 'distinct'],
+            'magang_applicable_levels' => ['nullable', 'array', 'min:1'],
+            'magang_applicable_levels.*' => ['in:leader,staff', 'distinct'],
             'menstruation_exempt' => ['nullable', 'boolean'],
+            'magang_menstruation_exempt' => ['nullable', 'boolean'],
+            'magang_is_active' => ['nullable', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:32767'],
         ]);
         $data['minimum_target_count'] ??= $data['target_count'];
@@ -436,6 +465,7 @@ class PeriodConfigurationController extends Controller
         $this->completeMagangTargets($data);
         $activity = LksActivity::query()->findOrFail($data['activity_id']);
         $data['menstruation_exempt'] ??= $activity->default_menstruation_exempt;
+        $this->completeMagangRules($data);
 
         if ($period->periodActivities()->where('activity_code_snapshot', $activity->code)->exists()) {
             throw ValidationException::withMessages(['activity_id' => 'Aktivitas ini sudah ada pada periode.']);
@@ -451,6 +481,7 @@ class PeriodConfigurationController extends Controller
             'magang_target_count' => $data['magang_target_count'],
             'magang_minimum_target_count' => $data['magang_minimum_target_count'],
             'max_per_week' => $data['max_per_week'] ?? null,
+            'magang_max_per_week' => $data['magang_max_per_week'],
             'allowed_weekdays' => isset($data['allowed_weekdays'])
                 ? '{'.implode(',', $data['allowed_weekdays']).'}'
                 : null,
@@ -461,6 +492,11 @@ class PeriodConfigurationController extends Controller
                 ? '{'.implode(',', $data['applicable_levels']).'}'
                 : null,
             'menstruation_exempt' => $data['menstruation_exempt'],
+            'magang_allowed_weekdays' => isset($data['magang_allowed_weekdays']) ? '{'.implode(',', $data['magang_allowed_weekdays']).'}' : null,
+            'magang_applicable_genders' => isset($data['magang_applicable_genders']) ? '{'.implode(',', $data['magang_applicable_genders']).'}' : null,
+            'magang_applicable_levels' => isset($data['magang_applicable_levels']) ? '{'.implode(',', $data['magang_applicable_levels']).'}' : null,
+            'magang_menstruation_exempt' => $data['magang_menstruation_exempt'],
+            'magang_is_active' => $data['magang_is_active'],
             'weight' => 1,
             'sort_order' => $data['sort_order'] ?? 0,
         ]);
@@ -483,14 +519,23 @@ class PeriodConfigurationController extends Controller
             'activities.*.magang_target_count' => ['nullable', 'integer', 'min:1'],
             'activities.*.magang_minimum_target_count' => ['nullable', 'integer', 'min:1'],
             'activities.*.max_per_week' => ['nullable', 'integer', 'min:1'],
+            'activities.*.magang_max_per_week' => ['nullable', 'integer', 'min:1'],
             'activities.*.is_active' => ['required', 'boolean'],
+            'activities.*.magang_is_active' => ['nullable', 'boolean'],
             'activities.*.allowed_weekdays' => ['nullable', 'array'],
             'activities.*.allowed_weekdays.*' => ['integer', 'between:1,7', 'distinct'],
+            'activities.*.magang_allowed_weekdays' => ['nullable', 'array'],
+            'activities.*.magang_allowed_weekdays.*' => ['integer', 'between:1,7', 'distinct'],
             'activities.*.applicable_genders' => ['required', 'array', 'min:1'],
             'activities.*.applicable_genders.*' => ['in:ikhwan,akhwat', 'distinct'],
+            'activities.*.magang_applicable_genders' => ['nullable', 'array', 'min:1'],
+            'activities.*.magang_applicable_genders.*' => ['in:ikhwan,akhwat', 'distinct'],
             'activities.*.applicable_levels' => ['required', 'array', 'min:1'],
             'activities.*.applicable_levels.*' => ['in:leader,staff', 'distinct'],
+            'activities.*.magang_applicable_levels' => ['nullable', 'array', 'min:1'],
+            'activities.*.magang_applicable_levels.*' => ['in:leader,staff', 'distinct'],
             'activities.*.menstruation_exempt' => ['nullable', 'boolean'],
+            'activities.*.magang_menstruation_exempt' => ['nullable', 'boolean'],
         ]);
 
         $periodActivities = $period->periodActivities()->whereIn('id', collect($data['activities'])->pluck('id'))->get()->keyBy('id');
@@ -504,30 +549,43 @@ class PeriodConfigurationController extends Controller
             'magang_target_count' => $activity->magang_target_count,
             'magang_minimum_target_count' => $activity->magang_minimum_target_count,
             'max_per_week' => $activity->max_per_week,
+            'magang_max_per_week' => $activity->magang_max_per_week,
             'is_active' => $activity->is_active,
+            'magang_is_active' => $activity->magang_is_active,
             'allowed_weekdays' => $activity->allowedWeekdays(),
+            'magang_allowed_weekdays' => $activity->magangAllowedWeekdays(),
             'applicable_genders' => $activity->applicableGenders(),
+            'magang_applicable_genders' => $activity->magangApplicableGenders(),
             'applicable_levels' => $activity->applicableLevels(),
+            'magang_applicable_levels' => $activity->magangApplicableLevels(),
             'menstruation_exempt' => $activity->menstruation_exempt,
+            'magang_menstruation_exempt' => $activity->magang_menstruation_exempt,
         ])->values()->all();
 
         foreach ($data['activities'] as $activity) {
             $this->ensureMinimumDoesNotExceedTarget($activity['minimum_target_count'], $activity['target_count']);
             $this->completeMagangTargets($activity);
             $activity['menstruation_exempt'] ??= $periodActivities[$activity['id']]->menstruation_exempt;
+            $this->completeMagangRules($activity);
             $periodActivities[$activity['id']]->update([
                 'target_count' => $activity['target_count'],
                 'minimum_target_count' => $activity['minimum_target_count'],
                 'magang_target_count' => $activity['magang_target_count'],
                 'magang_minimum_target_count' => $activity['magang_minimum_target_count'],
                 'max_per_week' => $activity['max_per_week'] ?? null,
+                'magang_max_per_week' => $activity['magang_max_per_week'],
                 'is_active' => $activity['is_active'],
+                'magang_is_active' => $activity['magang_is_active'],
                 'allowed_weekdays' => isset($activity['allowed_weekdays'])
                     ? '{'.implode(',', $activity['allowed_weekdays']).'}'
                     : null,
                 'applicable_genders' => '{'.implode(',', $activity['applicable_genders']).'}',
                 'applicable_levels' => '{'.implode(',', $activity['applicable_levels']).'}',
                 'menstruation_exempt' => $activity['menstruation_exempt'],
+                'magang_allowed_weekdays' => isset($activity['magang_allowed_weekdays']) ? '{'.implode(',', $activity['magang_allowed_weekdays']).'}' : null,
+                'magang_applicable_genders' => '{'.implode(',', $activity['magang_applicable_genders']).'}',
+                'magang_applicable_levels' => '{'.implode(',', $activity['magang_applicable_levels']).'}',
+                'magang_menstruation_exempt' => $activity['magang_menstruation_exempt'],
             ]);
         }
 
@@ -611,10 +669,17 @@ class PeriodConfigurationController extends Controller
                 'magang_target_count' => $activity->default_magang_target_count ?? $this->seventyFivePercent((int) $activity->default_target_count),
                 'magang_minimum_target_count' => $activity->default_magang_minimum_target_count ?? $this->seventyFivePercent((int) $activity->default_minimum_target_count),
                 'max_per_week' => $activity->default_max_per_week,
+                'magang_max_per_week' => $activity->default_magang_max_per_week,
                 'allowed_weekdays' => $activity->default_allowed_weekdays,
+                'magang_allowed_weekdays' => $activity->default_magang_allowed_weekdays,
                 'applicable_genders' => $activity->default_applicable_genders,
+                'magang_applicable_genders' => $activity->default_magang_applicable_genders,
                 'applicable_levels' => $activity->default_applicable_levels,
+                'magang_applicable_levels' => $activity->default_magang_applicable_levels,
                 'menstruation_exempt' => $activity->default_menstruation_exempt,
+                'magang_menstruation_exempt' => $activity->default_magang_menstruation_exempt,
+                'is_active' => $activity->is_active,
+                'magang_is_active' => $activity->default_magang_is_active,
                 'weight' => 1,
                 'sort_order' => $activity->sort_order,
             ],
@@ -626,10 +691,29 @@ class PeriodConfigurationController extends Controller
      */
     private function serializeMasterRules(array $data): array
     {
-        foreach (['default_allowed_weekdays', 'default_applicable_genders', 'default_applicable_levels'] as $field) {
+        foreach (['default_allowed_weekdays', 'default_applicable_genders', 'default_applicable_levels', 'default_magang_allowed_weekdays', 'default_magang_applicable_genders', 'default_magang_applicable_levels'] as $field) {
             $data[$field] = isset($data[$field]) ? '{'.implode(',', $data[$field]).'}' : null;
         }
 
         return $data;
+    }
+
+    /** @param array<string, mixed> $data */
+    private function completeMagangRules(array &$data, string $prefix = ''): void
+    {
+        foreach ([
+            'max_per_week', 'allowed_weekdays', 'applicable_genders', 'applicable_levels',
+            'menstruation_exempt', 'is_active',
+        ] as $field) {
+            $magangField = $prefix.'magang_'.$field;
+            $regularField = $prefix.$field;
+            if (! array_key_exists($magangField, $data)) {
+                $data[$magangField] = $data[$regularField] ?? match ($field) {
+                    'is_active' => true,
+                    'menstruation_exempt' => false,
+                    default => null,
+                };
+            }
+        }
     }
 }

@@ -101,11 +101,10 @@ class DashboardController extends Controller
             && $participant->menstruationDispensations->contains(fn ($dispensation): bool => $selectedDate->betweenIncluded($dispensation->start_date, $dispensation->end_date));
 
         $activities = $period->periodActivities()
-            ->where('is_active', true)
             ->orderBy('sort_order')
             ->get()
             ->filter(fn ($activity) => ($participant === null || $activity->appliesTo($participant))
-                && ($activity->allowedWeekdays() === [] || in_array($selectedDate->isoWeekday(), $activity->allowedWeekdays(), true)))
+                && ($participant === null || $activity->allowedWeekdaysFor($participant) === [] || in_array($selectedDate->isoWeekday(), $activity->allowedWeekdaysFor($participant), true)))
             ->map(function ($activity) use ($participant, $calculator, $period, $holidayDates, $holiday, $recordedDatesByActivity, $isDispensationDate): array {
                 $checklist = $participant?->checklists->firstWhere('period_activity_id', $activity->getKey());
                 $rule = $calculator->effectiveTargets($activity, $period, $holidayDates, $participant);
@@ -117,14 +116,14 @@ class DashboardController extends Controller
                     'target_count' => $rule['target_count'],
                     'minimum_target_count' => $rule['minimum_target_count'],
                     'lks_category' => $rule['category'],
-                    'max_per_week' => $activity->max_per_week,
-                    'menstruation_exempt' => $activity->menstruation_exempt,
+                    'max_per_week' => $activity->maxPerWeekFor($participant),
+                    'menstruation_exempt' => $activity->menstruationExemptFor($participant),
                     'is_completed' => $checklist?->is_completed ?? false,
                     'recorded_dates' => $recordedDatesByActivity->get($activity->getKey(), []),
-                    'allowed_weekdays' => $activity->allowedWeekdays(),
+                    'allowed_weekdays' => $activity->allowedWeekdaysFor($participant),
                     'is_optional_today' => $holiday !== null,
                     'holiday_name' => $holiday?->name,
-                    'is_dispensation_today' => $isDispensationDate && $activity->menstruation_exempt,
+                    'is_dispensation_today' => $isDispensationDate && $activity->menstruationExemptFor($participant),
                 ];
             })
             ->filter(fn (array $activity): bool => $activity['target_count'] > 0 || $activity['is_dispensation_today'])

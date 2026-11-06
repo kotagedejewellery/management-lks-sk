@@ -16,7 +16,6 @@ class LksScoreCalculator
     {
         $participant->loadMissing(['period', 'menstruationDispensations']);
         $activities = $participant->period->periodActivities()
-            ->where('is_active', true)
             ->orderBy('sort_order')
             ->get()
             ->filter(fn ($activity) => $activity->appliesTo($participant))
@@ -29,7 +28,7 @@ class LksScoreCalculator
                 $participant->period,
                 $holidayDates,
                 $participant,
-                $activity->menstruation_exempt ? $dispensationDates : [],
+                $activity->menstruationExemptFor($participant) ? $dispensationDates : [],
             )])
             ->filter(fn (array $rule): bool => $rule['target_count'] > 0);
         $activities = $activities->filter(fn ($activity): bool => $effectiveTargets->has($activity->getKey()))->values();
@@ -41,7 +40,7 @@ class LksScoreCalculator
             ->get(['period_activity_id', 'checklist_date'])
             ->reject(fn (LksChecklist $checklist): bool => in_array(
                 $checklist->checklist_date->toDateString(),
-                $activities->firstWhere('id', $checklist->period_activity_id)?->menstruation_exempt ? $dispensationDates : [],
+                $activities->firstWhere('id', $checklist->period_activity_id)?->menstruationExemptFor($participant) ? $dispensationDates : [],
                 true,
             ))
             ->countBy('period_activity_id');
@@ -214,7 +213,7 @@ class LksScoreCalculator
         $magang = $participant !== null && $this->category($participant) === 'magang';
         $target = (int) ($magang ? ($activity->magang_target_count ?? $activity->target_count) : $activity->target_count);
         $minimum = (int) ($magang ? ($activity->magang_minimum_target_count ?? $activity->minimum_target_count) : $activity->minimum_target_count);
-        $weekdays = $activity->allowedWeekdays();
+        $weekdays = $participant === null ? $activity->allowedWeekdays() : $activity->allowedWeekdaysFor($participant);
         $holidays = array_fill_keys($holidayDates, true);
         $fullEligibleDays = $this->eligibleDays($period->start_date, $period->end_date, $weekdays, $holidays);
         $baseTarget = $weekdays === [] ? $target : min($target, $fullEligibleDays);

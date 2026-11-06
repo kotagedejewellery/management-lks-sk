@@ -1351,6 +1351,36 @@ class LksCoreTest extends TestCase
             ->assertJsonPath('data.0.id', $teamPeriod->id);
     }
 
+    public function test_history_loads_only_the_selected_authorized_year(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $older = $this->period($admin, [
+            'name' => 'Riwayat 2025',
+            'status' => 'closed',
+            'start_date' => '2025-01-01',
+            'end_date' => '2025-01-31',
+        ]);
+        $newer = $this->period($admin, [
+            'name' => 'Riwayat 2026',
+            'status' => 'closed',
+            'start_date' => '2026-01-01',
+            'end_date' => '2026-01-31',
+        ]);
+        $this->participant($older, $santri);
+        $this->participant($newer, $santri);
+
+        $this->actingAs($santri)
+            ->getJson(route('api.lks.periods.history', ['year' => 2025]))
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $older->id)
+            ->assertJsonPath('meta.selected_year', '2025')
+            ->assertJsonPath('meta.available_years.0', '2026')
+            ->assertJsonPath('meta.available_years.1', '2025')
+            ->assertJsonMissing(['id' => $newer->id]);
+    }
+
     public function test_recap_uses_the_latest_closed_period_when_no_active_period_exists(): void
     {
         $admin = $this->userWithRole('admin');

@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Delegated and approved: Laravel 13 on PHP 8.3+, Livewire 4, Blade, Tailwind CSS 4, PostgreSQL, Chart.js, Pest, Docker Compose, and Nginx/PHP-FPM deployment.
+Laravel 13 on PHP 8.4+, Blade with JavaScript vanilla and CSS kustom, PostgreSQL, Pest, Docker Compose, and Nginx/PHP-FPM deployment. Grafik laporan menggunakan CSS/HTML; Livewire, Tailwind, dan Chart.js bukan bagian runtime saat ini.
 
 ## Users
 
@@ -38,6 +38,9 @@ LKS operates in recurring, generally monthly periods. A Santri Karya checks comp
 - Period activation locks its snapshots and configuration; a separate recording control lets an administrator pause or resume Santri checklist input without changing that lifecycle. Checklist input remains limited to the configured date range, while an active period can still be reviewed outside it.
 - Santri checklist input is read-only when an active period is paused or its date range has ended. Admin may correct a valid historical date while the period remains active; a closed period is read-only for everyone.
 - A participant added after a period starts records only from their snapshot participation date. Their target and minimum target are prorated to their remaining eligible dates; the addition is rejected when no eligible activity date remains. Previously closed periods retain their original non-prorated calculation.
+- A Santri Karya with an employment start date uses Magang rules until the three-month anniversary and Reguler rules from that anniversary onward; when the calendar date is absent, the anniversary is the last day of that month. Existing profiles without that date retain their stored category until an administrator supplies the date.
+- Each activity has independent Reguler and Magang rules for target, weekly limit, schedule, audience, active status, and menstruation dispensation. Active and closed period snapshots never change when defaults are edited.
+- Santri see an amber, textual dashboard reminder only when no applicable activity has been recorded today. Personal and Leader team histories include a yearly statement of closed-period results that can be downloaded as CSV within the viewer's authorized scope.
 - For an Akhwat participant, a recorded menstrual dispensation reduces the effective target only for activities explicitly configured for that purpose. It never creates checklist credit or an automatic score, is private to the participant and Admin, and cannot change an active or closed period's existing activity snapshot. Overlapping ranges are rejected; Admin corrections require an audit reason.
 - Recommendations are deterministic, warm, and data-specific: they state the current score or threshold gap and name at most two activities needing attention. When every activity meets its minimum but the final threshold is still missed, the two lowest activities are named instead. Closed-period recommendations remain immutable snapshots.
 - An Administrator can set a new temporary password for an active Santri Karya account when login recovery is needed. Existing account sessions end, the account must change it at the next entry, and every new password follows the same environment-aware security policy without being retained in audit data.
