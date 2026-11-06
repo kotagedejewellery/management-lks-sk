@@ -296,6 +296,8 @@ body.is-booting .page-progress { inset: 0; }
 .period-config-row-title small { display: block; max-width: 58ch; margin-top: 5px; color: var(--ink-soft, #53645a); font-size: 12px; line-height: 1.5; }
 .period-config-row .admin-modal-inline-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .period-config-row .admin-modal-checkbox { width: fit-content; }
+.activity-rule-shared { display: grid; gap: 12px; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line, #d9ddd5); }
+.activity-rule-shared h3 { margin: 0; color: var(--ink, #203329); font-size: 14px; }
 .activity-audience-picker { display: grid; gap: 7px; margin: 0; padding: 0; border: 0; }
 .activity-audience-picker > span { display: flex; flex-wrap: wrap; gap: 12px; }
 .activity-audience-picker label { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }

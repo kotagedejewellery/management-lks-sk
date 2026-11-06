@@ -1837,6 +1837,42 @@
       "source_location": "L1771"
     },
     {
+      "id": "frontend_app_adminformsnapshot",
+      "label": "adminFormSnapshot()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "frontend/app.js",
+      "file_type": "code",
+      "norm_label": "adminformsnapshot()",
+      "source_file": "frontend/app.js",
+      "source_location": "L2716"
+    },
+    {
+      "id": "frontend_app_checkicon",
+      "label": "checkIcon()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "frontend/app.js",
+      "file_type": "code",
+      "norm_label": "checkicon()",
+      "source_file": "frontend/app.js",
+      "source_location": "L378"
+    },
+    {
+      "id": "frontend_app_checklistsaveerrorkey",
+      "label": "checklistSaveErrorKey()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "frontend/app.js",
+      "file_type": "code",
+      "norm_label": "checklistsaveerrorkey()",
+      "source_file": "frontend/app.js",
+      "source_location": "L614"
+    },
+    {
       "id": "frontend_app_clearpdfpreview",
       "label": "clearPdfPreview()",
       "_callable": true,
@@ -1861,18 +1897,6 @@
       "source_location": "L148"
     },
     {
-      "id": "frontend_app_departmentfollowupactivitynames",
-      "label": "departmentFollowUpActivityNames()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "frontend/app.js",
-      "file_type": "code",
-      "norm_label": "departmentfollowupactivitynames()",
-      "source_file": "frontend/app.js",
-      "source_location": "L1289"
-    },
-    {
       "id": "frontend_app_filterrecaprows",
       "label": "filterRecapRows()",
       "_callable": true,
@@ -1885,16 +1909,16 @@
       "source_location": "L1882"
     },
     {
-      "id": "frontend_app_markbulkchecklistinvaliddates",
-      "label": "markBulkChecklistInvalidDates()",
+      "id": "frontend_app_hasunsavedadminformchanges",
+      "label": "hasUnsavedAdminFormChanges()",
       "_callable": true,
       "_origin": "ast",
       "community": 1,
       "community_name": "frontend/app.js",
       "file_type": "code",
-      "norm_label": "markbulkchecklistinvaliddates()",
+      "norm_label": "hasunsavedadminformchanges()",
       "source_file": "frontend/app.js",
-      "source_location": "L545"
+      "source_location": "L2728"
     },
     {
       "id": "frontend_app_openpdfpreview",
@@ -1921,6 +1945,18 @@
       "source_location": "L137"
     },
     {
+      "id": "frontend_app_persistchecklist",
+      "label": "persistChecklist()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "frontend/app.js",
+      "file_type": "code",
+      "norm_label": "persistchecklist()",
+      "source_file": "frontend/app.js",
+      "source_location": "L1551"
+    },
+    {
       "id": "frontend_app_previewpdf",
       "label": "previewPdf()",
       "_callable": true,
@@ -1931,6 +1967,18 @@
       "norm_label": "previewpdf()",
       "source_file": "frontend/app.js",
       "source_location": "L183"
+    },
+    {
+      "id": "frontend_app_recordingunavailablelabel",
+      "label": "recordingUnavailableLabel()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "frontend/app.js",
+      "file_type": "code",
+      "norm_label": "recordingunavailablelabel()",
+      "source_file": "frontend/app.js",
+      "source_location": "L382"
     },
     {
       "id": "frontend_app_refreshrecapsummary",
@@ -1945,88 +1993,100 @@
       "source_location": "L1200"
     },
     {
-      "id": "frontend_app_renderbulkchecklistcalendar",
-      "label": "renderBulkChecklistCalendar()",
+      "id": "frontend_app_renderfullcheck",
+      "label": "renderFullCheck()",
       "_callable": true,
       "_origin": "ast",
       "community": 1,
       "community_name": "frontend/app.js",
       "file_type": "code",
-      "norm_label": "renderbulkchecklistcalendar()",
+      "norm_label": "renderfullcheck()",
       "source_file": "frontend/app.js",
-      "source_location": "L507"
+      "source_location": "L397"
     },
     {
-      "id": "frontend_app_reportdimensionlabel",
-      "label": "reportDimensionLabel()",
+      "id": "frontend_app_renderquickcheck",
+      "label": "renderQuickCheck()",
       "_callable": true,
       "_origin": "ast",
       "community": 1,
       "community_name": "frontend/app.js",
       "file_type": "code",
-      "norm_label": "reportdimensionlabel()",
+      "norm_label": "renderquickcheck()",
       "source_file": "frontend/app.js",
-      "source_location": "L1207"
+      "source_location": "L387"
     },
     {
-      "id": "frontend_app_selectedbulkdates",
-      "label": "selectedBulkDates()",
+      "id": "frontend_app_requestadminformclose",
+      "label": "requestAdminFormClose()",
       "_callable": true,
       "_origin": "ast",
       "community": 1,
       "community_name": "frontend/app.js",
       "file_type": "code",
-      "norm_label": "selectedbulkdates()",
+      "norm_label": "requestadminformclose()",
       "source_file": "frontend/app.js",
-      "source_location": "L466"
+      "source_location": "L2733"
     },
     {
-      "id": "frontend_app_setallbulkchecklistdates",
-      "label": "setAllBulkChecklistDates()",
+      "id": "frontend_app_setchecklistsaveerror",
+      "label": "setChecklistSaveError()",
       "_callable": true,
       "_origin": "ast",
       "community": 1,
       "community_name": "frontend/app.js",
       "file_type": "code",
-      "norm_label": "setallbulkchecklistdates()",
+      "norm_label": "setchecklistsaveerror()",
       "source_file": "frontend/app.js",
-      "source_location": "L528"
+      "source_location": "L618"
     },
     {
-      "id": "frontend_app_showbulkchecklistmonth",
-      "label": "showBulkChecklistMonth()",
+      "id": "frontend_app_setchecklistsaving",
+      "label": "setChecklistSaving()",
       "_callable": true,
       "_origin": "ast",
       "community": 1,
       "community_name": "frontend/app.js",
       "file_type": "code",
-      "norm_label": "showbulkchecklistmonth()",
+      "norm_label": "setchecklistsaving()",
       "source_file": "frontend/app.js",
-      "source_location": "L536"
+      "source_location": "L639"
     },
     {
-      "id": "frontend_app_syncbulkchecklistselections",
-      "label": "syncBulkChecklistSelections()",
+      "id": "frontend_app_setcheckliststate",
+      "label": "setChecklistState()",
       "_callable": true,
       "_origin": "ast",
       "community": 1,
       "community_name": "frontend/app.js",
       "file_type": "code",
-      "norm_label": "syncbulkchecklistselections()",
+      "norm_label": "setcheckliststate()",
       "source_file": "frontend/app.js",
-      "source_location": "L470"
+      "source_location": "L600"
     },
     {
-      "id": "frontend_app_updatebulkchecklistselection",
-      "label": "updateBulkChecklistSelection()",
+      "id": "frontend_app_setsaving",
+      "label": "setSaving()",
       "_callable": true,
       "_origin": "ast",
       "community": 1,
       "community_name": "frontend/app.js",
       "file_type": "code",
-      "norm_label": "updatebulkchecklistselection()",
+      "norm_label": "setsaving()",
       "source_file": "frontend/app.js",
-      "source_location": "L478"
+      "source_location": "L342"
+    },
+    {
+      "id": "frontend_app_syncchecklist",
+      "label": "syncChecklist()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "frontend/app.js",
+      "file_type": "code",
+      "norm_label": "syncchecklist()",
+      "source_file": "frontend/app.js",
+      "source_location": "L651"
     },
     {
       "id": "frontend_app_updaterecapfilterreset",
@@ -2557,6 +2617,18 @@
       "source_location": "L36"
     },
     {
+      "id": "frontend_app_activityaudience",
+      "label": "activityAudience()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "openAdminFormModal",
+      "file_type": "code",
+      "norm_label": "activityaudience()",
+      "source_file": "frontend/app.js",
+      "source_location": "L2112"
+    },
+    {
       "id": "frontend_app_activityrulefocustabs",
       "label": "activityRuleFocusTabs()",
       "_callable": true,
@@ -2590,7 +2662,7 @@
       "file_type": "code",
       "norm_label": "audiencepicker()",
       "source_file": "frontend/app.js",
-      "source_location": "L2140"
+      "source_location": "L2132"
     },
     {
       "id": "frontend_app_formatdatetime",
@@ -2614,7 +2686,7 @@
       "file_type": "code",
       "norm_label": "masteractivityrulefields()",
       "source_file": "frontend/app.js",
-      "source_location": "L2187"
+      "source_location": "L2179"
     },
     {
       "id": "frontend_app_openadminformmodal",
@@ -2626,7 +2698,7 @@
       "file_type": "code",
       "norm_label": "openadminformmodal()",
       "source_file": "frontend/app.js",
-      "source_location": "L2849"
+      "source_location": "L2841"
     },
     {
       "id": "frontend_app_periodactivityconfigurationfields",
@@ -2638,7 +2710,19 @@
       "file_type": "code",
       "norm_label": "periodactivityconfigurationfields()",
       "source_file": "frontend/app.js",
-      "source_location": "L2173"
+      "source_location": "L2165"
+    },
+    {
+      "id": "frontend_app_rulelist",
+      "label": "ruleList()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "openAdminFormModal",
+      "file_type": "code",
+      "norm_label": "rulelist()",
+      "source_file": "frontend/app.js",
+      "source_location": "L2084"
     },
     {
       "id": "frontend_app_syncmagangjoblevel",
@@ -2650,7 +2734,7 @@
       "file_type": "code",
       "norm_label": "syncmagangjoblevel()",
       "source_file": "frontend/app.js",
-      "source_location": "L2827"
+      "source_location": "L2819"
     },
     {
       "id": "frontend_app_weekdaypicker",
@@ -2663,18 +2747,6 @@
       "norm_label": "weekdaypicker()",
       "source_file": "frontend/app.js",
       "source_location": "L2078"
-    },
-    {
-      "id": "frontend_app_weekdayvalues",
-      "label": "weekdayValues()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "openAdminFormModal",
-      "file_type": "code",
-      "norm_label": "weekdayvalues()",
-      "source_file": "frontend/app.js",
-      "source_location": "L2072"
     },
     {
       "id": "backend_app_http_controllers_lks_checklistcontroller_checklistcontroller_correct",
@@ -5029,6 +5101,18 @@
       "source_location": "L1784"
     },
     {
+      "id": "frontend_app_adminpanel",
+      "label": "adminPanel()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "loadRecap",
+      "file_type": "code",
+      "norm_label": "adminpanel()",
+      "source_file": "frontend/app.js",
+      "source_location": "L2197"
+    },
+    {
       "id": "frontend_app_apierror",
       "label": "apiError()",
       "_callable": true,
@@ -5161,6 +5245,18 @@
       "source_location": "L1803"
     },
     {
+      "id": "frontend_app_loadadminview",
+      "label": "loadAdminView()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "loadRecap",
+      "file_type": "code",
+      "norm_label": "loadadminview()",
+      "source_file": "frontend/app.js",
+      "source_location": "L2395"
+    },
+    {
       "id": "frontend_app_loadhistory",
       "label": "loadHistory()",
       "_callable": true,
@@ -5197,6 +5293,18 @@
       "source_location": "L1497"
     },
     {
+      "id": "frontend_app_masteractivityrulesummary",
+      "label": "masterActivityRuleSummary()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "loadRecap",
+      "file_type": "code",
+      "norm_label": "masteractivityrulesummary()",
+      "source_file": "frontend/app.js",
+      "source_location": "L2122"
+    },
+    {
       "id": "frontend_app_openlocationview",
       "label": "openLocationView()",
       "_callable": true,
@@ -5221,6 +5329,18 @@
       "source_location": "L95"
     },
     {
+      "id": "frontend_app_paginationcontrols",
+      "label": "paginationControls()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "loadRecap",
+      "file_type": "code",
+      "norm_label": "paginationcontrols()",
+      "source_file": "frontend/app.js",
+      "source_location": "L2190"
+    },
+    {
       "id": "frontend_app_renderaccount",
       "label": "renderAccount()",
       "_callable": true,
@@ -5231,6 +5351,18 @@
       "norm_label": "renderaccount()",
       "source_file": "frontend/app.js",
       "source_location": "L1788"
+    },
+    {
+      "id": "frontend_app_renderadminview",
+      "label": "renderAdminView()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "loadRecap",
+      "file_type": "code",
+      "norm_label": "renderadminview()",
+      "source_file": "frontend/app.js",
+      "source_location": "L2201"
     },
     {
       "id": "frontend_app_renderhistory",
@@ -6697,18 +6829,6 @@
       "source_location": "L86"
     },
     {
-      "id": "frontend_app_adminformsnapshot",
-      "label": "adminFormSnapshot()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 44,
-      "community_name": "submitAdminForm",
-      "file_type": "code",
-      "norm_label": "adminformsnapshot()",
-      "source_file": "frontend/app.js",
-      "source_location": "L2724"
-    },
-    {
       "id": "frontend_app_apiformerror",
       "label": "apiFormError()",
       "_callable": true,
@@ -6719,18 +6839,6 @@
       "norm_label": "apiformerror()",
       "source_file": "frontend/app.js",
       "source_location": "L799"
-    },
-    {
-      "id": "frontend_app_bulkchecklistmonths",
-      "label": "bulkChecklistMonths()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 44,
-      "community_name": "submitAdminForm",
-      "file_type": "code",
-      "norm_label": "bulkchecklistmonths()",
-      "source_file": "frontend/app.js",
-      "source_location": "L410"
     },
     {
       "id": "frontend_app_confirmaction",
@@ -6745,18 +6853,6 @@
       "source_location": "L327"
     },
     {
-      "id": "frontend_app_dateinputvalue",
-      "label": "dateInputValue()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 44,
-      "community_name": "submitAdminForm",
-      "file_type": "code",
-      "norm_label": "dateinputvalue()",
-      "source_file": "frontend/app.js",
-      "source_location": "L366"
-    },
-    {
       "id": "frontend_app_downloadpdfpreview",
       "label": "downloadPdfPreview()",
       "_callable": true,
@@ -6769,30 +6865,6 @@
       "source_location": "L152"
     },
     {
-      "id": "frontend_app_hasunsavedadminformchanges",
-      "label": "hasUnsavedAdminFormChanges()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 44,
-      "community_name": "submitAdminForm",
-      "file_type": "code",
-      "norm_label": "hasunsavedadminformchanges()",
-      "source_file": "frontend/app.js",
-      "source_location": "L2736"
-    },
-    {
-      "id": "frontend_app_loadchecklistcorrectioncontext",
-      "label": "loadChecklistCorrectionContext()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 44,
-      "community_name": "submitAdminForm",
-      "file_type": "code",
-      "norm_label": "loadchecklistcorrectioncontext()",
-      "source_file": "frontend/app.js",
-      "source_location": "L2689"
-    },
-    {
       "id": "frontend_app_loaddashboard",
       "label": "loadDashboard()",
       "_callable": true,
@@ -6802,19 +6874,7 @@
       "file_type": "code",
       "norm_label": "loaddashboard()",
       "source_file": "frontend/app.js",
-      "source_location": "L3310"
-    },
-    {
-      "id": "frontend_app_localdatevalue",
-      "label": "localDateValue()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 44,
-      "community_name": "submitAdminForm",
-      "file_type": "code",
-      "norm_label": "localdatevalue()",
-      "source_file": "frontend/app.js",
-      "source_location": "L370"
+      "source_location": "L3302"
     },
     {
       "id": "frontend_app_logout",
@@ -6829,40 +6889,16 @@
       "source_location": "L1757"
     },
     {
-      "id": "frontend_app_markadminformpristine",
-      "label": "markAdminFormPristine()",
+      "id": "frontend_app_markbulkchecklistinvaliddates",
+      "label": "markBulkChecklistInvalidDates()",
       "_callable": true,
       "_origin": "ast",
       "community": 44,
       "community_name": "submitAdminForm",
       "file_type": "code",
-      "norm_label": "markadminformpristine()",
+      "norm_label": "markbulkchecklistinvaliddates()",
       "source_file": "frontend/app.js",
-      "source_location": "L2731"
-    },
-    {
-      "id": "frontend_app_openbulkchecklist",
-      "label": "openBulkChecklist()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 44,
-      "community_name": "submitAdminForm",
-      "file_type": "code",
-      "norm_label": "openbulkchecklist()",
-      "source_file": "frontend/app.js",
-      "source_location": "L558"
-    },
-    {
-      "id": "frontend_app_openchecklistcorrection",
-      "label": "openChecklistCorrection()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 44,
-      "community_name": "submitAdminForm",
-      "file_type": "code",
-      "norm_label": "openchecklistcorrection()",
-      "source_file": "frontend/app.js",
-      "source_location": "L2708"
+      "source_location": "L545"
     },
     {
       "id": "frontend_app_parseholidayimportentries",
@@ -6874,31 +6910,19 @@
       "file_type": "code",
       "norm_label": "parseholidayimportentries()",
       "source_file": "frontend/app.js",
-      "source_location": "L2146"
+      "source_location": "L2138"
     },
     {
-      "id": "frontend_app_renderadmindispensationmanager",
-      "label": "renderAdminDispensationManager()",
+      "id": "frontend_app_renderbulkchecklistcalendar",
+      "label": "renderBulkChecklistCalendar()",
       "_callable": true,
       "_origin": "ast",
       "community": 44,
       "community_name": "submitAdminForm",
       "file_type": "code",
-      "norm_label": "renderadmindispensationmanager()",
+      "norm_label": "renderbulkchecklistcalendar()",
       "source_file": "frontend/app.js",
-      "source_location": "L2680"
-    },
-    {
-      "id": "frontend_app_requestadminformclose",
-      "label": "requestAdminFormClose()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 44,
-      "community_name": "submitAdminForm",
-      "file_type": "code",
-      "norm_label": "requestadminformclose()",
-      "source_file": "frontend/app.js",
-      "source_location": "L2741"
+      "source_location": "L507"
     },
     {
       "id": "frontend_app_requestlogout",
@@ -6911,6 +6935,30 @@
       "norm_label": "requestlogout()",
       "source_file": "frontend/app.js",
       "source_location": "L1773"
+    },
+    {
+      "id": "frontend_app_selectedbulkdates",
+      "label": "selectedBulkDates()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 44,
+      "community_name": "submitAdminForm",
+      "file_type": "code",
+      "norm_label": "selectedbulkdates()",
+      "source_file": "frontend/app.js",
+      "source_location": "L466"
+    },
+    {
+      "id": "frontend_app_setallbulkchecklistdates",
+      "label": "setAllBulkChecklistDates()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 44,
+      "community_name": "submitAdminForm",
+      "file_type": "code",
+      "norm_label": "setallbulkchecklistdates()",
+      "source_file": "frontend/app.js",
+      "source_location": "L528"
     },
     {
       "id": "frontend_app_setbuttonbusy",
@@ -6949,6 +6997,18 @@
       "source_location": "L289"
     },
     {
+      "id": "frontend_app_showbulkchecklistmonth",
+      "label": "showBulkChecklistMonth()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 44,
+      "community_name": "submitAdminForm",
+      "file_type": "code",
+      "norm_label": "showbulkchecklistmonth()",
+      "source_file": "frontend/app.js",
+      "source_location": "L536"
+    },
+    {
       "id": "frontend_app_showtoast",
       "label": "showToast()",
       "_callable": true,
@@ -6982,7 +7042,7 @@
       "file_type": "code",
       "norm_label": "submitadminform()",
       "source_file": "frontend/app.js",
-      "source_location": "L2478"
+      "source_location": "L2470"
     },
     {
       "id": "frontend_app_submitbulkchecklistform",
@@ -6994,19 +7054,31 @@
       "file_type": "code",
       "norm_label": "submitbulkchecklistform()",
       "source_file": "frontend/app.js",
-      "source_location": "L2644"
+      "source_location": "L2636"
     },
     {
-      "id": "frontend_app_todayiso",
-      "label": "todayIso()",
+      "id": "frontend_app_syncbulkchecklistselections",
+      "label": "syncBulkChecklistSelections()",
       "_callable": true,
       "_origin": "ast",
       "community": 44,
       "community_name": "submitAdminForm",
       "file_type": "code",
-      "norm_label": "todayiso()",
+      "norm_label": "syncbulkchecklistselections()",
       "source_file": "frontend/app.js",
-      "source_location": "L351"
+      "source_location": "L470"
+    },
+    {
+      "id": "frontend_app_updatebulkchecklistselection",
+      "label": "updateBulkChecklistSelection()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 44,
+      "community_name": "submitAdminForm",
+      "file_type": "code",
+      "norm_label": "updatebulkchecklistselection()",
+      "source_file": "frontend/app.js",
+      "source_location": "L478"
     },
     {
       "id": "backend_database_migrations_2026_10_07_010000_assign_leader_to_teams_closure_1",
@@ -7427,114 +7499,6 @@
       "norm_label": ".syncprofilestoteamleader()",
       "source_file": "backend/app/Http/Controllers/Lks/OrganizationController.php",
       "source_location": "L450"
-    },
-    {
-      "id": "frontend_app_activityaudience",
-      "label": "activityAudience()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 53,
-      "community_name": "loadAdminView",
-      "file_type": "code",
-      "norm_label": "activityaudience()",
-      "source_file": "frontend/app.js",
-      "source_location": "L2112"
-    },
-    {
-      "id": "frontend_app_activityrulelabel",
-      "label": "activityRuleLabel()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 53,
-      "community_name": "loadAdminView",
-      "file_type": "code",
-      "norm_label": "activityrulelabel()",
-      "source_file": "frontend/app.js",
-      "source_location": "L2090"
-    },
-    {
-      "id": "frontend_app_activityschedulelabel",
-      "label": "activityScheduleLabel()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 53,
-      "community_name": "loadAdminView",
-      "file_type": "code",
-      "norm_label": "activityschedulelabel()",
-      "source_file": "frontend/app.js",
-      "source_location": "L2104"
-    },
-    {
-      "id": "frontend_app_adminpanel",
-      "label": "adminPanel()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 53,
-      "community_name": "loadAdminView",
-      "file_type": "code",
-      "norm_label": "adminpanel()",
-      "source_file": "frontend/app.js",
-      "source_location": "L2205"
-    },
-    {
-      "id": "frontend_app_loadadminview",
-      "label": "loadAdminView()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 53,
-      "community_name": "loadAdminView",
-      "file_type": "code",
-      "norm_label": "loadadminview()",
-      "source_file": "frontend/app.js",
-      "source_location": "L2403"
-    },
-    {
-      "id": "frontend_app_masteractivityrulesummary",
-      "label": "masterActivityRuleSummary()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 53,
-      "community_name": "loadAdminView",
-      "file_type": "code",
-      "norm_label": "masteractivityrulesummary()",
-      "source_file": "frontend/app.js",
-      "source_location": "L2122"
-    },
-    {
-      "id": "frontend_app_paginationcontrols",
-      "label": "paginationControls()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 53,
-      "community_name": "loadAdminView",
-      "file_type": "code",
-      "norm_label": "paginationcontrols()",
-      "source_file": "frontend/app.js",
-      "source_location": "L2198"
-    },
-    {
-      "id": "frontend_app_renderadminview",
-      "label": "renderAdminView()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 53,
-      "community_name": "loadAdminView",
-      "file_type": "code",
-      "norm_label": "renderadminview()",
-      "source_file": "frontend/app.js",
-      "source_location": "L2209"
-    },
-    {
-      "id": "frontend_app_rulelist",
-      "label": "ruleList()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 53,
-      "community_name": "loadAdminView",
-      "file_type": "code",
-      "norm_label": "rulelist()",
-      "source_file": "frontend/app.js",
-      "source_location": "L2084"
     },
     {
       "id": "backend_app_http_controllers_lks_organizationcontroller_closure_21",
@@ -8101,6 +8065,30 @@
       "source_location": "L25"
     },
     {
+      "id": "frontend_app_activityrulelabel",
+      "label": "activityRuleLabel()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 61,
+      "community_name": "applyDashboard",
+      "file_type": "code",
+      "norm_label": "activityrulelabel()",
+      "source_file": "frontend/app.js",
+      "source_location": "L2090"
+    },
+    {
+      "id": "frontend_app_activityschedulelabel",
+      "label": "activityScheduleLabel()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 61,
+      "community_name": "applyDashboard",
+      "file_type": "code",
+      "norm_label": "activityschedulelabel()",
+      "source_file": "frontend/app.js",
+      "source_location": "L2104"
+    },
+    {
       "id": "frontend_app_applydashboard",
       "label": "applyDashboard()",
       "_callable": true,
@@ -8113,28 +8101,28 @@
       "source_location": "L689"
     },
     {
-      "id": "frontend_app_checkicon",
-      "label": "checkIcon()",
+      "id": "frontend_app_bulkchecklistmonths",
+      "label": "bulkChecklistMonths()",
       "_callable": true,
       "_origin": "ast",
       "community": 61,
       "community_name": "applyDashboard",
       "file_type": "code",
-      "norm_label": "checkicon()",
+      "norm_label": "bulkchecklistmonths()",
       "source_file": "frontend/app.js",
-      "source_location": "L378"
+      "source_location": "L410"
     },
     {
-      "id": "frontend_app_checklistsaveerrorkey",
-      "label": "checklistSaveErrorKey()",
+      "id": "frontend_app_dateinputvalue",
+      "label": "dateInputValue()",
       "_callable": true,
       "_origin": "ast",
       "community": 61,
       "community_name": "applyDashboard",
       "file_type": "code",
-      "norm_label": "checklistsaveerrorkey()",
+      "norm_label": "dateinputvalue()",
       "source_file": "frontend/app.js",
-      "source_location": "L614"
+      "source_location": "L366"
     },
     {
       "id": "frontend_app_formatdate",
@@ -8149,40 +8137,76 @@
       "source_location": "L355"
     },
     {
-      "id": "frontend_app_persistchecklist",
-      "label": "persistChecklist()",
+      "id": "frontend_app_loadchecklistcorrectioncontext",
+      "label": "loadChecklistCorrectionContext()",
       "_callable": true,
       "_origin": "ast",
       "community": 61,
       "community_name": "applyDashboard",
       "file_type": "code",
-      "norm_label": "persistchecklist()",
+      "norm_label": "loadchecklistcorrectioncontext()",
       "source_file": "frontend/app.js",
-      "source_location": "L1551"
+      "source_location": "L2681"
     },
     {
-      "id": "frontend_app_recordingunavailablelabel",
-      "label": "recordingUnavailableLabel()",
+      "id": "frontend_app_localdatevalue",
+      "label": "localDateValue()",
       "_callable": true,
       "_origin": "ast",
       "community": 61,
       "community_name": "applyDashboard",
       "file_type": "code",
-      "norm_label": "recordingunavailablelabel()",
+      "norm_label": "localdatevalue()",
       "source_file": "frontend/app.js",
-      "source_location": "L382"
+      "source_location": "L370"
     },
     {
-      "id": "frontend_app_renderfullcheck",
-      "label": "renderFullCheck()",
+      "id": "frontend_app_markadminformpristine",
+      "label": "markAdminFormPristine()",
       "_callable": true,
       "_origin": "ast",
       "community": 61,
       "community_name": "applyDashboard",
       "file_type": "code",
-      "norm_label": "renderfullcheck()",
+      "norm_label": "markadminformpristine()",
       "source_file": "frontend/app.js",
-      "source_location": "L397"
+      "source_location": "L2723"
+    },
+    {
+      "id": "frontend_app_openbulkchecklist",
+      "label": "openBulkChecklist()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 61,
+      "community_name": "applyDashboard",
+      "file_type": "code",
+      "norm_label": "openbulkchecklist()",
+      "source_file": "frontend/app.js",
+      "source_location": "L558"
+    },
+    {
+      "id": "frontend_app_openchecklistcorrection",
+      "label": "openChecklistCorrection()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 61,
+      "community_name": "applyDashboard",
+      "file_type": "code",
+      "norm_label": "openchecklistcorrection()",
+      "source_file": "frontend/app.js",
+      "source_location": "L2700"
+    },
+    {
+      "id": "frontend_app_renderadmindispensationmanager",
+      "label": "renderAdminDispensationManager()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 61,
+      "community_name": "applyDashboard",
+      "file_type": "code",
+      "norm_label": "renderadmindispensationmanager()",
+      "source_file": "frontend/app.js",
+      "source_location": "L2672"
     },
     {
       "id": "frontend_app_renderpersonalsummaryloading",
@@ -8209,18 +8233,6 @@
       "source_location": "L679"
     },
     {
-      "id": "frontend_app_renderquickcheck",
-      "label": "renderQuickCheck()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 61,
-      "community_name": "applyDashboard",
-      "file_type": "code",
-      "norm_label": "renderquickcheck()",
-      "source_file": "frontend/app.js",
-      "source_location": "L387"
-    },
-    {
       "id": "frontend_app_setchecklistempty",
       "label": "setChecklistEmpty()",
       "_callable": true,
@@ -8245,64 +8257,16 @@
       "source_location": "L668"
     },
     {
-      "id": "frontend_app_setchecklistsaveerror",
-      "label": "setChecklistSaveError()",
+      "id": "frontend_app_todayiso",
+      "label": "todayIso()",
       "_callable": true,
       "_origin": "ast",
       "community": 61,
       "community_name": "applyDashboard",
       "file_type": "code",
-      "norm_label": "setchecklistsaveerror()",
+      "norm_label": "todayiso()",
       "source_file": "frontend/app.js",
-      "source_location": "L618"
-    },
-    {
-      "id": "frontend_app_setchecklistsaving",
-      "label": "setChecklistSaving()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 61,
-      "community_name": "applyDashboard",
-      "file_type": "code",
-      "norm_label": "setchecklistsaving()",
-      "source_file": "frontend/app.js",
-      "source_location": "L639"
-    },
-    {
-      "id": "frontend_app_setcheckliststate",
-      "label": "setChecklistState()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 61,
-      "community_name": "applyDashboard",
-      "file_type": "code",
-      "norm_label": "setcheckliststate()",
-      "source_file": "frontend/app.js",
-      "source_location": "L600"
-    },
-    {
-      "id": "frontend_app_setsaving",
-      "label": "setSaving()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 61,
-      "community_name": "applyDashboard",
-      "file_type": "code",
-      "norm_label": "setsaving()",
-      "source_file": "frontend/app.js",
-      "source_location": "L342"
-    },
-    {
-      "id": "frontend_app_syncchecklist",
-      "label": "syncChecklist()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 61,
-      "community_name": "applyDashboard",
-      "file_type": "code",
-      "norm_label": "syncchecklist()",
-      "source_file": "frontend/app.js",
-      "source_location": "L651"
+      "source_location": "L351"
     },
     {
       "id": "frontend_app_updatetodayprogress",
@@ -8315,6 +8279,18 @@
       "norm_label": "updatetodayprogress()",
       "source_file": "frontend/app.js",
       "source_location": "L587"
+    },
+    {
+      "id": "frontend_app_weekdayvalues",
+      "label": "weekdayValues()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 61,
+      "community_name": "applyDashboard",
+      "file_type": "code",
+      "norm_label": "weekdayvalues()",
+      "source_file": "frontend/app.js",
+      "source_location": "L2072"
     },
     {
       "id": "backend_tests_feature_auth_passwordresettest_passwordresettest_setup",
@@ -9649,6 +9625,18 @@
       "source_location": "L1162"
     },
     {
+      "id": "frontend_app_departmentfollowupactivitynames",
+      "label": "departmentFollowUpActivityNames()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "escapeHtml",
+      "file_type": "code",
+      "norm_label": "departmentfollowupactivitynames()",
+      "source_file": "frontend/app.js",
+      "source_location": "L1289"
+    },
+    {
       "id": "frontend_app_departmentreportgroups",
       "label": "departmentReportGroups()",
       "_callable": true,
@@ -9947,6 +9935,18 @@
       "norm_label": "renderroletrend()",
       "source_file": "frontend/app.js",
       "source_location": "L864"
+    },
+    {
+      "id": "frontend_app_reportdimensionlabel",
+      "label": "reportDimensionLabel()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "escapeHtml",
+      "file_type": "code",
+      "norm_label": "reportdimensionlabel()",
+      "source_file": "frontend/app.js",
+      "source_location": "L1207"
     },
     {
       "id": "frontend_app_reportgroups",
@@ -22540,7 +22540,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2206",
+      "source_location": "L2198",
       "weight": 1.0
     },
     {
@@ -22888,7 +22888,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2141",
+      "source_location": "L2133",
       "weight": 1.0
     },
     {
@@ -23080,7 +23080,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2738",
+      "source_location": "L2730",
       "weight": 1.0
     },
     {
@@ -23152,7 +23152,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2404",
+      "source_location": "L2396",
       "weight": 1.0
     },
     {
@@ -23164,7 +23164,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2425",
+      "source_location": "L2417",
       "weight": 1.0
     },
     {
@@ -23176,7 +23176,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2426",
+      "source_location": "L2418",
       "weight": 1.0
     },
     {
@@ -23188,7 +23188,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2454",
+      "source_location": "L2446",
       "weight": 1.0
     },
     {
@@ -23200,7 +23200,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2469",
+      "source_location": "L2461",
       "weight": 1.0
     },
     {
@@ -23212,7 +23212,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2474",
+      "source_location": "L2466",
       "weight": 1.0
     },
     {
@@ -23224,7 +23224,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2694",
+      "source_location": "L2686",
       "weight": 1.0
     },
     {
@@ -23236,7 +23236,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2696",
+      "source_location": "L2688",
       "weight": 1.0
     },
     {
@@ -23248,7 +23248,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2698",
+      "source_location": "L2690",
       "weight": 1.0
     },
     {
@@ -23260,7 +23260,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2699",
+      "source_location": "L2691",
       "weight": 1.0
     },
     {
@@ -23272,7 +23272,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3314",
+      "source_location": "L3306",
       "weight": 1.0
     },
     {
@@ -23284,7 +23284,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3319",
+      "source_location": "L3311",
       "weight": 1.0
     },
     {
@@ -23296,7 +23296,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3319",
+      "source_location": "L3311",
       "weight": 1.0
     },
     {
@@ -23308,7 +23308,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3322",
+      "source_location": "L3314",
       "weight": 1.0
     },
     {
@@ -23320,7 +23320,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3324",
+      "source_location": "L3316",
       "weight": 1.0
     },
     {
@@ -23332,7 +23332,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3325",
+      "source_location": "L3317",
       "weight": 1.0
     },
     {
@@ -23344,7 +23344,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3327",
+      "source_location": "L3319",
       "weight": 1.0
     },
     {
@@ -23356,7 +23356,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3329",
+      "source_location": "L3321",
       "weight": 1.0
     },
     {
@@ -23668,7 +23668,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2733",
+      "source_location": "L2725",
       "weight": 1.0
     },
     {
@@ -23704,7 +23704,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2195",
+      "source_location": "L2187",
       "weight": 1.0
     },
     {
@@ -23716,7 +23716,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2195",
+      "source_location": "L2187",
       "weight": 1.0
     },
     {
@@ -23728,7 +23728,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2195",
+      "source_location": "L2187",
       "weight": 1.0
     },
     {
@@ -23740,31 +23740,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2195",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_app_masteractivityrulesummary",
-      "target": "frontend_app_activityschedulelabel",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/app.js",
-      "source_location": "L2128",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_app_masteractivityrulesummary",
-      "target": "frontend_app_activityaudience",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/app.js",
-      "source_location": "L2129",
+      "source_location": "L2187",
       "weight": 1.0
     },
     {
@@ -23776,7 +23752,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2131",
+      "source_location": "L2129",
       "weight": 1.0
     },
     {
@@ -23788,7 +23764,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2867",
+      "source_location": "L2859",
       "weight": 1.0
     },
     {
@@ -23800,7 +23776,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2867",
+      "source_location": "L2859",
       "weight": 1.0
     },
     {
@@ -23812,7 +23788,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2875",
+      "source_location": "L2867",
       "weight": 1.0
     },
     {
@@ -23824,7 +23800,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2918",
+      "source_location": "L2910",
       "weight": 1.0
     },
     {
@@ -23836,7 +23812,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2930",
+      "source_location": "L2922",
       "weight": 1.0
     },
     {
@@ -23848,7 +23824,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2930",
+      "source_location": "L2922",
       "weight": 1.0
     },
     {
@@ -23860,7 +23836,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2945",
+      "source_location": "L2937",
       "weight": 1.0
     },
     {
@@ -23872,7 +23848,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2949",
+      "source_location": "L2941",
       "weight": 1.0
     },
     {
@@ -23884,7 +23860,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2969",
+      "source_location": "L2961",
       "weight": 1.0
     },
     {
@@ -23896,7 +23872,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2984",
+      "source_location": "L2976",
       "weight": 1.0
     },
     {
@@ -23908,7 +23884,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2988",
+      "source_location": "L2980",
       "weight": 1.0
     },
     {
@@ -24016,7 +23992,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2710",
+      "source_location": "L2702",
       "weight": 1.0
     },
     {
@@ -24028,7 +24004,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2714",
+      "source_location": "L2706",
       "weight": 1.0
     },
     {
@@ -24040,7 +24016,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2714",
+      "source_location": "L2706",
       "weight": 1.0
     },
     {
@@ -24052,7 +24028,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2721",
+      "source_location": "L2713",
       "weight": 1.0
     },
     {
@@ -24340,7 +24316,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2177",
+      "source_location": "L2169",
       "weight": 1.0
     },
     {
@@ -24352,7 +24328,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2181",
+      "source_location": "L2173",
       "weight": 1.0
     },
     {
@@ -24364,7 +24340,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2181",
+      "source_location": "L2173",
       "weight": 1.0
     },
     {
@@ -24376,7 +24352,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2181",
+      "source_location": "L2173",
       "weight": 1.0
     },
     {
@@ -24652,7 +24628,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2684",
+      "source_location": "L2676",
       "weight": 1.0
     },
     {
@@ -24664,7 +24640,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2684",
+      "source_location": "L2676",
       "weight": 1.0
     },
     {
@@ -24676,7 +24652,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2212",
+      "source_location": "L2204",
       "weight": 1.0
     },
     {
@@ -24688,7 +24664,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2236",
+      "source_location": "L2228",
       "weight": 1.0
     },
     {
@@ -24700,7 +24676,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2258",
+      "source_location": "L2250",
       "weight": 1.0
     },
     {
@@ -24712,7 +24688,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2310",
+      "source_location": "L2302",
       "weight": 1.0
     },
     {
@@ -24724,7 +24700,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2340",
+      "source_location": "L2332",
       "weight": 1.0
     },
     {
@@ -24736,7 +24712,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2340",
+      "source_location": "L2332",
       "weight": 1.0
     },
     {
@@ -24748,7 +24724,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2379",
+      "source_location": "L2371",
       "weight": 1.0
     },
     {
@@ -25864,7 +25840,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2742",
+      "source_location": "L2734",
       "weight": 1.0
     },
     {
@@ -25876,7 +25852,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2746",
+      "source_location": "L2738",
       "weight": 1.0
     },
     {
@@ -26116,7 +26092,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2481",
+      "source_location": "L2473",
       "weight": 1.0
     },
     {
@@ -26128,7 +26104,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2524",
+      "source_location": "L2516",
       "weight": 1.0
     },
     {
@@ -26140,7 +26116,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2525",
+      "source_location": "L2517",
       "weight": 1.0
     },
     {
@@ -26152,7 +26128,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2566",
+      "source_location": "L2558",
       "weight": 1.0
     },
     {
@@ -26164,7 +26140,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2566",
+      "source_location": "L2558",
       "weight": 1.0
     },
     {
@@ -26176,7 +26152,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2572",
+      "source_location": "L2564",
       "weight": 1.0
     },
     {
@@ -26188,7 +26164,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2572",
+      "source_location": "L2564",
       "weight": 1.0
     },
     {
@@ -26200,7 +26176,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2588",
+      "source_location": "L2580",
       "weight": 1.0
     },
     {
@@ -26212,7 +26188,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2604",
+      "source_location": "L2596",
       "weight": 1.0
     },
     {
@@ -26224,7 +26200,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2608",
+      "source_location": "L2600",
       "weight": 1.0
     },
     {
@@ -26236,7 +26212,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2610",
+      "source_location": "L2602",
       "weight": 1.0
     },
     {
@@ -26248,7 +26224,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2619",
+      "source_location": "L2611",
       "weight": 1.0
     },
     {
@@ -26260,7 +26236,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2625",
+      "source_location": "L2617",
       "weight": 1.0
     },
     {
@@ -26272,7 +26248,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2629",
+      "source_location": "L2621",
       "weight": 1.0
     },
     {
@@ -26284,7 +26260,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2637",
+      "source_location": "L2629",
       "weight": 1.0
     },
     {
@@ -26296,7 +26272,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2645",
+      "source_location": "L2637",
       "weight": 1.0
     },
     {
@@ -26308,7 +26284,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2646",
+      "source_location": "L2638",
       "weight": 1.0
     },
     {
@@ -26320,7 +26296,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2647",
+      "source_location": "L2639",
       "weight": 1.0
     },
     {
@@ -26332,7 +26308,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2649",
+      "source_location": "L2641",
       "weight": 1.0
     },
     {
@@ -26344,7 +26320,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2658",
+      "source_location": "L2650",
       "weight": 1.0
     },
     {
@@ -26356,7 +26332,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2666",
+      "source_location": "L2658",
       "weight": 1.0
     },
     {
@@ -26368,7 +26344,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2670",
+      "source_location": "L2662",
       "weight": 1.0
     },
     {
@@ -26380,7 +26356,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2671",
+      "source_location": "L2663",
       "weight": 1.0
     },
     {
@@ -26392,7 +26368,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2674",
+      "source_location": "L2666",
       "weight": 1.0
     },
     {
@@ -26620,7 +26596,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2209",
+      "source_location": "L2201",
       "weight": 1.0
     },
     {
@@ -26632,7 +26608,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2403",
+      "source_location": "L2395",
       "weight": 1.0
     },
     {
@@ -26656,7 +26632,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2478",
+      "source_location": "L2470",
       "weight": 1.0
     },
     {
@@ -26680,7 +26656,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2689",
+      "source_location": "L2681",
       "weight": 1.0
     },
     {
@@ -26692,7 +26668,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2708",
+      "source_location": "L2700",
       "weight": 1.0
     },
     {
@@ -26704,7 +26680,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2736",
+      "source_location": "L2728",
       "weight": 1.0
     },
     {
@@ -26716,7 +26692,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2741",
+      "source_location": "L2733",
       "weight": 1.0
     },
     {
@@ -26728,7 +26704,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2827",
+      "source_location": "L2819",
       "weight": 1.0
     },
     {
@@ -26740,7 +26716,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2849",
+      "source_location": "L2841",
       "weight": 1.0
     },
     {
@@ -26776,7 +26752,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3310",
+      "source_location": "L3302",
       "weight": 1.0
     },
     {
@@ -44860,7 +44836,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app.js",
-      "source_location": "L2140",
+      "source_location": "L2132",
       "weight": 1.0
     },
     {
@@ -44871,7 +44847,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app.js",
-      "source_location": "L2146",
+      "source_location": "L2138",
       "weight": 1.0
     },
     {
@@ -44882,7 +44858,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app.js",
-      "source_location": "L2173",
+      "source_location": "L2165",
       "weight": 1.0
     },
     {
@@ -44893,7 +44869,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app.js",
-      "source_location": "L2187",
+      "source_location": "L2179",
       "weight": 1.0
     },
     {
@@ -44904,7 +44880,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app.js",
-      "source_location": "L2198",
+      "source_location": "L2190",
       "weight": 1.0
     },
     {
@@ -44915,7 +44891,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app.js",
-      "source_location": "L2205",
+      "source_location": "L2197",
       "weight": 1.0
     },
     {
@@ -44948,7 +44924,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app.js",
-      "source_location": "L2644",
+      "source_location": "L2636",
       "weight": 1.0
     },
     {
@@ -44959,7 +44935,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app.js",
-      "source_location": "L2680",
+      "source_location": "L2672",
       "weight": 1.0
     },
     {
@@ -44970,7 +44946,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app.js",
-      "source_location": "L2724",
+      "source_location": "L2716",
       "weight": 1.0
     },
     {
@@ -44981,7 +44957,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app.js",
-      "source_location": "L2731",
+      "source_location": "L2723",
       "weight": 1.0
     },
     {
@@ -51214,5 +51190,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "306019326f89bfd6a15137518a9040a664ed6262"
+  "built_at_commit": "1d30512cc84ad99bd6f7700f6af2315de977121e"
 }

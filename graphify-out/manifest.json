@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1793928696.2626746,
-    "seen": 1793928879.075536,
-    "ast_hash": "7737b043aaadbe0abf5198b4b905b250",
+    "mtime": 1793930863.2310953,
+    "seen": 1793930890.6539652,
+    "ast_hash": "ade863facc538d2eb09c65e529f7f42f",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1793928747.172891,
-    "seen": 1793928879.0755467,
-    "ast_hash": "a398eec9d3b67394b762b623fb6de890",
+    "mtime": 1793931100.4434144,
+    "seen": 1793931111.4254296,
+    "ast_hash": "4a30389e29fd0ff03f9e5fddad2846b0",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_16_000001_add_recording_enabled_to_lks_periods_table.php": {

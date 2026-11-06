@@ -1,17 +1,17 @@
 # Graph Report - lks-santri-karya  (2026-11-06)
 
 ## Corpus Check
-- 178 files · ~93,480 words
+- 178 files · ~93,382 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 28 file(s) not represented in the graph (top: (none) 18, .css 5, .example 1)
 
 ## Summary
-- 1394 nodes · 2996 edges · 138 communities (69 shown, 69 thin omitted)
+- 1394 nodes · 2994 edges · 137 communities (68 shown, 69 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 24 edges (avg confidence: 0.89)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `30601932`
+- Built from commit: `1d30512c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -69,7 +69,6 @@
 - Illuminate\Http\Request
 - {closure#20}
 - require
-- loadAdminView
 - Panduan Kerja Proyek LKS Santri Karya
 - AuditLog
 - Controller
@@ -144,7 +143,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (138 total, 69 thin omitted)
+## Communities (137 total, 69 thin omitted)
 
 ### Community 0 - "LksCoreTest"
 Cohesion: 0.09
@@ -152,15 +151,15 @@ Nodes (5): Department, LksActivity, SantriProfile, Team, LksCoreTest
 
 ### Community 1 - "frontend/app.js"
 Cohesion: 0.06
-Nodes (41): activePeriodActivities, adminFormDialog, adminFormDialogContent, adminListState, breadcrumb, checklistSaveErrors, checklistSaveLocks, clearPdfPreview() (+33 more)
+Nodes (46): activePeriodActivities, adminFormDialog, adminFormDialogContent, adminFormSnapshot(), adminListState, breadcrumb, checkIcon(), checklistSaveErrorKey() (+38 more)
 
 ### Community 2 - "package.json"
 Cohesion: 0.06
 Nodes (30): dependencies, concurrently, @laravel/passkeys, laravel-vite-plugin, tailwindcss, @tailwindcss/vite, vite, vite-plus (+22 more)
 
 ### Community 3 - "loadRecap"
-Cohesion: 0.14
-Nodes (29): accountPasswordField(), apiError(), applyViewerIdentity(), canOpenView(), canUsePersonalLks(), canView(), dashboardNotice(), displayRole() (+21 more)
+Cohesion: 0.12
+Nodes (34): accountPasswordField(), adminPanel(), apiError(), applyViewerIdentity(), canOpenView(), canUsePersonalLks(), canView(), dashboardNotice() (+26 more)
 
 ### Community 4 - "PeriodActivity"
 Cohesion: 0.14
@@ -179,8 +178,8 @@ Cohesion: 0.24
 Nodes (3): PeriodParticipantSnapshot, LksScoreCalculator, EffectiveActivityTargetTest
 
 ### Community 9 - "escapeHtml"
-Cohesion: 0.20
-Nodes (29): dashboardSummaryData(), departmentReportGroups(), escapeHtml(), initials(), lksCategory(), lksCategoryLabel(), openRecapDetail(), participantStatus() (+21 more)
+Cohesion: 0.18
+Nodes (31): dashboardSummaryData(), departmentFollowUpActivityNames(), departmentReportGroups(), escapeHtml(), initials(), lksCategory(), lksCategoryLabel(), openRecapDetail() (+23 more)
 
 ### Community 11 - "Illuminate\Database\Eloquent\Concerns\HasUuids"
 Cohesion: 0.05
@@ -191,8 +190,8 @@ Cohesion: 0.11
 Nodes (18): 10. Kebijakan integritas dan penghapusan, 11. Keputusan kebijakan yang disetujui, 1. Tujuan desain, 2. ERD, 3. Aturan relasi dan snapshot, 5.1 `lks_periods`, 5.2 `lks_activities`, 5.3 `period_activities` (+10 more)
 
 ### Community 16 - "openAdminFormModal"
-Cohesion: 0.31
-Nodes (10): activityRuleFocusTabs(), adminOptions(), audiencePicker(), formatDateTime(), masterActivityRuleFields(), openAdminFormModal(), periodActivityConfigurationFields(), syncMagangJobLevel() (+2 more)
+Cohesion: 0.27
+Nodes (11): activityAudience(), activityRuleFocusTabs(), adminOptions(), audiencePicker(), formatDateTime(), masterActivityRuleFields(), openAdminFormModal(), periodActivityConfigurationFields() (+3 more)
 
 ### Community 17 - "LksPeriod"
 Cohesion: 0.25
@@ -287,8 +286,8 @@ Cohesion: 0.15
 Nodes (13): scripts, ci:check, dev, lint, lint:check, post-autoload-dump, post-create-project-cmd, post-root-package-install (+5 more)
 
 ### Community 44 - "submitAdminForm"
-Cohesion: 0.14
-Nodes (26): adminFormSnapshot(), apiFormError(), bulkChecklistMonths(), confirmAction(), dateInputValue(), downloadPdfPreview(), hasUnsavedAdminFormChanges(), loadChecklistCorrectionContext() (+18 more)
+Cohesion: 0.17
+Nodes (21): apiFormError(), confirmAction(), downloadPdfPreview(), loadDashboard(), logout(), markBulkChecklistInvalidDates(), parseHolidayImportEntries(), renderBulkChecklistCalendar() (+13 more)
 
 ### Community 45 - "Product"
 Cohesion: 0.15
@@ -309,10 +308,6 @@ Nodes (12): require-dev, fakerphp/faker, larastan/larastan, laravel/pail, larave
 ### Community 52 - "require"
 Cohesion: 0.20
 Nodes (10): require, barryvdh/laravel-dompdf, laravel/chisel, laravel/fortify, laravel/framework, laravel/tinker, livewire/blaze, livewire/flux (+2 more)
-
-### Community 53 - "loadAdminView"
-Cohesion: 0.31
-Nodes (9): activityAudience(), activityRuleLabel(), activityScheduleLabel(), adminPanel(), loadAdminView(), masterActivityRuleSummary(), paginationControls(), renderAdminView() (+1 more)
 
 ### Community 54 - "Panduan Kerja Proyek LKS Santri Karya"
 Cohesion: 0.22
@@ -340,7 +335,7 @@ Nodes (6): {closure#1}(), {closure#2}(), {closure#3}(), Illuminate\Foundation\Ap
 
 ### Community 61 - "applyDashboard"
 Cohesion: 0.16
-Nodes (18): applyDashboard(), checkIcon(), checklistSaveErrorKey(), formatDate(), persistChecklist(), recordingUnavailableLabel(), renderFullCheck(), renderPersonalSummaryLoading() (+10 more)
+Nodes (19): activityRuleLabel(), activityScheduleLabel(), applyDashboard(), bulkChecklistMonths(), dateInputValue(), formatDate(), loadChecklistCorrectionContext(), localDateValue() (+11 more)
 
 ### Community 62 - "⚡security.blade.php"
 Cohesion: 0.25
@@ -441,6 +436,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `LksCoreTest` be split into smaller, more focused modules?**
   _Cohesion score 0.09495123350545037 - nodes in this community are weakly interconnected._
 - **Should `frontend/app.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.059800664451827246 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05939716312056738 - nodes in this community are weakly interconnected._
 - **Should `package.json` be split into smaller, more focused modules?**
   _Cohesion score 0.06439393939393939 - nodes in this community are weakly interconnected._
