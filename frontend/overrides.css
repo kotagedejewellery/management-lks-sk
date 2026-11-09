@@ -85,6 +85,7 @@ body.is-booting .page-progress { inset: 0; }
 .confirm-dialog p { margin: 0; color: var(--ink-soft, #53645a); font-size: 14px; line-height: 1.6; }
 .confirm-dialog-actions { display: flex; justify-content: flex-end; align-items: center; gap: 16px; margin-top: 26px; }
 .admin-form-dialog { width: min(520px, calc(100vw - 36px)); padding: 0; border: 0; border-radius: 14px; background: var(--surface, #fffefa); color: var(--ink, #203329); box-shadow: 0 24px 60px rgba(25, 52, 44, .2); }
+.admin-form-dialog.is-activity-rules { width: min(1080px, calc(100vw - 48px)); }
 .admin-form-dialog::backdrop { background: rgba(23, 49, 58, .35); backdrop-filter: blur(3px); }
 .confirm-dialog,
 .admin-form-dialog { max-height: calc(100dvh - 36px); overflow-y: auto; }
@@ -257,8 +258,11 @@ body.is-booting .page-progress { inset: 0; }
 .admin-workbench form.admin-list-search { display: flex; align-items: center; gap: 10px; max-width: 460px; margin: 0 0 16px; padding: 0; border: 0; }
 .admin-workbench form.admin-list-search.people-filter-form, .admin-workbench form.admin-list-search.participant-filter-form { display: grid; grid-template-columns: minmax(230px, 1.45fr) repeat(4, minmax(128px, .72fr)) auto; max-width: none; }
 .people-filter-form, .people-filter-form > label, .people-filter-form input, .people-filter-form select, .participant-filter-form, .participant-filter-form > label, .participant-filter-form input, .participant-filter-form select { min-width: 0; max-width: 100%; }
-.people-filter-toggle { display: inline-flex; align-items: center; gap: 7px; min-height: 42px; color: var(--ink-soft, #53645a); font-size: 13px; font-weight: 700; }
-.people-filter-toggle input { width: 16px; height: 16px; accent-color: var(--evergreen, #25705b); }
+.people-data-quality-filter { display: inline-flex; align-items: center; justify-content: space-between; gap: 9px; min-height: 42px; border: 1px solid var(--line-dark, #c5d0c8); border-radius: 9px; background: var(--surface, #fffefa); color: var(--ink-soft, #53645a); padding: 8px 11px; font: inherit; font-size: 12px; font-weight: 800; text-align: left; cursor: pointer; }
+.people-data-quality-filter span { color: var(--evergreen-dark, #155244); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.people-data-quality-filter:hover, .people-data-quality-filter:focus-visible { border-color: var(--evergreen, #25705b); color: var(--evergreen-dark, #155244); }
+.people-data-quality-filter:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(37,112,91,.12); }
+.people-data-quality-filter.is-on { border-color: var(--evergreen, #25705b); background: rgba(229, 240, 233, .72); color: var(--evergreen-dark, #155244); }
 .employment-date-missing { color: #8a570f; font-weight: 800; }
 .admin-list-search + .organization-hierarchy-table, .admin-list-search + .admin-record-table { border-top: 0; }
 .admin-list-search input { min-height: 42px; width: 100%; border: 1px solid var(--line-dark, #c5d0c8); border-radius: 9px; background: var(--surface, #fffefa); color: var(--ink, #203329); padding: 9px 11px; outline: none; }
@@ -299,6 +303,14 @@ body.is-booting .page-progress { inset: 0; }
 .period-config-row-title small { display: block; max-width: 58ch; margin-top: 5px; color: var(--ink-soft, #53645a); font-size: 12px; line-height: 1.5; }
 .period-config-row .admin-modal-inline-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .period-config-row .admin-modal-checkbox { width: fit-content; }
+.activity-rule-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.activity-rule-card { display: grid; gap: 14px; min-width: 0; padding: 16px; border: 1px solid var(--line-dark, #c5d0c8); border-radius: 12px; background: var(--surface, #fffefa); }
+.activity-rule-card-head { display: grid; gap: 4px; }
+.activity-rule-card-head h4, .activity-rule-card-head p { margin: 0; }
+.activity-rule-card-head h4 { color: var(--ink, #203329); font-size: 15px; }
+.activity-rule-card-head p { color: var(--ink-soft, #53645a); font-size: 12px; line-height: 1.45; }
+.activity-rule-card .admin-modal-inline-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.activity-rule-card .admin-modal-checkbox { width: fit-content; }
 .activity-rule-shared { display: grid; gap: 12px; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line, #d9ddd5); }
 .activity-rule-shared h3 { margin: 0; color: var(--ink, #203329); font-size: 14px; }
 .activity-audience-picker { display: grid; gap: 7px; margin: 0; padding: 0; border: 0; }
@@ -429,6 +441,24 @@ body.is-booting .page-progress { inset: 0; }
 .annual-lks-statement-list span:nth-child(2) { justify-items: end; font-variant-numeric: tabular-nums; }
 .annual-lks-statement-list small { color: var(--ink-soft, #53645a); }
 @media (max-width: 560px) { .annual-lks-statement-list button { grid-template-columns: minmax(0, 1fr) auto; } .annual-lks-statement-list .status { grid-column: 2; justify-self: end; } }
+.admin-annual-statement { display: grid; gap: 16px; margin: 28px 0; padding: 20px; border: 1px solid var(--line-dark, #c5d0c8); border-radius: 12px; background: var(--surface, #fffefa); }
+.admin-annual-statement .section-head { align-items: end; }
+.admin-annual-statement h2, .admin-annual-statement p { margin: 0; }
+.admin-annual-statement p { max-width: 66ch; color: var(--ink-soft, #53645a); font-size: 13px; line-height: 1.5; }
+.admin-annual-actions { display: flex; flex-wrap: wrap; align-items: end; justify-content: flex-end; gap: 10px; }
+.admin-annual-year-control { display: grid; gap: 6px; min-width: 128px; color: var(--ink-soft, #53645a); font-size: 12px; font-weight: 700; }
+.admin-annual-year-control select { min-height: 40px; border: 1px solid var(--line-dark, #c5d0c8); border-radius: 8px; background: var(--surface, #fffefa); color: var(--ink, #203329); padding: 7px 9px; }
+.admin-annual-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: 0; overflow: hidden; border: 1px solid var(--line, #d9ddd5); border-radius: 9px; background: var(--line, #d9ddd5); }
+.admin-annual-summary > div { display: grid; gap: 4px; padding: 12px; background: var(--surface, #fffefa); }
+.admin-annual-summary dt { color: var(--ink-soft, #53645a); font-size: 11px; font-weight: 700; }
+.admin-annual-summary dd { margin: 0; color: var(--ink, #203329); font-size: 19px; font-variant-numeric: tabular-nums; font-weight: 800; }
+.admin-annual-period-list { display: grid; overflow: hidden; border-top: 1px solid var(--line, #d9ddd5); }
+.admin-annual-period-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; width: 100%; padding: 13px 0; border: 0; border-bottom: 1px solid var(--line, #d9ddd5); background: transparent; color: inherit; text-align: left; cursor: pointer; }
+.admin-annual-period-row:last-child { border-bottom: 0; }
+.admin-annual-period-row span { display: grid; gap: 3px; }
+.admin-annual-period-row span:last-child { justify-items: end; font-variant-numeric: tabular-nums; }
+.admin-annual-period-row small { color: var(--ink-soft, #53645a); font-size: 12px; }
+.admin-annual-period-row:hover strong, .admin-annual-period-row:focus-visible strong { color: var(--evergreen-dark, #155244); }
 .weekday-picker { display: grid; gap: 7px; margin: 0; padding: 0; border: 0; }
 .weekday-picker legend { color: var(--ink-soft, #53645a); font-size: 12px; font-weight: 700; }
 .weekday-picker > small { color: var(--ink-soft, #53645a); font-size: 12px; font-weight: 400; line-height: 1.5; }
@@ -496,7 +526,7 @@ body.is-booting .page-progress { inset: 0; }
   .pdf-preview-dialog { width: min(100vw - 20px, 620px); }
   .pdf-preview { max-height: calc(100dvh - 20px); padding: 20px; }
   .pdf-preview-frame iframe { height: min(62dvh, 620px); }
-  .admin-form-dialog.is-period-config { width: min(100vw - 20px, 620px); }
+  .admin-form-dialog.is-period-config, .admin-form-dialog.is-activity-rules { width: min(100vw - 20px, 620px); }
   .admin-form-dialog.is-period-config .admin-modal-form { max-height: calc(100dvh - 20px); }
   .admin-form-dialog.is-period-config .admin-modal-heading, .admin-form-dialog.is-period-config .admin-modal-actions { padding-left: 20px; padding-right: 20px; }
   .admin-form-dialog.is-period-config .form-feedback { margin-left: 20px; margin-right: 20px; }
@@ -507,6 +537,12 @@ body.is-booting .page-progress { inset: 0; }
   .period-config-manager.is-editing .period-config-editor { display: block; }
   .period-config-back { display: inline-flex; min-height: 36px; margin-bottom: 15px; padding: 0; color: var(--evergreen-dark, #155244); font-size: 12px; font-weight: 800; }
   .period-config-row .admin-modal-inline-fields { grid-template-columns: 1fr; }
+  .activity-rule-columns { grid-template-columns: 1fr; }
+  .activity-rule-card .admin-modal-inline-fields { grid-template-columns: 1fr; }
+  .admin-annual-statement .section-head { align-items: stretch; }
+  .admin-annual-actions { align-items: stretch; justify-content: stretch; }
+  .admin-annual-year-control { width: 100%; }
+  .admin-annual-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .participant-record-table .admin-record-row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 6px; padding: 15px 0; }
   .calendar-record-table .admin-record-row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 6px; padding: 15px 0; }
   .calendar-record-row > :nth-child(2), .calendar-record-row > :nth-child(3) { grid-column: 1; text-align: left; }

@@ -222,7 +222,7 @@ Admin membuat periode
 | FR-15 | Pengguna berhak dapat melihat data periode sebelumnya. |
 | FR-16 | Pengguna yang berhak dapat melihat preview PDF LKS atau rekap sebelum mengunduh file yang sama. |
 | FR-17 | Dashboard Santri memberi peringatan tekstual berwarna peringatan hanya bila belum ada aktivitas LKS hari ini yang berlaku tercatat. Progres yang belum lengkap setelah pencatatan dimulai tidak diperlakukan sebagai peringatan. |
-| FR-18 | Riwayat pribadi dan Riwayat tim Leader dapat menampilkan ringkasan capaian periode tertutup dalam tahun yang dipilih serta mengunduh CSV dari data yang berada dalam cakupan aksesnya. |
+| FR-18 | Riwayat pribadi dan Riwayat tim Leader dapat menampilkan ringkasan capaian periode tertutup dalam tahun yang dipilih serta mengunduh CSV dari data yang berada dalam cakupan aksesnya. Dashboard Admin menampilkan rekap tahunan organisasi untuk periode tertutup berdasarkan tahun akhir periode, dengan jumlah periode, rata-rata tertimbang, akumulasi tuntas/belum tuntas per peserta-periode, unduh CSV agregat, dan tautan ke Rekap periode yang sudah ada. |
 
 ## 14. Business rules
 
@@ -236,6 +236,7 @@ Admin membuat periode
 | BR-03 | Setiap aktivitas dapat memiliki target berbeda. |
 | BR-03a | Target, batas mingguan, jadwal, sasaran, status aktif, dan dispensasi aktivitas dapat berbeda antara Reguler dan Magang. |
 | BR-03b | Dengan `employment_started_on`, kategori snapshot peserta adalah Magang sebelum tanggal ulang tiga bulan dan Reguler sejak tanggal ulang tersebut. Bila tanggal yang sama tidak ada pada bulan ketiga, tanggal ulang adalah hari terakhir bulan itu; snapshot yang sudah dibuat tidak dihitung ulang. |
+| BR-03c | Profil lama tanpa `employment_started_on` mempertahankan kategori tersimpan. Admin dapat memfilter profil yang perlu dilengkapi tanggalnya; filter ini tidak mengubah kategori atau snapshot apa pun. |
 | BR-04 | Nilai dihitung otomatis dari checklist. |
 | BR-05 | Status aktivitas ditentukan oleh pencapaian target. |
 | BR-06 | Standar ketercapaian keseluruhan mengikuti konfigurasi LKS yang berlaku. |
@@ -263,7 +264,7 @@ Untuk Santri Karya, dashboard menampilkan periode aktif, progres LKS, nilai seme
 
 Untuk Leader dan Admin, dashboard menampilkan jumlah peserta, rata-rata capaian, jumlah Tuntas, jumlah Belum Tuntas, dan capaian departemen.
 
-Dashboard Admin dapat menyaring ringkasan dan capaian departemen berdasarkan jenis LKS: seluruh peserta, Reguler, atau Magang. Filter hanya mengubah sudut pandang laporan; Rekap menampilkan ambang sesuai kategori yang dipilih. Target aktivitas Magang mengikuti konfigurasi Magang secara terpisah dari ambang kelulusan 75%.
+Dashboard Admin dapat menyaring ringkasan dan capaian departemen berdasarkan jenis LKS: seluruh peserta, Reguler, atau Magang. Filter hanya mengubah sudut pandang laporan; Rekap menampilkan ambang sesuai kategori yang dipilih. Target aktivitas Magang mengikuti konfigurasi Magang secara terpisah dari ambang kelulusan 75%. Rekap tahunan hanya menggunakan periode tertutup; capaian periode aktif tetap ditampilkan sebagai nilai sementara pada ringkasan dashboard.
 
 ## 17. Non-functional requirements
 

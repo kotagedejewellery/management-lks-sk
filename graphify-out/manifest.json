@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "PRODUCT.md": {
-    "mtime": 1793958549.3291676,
-    "seen": 1793958722.6759179,
-    "ast_hash": "26014111042d6d0e796b7791a05492e5",
+    "mtime": 1794187538.316692,
+    "seen": 1794187649.38917,
+    "ast_hash": "e935e3c8abca454c66e0f5bd6e6863e5",
     "semantic_hash": ""
   },
   "docs/Architecture System.md": {
@@ -24,9 +24,9 @@
     "semantic_hash": ""
   },
   "docs/PRD.md": {
-    "mtime": 1793958549.331533,
-    "seen": 1793958722.6759937,
-    "ast_hash": "c7bcaa426aed8619cf36979811ed9967",
+    "mtime": 1794189731.9272647,
+    "seen": 1794189784.6782749,
+    "ast_hash": "d719a3f25766bf7a0599a4200c192982",
     "semantic_hash": ""
   },
   "docs/Tech Stack.md": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1793958055.7343235,
-    "seen": 1793958722.6758764,
-    "ast_hash": "e6532d6ea80bb798e9fbcd3e481fb8ac",
+    "mtime": 1794189674.7848203,
+    "seen": 1794189784.6782482,
+    "ast_hash": "eea7b8566a1cd47d81726cd8d19d7c64",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -780,9 +780,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodController.php": {
-    "mtime": 1793957923.058535,
-    "seen": 1793958722.6748269,
-    "ast_hash": "b9950a7eb674e6f8c15f60763be90b68",
+    "mtime": 1794187083.0686858,
+    "seen": 1794187649.388893,
+    "ast_hash": "7de2063bdaef71eee5a51dfc60d335d3",
     "semantic_hash": ""
   },
   "backend/app/Http/Requests/Lks/ActivatePeriodRequest.php": {
@@ -804,9 +804,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/OrganizationController.php": {
-    "mtime": 1793957906.9109044,
-    "seen": 1793958722.6748183,
-    "ast_hash": "f81fe064363b0a94453c07983e19359f",
+    "mtime": 1794189574.1829748,
+    "seen": 1794189784.6780102,
+    "ast_hash": "3a64dc462e5535b9eb931c66bb3ce45a",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1793959571.3769422,
-    "seen": 1793959753.2905855,
-    "ast_hash": "94644a7c9897e704853818d575dc233e",
+    "mtime": 1794189534.559903,
+    "seen": 1794189784.67823,
+    "ast_hash": "a5393f33e2a0248ee35d36e06ae51191",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1793958549.3336086,
-    "seen": 1793958722.6759117,
-    "ast_hash": "9b56b2f9be52997a096f7534420f32b0",
+    "mtime": 1794189710.9206135,
+    "seen": 1794189784.6782563,
+    "ast_hash": "85e1eda382ea2c4df367c0e4f0cf5aeb",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_16_000001_add_recording_enabled_to_lks_periods_table.php": {

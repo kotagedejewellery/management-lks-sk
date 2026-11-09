@@ -152,7 +152,7 @@ class PeriodController extends Controller
                     ->where('user_id', '!=', $viewer->getKey())),
             );
         $availableYears = (clone $periodQuery)
-            ->selectRaw('EXTRACT(YEAR FROM start_date) AS year')
+            ->selectRaw('EXTRACT(YEAR FROM end_date) AS year')
             ->distinct()
             ->orderByDesc('year')
             ->pluck('year')
@@ -160,7 +160,7 @@ class PeriodController extends Controller
             ->values();
         $selectedYear = isset($filters['year']) ? (string) $filters['year'] : $availableYears->first();
         $periods = $periodQuery
-            ->when($selectedYear !== null, fn ($query) => $query->whereYear('start_date', $selectedYear))
+            ->when($selectedYear !== null, fn ($query) => $query->whereYear('end_date', $selectedYear))
             ->orderByDesc('end_date')
             ->get()
             ->map(function (LksPeriod $period) use ($calculator, $viewer, $personalScope): array {
@@ -170,6 +170,7 @@ class PeriodController extends Controller
                         ? $calculator->calculatePeriod($period, userId: $viewer->getKey())
                         : $calculator->calculatePeriod($period, leaderUserId: $viewer->getKey()));
                 $personal = $scores->first();
+                $tuntasCount = $scores->where('final_status', 'tuntas')->count();
 
                 return [
                     'id' => $period->getKey(),
@@ -183,6 +184,8 @@ class PeriodController extends Controller
                         'final_status' => $personal['final_status'] ?? null,
                         'grade' => $personal['grade'] ?? null,
                         'average_percentage' => $scores->isEmpty() ? null : round($scores->avg('final_percentage'), 2),
+                        'tuntas_count' => $tuntasCount,
+                        'belum_tuntas_count' => $scores->count() - $tuntasCount,
                     ],
                 ];
             });

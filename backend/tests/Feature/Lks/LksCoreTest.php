@@ -386,6 +386,29 @@ class LksCoreTest extends TestCase
             ->assertJsonPath('data.santri.0.user.name', 'Zhafron Firdaus');
     }
 
+    public function test_admin_can_find_profiles_that_still_need_an_employment_start_date(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $legacyUser = $this->userWithRole('santri', ['name' => 'Data Lama']);
+        $completeUser = $this->userWithRole('santri', ['name' => 'Data Lengkap']);
+        $department = Department::query()->create(['code' => 'OPS', 'name' => 'Operasional', 'is_active' => true]);
+        $team = Team::query()->create(['department_id' => $department->id, 'code' => 'OPS-1', 'name' => 'Operasional Satu', 'is_active' => true]);
+
+        SantriProfile::query()->create(['user_id' => $legacyUser->id, 'gender' => 'ikhwan', 'department_id' => $department->id, 'team_id' => $team->id, 'level' => 'staff', 'status' => 'active']);
+        SantriProfile::query()->create(['user_id' => $completeUser->id, 'gender' => 'ikhwan', 'department_id' => $department->id, 'team_id' => $team->id, 'employment_started_on' => now()->subMonth()->toDateString(), 'level' => 'staff', 'status' => 'active']);
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.admin.organization.index'))
+            ->assertOk()
+            ->assertJsonPath('data.santri_missing_employment_started_on_count', 1);
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.admin.organization.index', ['people_needs_employment_started_on' => 1]))
+            ->assertOk()
+            ->assertJsonPath('data.santri_pagination.total', 1)
+            ->assertJsonPath('data.santri.0.user.name', 'Data Lama');
+    }
+
     public function test_admin_can_filter_period_participants_by_placement_checklist_and_category(): void
     {
         $admin = $this->userWithRole('admin');
@@ -1395,6 +1418,63 @@ class LksCoreTest extends TestCase
             ->assertJsonPath('meta.available_years.0', '2026')
             ->assertJsonPath('meta.available_years.1', '2025')
             ->assertJsonMissing(['id' => $newer->id]);
+    }
+
+    public function test_admin_history_uses_the_period_end_year_and_returns_organization_statement_counts(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($admin, [
+            'name' => 'Riwayat Lintas Tahun',
+            'status' => 'closed',
+            'start_date' => '2025-12-15',
+            'end_date' => '2026-01-15',
+        ]);
+        $participant = $this->participant($period, $santri);
+        $activity = $this->periodActivity($period, 1);
+        $this->checklist($participant, $activity, $santri, '2025-12-16');
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.periods.history', ['year' => 2026]))
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $period->id)
+            ->assertJsonPath('data.0.statement.participant_count', 1)
+            ->assertJsonPath('data.0.statement.tuntas_count', 1)
+            ->assertJsonPath('data.0.statement.belum_tuntas_count', 0)
+            ->assertJsonPath('meta.selected_year', '2026')
+            ->assertJsonPath('meta.available_years.0', '2026');
+    }
+
+    public function test_personal_and_leader_history_use_the_period_end_year(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $leader = $this->userWithRole('leader');
+        $member = $this->userWithRole('santri');
+        $period = $this->period($admin, [
+            'name' => 'Riwayat Tim Lintas Tahun',
+            'status' => 'closed',
+            'start_date' => '2025-12-15',
+            'end_date' => '2026-01-15',
+        ]);
+        $this->participant($period, $member, $leader);
+
+        $this->actingAs($member)
+            ->getJson(route('api.lks.periods.history', ['year' => 2026]))
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $period->id);
+
+        $this->actingAs($leader)
+            ->getJson(route('api.lks.periods.history', ['scope' => 'team', 'year' => 2026]))
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $period->id);
+
+        $this->actingAs($member)
+            ->getJson(route('api.lks.periods.history', ['year' => 2025]))
+            ->assertOk()
+            ->assertJsonCount(0, 'data');
     }
 
     public function test_recap_uses_the_latest_closed_period_when_no_active_period_exists(): void

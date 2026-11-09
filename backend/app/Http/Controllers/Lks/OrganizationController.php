@@ -104,6 +104,7 @@ class OrganizationController extends Controller
                 ->with('user:id,name')->orderBy('created_at')->get(['user_id', 'team_id']),
             'santri' => $santri->items(),
             'santri_pagination' => $this->pagination($santri),
+            'santri_missing_employment_started_on_count' => SantriProfile::query()->whereNull('employment_started_on')->count(),
             'santri_options' => SantriProfile::query()->where('status', 'active')->with('user:id,name')->orderBy('created_at', 'desc')->get(),
         ]]);
     }
