@@ -1045,8 +1045,10 @@ function visibleHistoryPeriods() {
   return historyData;
 }
 
-function downloadCsv(rows, filename) {
-  const cells = (value) => `"${String(value ?? '').replaceAll('"', '""')}"`;
+function downloadCsv(rows, filename, { rawNumbers = false } = {}) {
+  const cells = (value) => rawNumbers && typeof value === 'number'
+    ? String(value)
+    : `"${String(value ?? '').replaceAll('"', '""')}"`;
   const blob = new Blob([`\uFEFF${rows.map((row) => row.map(cells).join(',')).join('\n')}`], { type: 'text/csv;charset=utf-8' });
   const download = document.createElement('a');
   download.href = URL.createObjectURL(blob);
@@ -1056,6 +1058,11 @@ function downloadCsv(rows, filename) {
   download.click();
   download.remove();
   window.setTimeout(() => URL.revokeObjectURL(download.href), 0);
+}
+
+function csvPercentageNumber(value) {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? Math.round(numeric * 100) / 100 : '';
 }
 
 function downloadHistoryStatement() {
@@ -1081,25 +1088,25 @@ function downloadAdminAnnualStatement() {
   const matrixRows = matrix?.groups?.[adminAnnualMatrixTab];
   if (matrix?.periods?.length && Array.isArray(matrixRows)) {
     const isDepartmentMatrix = adminAnnualMatrixTab === 'department';
-    const headers = ['No.', isDepartmentMatrix ? 'Departemen' : 'Nama', ...(isDepartmentMatrix ? [] : ['Departemen terakhir dalam rentang']), ...matrix.periods.map((period) => period.name), 'Rata-rata', 'Ikut periode', 'Peringkat rata-rata'];
+    const headers = ['No.', isDepartmentMatrix ? 'Departemen' : 'Nama', ...(isDepartmentMatrix ? [] : ['Departemen terakhir dalam rentang']), ...matrix.periods.map((period) => `${period.name} (%)`), 'Rata-rata (%)', 'Ikut periode', 'Peringkat rata-rata'];
     const rows = matrixRows.map((row, index) => [
       index + 1,
       row.name,
       ...(isDepartmentMatrix ? [] : [row.department ?? '—']),
-      ...matrix.periods.map((period) => Object.prototype.hasOwnProperty.call(row.cells ?? {}, period.id) ? percentage(row.cells[period.id]) : '—'),
-      percentage(row.average_percentage),
+      ...matrix.periods.map((period) => Object.prototype.hasOwnProperty.call(row.cells ?? {}, period.id) ? csvPercentageNumber(row.cells[period.id]) : '—'),
+      csvPercentageNumber(row.average_percentage),
       row.period_count,
       row.rank,
     ]);
-    downloadCsv([headers, ...rows], `rekap-lks-organisasi-${adminAnnualMatrixTab}-${adminAnnualRange.from}-sampai-${adminAnnualRange.to}.csv`);
+    downloadCsv([headers, ...rows], `rekap-lks-organisasi-${adminAnnualMatrixTab}-${adminAnnualRange.from}-sampai-${adminAnnualRange.to}.csv`, { rawNumbers: true });
     showToast('Rincian rekap sesuai rentang berhasil diunduh');
     return;
   }
   const rows = [
-    ['Periode', 'Mulai', 'Berakhir', 'Peserta', 'Rata-rata capaian', 'Tuntas', 'Belum tuntas'],
-    ...adminAnnualHistory.map((period) => [period.name, period.start_date, period.end_date, period.statement?.participant_count ?? 0, percentage(period.statement?.average_percentage), period.statement?.tuntas_count ?? 0, period.statement?.belum_tuntas_count ?? 0]),
+    ['Periode', 'Mulai', 'Berakhir', 'Peserta', 'Rata-rata capaian (%)', 'Tuntas', 'Belum tuntas'],
+    ...adminAnnualHistory.map((period) => [period.name, period.start_date, period.end_date, period.statement?.participant_count ?? 0, csvPercentageNumber(period.statement?.average_percentage), period.statement?.tuntas_count ?? 0, period.statement?.belum_tuntas_count ?? 0]),
   ];
-  downloadCsv(rows, `rekap-lks-organisasi-${adminAnnualRange.from}-sampai-${adminAnnualRange.to}.csv`);
+  downloadCsv(rows, `rekap-lks-organisasi-${adminAnnualRange.from}-sampai-${adminAnnualRange.to}.csv`, { rawNumbers: true });
   showToast('Rekap organisasi sesuai rentang berhasil diunduh');
 }
 

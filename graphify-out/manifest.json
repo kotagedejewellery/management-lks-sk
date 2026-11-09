@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "PRODUCT.md": {
-    "mtime": 1794205801.2464967,
-    "seen": 1794206470.1745334,
-    "ast_hash": "db5fab01d88fdf99df7b6c178f12218f",
+    "mtime": 1794208795.7766373,
+    "seen": 1794208815.898085,
+    "ast_hash": "d56675c764a634d7e87368e7e4e1ddfa",
     "semantic_hash": ""
   },
   "docs/Architecture System.md": {
@@ -24,9 +24,9 @@
     "semantic_hash": ""
   },
   "docs/PRD.md": {
-    "mtime": 1794205801.2486045,
-    "seen": 1794206470.1745565,
-    "ast_hash": "576ecf0995aa6d70e261920f6122304a",
+    "mtime": 1794208795.7791536,
+    "seen": 1794208815.898132,
+    "ast_hash": "3a93f2e3859ae78eadd520e687396a04",
     "semantic_hash": ""
   },
   "docs/Tech Stack.md": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1794207548.6129644,
-    "seen": 1794207572.7110312,
-    "ast_hash": "b92e5d01bc07eff7ebc1b8f7793634fb",
+    "mtime": 1794208755.1392431,
+    "seen": 1794208773.4765978,
+    "ast_hash": "320a9be6521e345ff59d36397da1e1ea",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1794207506.2485044,
-    "seen": 1794207572.7110577,
-    "ast_hash": "1caeee270c6435fd77dc3036406dd1fb",
+    "mtime": 1794208755.1411285,
+    "seen": 1794208773.4766085,
+    "ast_hash": "39f35eb1cf6b6fb932c5d9a275cd2c2c",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_16_000001_add_recording_enabled_to_lks_periods_table.php": {
