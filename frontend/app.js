@@ -370,11 +370,6 @@ function formatDate(date, withYear = false) {
   }).format(new Date(`${dateValue}T00:00:00`));
 }
 
-function formatShortDate(date) {
-  const dateValue = String(date ?? '').slice(0, 10);
-  return new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(`${dateValue}T00:00:00`));
-}
-
 function formatDateTime(date) {
   return new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(date));
 }
@@ -912,10 +907,9 @@ function dashboardNotice(title, message, action = '') {
 }
 
 function renderAdminAnnualStatement() {
-  const rangeReady = Boolean(adminAnnualRange.from && adminAnnualRange.to);
-  const rangeDescription = rangeReady ? `Periode Final yang berakhir ${formatShortDate(adminAnnualRange.from)} hingga ${formatShortDate(adminAnnualRange.to)}.` : 'Hasil final periode yang ditutup.';
+  const rangeDescription = 'Menampilkan hasil final dalam rentang ini.';
   const filters = `<form class="admin-annual-filter" data-admin-annual-range><fieldset><legend>Rentang laporan</legend><label>Mulai dari<input type="date" name="from" value="${escapeHtml(adminAnnualRange.from)}" required></label><label>Sampai<input type="date" name="to" value="${escapeHtml(adminAnnualRange.to)}" required></label></fieldset><button class="primary-button" type="submit">Terapkan</button>${adminAnnualDefaultRange.from && adminAnnualDefaultRange.to ? '<button class="text-button" type="button" data-admin-annual-reset>Reset</button>' : ''}</form>`;
-  const heading = `<div class="section-head"><div><h2 id="admin-annual-title">Rekap tahunan organisasi</h2><p>${rangeDescription} Capaian periode aktif tetap ditampilkan sebagai nilai sementara di atas.</p></div></div><div class="admin-annual-actions">${filters}${adminAnnualHistory?.length ? '<button class="text-button" type="button" data-download-admin-annual-statement>Unduh CSV</button>' : ''}</div>`;
+  const heading = `<div class="section-head"><div><h2 id="admin-annual-title">Rekap tahunan organisasi</h2><p class="admin-annual-intro">${rangeDescription} Capaian periode aktif tetap bersifat sementara.</p></div></div><div class="admin-annual-actions">${filters}${adminAnnualHistory?.length ? '<button class="text-button" type="button" data-download-admin-annual-statement>Unduh CSV</button>' : ''}</div>`;
   if (adminAnnualHistory === null) return `<section class="admin-annual-statement" aria-labelledby="admin-annual-title" aria-live="polite">${heading}<p>Memuat rekap tahunan organisasi…</p></section>`;
   if (adminAnnualError) return `<section class="admin-annual-statement" aria-labelledby="admin-annual-title" aria-live="polite">${heading}<p>${escapeHtml(adminAnnualError)}</p><button class="text-button" type="button" data-admin-annual-refresh>Coba lagi</button></section>`;
   if (!adminAnnualHistory.length) return `<section class="admin-annual-statement" aria-labelledby="admin-annual-title">${heading}<p>Tidak ada periode Final yang berakhir dalam rentang ini. Ubah rentang atau reset untuk melihat periode lain.</p></section>`;
