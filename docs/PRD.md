@@ -107,7 +107,7 @@ Aktivitas awal yang dicatat:
 9. Subuhan di Masjid
 10. Puasa Kamis
 
-Admin dapat mengatur aktivitas aktif, target, batas mingguan, jadwal, sasaran, dan dispensasi pada tiap periode sesuai kebijakan LKS. Seluruh aturan tersebut tersedia terpisah untuk Reguler dan Magang; periode aktif atau tertutup mempertahankan snapshot aturannya.
+Admin dapat mengatur aktivitas aktif, target, batas mingguan, jadwal, sasaran, dan dispensasi pada tiap periode sesuai kebijakan LKS. Seluruh aturan tersebut tersedia terpisah untuk Reguler dan Magang. Magang selalu berlaku sebagai Staff sehingga Admin hanya memilih jenis kelamin peserta Magang, bukan Leader atau Staff. Saat mengedit default aktivitas, Admin memilih satu kategori dan hanya aturan kategori tersebut yang dapat disimpan; periode aktif atau tertutup mempertahankan snapshot aturannya. Kode aktivitas tidak dapat diubah setelah dipakai oleh periode mana pun karena menjadi kunci snapshot, sedangkan nama aktivitas masih dapat diperbarui dan dicatat pada audit.
 
 Setiap aktivitas dapat ditandai sebagai berlaku untuk dispensasi menstruasi. Tanda tersebut merupakan aturan snapshot periode: Admin menentukannya pada default aktivitas untuk periode baru, lalu periode draft dapat menyimpan aturannya sebelum aktivasi.
 
@@ -237,6 +237,7 @@ Admin membuat periode
 | BR-03a | Target, batas mingguan, jadwal, sasaran, status aktif, dan dispensasi aktivitas dapat berbeda antara Reguler dan Magang. |
 | BR-03b | Dengan `employment_started_on`, kategori snapshot peserta adalah Magang sebelum tanggal ulang tiga bulan dan Reguler sejak tanggal ulang tersebut. Bila tanggal yang sama tidak ada pada bulan ketiga, tanggal ulang adalah hari terakhir bulan itu; snapshot yang sudah dibuat tidak dihitung ulang. |
 | BR-03c | Profil lama tanpa `employment_started_on` mempertahankan kategori tersimpan. Admin dapat memfilter profil yang perlu dilengkapi tanggalnya; filter ini tidak mengubah kategori atau snapshot apa pun. |
+| BR-03d | Aktivitas dianggap tersedia pada periode apabila Reguler atau Magang aktif. Kode aktivitas yang telah dipakai pada periode mana pun bersifat permanen; perubahan nama tetap diperbolehkan dan diaudit. |
 | BR-04 | Nilai dihitung otomatis dari checklist. |
 | BR-05 | Status aktivitas ditentukan oleh pencapaian target. |
 | BR-06 | Standar ketercapaian keseluruhan mengikuti konfigurasi LKS yang berlaku. |

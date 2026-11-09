@@ -18,6 +18,8 @@ use Illuminate\Validation\ValidationException;
 
 class PeriodConfigurationController extends Controller
 {
+    private const MAGANG_APPLICABLE_LEVELS = ['staff'];
+
     public function index(Request $request): JsonResponse
     {
         $this->ensureAdmin($request);
@@ -162,6 +164,7 @@ class PeriodConfigurationController extends Controller
             'default_magang_is_active' => ['nullable', 'boolean'],
         ]);
         $data['default_menstruation_exempt'] ??= false;
+        $data['default_magang_applicable_levels'] = self::MAGANG_APPLICABLE_LEVELS;
         $this->ensureMinimumDoesNotExceedTarget($data['default_minimum_target_count'], $data['default_target_count']);
         $this->completeMagangTargets($data, 'default_');
         $this->completeMagangRules($data, 'default_');
@@ -219,6 +222,7 @@ class PeriodConfigurationController extends Controller
     {
         $this->ensureAdmin($request);
         $wasActive = $activity->is_active;
+        $identityBefore = $activity->only(['code', 'name']);
         $data = $request->validate([
             'code' => ['required', 'string', 'max:50', Rule::unique('lks_activities', 'code')->ignore($activity)],
             'name' => ['required', 'string', 'max:150'],
@@ -245,12 +249,85 @@ class PeriodConfigurationController extends Controller
             'default_magang_menstruation_exempt' => ['nullable', 'boolean'],
             'default_magang_is_active' => ['nullable', 'boolean'],
         ]);
+        $this->ensureActivityCodeIsMutable($activity, $data['code']);
         $data['default_menstruation_exempt'] ??= $activity->default_menstruation_exempt;
+        $data['default_magang_applicable_levels'] = self::MAGANG_APPLICABLE_LEVELS;
         $this->ensureMinimumDoesNotExceedTarget($data['default_minimum_target_count'], $data['default_target_count']);
         $this->completeMagangTargets($data, 'default_');
         $this->completeMagangRules($data, 'default_');
         $data = $this->serializeMasterRules($data);
         $activity->update($data);
+        $this->recordActivityIdentityChange($request, $activity, $identityBefore);
+        if ($wasActive !== $activity->is_active) {
+            AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => $activity->is_active ? 'activity.reactivated' : 'activity.deactivated', 'auditable_type' => $activity->getMorphClass(), 'auditable_id' => $activity->getKey(), 'before_data' => ['is_active' => $wasActive], 'after_data' => ['is_active' => $activity->is_active]]);
+        }
+
+        return response()->json(['data' => $activity->refresh()]);
+    }
+
+    public function updateActivityIdentity(Request $request, LksActivity $activity): JsonResponse
+    {
+        $this->ensureAdmin($request);
+        $data = $request->validate([
+            'code' => ['required', 'string', 'max:50', Rule::unique('lks_activities', 'code')->ignore($activity)],
+            'name' => ['required', 'string', 'max:150'],
+        ]);
+        $before = $activity->only(['code', 'name']);
+        $this->ensureActivityCodeIsMutable($activity, $data['code']);
+        $activity->update($data);
+        $this->recordActivityIdentityChange($request, $activity, $before);
+
+        return response()->json(['data' => $activity->refresh()]);
+    }
+
+    public function updateActivityRule(Request $request, LksActivity $activity, string $category): JsonResponse
+    {
+        $this->ensureAdmin($request);
+
+        if ($category === 'magang') {
+            $data = $request->validate([
+                'default_magang_target_count' => ['required', 'integer', 'min:1'],
+                'default_magang_minimum_target_count' => ['required', 'integer', 'min:1'],
+                'default_magang_max_per_week' => ['nullable', 'integer', 'min:1'],
+                'default_magang_allowed_weekdays' => ['nullable', 'array'],
+                'default_magang_allowed_weekdays.*' => ['integer', 'between:1,7', 'distinct'],
+                'default_magang_applicable_genders' => ['required', 'array', 'min:1'],
+                'default_magang_applicable_genders.*' => ['in:ikhwan,akhwat', 'distinct'],
+                'default_magang_applicable_levels' => ['required', 'array', 'min:1'],
+                'default_magang_applicable_levels.*' => ['in:leader,staff', 'distinct'],
+                'default_magang_menstruation_exempt' => ['nullable', 'boolean'],
+                'default_magang_is_active' => ['nullable', 'boolean'],
+            ]);
+            $data['default_magang_menstruation_exempt'] ??= $activity->default_magang_menstruation_exempt;
+            $data['default_magang_is_active'] ??= $activity->default_magang_is_active;
+            $data['default_magang_applicable_levels'] = self::MAGANG_APPLICABLE_LEVELS;
+            $this->ensureMinimumDoesNotExceedTarget($data['default_magang_minimum_target_count'], $data['default_magang_target_count']);
+            $activity->update($this->serializeRuleArrays($data, [
+                'default_magang_allowed_weekdays', 'default_magang_applicable_genders', 'default_magang_applicable_levels',
+            ]));
+
+            return response()->json(['data' => $activity->refresh()]);
+        }
+
+        $wasActive = $activity->is_active;
+        $data = $request->validate([
+            'default_target_count' => ['required', 'integer', 'min:1'],
+            'default_minimum_target_count' => ['required', 'integer', 'min:1'],
+            'default_max_per_week' => ['nullable', 'integer', 'min:1'],
+            'default_allowed_weekdays' => ['nullable', 'array'],
+            'default_allowed_weekdays.*' => ['integer', 'between:1,7', 'distinct'],
+            'default_applicable_genders' => ['required', 'array', 'min:1'],
+            'default_applicable_genders.*' => ['in:ikhwan,akhwat', 'distinct'],
+            'default_applicable_levels' => ['required', 'array', 'min:1'],
+            'default_applicable_levels.*' => ['in:leader,staff', 'distinct'],
+            'default_menstruation_exempt' => ['nullable', 'boolean'],
+            'is_active' => ['required', 'boolean'],
+        ]);
+        $data['default_menstruation_exempt'] ??= $activity->default_menstruation_exempt;
+        $this->ensureMinimumDoesNotExceedTarget($data['default_minimum_target_count'], $data['default_target_count']);
+        $activity->update($this->serializeRuleArrays($data, [
+            'default_allowed_weekdays', 'default_applicable_genders', 'default_applicable_levels',
+        ]));
         if ($wasActive !== $activity->is_active) {
             AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => $activity->is_active ? 'activity.reactivated' : 'activity.deactivated', 'auditable_type' => $activity->getMorphClass(), 'auditable_id' => $activity->getKey(), 'before_data' => ['is_active' => $wasActive], 'after_data' => ['is_active' => $activity->is_active]]);
         }
@@ -463,6 +540,7 @@ class PeriodConfigurationController extends Controller
         $data['minimum_target_count'] ??= $data['target_count'];
         $this->ensureMinimumDoesNotExceedTarget($data['minimum_target_count'], $data['target_count']);
         $this->completeMagangTargets($data);
+        $data['magang_applicable_levels'] = self::MAGANG_APPLICABLE_LEVELS;
         $activity = LksActivity::query()->findOrFail($data['activity_id']);
         $data['menstruation_exempt'] ??= $activity->default_menstruation_exempt;
         $this->completeMagangRules($data);
@@ -565,6 +643,7 @@ class PeriodConfigurationController extends Controller
         foreach ($data['activities'] as $activity) {
             $this->ensureMinimumDoesNotExceedTarget($activity['minimum_target_count'], $activity['target_count']);
             $this->completeMagangTargets($activity);
+            $activity['magang_applicable_levels'] = self::MAGANG_APPLICABLE_LEVELS;
             $activity['menstruation_exempt'] ??= $periodActivities[$activity['id']]->menstruation_exempt;
             $this->completeMagangRules($activity);
             $periodActivities[$activity['id']]->update([
@@ -631,6 +710,24 @@ class PeriodConfigurationController extends Controller
         }
     }
 
+    private function ensureActivityCodeIsMutable(LksActivity $activity, string $code): void
+    {
+        if ($activity->code !== $code && $activity->periodActivities()->exists()) {
+            throw ValidationException::withMessages(['code' => 'Kode aktivitas yang sudah dipakai pada periode tidak dapat diubah.']);
+        }
+    }
+
+    /** @param array{code: string, name: string} $before */
+    private function recordActivityIdentityChange(Request $request, LksActivity $activity, array $before): void
+    {
+        $after = $activity->only(['code', 'name']);
+        if ($before === $after) {
+            return;
+        }
+
+        AuditLog::create(['actor_user_id' => $request->user()->getKey(), 'event' => 'activity.identity.updated', 'auditable_type' => $activity->getMorphClass(), 'auditable_id' => $activity->getKey(), 'before_data' => $before, 'after_data' => $after]);
+    }
+
     private function ensureMinimumDoesNotExceedTarget(int $minimum, int $target): void
     {
         if ($minimum > $target) {
@@ -675,7 +772,7 @@ class PeriodConfigurationController extends Controller
                 'applicable_genders' => $activity->default_applicable_genders,
                 'magang_applicable_genders' => $activity->default_magang_applicable_genders,
                 'applicable_levels' => $activity->default_applicable_levels,
-                'magang_applicable_levels' => $activity->default_magang_applicable_levels,
+                'magang_applicable_levels' => '{'.implode(',', self::MAGANG_APPLICABLE_LEVELS).'}',
                 'menstruation_exempt' => $activity->default_menstruation_exempt,
                 'magang_menstruation_exempt' => $activity->default_magang_menstruation_exempt,
                 'is_active' => $activity->is_active,
@@ -692,6 +789,19 @@ class PeriodConfigurationController extends Controller
     private function serializeMasterRules(array $data): array
     {
         foreach (['default_allowed_weekdays', 'default_applicable_genders', 'default_applicable_levels', 'default_magang_allowed_weekdays', 'default_magang_applicable_genders', 'default_magang_applicable_levels'] as $field) {
+            $data[$field] = isset($data[$field]) ? '{'.implode(',', $data[$field]).'}' : null;
+        }
+
+        return $data;
+    }
+
+    /** @param array<string, mixed> $data
+     *  @param list<string> $fields
+     *  @return array<string, mixed>
+     */
+    private function serializeRuleArrays(array $data, array $fields): array
+    {
+        foreach ($fields as $field) {
             $data[$field] = isset($data[$field]) ? '{'.implode(',', $data[$field]).'}' : null;
         }
 

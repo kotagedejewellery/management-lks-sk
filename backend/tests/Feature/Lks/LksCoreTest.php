@@ -354,6 +354,205 @@ class LksCoreTest extends TestCase
         $this->assertSame('{leader,staff}', $activity->default_applicable_levels);
     }
 
+    public function test_admin_can_update_a_magang_default_without_changing_the_regular_default(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $activity = LksActivity::query()->where('code', 'PUASA_SENIN_KAMIS')->firstOrFail();
+        $activity->update([
+            'default_target_count' => 20,
+            'default_minimum_target_count' => 15,
+            'default_max_per_week' => 4,
+            'default_allowed_weekdays' => '{1,2,3,4,5}',
+            'default_applicable_genders' => '{ikhwan,akhwat}',
+            'default_applicable_levels' => '{leader,staff}',
+            'default_menstruation_exempt' => true,
+            'is_active' => true,
+            'default_magang_target_count' => 10,
+            'default_magang_minimum_target_count' => 8,
+            'default_magang_max_per_week' => 2,
+            'default_magang_allowed_weekdays' => '{1,4}',
+            'default_magang_applicable_genders' => '{ikhwan}',
+            'default_magang_applicable_levels' => '{staff}',
+            'default_magang_menstruation_exempt' => false,
+            'default_magang_is_active' => true,
+        ]);
+
+        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
+            ->patchJson(route('api.lks.admin.activities.rules.update', [$activity, 'magang']), [
+                'default_magang_target_count' => 12,
+                'default_magang_minimum_target_count' => 9,
+                'default_magang_max_per_week' => 3,
+                'default_magang_allowed_weekdays' => [1, 2, 3],
+                'default_magang_applicable_genders' => ['ikhwan', 'akhwat'],
+                'default_magang_applicable_levels' => ['leader'],
+                'default_magang_menstruation_exempt' => true,
+                'default_magang_is_active' => false,
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.default_magang_target_count', 12)
+            ->assertJsonPath('data.default_magang_minimum_target_count', 9);
+
+        $this->assertDatabaseHas('lks_activities', [
+            'id' => $activity->id,
+            'default_target_count' => 20,
+            'default_minimum_target_count' => 15,
+            'default_max_per_week' => 4,
+            'default_allowed_weekdays' => '{1,2,3,4,5}',
+            'default_applicable_genders' => '{ikhwan,akhwat}',
+            'default_applicable_levels' => '{leader,staff}',
+            'default_menstruation_exempt' => true,
+            'is_active' => true,
+            'default_magang_target_count' => 12,
+            'default_magang_minimum_target_count' => 9,
+            'default_magang_max_per_week' => 3,
+            'default_magang_allowed_weekdays' => '{1,2,3}',
+            'default_magang_applicable_genders' => '{ikhwan,akhwat}',
+            'default_magang_applicable_levels' => '{staff}',
+            'default_magang_menstruation_exempt' => true,
+            'default_magang_is_active' => false,
+        ]);
+    }
+
+    public function test_admin_can_update_a_regular_default_without_changing_the_magang_default(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $activity = LksActivity::query()->where('code', 'PUASA_SENIN_KAMIS')->firstOrFail();
+        $activity->update([
+            'default_target_count' => 20,
+            'default_minimum_target_count' => 15,
+            'default_magang_target_count' => 10,
+            'default_magang_minimum_target_count' => 8,
+            'default_magang_max_per_week' => 2,
+            'default_magang_allowed_weekdays' => '{1,4}',
+            'default_magang_applicable_genders' => '{ikhwan}',
+            'default_magang_applicable_levels' => '{staff}',
+            'default_magang_menstruation_exempt' => true,
+            'default_magang_is_active' => false,
+        ]);
+
+        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
+            ->patchJson(route('api.lks.admin.activities.rules.update', [$activity, 'regular']), [
+                'default_target_count' => 24,
+                'default_minimum_target_count' => 18,
+                'default_max_per_week' => 5,
+                'default_allowed_weekdays' => [1, 2, 3, 4, 5],
+                'default_applicable_genders' => ['ikhwan', 'akhwat'],
+                'default_applicable_levels' => ['leader', 'staff'],
+                'default_menstruation_exempt' => true,
+                'is_active' => true,
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.default_target_count', 24)
+            ->assertJsonPath('data.default_minimum_target_count', 18);
+
+        $this->assertDatabaseHas('lks_activities', [
+            'id' => $activity->id,
+            'default_target_count' => 24,
+            'default_minimum_target_count' => 18,
+            'default_magang_target_count' => 10,
+            'default_magang_minimum_target_count' => 8,
+            'default_magang_max_per_week' => 2,
+            'default_magang_allowed_weekdays' => '{1,4}',
+            'default_magang_applicable_genders' => '{ikhwan}',
+            'default_magang_applicable_levels' => '{staff}',
+            'default_magang_menstruation_exempt' => true,
+            'default_magang_is_active' => false,
+        ]);
+    }
+
+    public function test_admin_can_update_an_activity_identity_without_changing_its_defaults(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $activity = LksActivity::query()->where('code', 'PUASA_SENIN_KAMIS')->firstOrFail();
+        $activity->update([
+            'default_target_count' => 20,
+            'default_minimum_target_count' => 15,
+            'default_magang_target_count' => 10,
+            'default_magang_minimum_target_count' => 8,
+        ]);
+
+        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
+            ->patchJson(route('api.lks.admin.activities.identity.update', $activity), [
+                'code' => 'PUASA-SK',
+                'name' => 'Puasa Senin dan Kamis',
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.code', 'PUASA-SK')
+            ->assertJsonPath('data.name', 'Puasa Senin dan Kamis');
+
+        $this->assertDatabaseHas('lks_activities', [
+            'id' => $activity->id,
+            'code' => 'PUASA-SK',
+            'name' => 'Puasa Senin dan Kamis',
+            'default_target_count' => 20,
+            'default_minimum_target_count' => 15,
+            'default_magang_target_count' => 10,
+            'default_magang_minimum_target_count' => 8,
+        ]);
+        $this->assertDatabaseHas('audit_logs', [
+            'actor_user_id' => $admin->id,
+            'event' => 'activity.identity.updated',
+            'auditable_id' => $activity->id,
+        ]);
+    }
+
+    public function test_admin_cannot_change_an_activity_code_after_it_is_used_in_a_period(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $periodActivity = $this->periodActivity($this->period($admin), 20);
+        $activity = LksActivity::query()->findOrFail($periodActivity->activity_id);
+
+        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
+            ->patchJson(route('api.lks.admin.activities.identity.update', $activity), [
+                'code' => 'ACT-RENAMED',
+                'name' => 'Nama baru',
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('code');
+
+        $this->assertDatabaseHas('lks_activities', [
+            'id' => $activity->id,
+            'code' => $activity->code,
+            'name' => $activity->name,
+        ]);
+    }
+
+    public function test_admin_period_configuration_normalizes_magang_to_staff(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $period = $this->period($admin);
+        $activity = $this->periodActivity($period, 20);
+
+        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
+            ->patchJson(route('api.lks.admin.periods.activities.update', $period), [
+                'activities' => [[
+                    'id' => $activity->id,
+                    'target_count' => 20,
+                    'minimum_target_count' => 15,
+                    'magang_target_count' => 12,
+                    'magang_minimum_target_count' => 9,
+                    'max_per_week' => 4,
+                    'magang_max_per_week' => 3,
+                    'is_active' => true,
+                    'magang_is_active' => true,
+                    'allowed_weekdays' => [1, 2, 3, 4, 5],
+                    'magang_allowed_weekdays' => [1, 2, 3],
+                    'applicable_genders' => ['ikhwan', 'akhwat'],
+                    'magang_applicable_genders' => ['ikhwan', 'akhwat'],
+                    'applicable_levels' => ['leader', 'staff'],
+                    'magang_applicable_levels' => ['leader'],
+                    'menstruation_exempt' => false,
+                    'magang_menstruation_exempt' => false,
+                ]],
+            ])
+            ->assertOk();
+
+        $this->assertDatabaseHas('period_activities', [
+            'id' => $activity->id,
+            'magang_applicable_levels' => '{staff}',
+        ]);
+    }
+
     public function test_admin_can_filter_santri_by_organization_status_level_and_search(): void
     {
         $admin = $this->userWithRole('admin');
@@ -1820,6 +2019,7 @@ class LksCoreTest extends TestCase
             'minimum_target_count' => 14,
             'magang_target_count' => 15,
             'magang_minimum_target_count' => 11,
+            'magang_applicable_levels' => '{staff}',
         ]);
     }
 

@@ -94,6 +94,10 @@ Route::middleware(['auth', 'active-user'])->group(function () {
             Route::post('periods/{period}/holidays/import-reference', [PeriodConfigurationController::class, 'importReferenceCalendar'])->name('periods.holidays.import-reference');
             Route::delete('periods/{period}/holidays/{holiday}', [PeriodConfigurationController::class, 'destroyPeriodHoliday'])->name('periods.holidays.destroy');
             Route::post('activities', [PeriodConfigurationController::class, 'storeActivity'])->name('activities.store');
+            Route::patch('activities/{activity}/identity', [PeriodConfigurationController::class, 'updateActivityIdentity'])->name('activities.identity.update');
+            Route::patch('activities/{activity}/rules/{category}', [PeriodConfigurationController::class, 'updateActivityRule'])
+                ->where('category', 'regular|magang')
+                ->name('activities.rules.update');
             Route::patch('activities/{activity}', [PeriodConfigurationController::class, 'updateActivity'])->name('activities.update');
             Route::delete('activities/{activity}', [PeriodConfigurationController::class, 'destroyActivity'])->name('activities.destroy');
             Route::post('calendar-holidays', [PeriodConfigurationController::class, 'storeCalendarHoliday'])->name('calendar-holidays.store');
