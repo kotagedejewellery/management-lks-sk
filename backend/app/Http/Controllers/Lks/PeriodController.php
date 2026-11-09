@@ -138,7 +138,12 @@ class PeriodController extends Controller
     {
         $viewer = $request->user();
         $personalScope = $request->query('scope') === 'personal';
-        $filters = $request->validate(['year' => ['nullable', 'integer', 'between:2000,2100']]);
+        $filters = $request->validate([
+            'year' => ['nullable', 'integer', 'between:2000,2100'],
+            'from' => ['nullable', 'date_format:Y-m-d', 'required_with:to'],
+            'to' => ['nullable', 'date_format:Y-m-d', 'required_with:from', 'after_or_equal:from'],
+        ]);
+        $hasDateRange = isset($filters['from'], $filters['to']);
         $periodQuery = LksPeriod::query()
             ->where('status', 'closed')
             ->when(
@@ -158,9 +163,13 @@ class PeriodController extends Controller
             ->pluck('year')
             ->map(fn ($year): string => (string) $year)
             ->values();
-        $selectedYear = isset($filters['year']) ? (string) $filters['year'] : $availableYears->first();
+        $selectedYear = ! $hasDateRange && isset($filters['year']) ? (string) $filters['year'] : ($hasDateRange ? null : $availableYears->first());
+        $selectedRange = $hasDateRange
+            ? ['from' => $filters['from'], 'to' => $filters['to']]
+            : ($selectedYear === null ? null : ['from' => "{$selectedYear}-01-01", 'to' => "{$selectedYear}-12-31"]);
         $periods = $periodQuery
-            ->when($selectedYear !== null, fn ($query) => $query->whereYear('end_date', $selectedYear))
+            ->when($hasDateRange, fn ($query) => $query->whereDate('end_date', '>=', $filters['from'])->whereDate('end_date', '<=', $filters['to']))
+            ->when(! $hasDateRange && $selectedYear !== null, fn ($query) => $query->whereYear('end_date', $selectedYear))
             ->orderByDesc('end_date')
             ->get()
             ->map(function (LksPeriod $period) use ($calculator, $viewer, $personalScope): array {
@@ -193,6 +202,7 @@ class PeriodController extends Controller
         return response()->json(['data' => $periods, 'meta' => [
             'available_years' => $availableYears,
             'selected_year' => $selectedYear,
+            'selected_range' => $selectedRange,
         ]]);
     }
 }

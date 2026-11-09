@@ -49,7 +49,7 @@ Laravel menyediakan starter kit resmi untuk autentikasi. Aplikasi ini memakai UI
 | Otorisasi | Laravel Policies dan middleware peran | Policy menentukan kepemilikan LKS dan cakupan leader. |
 | Validasi form | Laravel Form Request + validasi browser | Validasi server-side adalah sumber kebenaran. |
 | Perhitungan nilai | `LksScoreCalculator` | Service PHP murni yang mudah diuji; menerapkan prorata peserta, kategori snapshot Magang/Reguler, serta dispensasi menstruasi dari snapshot aktivitas. |
-| Tabel dan filter | JavaScript vanilla + pagination Laravel | Filter periode, gender, leader, dan departemen sesuai peran. |
+| Tabel dan filter | JavaScript vanilla + pagination Laravel | Filter periode, gender, leader, dan departemen sesuai peran; rekap organisasi Admin memakai rentang tanggal akhir periode yang divalidasi server. |
 | Grafik | CSS/HTML | Data grafik berasal dari endpoint/controller internal yang sudah terotorisasi. |
 | Audit | Model `AuditLog` | Simpan event penting, bukan semua page view. |
 | Date/time | Carbon + timezone aplikasi `Asia/Jakarta` | Tanggal checklist disimpan sebagai `date`; waktu audit dalam UTC. |

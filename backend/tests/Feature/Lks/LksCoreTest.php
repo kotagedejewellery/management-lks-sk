@@ -1645,6 +1645,24 @@ class LksCoreTest extends TestCase
             ->assertJsonPath('meta.available_years.0', '2026');
     }
 
+    public function test_admin_history_filters_final_periods_by_end_date_range(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $before = $this->period($admin, ['name' => 'Januari 2026', 'status' => 'closed', 'start_date' => '2026-01-01', 'end_date' => '2026-01-31']);
+        $within = $this->period($admin, ['name' => 'Februari 2026', 'status' => 'closed', 'start_date' => '2026-02-01', 'end_date' => '2026-02-28']);
+        $after = $this->period($admin, ['name' => 'Maret 2026', 'status' => 'closed', 'start_date' => '2026-03-01', 'end_date' => '2026-03-31']);
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.periods.history', ['from' => '2026-02-01', 'to' => '2026-02-28']))
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $within->id)
+            ->assertJsonPath('meta.selected_range.from', '2026-02-01')
+            ->assertJsonPath('meta.selected_range.to', '2026-02-28')
+            ->assertJsonMissing(['id' => $before->id])
+            ->assertJsonMissing(['id' => $after->id]);
+    }
+
     public function test_personal_and_leader_history_use_the_period_end_year(): void
     {
         $admin = $this->userWithRole('admin');

@@ -452,6 +452,9 @@ body.is-booting .page-progress { inset: 0; }
 .admin-annual-statement h2, .admin-annual-statement p { margin: 0; }
 .admin-annual-statement p { max-width: 66ch; color: var(--ink-soft, #53645a); font-size: 13px; line-height: 1.5; }
 .admin-annual-actions { display: flex; flex-wrap: wrap; align-items: end; justify-content: flex-end; gap: 10px; }
+.admin-annual-filter { display: flex; flex-wrap: wrap; align-items: end; justify-content: flex-end; gap: 10px; }
+.admin-annual-filter label { display: grid; gap: 6px; min-width: 148px; color: var(--ink-soft, #53645a); font-size: 12px; font-weight: 700; }
+.admin-annual-filter input { min-height: 40px; border: 1px solid var(--line-dark, #c5d0c8); border-radius: 8px; background: var(--surface, #fffefa); color: var(--ink, #203329); padding: 7px 9px; }
 .admin-annual-year-control { display: grid; gap: 6px; min-width: 128px; color: var(--ink-soft, #53645a); font-size: 12px; font-weight: 700; }
 .admin-annual-year-control select { min-height: 40px; border: 1px solid var(--line-dark, #c5d0c8); border-radius: 8px; background: var(--surface, #fffefa); color: var(--ink, #203329); padding: 7px 9px; }
 .admin-annual-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; margin: 0; overflow: hidden; border: 1px solid var(--line, #d9ddd5); border-radius: 9px; background: var(--line, #d9ddd5); }
@@ -548,7 +551,9 @@ body.is-booting .page-progress { inset: 0; }
   .activity-rule-card .admin-modal-inline-fields { grid-template-columns: 1fr; }
   .admin-annual-statement .section-head { align-items: stretch; }
   .admin-annual-actions { align-items: stretch; justify-content: stretch; }
-  .admin-annual-year-control { width: 100%; }
+  .admin-annual-filter { width: 100%; justify-content: stretch; }
+  .admin-annual-filter label { flex: 1 1 145px; }
+  .admin-annual-filter .primary-button, .admin-annual-filter .text-button { flex: 1 1 auto; }
   .admin-annual-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .participant-record-table .admin-record-row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 6px; padding: 15px 0; }
   .calendar-record-table .admin-record-row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 6px; padding: 15px 0; }

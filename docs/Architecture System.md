@@ -98,6 +98,7 @@ Folder merupakan batas pengelompokan, bukan alasan membuat abstraction tambahan.
 ### 4.4 Reporting
 
 - Rekap menggunakan snapshot peserta agar department, leader, dan gender periode tidak berubah di laporan historis.
+- Rekap organisasi Admin hanya menghitung periode tertutup; rentang laporan membatasi tanggal akhir periode dan diterapkan identik pada metrik, daftar periode, serta ekspor CSV.
 - Dataset grafik hanya berisi hasil agregat yang dapat diakses pemanggil.
 - Versi pertama menghitung nilai saat diminta; optimasi cache/materialized view baru ditambahkan jika pengukuran performa membuktikan perlu.
 
