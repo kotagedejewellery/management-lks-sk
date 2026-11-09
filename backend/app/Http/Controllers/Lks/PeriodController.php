@@ -13,6 +13,7 @@ use App\Services\LksScoreCalculator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 
 class PeriodController extends Controller
 {
@@ -142,7 +143,10 @@ class PeriodController extends Controller
             'year' => ['nullable', 'integer', 'between:2000,2100'],
             'from' => ['nullable', 'date_format:Y-m-d', 'required_with:to'],
             'to' => ['nullable', 'date_format:Y-m-d', 'required_with:from', 'after_or_equal:from'],
+            'matrix' => ['nullable', 'boolean'],
         ]);
+        $includeMatrix = (bool) ($filters['matrix'] ?? false);
+        abort_if($includeMatrix && ! $viewer->isAdmin(), 403);
         $hasDateRange = isset($filters['from'], $filters['to']);
         $periodQuery = LksPeriod::query()
             ->where('status', 'closed')
@@ -167,7 +171,7 @@ class PeriodController extends Controller
         $selectedRange = $hasDateRange
             ? ['from' => $filters['from'], 'to' => $filters['to']]
             : ($selectedYear === null ? null : ['from' => "{$selectedYear}-01-01", 'to' => "{$selectedYear}-12-31"]);
-        $periods = $periodQuery
+        $scoredPeriods = $periodQuery
             ->when($hasDateRange, fn ($query) => $query->whereDate('end_date', '>=', $filters['from'])->whereDate('end_date', '<=', $filters['to']))
             ->when(! $hasDateRange && $selectedYear !== null, fn ($query) => $query->whereYear('end_date', $selectedYear))
             ->orderByDesc('end_date')
@@ -178,6 +182,15 @@ class PeriodController extends Controller
                     : ($personalScope || ! $viewer->hasRole('leader')
                         ? $calculator->calculatePeriod($period, userId: $viewer->getKey())
                         : $calculator->calculatePeriod($period, leaderUserId: $viewer->getKey()));
+
+                return ['period' => $period, 'scores' => $scores];
+            });
+        $periods = $scoredPeriods
+            ->map(function (array $scoredPeriod): array {
+                /** @var LksPeriod $period */
+                $period = $scoredPeriod['period'];
+                /** @var Collection<int, array<string, mixed>> $scores */
+                $scores = $scoredPeriod['scores'];
                 $personal = $scores->first();
                 $tuntasCount = $scores->where('final_status', 'tuntas')->count();
 
@@ -199,10 +212,105 @@ class PeriodController extends Controller
                 ];
             });
 
-        return response()->json(['data' => $periods, 'meta' => [
+        $meta = [
             'available_years' => $availableYears,
             'selected_year' => $selectedYear,
             'selected_range' => $selectedRange,
-        ]]);
+        ];
+        if ($includeMatrix) {
+            $meta['annual_matrix'] = $this->annualMatrix($scoredPeriods);
+        }
+
+        return response()->json(['data' => $periods, 'meta' => $meta]);
+    }
+
+    /** @param Collection<int, array{period: LksPeriod, scores: Collection<int, array<string, mixed>>}> $scoredPeriods */
+    private function annualMatrix(Collection $scoredPeriods): array
+    {
+        $participantGroups = ['ikhwan' => [], 'akhwat' => [], 'leader' => []];
+        $departments = [];
+
+        foreach ($scoredPeriods as $scoredPeriod) {
+            $period = $scoredPeriod['period'];
+            $periodId = (string) $period->getKey();
+
+            foreach ($scoredPeriod['scores'] as $score) {
+                $value = (float) $score['final_percentage'];
+                $department = $score['department'] ?: 'Tanpa departemen';
+                if (! isset($departments[$department])) {
+                    $departments[$department] = ['name' => $department, 'cells' => []];
+                }
+                $departments[$department]['cells'][$periodId][] = $value;
+
+                $group = $score['level'] === 'leader'
+                    ? 'leader'
+                    : ($score['gender'] === 'akhwat' ? 'akhwat' : 'ikhwan');
+                if ($group !== 'leader' && $score['level'] !== 'staff') {
+                    continue;
+                }
+
+                $userId = (string) $score['user_id'];
+                if (! isset($participantGroups[$group][$userId])) {
+                    $participantGroups[$group][$userId] = [
+                        'name' => $score['name'],
+                        'department' => $department,
+                        'cells' => [],
+                    ];
+                }
+                $participantGroups[$group][$userId]['cells'][$periodId] = $value;
+            }
+        }
+
+        foreach ($departments as &$department) {
+            foreach ($department['cells'] as $periodId => $scores) {
+                $department['cells'][$periodId] = round(array_sum($scores) / count($scores), 2);
+            }
+        }
+        unset($department);
+
+        return [
+            'periods' => $scoredPeriods->map(fn (array $scoredPeriod): array => [
+                'id' => $scoredPeriod['period']->getKey(),
+                'name' => $scoredPeriod['period']->name,
+                'start_date' => $scoredPeriod['period']->start_date->toDateString(),
+                'end_date' => $scoredPeriod['period']->end_date->toDateString(),
+            ])->values(),
+            'groups' => [
+                'ikhwan' => $this->annualMatrixRows($participantGroups['ikhwan']),
+                'akhwat' => $this->annualMatrixRows($participantGroups['akhwat']),
+                'leader' => $this->annualMatrixRows($participantGroups['leader']),
+                'department' => $this->annualMatrixRows($departments),
+            ],
+        ];
+    }
+
+    /** @param array<string, array{name: string, department?: string, cells: array<string, float>}> $rows */
+    private function annualMatrixRows(array $rows): array
+    {
+        $rank = 0;
+        $previousAverage = null;
+
+        return collect($rows)
+            ->map(function (array $row): array {
+                $row['period_count'] = count($row['cells']);
+                $row['average_percentage'] = round(array_sum($row['cells']) / $row['period_count'], 2);
+
+                return $row;
+            })
+            ->sort(function (array $left, array $right): int {
+                return $right['average_percentage'] <=> $left['average_percentage']
+                    ?: strcasecmp($left['name'], $right['name']);
+            })
+            ->values()
+            ->map(function (array $row, int $index) use (&$rank, &$previousAverage): array {
+                if ($previousAverage === null || $row['average_percentage'] !== $previousAverage) {
+                    $rank = $index + 1;
+                    $previousAverage = $row['average_percentage'];
+                }
+                $row['rank'] = $rank;
+
+                return $row;
+            })
+            ->all();
     }
 }

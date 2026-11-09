@@ -1663,6 +1663,105 @@ class LksCoreTest extends TestCase
             ->assertJsonMissing(['id' => $after->id]);
     }
 
+    public function test_admin_annual_history_matrix_uses_closed_period_snapshots_and_keeps_absent_periods_empty(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $ikhwan = $this->userWithRole('santri', ['name' => 'Ahmad']);
+        $akhwat = $this->userWithRole('santri', ['name' => 'Aisyah']);
+        $leader = $this->userWithRole('leader', ['name' => 'Budi']);
+        $january = $this->period($admin, ['name' => 'Januari 2026', 'status' => 'closed', 'start_date' => '2026-01-01', 'end_date' => '2026-01-31']);
+        $february = $this->period($admin, ['name' => 'Februari 2026', 'status' => 'closed', 'start_date' => '2026-02-01', 'end_date' => '2026-02-28']);
+        $januaryActivity = $this->periodActivity($january, 1);
+        $februaryActivity = $this->periodActivity($february, 1);
+
+        $januaryIkhwan = $this->participant($january, $ikhwan);
+        $januaryIkhwan->update(['department_name_snapshot' => 'Sales']);
+        $februaryIkhwan = $this->participant($february, $ikhwan);
+        $februaryIkhwan->update(['department_name_snapshot' => 'Sales']);
+        $februaryAkhwat = $this->participant($february, $akhwat);
+        $februaryAkhwat->update(['gender_snapshot' => 'akhwat', 'department_name_snapshot' => 'Sales']);
+        $januaryLeader = $this->participant($january, $leader, null, 'leader');
+        $januaryLeader->update(['department_name_snapshot' => 'Operation']);
+        $februaryLeader = $this->participant($february, $leader, null, 'leader');
+        $februaryLeader->update(['department_name_snapshot' => 'Operation']);
+        $this->checklist($januaryIkhwan, $januaryActivity, $ikhwan, '2026-01-02');
+        $this->checklist($februaryAkhwat, $februaryActivity, $akhwat, '2026-02-02');
+        $this->checklist($januaryLeader, $januaryActivity, $leader, '2026-01-02');
+
+        $response = $this->actingAs($admin)
+            ->getJson(route('api.lks.periods.history', ['from' => '2026-01-01', 'to' => '2026-02-28', 'matrix' => 1]))
+            ->assertOk()
+            ->assertJsonPath('meta.annual_matrix.periods.0.id', $february->id)
+            ->assertJsonPath('meta.annual_matrix.groups.ikhwan.0.name', 'Ahmad')
+            ->assertJsonPath("meta.annual_matrix.groups.ikhwan.0.cells.{$january->id}", 100)
+            ->assertJsonPath("meta.annual_matrix.groups.ikhwan.0.cells.{$february->id}", 0)
+            ->assertJsonPath('meta.annual_matrix.groups.ikhwan.0.average_percentage', 50)
+            ->assertJsonPath('meta.annual_matrix.groups.akhwat.0.name', 'Aisyah')
+            ->assertJsonPath("meta.annual_matrix.groups.akhwat.0.cells.{$february->id}", 100)
+            ->assertJsonPath('meta.annual_matrix.groups.leader.0.name', 'Budi')
+            ->assertJsonPath('meta.annual_matrix.groups.department.0.name', 'Sales')
+            ->assertJsonPath("meta.annual_matrix.groups.department.0.cells.{$february->id}", 50);
+        $this->assertArrayNotHasKey($january->id, $response->json('meta.annual_matrix.groups.akhwat.0.cells'));
+
+        $this->actingAs($ikhwan)
+            ->getJson(route('api.lks.periods.history', ['from' => '2026-01-01', 'to' => '2026-02-28', 'matrix' => 1]))
+            ->assertForbidden();
+    }
+
+    public function test_admin_annual_matrix_labels_the_latest_department_in_range_and_keeps_tied_ranks(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $ahmad = $this->userWithRole('santri', ['name' => 'Ahmad']);
+        $budi = $this->userWithRole('santri', ['name' => 'Budi']);
+        $january = $this->period($admin, ['name' => 'Januari 2026', 'status' => 'closed', 'start_date' => '2026-01-01', 'end_date' => '2026-01-31']);
+        $february = $this->period($admin, ['name' => 'Februari 2026', 'status' => 'closed', 'start_date' => '2026-02-01', 'end_date' => '2026-02-28']);
+        $januaryActivity = $this->periodActivity($january, 1);
+        $februaryActivity = $this->periodActivity($february, 1);
+
+        $januaryAhmad = $this->participant($january, $ahmad);
+        $januaryAhmad->update(['department_name_snapshot' => 'Sales']);
+        $februaryAhmad = $this->participant($february, $ahmad);
+        $februaryAhmad->update(['department_name_snapshot' => 'Operation']);
+        $januaryBudi = $this->participant($january, $budi);
+        $februaryBudi = $this->participant($february, $budi);
+
+        foreach ([[$januaryAhmad, $januaryActivity, '2026-01-02'], [$februaryAhmad, $februaryActivity, '2026-02-02'], [$januaryBudi, $januaryActivity, '2026-01-02'], [$februaryBudi, $februaryActivity, '2026-02-02']] as [$participant, $activity, $date]) {
+            $this->checklist($participant, $activity, $participant->user, $date);
+        }
+
+        $rows = $this->actingAs($admin)
+            ->getJson(route('api.lks.periods.history', ['from' => '2026-01-01', 'to' => '2026-02-28', 'matrix' => 1]))
+            ->assertOk()
+            ->json('meta.annual_matrix.groups.ikhwan');
+
+        $this->assertSame('Operation', $rows[0]['department']);
+        $this->assertSame(1, $rows[0]['rank']);
+        $this->assertSame(1, $rows[1]['rank']);
+    }
+
+    public function test_calculate_period_batches_shared_period_data_for_multiple_participants(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $period = $this->period($admin, ['status' => 'closed']);
+        $activity = $this->periodActivity($period, 1);
+
+        foreach (range(1, 4) as $index) {
+            $santri = $this->userWithRole('santri', ['name' => "Santri {$index}"]);
+            $participant = $this->participant($period, $santri);
+            $this->checklist($participant, $activity, $santri, '2026-01-02');
+        }
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        $scores = app(LksScoreCalculator::class)->calculatePeriod($period);
+        $queryCount = count(DB::getQueryLog());
+        DB::disableQueryLog();
+
+        $this->assertCount(4, $scores);
+        $this->assertSame([100.0, 100.0, 100.0, 100.0], $scores->pluck('final_percentage')->all());
+        $this->assertLessThanOrEqual(5, $queryCount);
+    }
+
     public function test_personal_and_leader_history_use_the_period_end_year(): void
     {
         $admin = $this->userWithRole('admin');

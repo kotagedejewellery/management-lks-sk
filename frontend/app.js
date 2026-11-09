@@ -49,6 +49,9 @@ let adminAnnualYear = '';
 let adminAnnualYears = [];
 let adminAnnualRange = { from: '', to: '' };
 let adminAnnualDefaultRange = { from: '', to: '' };
+let adminAnnualMatrix = null;
+let adminAnnualMatrixTab = 'ikhwan';
+let adminAnnualMatrixSearch = '';
 let adminAnnualError = '';
 let adminAnnualRequest = 0;
 let recapMemberFocus = '';
@@ -367,6 +370,11 @@ function formatDate(date, withYear = false) {
   }).format(new Date(`${dateValue}T00:00:00`));
 }
 
+function formatShortDate(date) {
+  const dateValue = String(date ?? '').slice(0, 10);
+  return new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(`${dateValue}T00:00:00`));
+}
+
 function formatDateTime(date) {
   return new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(date));
 }
@@ -597,12 +605,20 @@ function updateTodayProgress() {
   const eligibleChecks = checks.filter((check) => !check.classList.contains('is-dispensed'));
   const dispensed = checks.length - eligibleChecks.length;
   const done = eligibleChecks.filter((check) => check.classList.contains('is-done')).length;
+  const isEmptyToday = eligibleChecks.length > 0 && done === 0;
+  const canRecordToday = isEmptyToday && selectedChecklistDate === todayIso() && activePeriod?.recording_available === true;
+  const dailyProgress = document.querySelector('.daily-progress');
+  const todayLayout = dailyProgress?.closest('.today-layout');
   document.querySelector('#daily-done').textContent = done;
   document.querySelector('#daily-line').style.width = `${eligibleChecks.length === 0 ? 0 : (done / eligibleChecks.length) * 100}%`;
+  dailyProgress?.classList.toggle('is-empty-today', isEmptyToday);
+  todayLayout?.classList.toggle('is-empty-today', isEmptyToday);
+  const action = dailyProgress?.querySelector('[data-daily-progress-action]');
+  if (action) action.hidden = !canRecordToday;
   document.querySelector('#daily-copy').textContent = checks.length === 0
     ? 'Belum ada amalan untuk ditampilkan pada tanggal ini.'
     : eligibleChecks.length === 0 && dispensed > 0 ? 'Aktivitas hari ini dibebaskan oleh dispensasi.'
-      : done === eligibleChecks.length ? 'Semua amalan pada tanggal ini sudah tercatat.' : `${done} amalan pada tanggal ini sudah tercatat.`;
+      : done === eligibleChecks.length ? 'Semua amalan pada tanggal ini sudah tercatat.' : isEmptyToday ? 'Belum ada amalan yang dicatat hari ini.' : `${done} amalan pada tanggal ini sudah tercatat.`;
 }
 
 function setChecklistState(button, complete) {
@@ -897,9 +913,9 @@ function dashboardNotice(title, message, action = '') {
 
 function renderAdminAnnualStatement() {
   const rangeReady = Boolean(adminAnnualRange.from && adminAnnualRange.to);
-  const rangeDescription = rangeReady ? `Periode final yang berakhir antara ${formatDate(adminAnnualRange.from, true)} hingga ${formatDate(adminAnnualRange.to, true)}.` : 'Hasil final periode yang ditutup.';
-  const filters = `<form class="admin-annual-filter" data-admin-annual-range><label>Mulai dari<input type="date" name="from" value="${escapeHtml(adminAnnualRange.from)}" required></label><label>Sampai<input type="date" name="to" value="${escapeHtml(adminAnnualRange.to)}" required></label><button class="primary-button" type="submit">Terapkan</button>${adminAnnualDefaultRange.from && adminAnnualDefaultRange.to ? '<button class="text-button" type="button" data-admin-annual-reset>Reset</button>' : ''}</form>`;
-  const heading = `<div class="section-head"><div><h2 id="admin-annual-title">Rekap tahunan organisasi</h2><p>${rangeDescription} Capaian periode aktif tetap ditampilkan sebagai nilai sementara di atas.</p></div><div class="admin-annual-actions">${filters}${adminAnnualHistory?.length ? '<button class="text-button" type="button" data-download-admin-annual-statement>Unduh CSV</button>' : ''}</div></div>`;
+  const rangeDescription = rangeReady ? `Periode Final yang berakhir ${formatShortDate(adminAnnualRange.from)} hingga ${formatShortDate(adminAnnualRange.to)}.` : 'Hasil final periode yang ditutup.';
+  const filters = `<form class="admin-annual-filter" data-admin-annual-range><fieldset><legend>Rentang laporan</legend><label>Mulai dari<input type="date" name="from" value="${escapeHtml(adminAnnualRange.from)}" required></label><label>Sampai<input type="date" name="to" value="${escapeHtml(adminAnnualRange.to)}" required></label></fieldset><button class="primary-button" type="submit">Terapkan</button>${adminAnnualDefaultRange.from && adminAnnualDefaultRange.to ? '<button class="text-button" type="button" data-admin-annual-reset>Reset</button>' : ''}</form>`;
+  const heading = `<div class="section-head"><div><h2 id="admin-annual-title">Rekap tahunan organisasi</h2><p>${rangeDescription} Capaian periode aktif tetap ditampilkan sebagai nilai sementara di atas.</p></div></div><div class="admin-annual-actions">${filters}${adminAnnualHistory?.length ? '<button class="text-button" type="button" data-download-admin-annual-statement>Unduh CSV</button>' : ''}</div>`;
   if (adminAnnualHistory === null) return `<section class="admin-annual-statement" aria-labelledby="admin-annual-title" aria-live="polite">${heading}<p>Memuat rekap tahunan organisasi…</p></section>`;
   if (adminAnnualError) return `<section class="admin-annual-statement" aria-labelledby="admin-annual-title" aria-live="polite">${heading}<p>${escapeHtml(adminAnnualError)}</p><button class="text-button" type="button" data-admin-annual-refresh>Coba lagi</button></section>`;
   if (!adminAnnualHistory.length) return `<section class="admin-annual-statement" aria-labelledby="admin-annual-title">${heading}<p>Tidak ada periode Final yang berakhir dalam rentang ini. Ubah rentang atau reset untuk melihat periode lain.</p></section>`;
@@ -907,9 +923,31 @@ function renderAdminAnnualStatement() {
   const participantCount = adminAnnualHistory.reduce((total, period) => total + Number(period.statement?.participant_count ?? 0), 0);
   const weightedTotal = adminAnnualHistory.reduce((total, period) => total + (Number(period.statement?.average_percentage ?? 0) * Number(period.statement?.participant_count ?? 0)), 0);
   const tuntasCount = adminAnnualHistory.reduce((total, period) => total + Number(period.statement?.tuntas_count ?? 0), 0);
-  const rows = adminAnnualHistory.map((period) => `<button class="admin-annual-period-row" type="button" data-admin-annual-period="${escapeHtml(period.id)}"><span><strong>${escapeHtml(period.name)}</strong><small>${formatDate(period.start_date, true)} â€” ${formatDate(period.end_date, true)} Â· Final</small></span><span><strong>${percentage(period.statement?.average_percentage)}</strong><small>${period.statement?.tuntas_count ?? 0} dari ${period.statement?.participant_count ?? 0} tuntas</small></span></button>`).join('');
+  const rows = adminAnnualHistory.map((period) => `<button class="admin-annual-period-row" type="button" data-admin-annual-period="${escapeHtml(period.id)}"><span><strong>${escapeHtml(period.name)}</strong><small>${formatDate(period.start_date, true)} &ndash; ${formatDate(period.end_date, true)} &middot; Final</small></span><span><strong>${percentage(period.statement?.average_percentage)}</strong><small>${period.statement?.tuntas_count ?? 0} dari ${period.statement?.participant_count ?? 0} tuntas</small></span></button>`).join('');
 
-  return `<section class="admin-annual-statement" aria-labelledby="admin-annual-title">${heading}<dl class="admin-annual-summary"><div><dt>Periode final</dt><dd>${adminAnnualHistory.length}</dd></div><div><dt>Rata-rata capaian</dt><dd>${percentage(participantCount ? weightedTotal / participantCount : 0)}</dd></div><div><dt>Akumulasi tuntas</dt><dd>${tuntasCount}</dd></div><div><dt>Akumulasi belum tuntas</dt><dd>${Math.max(participantCount - tuntasCount, 0)}</dd></div></dl><p class="admin-annual-note">Akumulasi menghitung hasil peserta pada setiap periode, bukan jumlah orang unik dalam rentang ini.</p><div class="admin-annual-period-list">${rows}</div></section>`;
+  return `<section class="admin-annual-statement" aria-labelledby="admin-annual-title">${heading}<dl class="admin-annual-summary"><div><dt>Periode final</dt><dd>${adminAnnualHistory.length}</dd></div><div><dt>Rata-rata capaian</dt><dd>${percentage(participantCount ? weightedTotal / participantCount : 0)}</dd></div><div><dt>Akumulasi tuntas</dt><dd>${tuntasCount}</dd></div><div><dt>Akumulasi belum tuntas</dt><dd>${Math.max(participantCount - tuntasCount, 0)}</dd></div></dl><p class="admin-annual-note">Akumulasi menghitung hasil peserta pada setiap periode, bukan jumlah orang unik dalam rentang ini.</p>${renderAdminAnnualMatrix()}<div class="admin-annual-period-list">${rows}</div></section>`;
+}
+
+function renderAdminAnnualMatrix() {
+  const matrix = adminAnnualMatrix;
+  if (!matrix?.periods?.length) return '';
+  const labels = { ikhwan: 'Ikhwan', akhwat: 'Akhwat', leader: 'Leader', department: 'Departemen' };
+  if (!matrix.groups?.[adminAnnualMatrixTab]) adminAnnualMatrixTab = 'ikhwan';
+  const isDepartmentMatrix = adminAnnualMatrixTab === 'department';
+  const allRows = matrix.groups?.[adminAnnualMatrixTab] ?? [];
+  const searchTerm = adminAnnualMatrixSearch.trim().toLocaleLowerCase('id');
+  const rows = searchTerm
+    ? allRows.filter((row) => [row.name, row.department].filter(Boolean).some((value) => String(value).toLocaleLowerCase('id').includes(searchTerm)))
+    : allRows;
+  const tabs = Object.entries(labels).map(([key, label]) => `<button class="filter-pill${adminAnnualMatrixTab === key ? ' is-on' : ''}" type="button" aria-pressed="${adminAnnualMatrixTab === key}" data-admin-annual-matrix-tab="${key}">${label}</button>`).join('');
+  const search = `<label class="admin-annual-matrix-search">Cari ${isDepartmentMatrix ? 'departemen' : 'nama atau departemen'}<input type="search" value="${escapeHtml(adminAnnualMatrixSearch)}" placeholder="Ketik untuk mencari" data-admin-annual-matrix-search aria-controls="admin-annual-matrix-table"></label>`;
+  const cells = rows.map((row, index) => {
+    const departmentCell = isDepartmentMatrix ? '' : `<td>${escapeHtml(row.department ?? '—')}</td>`;
+    return `<tr><td>${index + 1}</td><th scope="row"><strong>${escapeHtml(row.name)}</strong></th>${departmentCell}${matrix.periods.map((period) => `<td>${Object.prototype.hasOwnProperty.call(row.cells ?? {}, period.id) ? percentage(row.cells[period.id]) : '&mdash;'}</td>`).join('')}<td>${percentage(row.average_percentage)}</td><td>${row.period_count}</td><td>${row.rank}</td></tr>`;
+  }).join('');
+  const columnHeaders = matrix.periods.map((period) => `<th scope="col">${escapeHtml(period.name)}</th>`).join('');
+
+  return `<section class="admin-annual-matrix" aria-labelledby="admin-annual-matrix-title"><div><h3 id="admin-annual-matrix-title">Rincian capaian</h3><p>${isDepartmentMatrix ? 'Nilai periode Final menurut snapshot departemen. Tanda &mdash; berarti belum ada peserta pada periode tersebut.' : 'Nilai periode Final menurut snapshot peserta. Kolom Departemen menunjukkan penempatan terakhir dalam rentang ini; tanda &mdash; berarti belum menjadi peserta pada periode tersebut. Peringkat memakai rata-rata, jadi bandingkan juga jumlah periode.'}</p></div><nav class="admin-annual-matrix-tabs" aria-label="Jenis rekap tahunan">${tabs}</nav>${search}${rows.length ? `<div class="admin-annual-matrix-scroll" role="region" aria-label="Tabel rincian capaian ${labels[adminAnnualMatrixTab]}" tabindex="0"><table id="admin-annual-matrix-table" class="admin-annual-matrix-table${isDepartmentMatrix ? ' is-department' : ''}"><thead><tr><th scope="col">No.</th><th scope="col">${isDepartmentMatrix ? 'Departemen' : 'Nama'}</th>${isDepartmentMatrix ? '' : '<th scope="col">Departemen terakhir</th>'}${columnHeaders}<th scope="col">Rata-rata</th><th scope="col">Ikut periode</th><th scope="col">Peringkat rata-rata</th></tr></thead><tbody>${cells}</tbody></table></div>` : `<p class="admin-empty">${allRows.length ? `Tidak ada data yang cocok dengan pencarian.` : `Belum ada data ${labels[adminAnnualMatrixTab]} dalam rentang ini.`}</p>`}</section>`;
 }
 
 function renderRoleDashboard() {
@@ -1045,6 +1083,24 @@ function downloadHistoryStatement() {
 
 function downloadAdminAnnualStatement() {
   if (!adminAnnualHistory?.length) return;
+  const matrix = adminAnnualMatrix;
+  const matrixRows = matrix?.groups?.[adminAnnualMatrixTab];
+  if (matrix?.periods?.length && Array.isArray(matrixRows)) {
+    const isDepartmentMatrix = adminAnnualMatrixTab === 'department';
+    const headers = ['No.', isDepartmentMatrix ? 'Departemen' : 'Nama', ...(isDepartmentMatrix ? [] : ['Departemen terakhir dalam rentang']), ...matrix.periods.map((period) => period.name), 'Rata-rata', 'Ikut periode', 'Peringkat rata-rata'];
+    const rows = matrixRows.map((row, index) => [
+      index + 1,
+      row.name,
+      ...(isDepartmentMatrix ? [] : [row.department ?? '—']),
+      ...matrix.periods.map((period) => Object.prototype.hasOwnProperty.call(row.cells ?? {}, period.id) ? percentage(row.cells[period.id]) : '—'),
+      percentage(row.average_percentage),
+      row.period_count,
+      row.rank,
+    ]);
+    downloadCsv([headers, ...rows], `rekap-lks-organisasi-${adminAnnualMatrixTab}-${adminAnnualRange.from}-sampai-${adminAnnualRange.to}.csv`);
+    showToast('Rincian rekap sesuai rentang berhasil diunduh');
+    return;
+  }
   const rows = [
     ['Periode', 'Mulai', 'Berakhir', 'Peserta', 'Rata-rata capaian', 'Tuntas', 'Belum tuntas'],
     ...adminAnnualHistory.map((period) => [period.name, period.start_date, period.end_date, period.statement?.participant_count ?? 0, percentage(period.statement?.average_percentage), period.statement?.tuntas_count ?? 0, period.statement?.belum_tuntas_count ?? 0]),
@@ -1163,6 +1219,7 @@ async function loadAdminAnnualHistory() {
   const requestId = ++adminAnnualRequest;
   adminAnnualError = '';
   const query = new URLSearchParams();
+  query.set('matrix', '1');
   if (adminAnnualRange.from && adminAnnualRange.to) {
     query.set('from', adminAnnualRange.from);
     query.set('to', adminAnnualRange.to);
@@ -1173,6 +1230,8 @@ async function loadAdminAnnualHistory() {
     if (requestId !== adminAnnualRequest) return;
     const payload = await response.json();
     adminAnnualHistory = payload.data ?? [];
+    adminAnnualMatrix = payload.meta?.annual_matrix ?? null;
+    adminAnnualMatrixSearch = '';
     adminAnnualYears = payload.meta?.available_years ?? [];
     adminAnnualYear = payload.meta?.selected_year ?? adminAnnualYears[0] ?? '';
     const selectedRange = payload.meta?.selected_range;
@@ -1183,6 +1242,7 @@ async function loadAdminAnnualHistory() {
   } catch (error) {
     if (requestId !== adminAnnualRequest) return;
     adminAnnualHistory = [];
+    adminAnnualMatrix = null;
     adminAnnualError = error.message || 'Rekap tahunan belum dapat dimuat. Coba lagi.';
   }
   renderRoleDashboard();
@@ -1860,6 +1920,8 @@ function applyViewerIdentity(currentViewer) {
   adminAnnualYears = [];
   adminAnnualRange = { from: '', to: '' };
   adminAnnualDefaultRange = { from: '', to: '' };
+  adminAnnualMatrix = null;
+  adminAnnualMatrixTab = 'ikhwan';
   adminAnnualError = '';
   renderHistory();
 
@@ -1985,6 +2047,7 @@ document.addEventListener('submit', (event) => {
     }
     adminAnnualRange = { from, to };
     adminAnnualHistory = null;
+    adminAnnualMatrix = null;
     renderRoleDashboard();
     void loadAdminAnnualHistory();
     return;
@@ -2137,6 +2200,7 @@ document.addEventListener('click', (event) => {
   }
   if (event.target.closest('[data-admin-annual-refresh]')) {
     adminAnnualHistory = null;
+    adminAnnualMatrix = null;
     renderRoleDashboard();
     void loadAdminAnnualHistory();
     return;
@@ -2144,12 +2208,20 @@ document.addEventListener('click', (event) => {
   if (event.target.closest('[data-admin-annual-reset]')) {
     adminAnnualRange = { ...adminAnnualDefaultRange };
     adminAnnualHistory = null;
+    adminAnnualMatrix = null;
     renderRoleDashboard();
     void loadAdminAnnualHistory();
     return;
   }
   if (event.target.closest('[data-download-admin-annual-statement]')) {
     downloadAdminAnnualStatement();
+    return;
+  }
+  const annualMatrixTab = event.target.closest('[data-admin-annual-matrix-tab]');
+  if (annualMatrixTab) {
+    adminAnnualMatrixTab = annualMatrixTab.dataset.adminAnnualMatrixTab;
+    adminAnnualMatrixSearch = '';
+    renderRoleDashboard();
     return;
   }
   const adminAnnualPeriod = event.target.closest('[data-admin-annual-period]');
@@ -2202,6 +2274,7 @@ document.addEventListener('change', (event) => {
   if (event.target.matches('[data-admin-annual-year]')) {
     adminAnnualYear = event.target.value;
     adminAnnualHistory = null;
+    adminAnnualMatrix = null;
     renderRoleDashboard();
     void loadAdminAnnualHistory();
   }
@@ -2221,6 +2294,16 @@ document.addEventListener('change', (event) => {
     selectedTrendGroupId = event.target.value;
     renderRecapViews();
   }
+});
+
+document.addEventListener('input', (event) => {
+  if (!event.target.matches('[data-admin-annual-matrix-search]')) return;
+  const caret = event.target.selectionStart ?? event.target.value.length;
+  adminAnnualMatrixSearch = event.target.value;
+  renderRoleDashboard();
+  const input = document.querySelector('[data-admin-annual-matrix-search]');
+  input?.focus();
+  input?.setSelectionRange(caret, caret);
 });
 
 const settingRoutes = { 'Kelola periode': 'periods', 'Kelola aktivitas': 'activities', 'Kelola Santri': 'people' };

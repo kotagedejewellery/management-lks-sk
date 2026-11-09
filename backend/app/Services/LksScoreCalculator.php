@@ -12,32 +12,43 @@ use Illuminate\Support\Carbon;
 class LksScoreCalculator
 {
     /** @return array<string, mixed> */
-    public function calculate(PeriodParticipantSnapshot $participant): array
+    public function calculate(
+        PeriodParticipantSnapshot $participant,
+        ?LksPeriod $period = null,
+        ?Collection $periodActivities = null,
+        ?array $holidayDates = null,
+        ?Collection $completedChecklists = null,
+    ): array
     {
-        $participant->loadMissing(['period', 'menstruationDispensations']);
-        $activities = $participant->period->periodActivities()
-            ->orderBy('sort_order')
-            ->get()
+        $participant->loadMissing('menstruationDispensations');
+        if ($period === null) {
+            $participant->loadMissing('period');
+            $period = $participant->period;
+        }
+        $participant->setRelation('period', $period);
+        $activities = ($periodActivities ?? $period->periodActivities()->orderBy('sort_order')->get())
             ->filter(fn ($activity) => $activity->appliesTo($participant))
             ->values();
-        $holidayDates = $this->periodHolidayDates($participant->period);
+        $holidayDates ??= $this->periodHolidayDates($period);
         $dispensationDates = PeriodMenstruationDispensation::datesFor($participant);
         $effectiveTargets = $activities
             ->mapWithKeys(fn ($activity): array => [$activity->getKey() => $this->effectiveTargets(
                 $activity,
-                $participant->period,
+                $period,
                 $holidayDates,
                 $participant,
                 $activity->menstruationExemptFor($participant) ? $dispensationDates : [],
             )])
             ->filter(fn (array $rule): bool => $rule['target_count'] > 0);
         $activities = $activities->filter(fn ($activity): bool => $effectiveTargets->has($activity->getKey()))->values();
-        $completed = LksChecklist::query()
+        $completedChecklists ??= LksChecklist::query()
             ->where('period_participant_id', $participant->getKey())
             ->where('is_completed', true)
             ->whereIn('period_activity_id', $activities->modelKeys())
             ->when($holidayDates !== [], fn ($query) => $query->whereNotIn('checklist_date', $holidayDates))
-            ->get(['period_activity_id', 'checklist_date'])
+            ->get(['period_activity_id', 'checklist_date']);
+        $completed = $completedChecklists
+            ->filter(fn (LksChecklist $checklist): bool => $activities->contains('id', $checklist->period_activity_id))
             ->reject(fn (LksChecklist $checklist): bool => in_array(
                 $checklist->checklist_date->toDateString(),
                 $activities->firstWhere('id', $checklist->period_activity_id)?->menstruationExemptFor($participant) ? $dispensationDates : [],
@@ -70,7 +81,7 @@ class LksScoreCalculator
         $passingThreshold = $this->passingThreshold($participant);
         $finalStatus = $finalPercentage >= $passingThreshold ? 'tuntas' : 'belum_tuntas';
         $grade = $activityScores->sum('completed_count') > 0 ? $this->grade($finalPercentage) : null;
-        $recommendation = $participant->period->status === 'closed' && $participant->recommendation_snapshot !== null
+        $recommendation = $period->status === 'closed' && $participant->recommendation_snapshot !== null
             ? $participant->recommendation_snapshot
             : $this->recommendation($activityScores, $finalPercentage, $passingThreshold, $finalStatus);
 
@@ -153,6 +164,10 @@ class LksScoreCalculator
     /** @return Collection<int, array<string, mixed>> */
     public function calculatePeriod(LksPeriod $period, ?string $leaderUserId = null, ?string $userId = null): Collection
     {
+        $period->loadMissing([
+            'holidaySnapshots',
+            'periodActivities' => fn ($query) => $query->orderBy('sort_order'),
+        ]);
         $participants = $period->participants()->with('menstruationDispensations')->orderBy('participant_name_snapshot');
         if ($leaderUserId !== null) {
             $participants
@@ -163,7 +178,24 @@ class LksScoreCalculator
             $participants->where('user_id', $userId);
         }
 
-        return $participants->get()->map(fn (PeriodParticipantSnapshot $participant): array => $this->calculate($participant));
+        $participants = $participants->get();
+        $holidayDates = $this->periodHolidayDates($period);
+        $periodActivities = $period->periodActivities;
+        $completedByParticipant = LksChecklist::query()
+            ->whereIn('period_participant_id', $participants->modelKeys())
+            ->where('is_completed', true)
+            ->whereIn('period_activity_id', $periodActivities->modelKeys())
+            ->when($holidayDates !== [], fn ($query) => $query->whereNotIn('checklist_date', $holidayDates))
+            ->get(['period_participant_id', 'period_activity_id', 'checklist_date'])
+            ->groupBy('period_participant_id');
+
+        return $participants->map(fn (PeriodParticipantSnapshot $participant): array => $this->calculate(
+            $participant,
+            $period,
+            $periodActivities,
+            $holidayDates,
+            $completedByParticipant->get($participant->getKey(), collect()),
+        ));
     }
 
     /** @param Collection<int, array<string, mixed>> $scores
