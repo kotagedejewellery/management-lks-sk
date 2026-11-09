@@ -581,7 +581,7 @@ function openBulkChecklist(activityId) {
   };
   const currentMonth = months.find((month) => month.key === monthKey);
 
-  adminFormDialog.classList.remove('is-period-config', 'is-activity-rules');
+  adminFormDialog.classList.remove('is-period-config', 'is-activity-rules', 'is-activity-rule-focus');
   adminFormDialog.dataset.returnView = '';
   adminFormDialogContent.innerHTML = `<form class="admin-modal-form bulk-checklist-form" data-admin-form="bulk-checklist" data-activity-id="${escapeHtml(activity.id)}" data-max-per-week="${Number(activity.max_per_week) || ''}"><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">Catat beberapa tanggal</h2><p>${escapeHtml(activity.name)} · ${escapeHtml(activityScheduleLabel(activity))}. Tanggal yang telah tercatat dikunci.</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields"><div class="bulk-calendar-toolbar"><p class="admin-form-note" data-bulk-selection-summary>Pilih tanggal yang masih tersedia pada kalender.</p><div><button class="text-button" type="button" data-bulk-checklist-clear>Kosongkan semua</button><button class="text-button" type="button" data-bulk-checklist-select>Pilih semua bulan ini</button></div></div><label class="bulk-calendar-month-select">Bulan<select data-bulk-checklist-month>${months.map((month) => `<option value="${escapeHtml(month.key)}"${month.key === monthKey ? ' selected' : ''}>${escapeHtml(month.label)}</option>`).join('')}</select></label><p class="bulk-calendar-legend"><span><i class="is-selectable"></i>Dapat dicatat</span><span><i class="is-recorded"></i>Sudah dicatat</span><span><i class="is-holiday"></i>Hari libur · opsional</span><span><i class="is-invalid"></i>Perlu diperiksa</span></p><div class="bulk-checklist-calendar" data-bulk-checklist-calendar aria-label="Kalender pencatatan ${escapeHtml(activity.name)}">${renderBulkChecklistCalendar([currentMonth])}</div></div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit" data-bulk-submit disabled>Catat tanggal terpilih</button></div></form>`;
   adminFormDialog.showModal();
@@ -1512,7 +1512,7 @@ function openRecapDetail(participantId) {
     ? `<a class="text-action export-pdf-link" href="${apiBase}/exports/personal/${encodeURIComponent(recapData.period.id)}" data-export-pdf>Preview PDF LKS <svg><use href="#icon-arrow"/></svg></a>`
     : '';
 
-  adminFormDialog.classList.remove('is-period-config', 'is-activity-rules');
+  adminFormDialog.classList.remove('is-period-config', 'is-activity-rules', 'is-activity-rule-focus');
   adminFormDialog.dataset.returnView = 'recap';
   adminFormDialogContent.innerHTML = `<section class="admin-modal-form recap-detail-modal"><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">Rincian capaian</h2><p>${escapeHtml(participant.name)} · ${escapeHtml(participant.team ?? 'Tanpa tim')} · ${escapeHtml(recapData.period.name)}</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields"><section class="history-participant-detail"><div class="history-score"><span>Nilai akhir</span><strong>${percentage(participant.final_percentage)}</strong><small>Ambang tuntas ${percentage(participant.passing_threshold)}</small>${statusBadge(participantStatus(participant))}</div>${recommendation}${activities ? `<ul class="history-activity-list">${activities}</ul>` : '<p class="history-empty-detail">Tidak ada aktivitas yang berlaku untuk peserta ini.</p>'}${personalExport}</section></div><div class="admin-modal-actions"><button class="primary-button" type="button" data-close-admin-modal>Tutup</button></div></section>`;
   const participationNote = participationStartNote(participant, recapData.period);
@@ -2334,7 +2334,7 @@ function masterActivityRuleFields(activity = {}, scope = '') {
   const regularCard = `<section class="activity-rule-card" aria-labelledby="master-regular-rule"><div class="activity-rule-card-head"><h4 id="master-regular-rule">Aturan Reguler</h4><p>Default untuk peserta Reguler pada periode baru.</p></div><div class="admin-modal-inline-fields"><label>Target maksimum<input type="number" name="default_target_count" min="1" value="${escapeHtml(target)}" data-master-target required></label><label>Target minimal tuntas<input type="number" name="default_minimum_target_count" min="1" max="${escapeHtml(target)}" value="${escapeHtml(minimum)}" data-master-minimum required></label></div>${regularRules}</section>`;
   const magangCard = `<section class="activity-rule-card" aria-labelledby="master-magang-rule"><div class="activity-rule-card-head"><h4 id="master-magang-rule">Aturan Magang</h4><p>Default untuk peserta Magang pada periode baru.</p></div><div class="admin-modal-inline-fields"><label>Target maksimum<input type="number" name="default_magang_target_count" min="1" value="${escapeHtml(magangTarget)}" data-master-target required></label><label>Target minimal tuntas<input type="number" name="default_magang_minimum_target_count" min="1" max="${escapeHtml(magangTarget)}" value="${escapeHtml(magangMinimum)}" data-master-minimum required></label></div>${magangRules}</section>`;
   const cards = scope === 'regular' ? regularCard : scope === 'magang' ? magangCard : `${regularCard}${magangCard}`;
-  return `<div class="activity-rule-columns">${cards}</div><p class="admin-form-note">Nilai dibatasi 100%. Aturan Reguler dan Magang berdiri sendiri; snapshot periode lama tidak berubah.</p>`;
+  return `<div class="activity-rule-columns${scope ? ' is-single-rule' : ''}">${cards}</div><p class="admin-form-note">Nilai dibatasi 100%. Aturan Reguler dan Magang berdiri sendiri; snapshot periode lama tidak berubah.</p>`;
 }
 
 function paginationControls(meta, list) {
@@ -3166,8 +3166,8 @@ function openAdminFormModal(type, departmentId = '', returnView = '', activityRu
   if (type === 'activity-rule-edit' && selectedActivity) {
     const scope = activityRuleScope === 'magang' ? 'magang' : 'regular';
     const label = scope === 'magang' ? 'Magang' : 'Reguler';
-    definitions['activity-rule-edit'].title = `Edit default ${label} · ${escapeHtml(selectedActivity.name)}`;
-    definitions['activity-rule-edit'].description = `Perubahan hanya untuk default ${label} pada periode baru. Snapshot periode aktif atau tertutup tetap terjaga.`;
+    definitions['activity-rule-edit'].title = `Edit default ${label}`;
+    definitions['activity-rule-edit'].description = `Aktivitas: ${escapeHtml(selectedActivity.name)}. Perubahan hanya untuk default ${label} pada periode baru. Snapshot periode aktif atau tertutup tetap terjaga.`;
     definitions['activity-rule-edit'].fields = `<p class="admin-form-note">Kode aktivitas: ${escapeHtml(selectedActivity.code)}. Untuk mengubah kode atau nama, gunakan Kelola kode &amp; nama.</p>${masterActivityRuleFields(selectedActivity, scope)}`;
   }
   definitions.holiday = {
@@ -3192,7 +3192,8 @@ function openAdminFormModal(type, departmentId = '', returnView = '', activityRu
   adminFormDialogContent.innerHTML = `<form class="admin-modal-form" data-admin-form="${type}"${['period-config', 'period-edit', 'period-holiday', 'period-holiday-import'].includes(type) ? ` data-period-id="${escapeHtml(departmentId)}"` : ''}${type === 'participant' ? ` data-period-name="${escapeHtml(selectedParticipantPeriod?.name ?? '')}"` : ''}${type === 'department-edit' || type === 'team-edit' ? ` data-organization-id="${escapeHtml(departmentId)}"` : ''}${['santri-edit', 'santri-password-reset'].includes(type) ? ` data-santri-id="${escapeHtml(departmentId)}"` : ''}${type === 'santri-password-reset' ? ` data-santri-name="${escapeHtml(selectedProfile?.user?.name ?? 'Santri Karya ini')}"` : ''}${['activity-edit', 'activity-rule-edit'].includes(type) ? ` data-activity-id="${escapeHtml(departmentId)}"` : ''}${type === 'activity-rule-edit' ? ` data-activity-rule-scope="${escapeHtml(activityRuleScope === 'magang' ? 'magang' : 'regular')}"` : ''}><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">${definition.title}</h2><p>${definition.description}</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields">${definition.fields}</div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit"${disableSubmit ? ' disabled' : ''}>${definition.submitLabel}</button></div></form>`;
   if (type === 'santri' || type === 'santri-edit') syncMagangJobLevel(adminFormDialog.querySelector('[data-admin-form]'));
   adminFormDialog.classList.toggle('is-period-config', type === 'period-config');
-  adminFormDialog.classList.toggle('is-activity-rules', ['activity', 'activity-edit'].includes(type));
+  adminFormDialog.classList.toggle('is-activity-rules', ['activity', 'activity-edit', 'activity-rule-edit'].includes(type));
+  adminFormDialog.classList.toggle('is-activity-rule-focus', type === 'activity-rule-edit');
   adminFormDialog.dataset.returnView = returnView;
   adminFormDialog.showModal();
   markAdminFormPristine();

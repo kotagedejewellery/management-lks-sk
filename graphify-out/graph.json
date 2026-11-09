@@ -7331,7 +7331,7 @@
       "file_type": "code",
       "norm_label": "loaddashboard()",
       "source_file": "frontend/app.js",
-      "source_location": "L3513"
+      "source_location": "L3514"
     },
     {
       "id": "frontend_app_loadrecap",
@@ -25105,7 +25105,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3517",
+      "source_location": "L3518",
       "weight": 1.0
     },
     {
@@ -25117,7 +25117,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3522",
+      "source_location": "L3523",
       "weight": 1.0
     },
     {
@@ -25129,7 +25129,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3522",
+      "source_location": "L3523",
       "weight": 1.0
     },
     {
@@ -25141,7 +25141,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3525",
+      "source_location": "L3526",
       "weight": 1.0
     },
     {
@@ -25153,7 +25153,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3527",
+      "source_location": "L3528",
       "weight": 1.0
     },
     {
@@ -25165,7 +25165,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3528",
+      "source_location": "L3529",
       "weight": 1.0
     },
     {
@@ -25177,7 +25177,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3530",
+      "source_location": "L3531",
       "weight": 1.0
     },
     {
@@ -25189,7 +25189,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3532",
+      "source_location": "L3533",
       "weight": 1.0
     },
     {
@@ -25753,7 +25753,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3198",
+      "source_location": "L3199",
       "weight": 1.0
     },
     {
@@ -28849,7 +28849,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3513",
+      "source_location": "L3514",
       "weight": 1.0
     },
     {
@@ -54394,5 +54394,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "ee0b470424729ceea8e08e30997f4e3d07fc3f70"
+  "built_at_commit": "b96f65843ca4e210c013178f0fd138c709b65954"
 }
