@@ -94,17 +94,52 @@ class RecapController extends Controller
 
         $periodQuery = LksPeriod::query()
             ->whereIn('status', ['active', 'closed']);
+        $allPeriodQuery = clone $periodQuery;
 
         if ($selectedPeriodId !== null) {
             $selectedPeriod = (clone $periodQuery)->findOrFail($selectedPeriodId);
-            $periodQuery->where('start_date', '<=', $selectedPeriod->start_date);
+            $periodQuery->where(function ($query) use ($selectedPeriod): void {
+                $query
+                    ->where('start_date', '<', $selectedPeriod->start_date)
+                    ->orWhere(function ($query) use ($selectedPeriod): void {
+                        $query
+                            ->where('start_date', $selectedPeriod->start_date)
+                            ->where('id', '<=', $selectedPeriod->getKey());
+                    });
+            });
         }
 
         $periods = $periodQuery
             ->orderByDesc('start_date')
+            ->orderByDesc('id')
             ->limit(6)
             ->get()
-            ->sortBy('start_date');
+            ->sortBy(fn (LksPeriod $period): string => $period->start_date->toDateString().'|'.$period->getKey());
+
+        $oldestPeriod = $periods->first();
+        $newestPeriod = $periods->last();
+        $olderAnchorId = $oldestPeriod
+            ? (clone $allPeriodQuery)->where(function ($query) use ($oldestPeriod): void {
+                $query
+                    ->where('start_date', '<', $oldestPeriod->start_date)
+                    ->orWhere(function ($query) use ($oldestPeriod): void {
+                        $query
+                            ->where('start_date', $oldestPeriod->start_date)
+                            ->where('id', '<', $oldestPeriod->getKey());
+                    });
+            })->orderByDesc('start_date')->orderByDesc('id')->value('id')
+            : null;
+        $newerAnchorId = $newestPeriod
+            ? (clone $allPeriodQuery)->where(function ($query) use ($newestPeriod): void {
+                $query
+                    ->where('start_date', '>', $newestPeriod->start_date)
+                    ->orWhere(function ($query) use ($newestPeriod): void {
+                        $query
+                            ->where('start_date', $newestPeriod->start_date)
+                            ->where('id', '>', $newestPeriod->getKey());
+                    });
+            })->orderBy('start_date')->orderBy('id')->limit(6)->pluck('id')->last()
+            : null;
 
         $trends = $periods
             ->map(function (LksPeriod $period) use ($calculator): array {
@@ -131,7 +166,14 @@ class RecapController extends Controller
 
         return response()->json([
             'data' => $trends,
-            'meta' => ['department_options' => $departmentOptions],
+            'meta' => [
+                'department_options' => $departmentOptions,
+                'trend_window' => [
+                    'total_periods' => (clone $allPeriodQuery)->count(),
+                    'older_anchor_id' => $olderAnchorId,
+                    'newer_anchor_id' => $newerAnchorId,
+                ],
+            ],
         ]);
     }
 

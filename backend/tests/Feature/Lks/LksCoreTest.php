@@ -1920,6 +1920,76 @@ class LksCoreTest extends TestCase
             ->assertJsonMissing(['id' => $periods[1]->id]);
     }
 
+    public function test_admin_can_navigate_department_trend_windows_in_six_period_chunks(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $periods = [];
+
+        foreach (range(1, 12) as $index) {
+            $periods[$index] = $this->period($admin, [
+                'name' => "Jendela Tren {$index}",
+                'status' => 'closed',
+                'start_date' => now()->subMonths(13 - $index)->startOfMonth()->toDateString(),
+                'end_date' => now()->subMonths(13 - $index)->endOfMonth()->toDateString(),
+            ]);
+        }
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.department-trends'))
+            ->assertOk()
+            ->assertJsonPath('data.0.period.id', $periods[7]->id)
+            ->assertJsonPath('data.5.period.id', $periods[12]->id)
+            ->assertJsonPath('meta.trend_window.total_periods', 12)
+            ->assertJsonPath('meta.trend_window.older_anchor_id', $periods[6]->id)
+            ->assertJsonPath('meta.trend_window.newer_anchor_id', null);
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.department-trends', ['period_id' => $periods[6]->id]))
+            ->assertOk()
+            ->assertJsonPath('data.0.period.id', $periods[1]->id)
+            ->assertJsonPath('data.5.period.id', $periods[6]->id)
+            ->assertJsonPath('meta.trend_window.total_periods', 12)
+            ->assertJsonPath('meta.trend_window.older_anchor_id', null)
+            ->assertJsonPath('meta.trend_window.newer_anchor_id', $periods[12]->id);
+    }
+
+    public function test_admin_trend_windows_remain_stable_when_periods_share_a_start_date(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $periods = [];
+
+        foreach (range(1, 12) as $index) {
+            $period = new LksPeriod;
+            $period->forceFill([
+                'id' => sprintf('00000000-0000-4000-8000-%012d', $index),
+                'name' => "Tanggal Sama {$index}",
+                'status' => 'closed',
+                'start_date' => '2026-01-01',
+                'end_date' => '2026-01-31',
+                'recording_enabled' => false,
+                'final_passing_threshold' => 90,
+                'created_by' => $admin->id,
+            ])->save();
+            $periods[$index] = $period;
+        }
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.department-trends', ['period_id' => $periods[12]->id]))
+            ->assertOk()
+            ->assertJsonPath('data.0.period.id', $periods[7]->id)
+            ->assertJsonPath('data.5.period.id', $periods[12]->id)
+            ->assertJsonPath('meta.trend_window.older_anchor_id', $periods[6]->id)
+            ->assertJsonPath('meta.trend_window.newer_anchor_id', null);
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.department-trends', ['period_id' => $periods[6]->id]))
+            ->assertOk()
+            ->assertJsonPath('data.0.period.id', $periods[1]->id)
+            ->assertJsonPath('data.5.period.id', $periods[6]->id)
+            ->assertJsonPath('meta.trend_window.older_anchor_id', null)
+            ->assertJsonPath('meta.trend_window.newer_anchor_id', $periods[12]->id);
+    }
+
     public function test_admin_recap_trends_end_at_the_selected_report_period(): void
     {
         $admin = $this->userWithRole('admin');

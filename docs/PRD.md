@@ -218,7 +218,7 @@ Admin membuat periode
 | FR-11 | Sistem menyediakan rekap Akhwat. |
 | FR-12 | Sistem menyediakan rekap anggota berdasarkan leader. |
 | FR-13 | Sistem menyediakan capaian berdasarkan departemen. |
-| FR-14 | Sistem menampilkan grafik capaian spiritual departemen per periode. |
+| FR-14 | Sistem menampilkan matriks tren capaian spiritual Departemen, Leader, Ikhwan dan Akhwat, serta Jenis LKS per periode. Satu tampilan memuat maksimal enam periode dan menyediakan navigasi ke rentang sebelum atau sesudahnya tanpa mengubah periode laporan maupun tindak lanjut; urutannya tetap stabil ketika tanggal mulai periode sama. Nilai 0% berbeda dari tanda — untuk kelompok yang belum memiliki peserta; selain Departemen, setiap sel juga menampilkan jumlah peserta. |
 | FR-15 | Pengguna berhak dapat melihat data periode sebelumnya. |
 | FR-16 | Pengguna yang berhak dapat melihat preview PDF LKS atau rekap sebelum mengunduh file yang sama. |
 | FR-17 | Dashboard Santri memberi peringatan tekstual berwarna peringatan hanya bila belum ada aktivitas LKS hari ini yang berlaku tercatat. Progres yang belum lengkap setelah pencatatan dimulai tidak diperlakukan sebagai peringatan. |

@@ -100,7 +100,7 @@ Folder merupakan batas pengelompokan, bukan alasan membuat abstraction tambahan.
 - Rekap menggunakan snapshot peserta agar department, leader, dan gender periode tidak berubah di laporan historis.
 - Rekap organisasi Admin hanya menghitung periode tertutup; rentang laporan membatasi tanggal akhir periode dan diterapkan identik pada metrik, daftar periode, serta ekspor CSV.
 - Matriks tahunan Admin dibangun dari hasil `LksScoreCalculator` atas snapshot periode tertutup yang sama. Setiap periode memuat aktivitas, hari libur, dispensasi, dan checklist bersama satu kali sebelum skor peserta dihitung, sehingga rumus dan hasil tidak berubah tetapi query tidak berulang per peserta. Nilai kosong hanya berarti subjek tidak menjadi peserta pada periode tersebut; peringkat dan rata-rata dihitung kembali untuk rentang yang dipilih tanpa menulis data baru.
-- Dataset grafik hanya berisi hasil agregat yang dapat diakses pemanggil.
+- Dataset grafik hanya berisi hasil agregat yang dapat diakses pemanggil. Dataset tren departemen Admin mengembalikan satu jendela berisi maksimal enam periode serta anchor aman untuk membuka jendela sebelumnya atau berikutnya; urutan anchor memakai pasangan `start_date` dan `id` agar stabil ketika tanggal mulai sama. Navigasi tren tidak mengubah periode rekap atau data tindak lanjut.
 - Versi pertama menghitung nilai saat diminta; optimasi cache/materialized view baru ditambahkan jika pengukuran performa membuktikan perlu.
 
 ## 5. Alur data utama

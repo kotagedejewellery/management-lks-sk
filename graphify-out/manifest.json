@@ -6,15 +6,15 @@
     "semantic_hash": ""
   },
   "PRODUCT.md": {
-    "mtime": 1794278642.950638,
-    "seen": 1794278659.0469122,
-    "ast_hash": "c42ce0d10d106356456217808470e0e8",
+    "mtime": 1794282984.1984756,
+    "seen": 1794283054.8524797,
+    "ast_hash": "cc20fbcf47a7cf9bc6e02c017bcdccae",
     "semantic_hash": ""
   },
   "docs/Architecture System.md": {
-    "mtime": 1794205801.2500322,
-    "seen": 1794206470.1745443,
-    "ast_hash": "2b440d65369d1563de5cf2c5c56a4da6",
+    "mtime": 1794282984.202008,
+    "seen": 1794283054.8524873,
+    "ast_hash": "680fa427317fefcecbc44c47b0ccc1ed",
     "semantic_hash": ""
   },
   "docs/Database Design.md": {
@@ -24,9 +24,9 @@
     "semantic_hash": ""
   },
   "docs/PRD.md": {
-    "mtime": 1794278642.950638,
-    "seen": 1794278659.0469286,
-    "ast_hash": "3f2c70502e852877908f88178a1f5d40",
+    "mtime": 1794282984.200993,
+    "seen": 1794283054.8524969,
+    "ast_hash": "2ed8bcc3bd7a2af396cd47dda96e8df1",
     "semantic_hash": ""
   },
   "docs/Tech Stack.md": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1794278642.950638,
-    "seen": 1794278659.0469017,
-    "ast_hash": "d4e4442d849b46875c09fae5a2b8db67",
+    "mtime": 1794282960.4972014,
+    "seen": 1794283054.85247,
+    "ast_hash": "c542d6c5175d77c9e2251b14519c5541",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -822,9 +822,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/RecapController.php": {
-    "mtime": 1793868205.5258293,
-    "seen": 1793868328.0977921,
-    "ast_hash": "c47dd1fea270ca7d8c5cd9a07b800316",
+    "mtime": 1794282960.4882057,
+    "seen": 1794283054.8522263,
+    "ast_hash": "92eb46aa8a3b6abf1e0901db6f0115e2",
     "semantic_hash": ""
   },
   "backend/app/Services/LksScoreCalculator.php": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1794205384.3231685,
-    "seen": 1794206470.174496,
-    "ast_hash": "e21f07f7a5b8dceb7f29e3752e0b8609",
+    "mtime": 1794282809.9982057,
+    "seen": 1794283054.852451,
+    "ast_hash": "4cb5f2c00d660f152cbb023467c9c312",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1794278642.950638,
-    "seen": 1794278659.0469108,
-    "ast_hash": "c4ee1713b1b36ad2cbd252177d530c2d",
+    "mtime": 1794282996.8796916,
+    "seen": 1794283054.8524783,
+    "ast_hash": "5d48372c910c31a6ae7373d83634a791",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_16_000001_add_recording_enabled_to_lks_periods_table.php": {

@@ -36,6 +36,8 @@ let recapPeriods = [];
 let departmentTrendData = [];
 let departmentTrendDepartmentOptions = [];
 let departmentTrendError = '';
+let departmentTrendMeta = null;
+let departmentTrendRequest = 0;
 let roleTrendData = [];
 let roleTrendError = '';
 let selectedReportDimension = 'department';
@@ -1483,25 +1485,45 @@ function renderDepartmentFollowUp(groups, participants, period) {
   return `<section class="department-follow-up" aria-labelledby="department-follow-up-title"><div class="section-head"><div><h2 id="department-follow-up-title">Catatan tindak lanjut · ${escapeHtml(period.name)}</h2><p>Nama hanya ditampilkan untuk Admin pada departemen yang masih memiliki anggota belum tuntas.</p></div></div><div class="department-follow-up-grid">${cards || '<p class="report-trend-empty">Belum ada departemen untuk ditinjau.</p>'}</div></section>`;
 }
 
+function renderTrendWindowNavigation(periods) {
+  const trendWindow = departmentTrendMeta ?? {};
+  if (periods.length < 2) return '';
+  const rangeLabel = `${periods[0].period.name}${periods.length > 1 ? ` — ${periods.at(-1).period.name}` : ''} · ${periods.length} dari ${trendWindow.total_periods ?? periods.length} periode`;
+  return `<nav class="trend-window-navigation" aria-label="Navigasi rentang tren"><button class="text-button" type="button" data-department-trend-window="${escapeHtml(trendWindow.older_anchor_id ?? '')}"${trendWindow.older_anchor_id ? '' : ' disabled'}>← Periode sebelumnya</button><p aria-live="polite">${escapeHtml(rangeLabel)}</p><button class="text-button" type="button" data-department-trend-window="${escapeHtml(trendWindow.newer_anchor_id ?? '')}"${trendWindow.newer_anchor_id ? '' : ' disabled'}>Periode berikutnya →</button></nav>`;
+}
+
+function renderTrendChange(values) {
+  const previous = values.at(-2);
+  const latest = values.at(-1);
+  const difference = previous === null || latest === null || previous === undefined || latest === undefined ? null : Math.round((latest - previous) * 10) / 10;
+  const change = difference === null ? '—' : difference === 0 ? 'Tetap' : `${difference > 0 ? '↑' : '↓'} ${new Intl.NumberFormat('id-ID', { maximumFractionDigits: 1 }).format(Math.abs(difference))} pp`;
+  const changeClass = difference === null || difference === 0 ? ' is-neutral' : difference > 0 ? ' is-up' : ' is-down';
+  return `<span class="department-trend-change${changeClass}" role="cell">${change}</span>`;
+}
+
 function renderAllDepartmentTrends(periods, participants) {
   const groups = departmentReportGroups(periods, participants);
   const period = recapData?.period ?? { id: '', name: 'periode yang dipilih' };
   const periodAttribute = period.id ? ` data-recap-period-id="${escapeHtml(period.id)}"` : '';
+  const windowNavigation = renderTrendWindowNavigation(periods);
   const trend = departmentTrendError
     ? `<p class="report-trend-empty">${escapeHtml(departmentTrendError)} <button class="text-button" type="button" data-retry-department-trend>Coba lagi</button></p>`
     : periods.length < 2
     ? '<p class="report-trend-empty">Tren tersedia setelah minimal dua periode memiliki data.</p>'
     : !groups.length
       ? '<p class="report-trend-empty">Belum ada departemen untuk ditampilkan pada tren ini.</p>'
-      : `<p id="trend-scroll-note" class="department-trend-scroll-note">Geser tabel untuk melihat periode lain.</p><div class="department-trend-table" role="table" aria-label="Tren seluruh departemen" aria-describedby="trend-scroll-note" tabindex="0"><div class="department-trend-head" role="row"><span role="columnheader">Departemen</span>${periods.map((item) => `<span role="columnheader">${escapeHtml(item.period.name)}</span>`).join('')}</div>${groups.map((group) => {
-        const points = periods.map((item) => {
+      : `${windowNavigation}<p id="trend-scroll-note" class="department-trend-scroll-note">Geser tabel untuk melihat periode lain. Angka menunjukkan capaian; warna hanya membantu membandingkan nilainya.</p><div class="department-trend-table" role="table" aria-label="Tren seluruh departemen" aria-describedby="trend-scroll-note" tabindex="0"><div class="department-trend-head" role="row" style="--trend-period-columns:${periods.length}"><span role="columnheader">Departemen</span>${periods.map((item) => `<span role="columnheader">${escapeHtml(item.period.name)}</span>`).join('')}<span role="columnheader">Perubahan terakhir</span></div>${groups.map((group) => {
+        const values = periods.map((item) => {
           const match = (item.groups?.department ?? []).find((candidate) => candidate.id === group.id);
-          const value = match ? Math.min(Math.max(Number(match.average_percentage) || 0, 0), 100) : null;
-          return `<span class="department-trend-value" role="cell"${value === null ? '' : ` aria-label="${escapeHtml(group.name)} ${escapeHtml(item.period.name)} ${percentage(value)}"`}><strong>${value === null ? '—' : percentage(value)}</strong><i${value === null ? '' : ` style="width:${Math.max(value, 2)}%"`}></i></span>`;
+          return match ? Math.min(Math.max(Number(match.average_percentage) || 0, 0), 100) : null;
+        });
+        const points = values.map((value, index) => {
+          const tint = value === null || value === 0 ? '' : ` style="--trend-cell-tint:${Math.round(4 + value * 0.2)}%"`;
+          return `<span class="department-trend-value${value === null ? ' is-empty' : value === 0 ? ' is-zero' : ' is-valued'}" role="cell"${value === null ? '' : ` aria-label="${escapeHtml(group.name)} ${escapeHtml(periods[index].period.name)} ${percentage(value)}"`}${tint}><strong>${value === null ? '—' : percentage(value)}</strong></span>`;
         }).join('');
-        return `<div class="department-trend-row" role="row"><span role="cell"><button class="text-button" type="button" data-recap-department="${escapeHtml(group.name)}"${periodAttribute}>${escapeHtml(group.name)}</button></span>${points}</div>`;
+        return `<div class="department-trend-row" role="row" style="--trend-period-columns:${periods.length}"><span role="cell"><button class="text-button" type="button" data-recap-department="${escapeHtml(group.name)}"${periodAttribute}>${escapeHtml(group.name)}</button></span>${points}${renderTrendChange(values)}</div>`;
       }).join('')}</div>`;
-  return `<section class="report-trend department-trend" aria-labelledby="report-trend-title"><div class="section-head"><div><h2 id="report-trend-title">Tren seluruh departemen</h2><p>Perubahan capaian enam periode terakhir. Tanda — berarti departemen belum memiliki peserta pada periode tersebut.</p></div></div>${trend}</section>${renderDepartmentFollowUp(groups, participants, period)}`;
+  return `<section class="report-trend department-trend" aria-labelledby="report-trend-title"><div class="section-head"><div><h2 id="report-trend-title">Tren seluruh departemen</h2><p>Capaian dalam rentang periode yang ditampilkan. Kolom perubahan membandingkan dua periode terakhir dalam rentang ini. Tanda — berarti departemen belum memiliki peserta pada periode tersebut.</p></div></div>${trend}</section>${renderDepartmentFollowUp(groups, participants, period)}`;
 }
 
 function renderAllGroupTrends(dimension, periods) {
@@ -1520,14 +1542,18 @@ function renderAllGroupTrends(dimension, periods) {
     return left.name.localeCompare(right.name, 'id');
   });
   if (!options.length) return '<p class="report-trend-empty">Belum ada kelompok untuk ditampilkan pada tren ini.</p>';
-  return `<section class="report-trend group-trend" aria-labelledby="report-trend-title"><div class="section-head"><div><h2 id="report-trend-title">Tren ${escapeHtml(label)}</h2><p>Perubahan rata-rata capaian hingga enam periode terakhir. Tanda — berarti kelompok belum memiliki peserta pada periode tersebut.</p></div></div><p id="trend-scroll-note" class="department-trend-scroll-note">Geser tabel untuk melihat periode lain.</p><div class="department-trend-table" role="table" aria-label="Tren ${escapeHtml(label)}" aria-describedby="trend-scroll-note" tabindex="0"><div class="department-trend-head" role="row"><span role="columnheader">${escapeHtml(label)}</span>${periods.map((item) => `<span role="columnheader">${escapeHtml(item.period.name)}</span>`).join('')}</div>${options.map((group) => {
-    const points = periods.map((item) => {
+  const windowNavigation = renderTrendWindowNavigation(periods);
+  return `<section class="report-trend group-trend" aria-labelledby="report-trend-title"><div class="section-head"><div><h2 id="report-trend-title">Tren ${escapeHtml(label)}</h2><p>Rata-rata capaian dalam rentang periode yang ditampilkan. Kolom perubahan membandingkan dua periode terakhir dalam rentang ini. Tanda — berarti kelompok belum memiliki peserta pada periode tersebut.</p></div></div>${windowNavigation}<p id="trend-scroll-note" class="department-trend-scroll-note">Geser tabel untuk melihat periode lain. Angka menunjukkan capaian; warna hanya membantu membandingkan nilainya.</p><div class="department-trend-table" role="table" aria-label="Tren ${escapeHtml(label)}" aria-describedby="trend-scroll-note" tabindex="0"><div class="department-trend-head" role="row" style="--trend-period-columns:${periods.length}"><span role="columnheader">${escapeHtml(label)}</span>${periods.map((item) => `<span role="columnheader">${escapeHtml(item.period.name)}</span>`).join('')}<span role="columnheader">Perubahan terakhir</span></div>${options.map((group) => {
+    const values = periods.map((item) => {
       const match = (item.groups?.[dimension] ?? []).find((candidate) => candidate.id === group.id);
-      const value = match ? Math.min(Math.max(Number(match.average_percentage) || 0, 0), 100) : null;
-      const count = match ? Number(match.participant_count) : 0;
-      return `<span class="department-trend-value" role="cell"${value === null ? '' : ` aria-label="${escapeHtml(group.name)} ${escapeHtml(item.period.name)} ${percentage(value)} dari ${count} peserta"`}><strong>${value === null ? '—' : percentage(value)}</strong>${value === null ? '' : `<small>${count} peserta</small><i style="width:${Math.max(value, 2)}%"></i>`}</span>`;
+      return match ? { value: Math.min(Math.max(Number(match.average_percentage) || 0, 0), 100), count: Number(match.participant_count) } : null;
+    });
+    const points = values.map((point, index) => {
+      const value = point?.value ?? null;
+      const tint = value === null || value === 0 ? '' : ` style="--trend-cell-tint:${Math.round(4 + value * 0.2)}%"`;
+      return `<span class="department-trend-value${value === null ? ' is-empty' : value === 0 ? ' is-zero' : ' is-valued'}" role="cell"${value === null ? '' : ` aria-label="${escapeHtml(group.name)} ${escapeHtml(periods[index].period.name)} ${percentage(value)} dari ${point.count} peserta"`}${tint}><strong>${value === null ? '—' : percentage(value)}</strong>${value === null ? '' : `<small>${point.count} peserta</small>`}</span>`;
     }).join('');
-    return `<div class="department-trend-row" role="row"><span role="cell"><strong>${escapeHtml(group.name)}</strong></span>${points}</div>`;
+    return `<div class="department-trend-row" role="row" style="--trend-period-columns:${periods.length}"><span role="cell"><strong>${escapeHtml(group.name)}</strong></span>${points}${renderTrendChange(values.map((point) => point?.value ?? null))}</div>`;
   }).join('')}</div></section>`;
 }
 
@@ -1663,6 +1689,7 @@ function renderRecapViews() {
 
 async function loadRecap(periodId = '', { showProgress = true, scope = viewer?.roles?.includes('leader') ? recapScope : 'personal' } = {}) {
   const requestId = ++recapRequest;
+  departmentTrendRequest += 1;
   recapAbortController?.abort();
   recapAbortController = new AbortController();
   const { signal } = recapAbortController;
@@ -1692,10 +1719,12 @@ async function loadRecap(periodId = '', { showProgress = true, scope = viewer?.r
       const trendPayload = await trendResponse.json();
       departmentTrendData = trendPayload.data ?? [];
       departmentTrendDepartmentOptions = trendPayload.meta?.department_options ?? [];
+      departmentTrendMeta = trendPayload.meta?.trend_window ?? null;
       departmentTrendError = '';
     } else {
       departmentTrendData = [];
       departmentTrendDepartmentOptions = [];
+      departmentTrendMeta = null;
       departmentTrendError = trendResponse ? 'Tren departemen belum dapat dimuat.' : '';
     }
     roleTrendData = roleTrendResponse?.ok ? (await roleTrendResponse.json()).data : [];
@@ -1713,6 +1742,30 @@ async function loadRecap(periodId = '', { showProgress = true, scope = viewer?.r
     renderUnavailableDashboard(error.message || 'Data rekap belum dapat dimuat.');
   } finally {
     if (requestId === recapRequest && showProgress) hidePageProgress();
+  }
+}
+
+async function loadDepartmentTrendWindow(anchorPeriodId, trigger) {
+  if (!anchorPeriodId || !viewer?.roles?.includes('admin')) return;
+  const requestId = ++departmentTrendRequest;
+  setButtonBusy(trigger, true, 'Memuat…');
+  try {
+    const response = await fetch(`${apiBase}/department-trends?period_id=${encodeURIComponent(anchorPeriodId)}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+    if (!response.ok) throw new Error(await apiError(response));
+    if (requestId !== departmentTrendRequest) return;
+    const payload = await response.json();
+    departmentTrendData = payload.data ?? [];
+    departmentTrendDepartmentOptions = payload.meta?.department_options ?? [];
+    departmentTrendMeta = payload.meta?.trend_window ?? null;
+    departmentTrendError = '';
+    renderRecapViews();
+  } catch (error) {
+    if (requestId !== departmentTrendRequest) return;
+    departmentTrendError = 'Tren departemen belum dapat dimuat.';
+    renderRecapViews();
+    showToast(error.message, 'error');
+  } finally {
+    setButtonBusy(trigger, false);
   }
 }
 
@@ -2141,6 +2194,10 @@ document.addEventListener('click', (event) => {
   if (event.target.closest('[data-retry-department-trend]')) {
     loadRecap(recapData?.period?.id ?? '', { showProgress: false });
     return;
+  }
+  const trendWindowButton = event.target.closest('[data-department-trend-window]');
+  if (trendWindowButton?.dataset.departmentTrendWindow) {
+    return loadDepartmentTrendWindow(trendWindowButton.dataset.departmentTrendWindow, trendWindowButton);
   }
   if (event.target.closest('[data-clear-recap-member]')) {
     recapMemberFocus = '';
