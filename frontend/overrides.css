@@ -441,12 +441,11 @@ body.is-booting .page-progress { inset: 0; }
 .annual-lks-statement h3, .annual-lks-statement p { margin: 0; }
 .annual-lks-statement p { color: var(--ink-soft, #53645a); font-size: 13px; }
 .annual-lks-statement-list { display: grid; gap: 1px; overflow: hidden; border: 1px solid var(--line, #d9ddd5); border-radius: 9px; }
-.annual-lks-statement-list button { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 14px; align-items: center; width: 100%; padding: 11px 12px; border: 0; background: var(--surface, #fffefa); color: inherit; text-align: left; cursor: pointer; }
+.annual-lks-statement-list button { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; width: 100%; padding: 11px 12px; border: 0; background: var(--surface, #fffefa); color: inherit; text-align: left; cursor: pointer; }
 .annual-lks-statement-list button + button { border-top: 1px solid var(--line, #d9ddd5); }
 .annual-lks-statement-list span { display: grid; gap: 3px; }
 .annual-lks-statement-list span:nth-child(2) { justify-items: end; font-variant-numeric: tabular-nums; }
 .annual-lks-statement-list small { color: var(--ink-soft, #53645a); }
-@media (max-width: 560px) { .annual-lks-statement-list button { grid-template-columns: minmax(0, 1fr) auto; } .annual-lks-statement-list .status { grid-column: 2; justify-self: end; } }
 .admin-annual-statement { display: grid; gap: 16px; margin: 28px 0; padding: 20px; border: 1px solid var(--line-dark, #c5d0c8); border-radius: 12px; background: var(--surface, #fffefa); }
 .admin-annual-statement .section-head { align-items: start; }
 .admin-annual-statement h2, .admin-annual-statement p { margin: 0; }

@@ -1,4 +1,4 @@
-const viewLabels = { dashboard: ['Ruang pribadi', 'Dashboard'], lks: ['Catatan pribadi', 'Aktivitas Ibadah Saya'], recap: ['Pemantauan', 'Rekap'], department: ['Laporan organisasi', 'Departemen'], history: ['Catatan pribadi', 'Riwayat'], account: ['Akun', 'Akun Saya'], settings: ['Administrasi', 'Pengaturan'], organization: ['Pengaturan', 'Struktur Organisasi'], people: ['Pengaturan', 'Data Santri Karya'], periods: ['Pengaturan', 'Periode LKS'], 'period-detail': ['Pengaturan', 'Kelola Periode'], activities: ['Pengaturan', 'Aktivitas & Aturan'], calendar: ['Pengaturan', 'Kalender Kerja'], documents: ['Pengaturan', 'Dokumen & Tanda Tangan'] };
+const viewLabels = { dashboard: ['Ruang pribadi', 'Dashboard'], lks: ['Catatan pribadi', 'Aktivitas Ibadah Saya'], recap: ['Pemantauan', 'Rekap'], department: ['Laporan organisasi', 'Departemen'], history: ['Riwayat LKS', 'Riwayat'], account: ['Akun', 'Akun Saya'], settings: ['Administrasi', 'Pengaturan'], organization: ['Pengaturan', 'Struktur Organisasi'], people: ['Pengaturan', 'Data Santri Karya'], periods: ['Pengaturan', 'Periode LKS'], 'period-detail': ['Pengaturan', 'Kelola Periode'], activities: ['Pengaturan', 'Aktivitas & Aturan'], calendar: ['Pengaturan', 'Kalender Kerja'], documents: ['Pengaturan', 'Dokumen & Tanda Tangan'] };
 const navButtons = document.querySelectorAll('[data-view]');
 const viewPanels = document.querySelectorAll('[data-view-panel]');
 const pageTitle = document.querySelector('#page-title');
@@ -1066,20 +1066,15 @@ function csvPercentageNumber(value) {
 }
 
 function downloadHistoryStatement() {
+  if (!viewer?.roles?.includes('leader') || historyScope !== 'team') return;
   const periods = visibleHistoryPeriods();
   if (!periods.length) return;
-  const viewingTeam = viewer?.roles?.includes('leader') && historyScope === 'team';
   const rows = [
-    viewingTeam
-      ? ['Periode', 'Mulai', 'Berakhir', 'Jumlah anggota', 'Rata-rata capaian']
-      : ['Periode', 'Mulai', 'Berakhir', 'Capaian', 'Predikat', 'Status'],
-    ...periods.map((period) => viewingTeam
-      ? [period.name, period.start_date, period.end_date, period.statement?.participant_count ?? 0, percentage(period.statement?.average_percentage)]
-      : [period.name, period.start_date, period.end_date, percentage(period.statement?.final_percentage), period.statement?.grade ?? '', period.statement?.final_status ?? '']),
+    ['Periode', 'Mulai', 'Berakhir', 'Jumlah anggota', 'Rata-rata capaian (%)'],
+    ...periods.map((period) => [period.name, period.start_date, period.end_date, period.statement?.participant_count ?? 0, csvPercentageNumber(period.statement?.average_percentage)]),
   ];
-  const filenameScope = viewingTeam ? 'tim' : 'pribadi';
-  downloadCsv(rows, `rekap-lks-${filenameScope}-${historyYear}.csv`);
-  showToast('Rekap tahunan berhasil diunduh');
+  downloadCsv(rows, `rekap-lks-tim-${historyYear}.csv`, { rawNumbers: true });
+  showToast('Rekap tahunan tim berhasil diunduh');
 }
 
 function downloadAdminAnnualStatement() {
@@ -1138,13 +1133,11 @@ function renderHistory() {
   const periods = visibleHistoryPeriods();
   const selected = historyRecapData?.period?.id ?? historyDetailPeriodId;
   const years = historyYears.length ? historyYears : [...new Set(historyData.map((period) => String(period.start_date).slice(0, 4)))];
-  const yearControl = years.length > 1 ? `<label class="history-year-select">Tahun<select data-history-year>${years.map((year) => `<option value="${year}"${year === historyYear ? ' selected' : ''}>${year}</option>`).join('')}</select></label>` : '';
-  const annualStatement = `<section class="annual-lks-statement"><div><h3>Rekap capaian ${escapeHtml(historyYear)}</h3><p>${viewingTeam ? 'Rata-rata capaian anggota dalam bimbingan Anda pada setiap periode tertutup.' : 'Ringkasan setiap periode tertutup, seperti mutasi tahunan.'}</p></div><button class="text-button" type="button" data-download-history-statement>Unduh CSV</button><div class="annual-lks-statement-list">${periods.map((period) => {
-    const value = viewingTeam ? period.statement?.average_percentage : period.statement?.final_percentage;
-    const detail = viewingTeam ? `${period.statement?.participant_count ?? 0} anggota` : (period.statement?.grade ? `Predikat ${escapeHtml(period.statement.grade)}` : 'Belum ada predikat');
-    const status = viewingTeam ? `<small>${escapeHtml(detail)}</small>` : statusBadge(participantStatus(period.statement ?? {}));
-    return `<button type="button" data-history-period="${escapeHtml(period.id)}"><span><strong>${escapeHtml(period.name)}</strong><small>${formatDate(period.start_date, true)} - ${formatDate(period.end_date, true)}</small></span><span><strong>${percentage(value)}</strong><small>${detail}</small></span>${status}</button>`;
-  }).join('')}</div></section>`;
+  const yearControl = years.length > 1 ? `<label class="history-year-select">Tahun riwayat<select data-history-year>${years.map((year) => `<option value="${year}"${year === historyYear ? ' selected' : ''}>${year}</option>`).join('')}</select></label>` : '';
+  const annualStatement = viewingTeam ? `<section class="annual-lks-statement"><div><h3>Rekap capaian tim ${escapeHtml(historyYear)}</h3><p>Rata-rata capaian anggota dalam bimbingan Anda pada setiap periode tertutup.</p></div><button class="text-button" type="button" data-download-history-statement>Unduh CSV tim</button><div class="annual-lks-statement-list">${periods.map((period) => {
+    const detail = `${period.statement?.participant_count ?? 0} anggota`;
+    return `<button type="button" data-history-period="${escapeHtml(period.id)}"><span><strong>${escapeHtml(period.name)}</strong><small>${formatDate(period.start_date, true)} - ${formatDate(period.end_date, true)}</small></span><span><strong>${percentage(period.statement?.average_percentage)}</strong><small>${detail}</small></span></button>`;
+  }).join('')}</div></section>` : '';
   const periodRows = periods.map((period) => `<button class="history-period-row${period.id === selected ? ' is-selected' : ''}" type="button" data-history-period="${escapeHtml(period.id)}"${period.id === selected ? ' aria-current="page"' : ''}><span><strong>${escapeHtml(period.name)}</strong><small>${formatDate(period.start_date, true)} — ${formatDate(period.end_date, true)}</small></span><span>${period.id === selected ? 'Ditinjau' : 'Lihat rekap'}</span></button>`).join('');
   const periodSelect = `<label class="history-period-select">Periode<select data-history-period-select>${periods.map((period) => `<option value="${escapeHtml(period.id)}"${period.id === selected ? ' selected' : ''}>${escapeHtml(period.name)} · ${formatDate(period.end_date)}</option>`).join('')}</select></label>`;
   const detail = historyDetailLoading
