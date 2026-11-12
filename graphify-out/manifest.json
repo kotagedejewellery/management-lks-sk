@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1794282960.4972014,
-    "seen": 1794283054.85247,
-    "ast_hash": "c542d6c5175d77c9e2251b14519c5541",
+    "mtime": 1794477275.40579,
+    "seen": 1794478063.9565413,
+    "ast_hash": "dc18c2eff007adeefcce1bf7763d6bf0",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -774,9 +774,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/DashboardController.php": {
-    "mtime": 1793959662.7222948,
-    "seen": 1793959753.2902524,
-    "ast_hash": "472fa2a8b4026f80e5c5faaaf4d65c69",
+    "mtime": 1794476442.6699433,
+    "seen": 1794476584.8643847,
+    "ast_hash": "05f28e62a22288a3fb50714b637b7d8c",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodController.php": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1794282809.9982057,
-    "seen": 1794283054.852451,
-    "ast_hash": "4cb5f2c00d660f152cbb023467c9c312",
+    "mtime": 1794477960.7239478,
+    "seen": 1794478063.9565012,
+    "ast_hash": "50e5415dd75cb8f7ddae95cbdf381d07",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1794282996.8796916,
-    "seen": 1794283054.8524783,
-    "ast_hash": "5d48372c910c31a6ae7373d83634a791",
+    "mtime": 1794477275.4133093,
+    "seen": 1794478063.956551,
+    "ast_hash": "0bedd4f54b1e0795c275a535b549f51a",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_16_000001_add_recording_enabled_to_lks_periods_table.php": {
@@ -1134,15 +1134,15 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/MenstruationDispensationController.php": {
-    "mtime": 1793928834.8875074,
-    "seen": 1793928879.0752258,
+    "mtime": 1794477973.9009001,
+    "seen": 1794478063.9562025,
     "ast_hash": "cc092f5c1dafc1eefa9416d74745bdd9",
     "semantic_hash": ""
   },
   "backend/app/Models/PeriodMenstruationDispensation.php": {
-    "mtime": 1793928508.850273,
-    "seen": 1793928879.0752783,
-    "ast_hash": "9c12f47f846b4ad8c541c6d20ba61830",
+    "mtime": 1794477425.8846483,
+    "seen": 1794478063.9562545,
+    "ast_hash": "80268afe4e153dd43909aaea5fa1b91f",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_11_06_000000_add_menstruation_dispensations_to_lks.php": {

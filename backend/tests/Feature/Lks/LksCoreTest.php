@@ -18,6 +18,7 @@ use App\Models\Team;
 use App\Models\User;
 use App\Services\LksScoreCalculator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -980,6 +981,7 @@ class LksCoreTest extends TestCase
 
     public function test_akhwat_can_record_a_dispensation_that_blocks_only_exempt_checklists(): void
     {
+        $this->withoutMiddleware(PreventRequestForgery::class);
         $admin = $this->userWithRole('admin');
         $akhwat = $this->userWithRole('santri');
         $period = $this->period($admin, ['status' => 'active']);
@@ -1017,11 +1019,41 @@ class LksCoreTest extends TestCase
         $this->actingAs($akhwat)
             ->getJson(route('api.lks.dashboard', ['date' => now()->toDateString()]))
             ->assertOk()
+            ->assertJsonPath('data.participant.menstruation_exempt_activity_count', 1)
             ->assertJsonPath('data.activities.0.is_dispensation_today', true);
+    }
+
+    public function test_dashboard_uses_the_magang_dispensation_rule_for_akhwat_magang(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $akhwat = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active']);
+        $activity = $this->periodActivity($period, 4);
+        $activity->update([
+            'menstruation_exempt' => true,
+            'magang_is_active' => true,
+            'magang_menstruation_exempt' => false,
+        ]);
+        $participant = $this->participant($period, $akhwat);
+        $participant->update(['category_snapshot' => 'magang', 'gender_snapshot' => 'akhwat']);
+
+        $this->actingAs($akhwat)
+            ->getJson(route('api.lks.dashboard', ['date' => now()->toDateString()]))
+            ->assertOk()
+            ->assertJsonPath('data.participant.category', 'magang')
+            ->assertJsonPath('data.participant.menstruation_exempt_activity_count', 0);
+
+        $activity->update(['magang_menstruation_exempt' => true]);
+
+        $this->actingAs($akhwat)
+            ->getJson(route('api.lks.dashboard', ['date' => now()->toDateString()]))
+            ->assertOk()
+            ->assertJsonPath('data.participant.menstruation_exempt_activity_count', 1);
     }
 
     public function test_ikhwan_cannot_record_a_menstruation_dispensation(): void
     {
+        $this->withoutMiddleware(PreventRequestForgery::class);
         $ikhwan = $this->userWithRole('santri');
         $period = $this->period($ikhwan, ['status' => 'active']);
         $this->participant($period, $ikhwan);
@@ -1037,6 +1069,7 @@ class LksCoreTest extends TestCase
 
     public function test_existing_checklist_on_a_later_dispensation_date_is_excluded_from_the_score(): void
     {
+        $this->withoutMiddleware(PreventRequestForgery::class);
         $admin = $this->userWithRole('admin');
         $akhwat = $this->userWithRole('santri');
         $period = $this->period($admin, ['status' => 'active']);
@@ -1061,6 +1094,7 @@ class LksCoreTest extends TestCase
 
     public function test_akhwat_cannot_create_overlapping_dispensation_ranges(): void
     {
+        $this->withoutMiddleware(PreventRequestForgery::class);
         $admin = $this->userWithRole('admin');
         $akhwat = $this->userWithRole('santri');
         $period = $this->period($admin, ['status' => 'active']);
@@ -1085,6 +1119,7 @@ class LksCoreTest extends TestCase
 
     public function test_admin_dispensation_correction_requires_a_reason_for_create_and_delete(): void
     {
+        $this->withoutMiddleware(PreventRequestForgery::class);
         $admin = $this->userWithRole('admin');
         $akhwat = $this->userWithRole('santri');
         $period = $this->period($admin, ['status' => 'active']);

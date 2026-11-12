@@ -100,9 +100,16 @@ class DashboardController extends Controller
         $isDispensationDate = $participant?->gender_snapshot === 'akhwat'
             && $participant->menstruationDispensations->contains(fn ($dispensation): bool => $selectedDate->betweenIncluded($dispensation->start_date, $dispensation->end_date));
 
-        $activities = $period->periodActivities()
+        $periodActivities = $period->periodActivities()
             ->orderBy('sort_order')
-            ->get()
+            ->get();
+        $menstruationExemptActivityCount = $participant === null
+            ? 0
+            : $periodActivities
+                ->filter(fn ($activity): bool => $activity->appliesTo($participant) && $activity->menstruationExemptFor($participant))
+                ->count();
+
+        $activities = $periodActivities
             ->filter(fn ($activity) => ($participant === null || $activity->appliesTo($participant))
                 && ($participant === null || $activity->allowedWeekdaysFor($participant) === [] || in_array($selectedDate->isoWeekday(), $activity->allowedWeekdaysFor($participant), true)))
             ->map(function ($activity) use ($participant, $calculator, $period, $holidayDates, $holiday, $recordedDatesByActivity, $isDispensationDate): array {
@@ -159,6 +166,7 @@ class DashboardController extends Controller
                 'participation_start_date' => $participant->participation_start_date->toDateString(),
                 'category' => $participant->category_snapshot === 'magang' ? 'magang' : 'regular',
                 'gender' => $participant->gender_snapshot,
+                'menstruation_exempt_activity_count' => $menstruationExemptActivityCount,
                 'menstruation_dispensations' => $participant->menstruationDispensations
                     ->sortBy('start_date')
                     ->map(fn ($dispensation): array => [

@@ -795,7 +795,12 @@ function applyDashboard(data) {
     document.querySelector('.date-rail').insertAdjacentHTML('beforeend', '<p class="lks-entry-reminder" role="status">Belum ada aktivitas LKS hari ini yang tercatat. Mulai catat sebelum hari berakhir.</p>');
   }
   if (data.participant.gender === 'akhwat') {
-    document.querySelector('.date-rail').insertAdjacentHTML('beforeend', '<button class="text-button" type="button" data-open-menstruation-dispensation>Kelola dispensasi menstruasi</button>');
+    const exemptActivityCount = Number(data.participant.menstruation_exempt_activity_count) || 0;
+    const categoryLabel = data.participant.category === 'magang' ? 'Magang' : 'Reguler';
+    const dispensationNote = exemptActivityCount > 0
+      ? `Kategori ${categoryLabel}: dispensasi akan menyesuaikan target ${exemptActivityCount} aktivitas.`
+      : `Kategori ${categoryLabel}: belum ada aktivitas yang menggunakan dispensasi. Hubungi Admin LKS bila perlu disesuaikan.`;
+    document.querySelector('.date-rail').insertAdjacentHTML('beforeend', `<div class="dispensation-entry"><button class="text-button" type="button" data-open-menstruation-dispensation>Kelola dispensasi menstruasi</button><p class="admin-form-note">${escapeHtml(dispensationNote)}</p></div>`);
   }
   if (!data.activities.length) {
     setChecklistEmpty(`Tidak ada aktivitas yang dijadwalkan pada ${formatDate(selectedChecklistDate, true)}.`, 'Tidak ada aktivitas terjadwal');
@@ -1496,7 +1501,7 @@ function renderTrendChange(values) {
   const previous = values.at(-2);
   const latest = values.at(-1);
   const difference = previous === null || latest === null || previous === undefined || latest === undefined ? null : Math.round((latest - previous) * 10) / 10;
-  const change = difference === null ? '—' : difference === 0 ? 'Tetap' : `${difference > 0 ? '↑' : '↓'} ${new Intl.NumberFormat('id-ID', { maximumFractionDigits: 1 }).format(Math.abs(difference))} pp`;
+  const change = difference === null ? '—' : difference === 0 ? 'Tetap' : `${difference > 0 ? '↑' : '↓'} ${new Intl.NumberFormat('id-ID', { maximumFractionDigits: 1 }).format(Math.abs(difference))} poin persentase`;
   const changeClass = difference === null || difference === 0 ? ' is-neutral' : difference > 0 ? ' is-up' : ' is-down';
   return `<span class="department-trend-change${changeClass}" role="cell">${change}</span>`;
 }
@@ -1861,7 +1866,20 @@ document.addEventListener('click', (event) => {
 
 document.addEventListener('click', (event) => {
   if (event.target.closest('[data-checklist-today]')) loadDashboard({ date: todayIso(), reloadRecap: false });
-  if (event.target.closest('[data-open-menstruation-dispensation]')) openAdminFormModal('menstruation-dispensation');
+  if (event.target.closest('[data-open-menstruation-dispensation]')) {
+    if (!activeParticipant?.id || !activePeriod?.id) {
+      showToast('Data dispensasi belum siap. Muat ulang halaman lalu coba kembali.', 'error');
+      return;
+    }
+    try {
+      if (!openAdminFormModal('menstruation-dispensation')) {
+        showToast('Data dispensasi belum siap. Muat ulang halaman lalu coba kembali.', 'error');
+      }
+    } catch (error) {
+      console.error('Dialog dispensasi tidak dapat dibuka.', error);
+      showToast('Dialog dispensasi belum dapat dibuka. Muat ulang halaman lalu coba kembali.', 'error');
+    }
+  }
 });
 
 document.addEventListener('click', async (event) => {
@@ -2906,12 +2924,17 @@ async function submitAdminForm(form) {
   }
   if (type === 'menstruation-dispensation' && activeParticipant && activePeriod) {
     const entries = activeParticipant.menstruation_dispensations ?? [];
+    const exemptActivityCount = Number(activeParticipant.menstruation_exempt_activity_count) || 0;
+    const categoryLabel = activeParticipant.category === 'magang' ? 'Magang' : 'Reguler';
+    const impactNote = exemptActivityCount > 0
+      ? `Catatan ini pribadi. Kategori ${categoryLabel}: target ${exemptActivityCount} aktivitas akan disesuaikan; dispensasi tidak memberi checklist atau nilai otomatis.`
+      : `Catatan ini pribadi. Kategori ${categoryLabel}: belum ada aktivitas yang akan disesuaikan; hubungi Admin LKS bila konfigurasi perlu diperbarui.`;
     const entryList = entries.length
       ? `<ul class="admin-form-note">${entries.map((entry) => `<li>${escapeHtml(formatDate(entry.start_date, true))}${entry.start_date === entry.end_date ? '' : ` sampai ${escapeHtml(formatDate(entry.end_date, true))}`} <button class="text-button" type="button" data-delete-menstruation-dispensation="${escapeHtml(entry.id)}">Hapus</button></li>`).join('')}</ul>`
       : '<p class="admin-form-note">Belum ada dispensasi tercatat pada periode ini.</p>';
     definitions['menstruation-dispensation'] = {
       title: 'Dispensasi menstruasi',
-      description: 'Catatan ini pribadi. Hanya mengurangi target aktivitas yang memang ditandai Admin; tidak memberi checklist atau nilai otomatis.',
+      description: impactNote,
       submitLabel: 'Simpan dispensasi',
       fields: `<div class="admin-modal-inline-fields"><label>Tanggal mulai<input type="date" name="start_date" min="${escapeHtml(dateInputValue(activeParticipant.participation_start_date))}" max="${escapeHtml(dateInputValue(activePeriod.end_date < todayIso() ? activePeriod.end_date : todayIso()))}" required></label><label>Tanggal selesai<input type="date" name="end_date" min="${escapeHtml(dateInputValue(activeParticipant.participation_start_date))}" max="${escapeHtml(dateInputValue(activePeriod.end_date < todayIso() ? activePeriod.end_date : todayIso()))}" required></label></div>${entryList}`,
     };
@@ -3357,7 +3380,7 @@ function openAdminFormModal(type, departmentId = '', returnView = '', activityRu
     fields: '<label>Daftar hari libur<textarea name="entries" rows="8" required placeholder="2026-10-01, Hari libur nasional, tanggal merah&#10;2026-10-02, Cuti bersama, cuti bersama"></textarea><small>Format: YYYY-MM-DD, Nama hari libur, tanggal merah atau cuti bersama. Koma di akhir baris boleh diabaikan.</small></label>',
   } : null;
   const definition = definitions[type];
-  if (!definition) return;
+  if (!definition) return false;
   const disableSubmit = (type === 'period-config' && configuredPeriod.period_activities.length === 0) || (type === 'period-activity' && availablePeriodActivityOptions.length === 0) || (type === 'participant' && (!selectedParticipantPeriod || availableParticipants.length === 0));
   adminFormDialogContent.innerHTML = `<form class="admin-modal-form" data-admin-form="${type}"${['period-config', 'period-edit', 'period-holiday', 'period-holiday-import'].includes(type) ? ` data-period-id="${escapeHtml(departmentId)}"` : ''}${type === 'participant' ? ` data-period-name="${escapeHtml(selectedParticipantPeriod?.name ?? '')}"` : ''}${type === 'department-edit' || type === 'team-edit' ? ` data-organization-id="${escapeHtml(departmentId)}"` : ''}${['santri-edit', 'santri-password-reset'].includes(type) ? ` data-santri-id="${escapeHtml(departmentId)}"` : ''}${type === 'santri-password-reset' ? ` data-santri-name="${escapeHtml(selectedProfile?.user?.name ?? 'Santri Karya ini')}"` : ''}${['activity-edit', 'activity-rule-edit'].includes(type) ? ` data-activity-id="${escapeHtml(departmentId)}"` : ''}${type === 'activity-rule-edit' ? ` data-activity-rule-scope="${escapeHtml(activityRuleScope === 'magang' ? 'magang' : 'regular')}"` : ''}><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">${definition.title}</h2><p>${definition.description}</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields">${definition.fields}</div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit"${disableSubmit ? ' disabled' : ''}>${definition.submitLabel}</button></div></form>`;
   if (type === 'santri' || type === 'santri-edit') syncMagangJobLevel(adminFormDialog.querySelector('[data-admin-form]'));
@@ -3368,6 +3391,7 @@ function openAdminFormModal(type, departmentId = '', returnView = '', activityRu
   adminFormDialog.showModal();
   markAdminFormPristine();
   adminFormDialog.querySelector('input, select')?.focus();
+  return true;
 }
 
 document.addEventListener('click', async (event) => {

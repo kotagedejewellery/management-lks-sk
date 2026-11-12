@@ -41,7 +41,7 @@ class PeriodMenstruationDispensation extends Model
         return $participant->menstruationDispensations
             ->flatMap(function (self $dispensation): array {
                 $dates = [];
-                for ($date = $dispensation->start_date->copy(); $date->lte($dispensation->end_date); $date->addDay()) {
+                for ($date = $dispensation->start_date->copy(); $date->lte($dispensation->end_date); $date = $date->addDay()) {
                     $dates[] = $date->toDateString();
                 }
 
