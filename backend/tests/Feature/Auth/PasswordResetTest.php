@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -40,6 +41,12 @@ class PasswordResetTest extends TestCase
         $this->post(route('password.request'), ['email' => $user->email]);
 
         Notification::assertSentTo($user, ResetPassword::class);
+
+        $audit = AuditLog::query()->where('event', 'password_reset.link_requested')->sole();
+        $this->assertNull($audit->actor_user_id);
+        $this->assertSame($user->getMorphClass(), $audit->auditable_type);
+        $this->assertSame($user->getKey(), $audit->auditable_id);
+        $this->assertSame(['delivery' => 'accepted_by_mailer'], $audit->after_data);
     }
 
     public function test_unknown_or_inactive_accounts_receive_the_same_reset_request_response(): void
@@ -55,6 +62,39 @@ class PasswordResetTest extends TestCase
             ->assertSessionHas('status', 'passwords.sent');
 
         Notification::assertNothingSent();
+        $this->assertDatabaseMissing('audit_logs', ['event' => 'password_reset.link_requested']);
+    }
+
+    public function test_password_reset_request_explains_the_next_step_without_revealing_account_status(): void
+    {
+        $this->withSession(['status' => 'passwords.sent'])
+            ->get(route('password.request'))
+            ->assertOk()
+            ->assertSee('Jika alamat email ini terdaftar pada akun LKS yang aktif, tautan reset akan dikirim.')
+            ->assertSee('Periksa Inbox dan Spam. Jika belum diterima dalam beberapa menit, pastikan email benar atau hubungi Admin LKS.');
+    }
+
+    public function test_password_reset_throttle_explains_how_long_to_wait(): void
+    {
+        $this->withSession(['status' => 'passwords.throttled'])
+            ->get(route('password.request'))
+            ->assertOk()
+            ->assertSee('Tunggu sekitar satu menit sebelum meminta tautan reset password baru.');
+    }
+
+    public function test_password_reset_requests_are_limited_per_ip_address(): void
+    {
+        $server = ['REMOTE_ADDR' => '198.51.100.24'];
+
+        foreach (range(1, 5) as $attempt) {
+            $this->withServerVariables($server)
+                ->post(route('password.request'), ['email' => "unknown-{$attempt}@example.test"])
+                ->assertSessionHas('status', 'passwords.sent');
+        }
+
+        $this->withServerVariables($server)
+            ->post(route('password.request'), ['email' => 'unknown-six@example.test'])
+            ->assertSessionHas('status', 'passwords.throttled');
     }
 
     public function test_reset_password_screen_can_be_rendered(): void

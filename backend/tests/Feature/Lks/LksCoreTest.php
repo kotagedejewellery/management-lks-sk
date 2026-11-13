@@ -722,6 +722,26 @@ class LksCoreTest extends TestCase
             ->assertJsonPath('data.santri.0.last_password_reset.actor_name', $admin->name);
     }
 
+    public function test_admin_can_see_when_an_active_santri_last_requested_a_reset_link(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $department = Department::query()->create(['code' => 'OPS', 'name' => 'Operasional', 'is_active' => true]);
+        $team = Team::query()->create(['department_id' => $department->id, 'code' => 'OPS-1', 'name' => 'Operasional Satu', 'is_active' => true]);
+        SantriProfile::query()->create(['user_id' => $santri->id, 'gender' => 'ikhwan', 'department_id' => $department->id, 'team_id' => $team->id, 'level' => 'staff', 'status' => 'active']);
+        AuditLog::query()->create([
+            'event' => 'password_reset.link_requested',
+            'auditable_type' => $santri->getMorphClass(),
+            'auditable_id' => $santri->getKey(),
+            'after_data' => ['delivery' => 'accepted_by_mailer'],
+        ]);
+
+        $this->actingAs($admin)
+            ->getJson(route('api.lks.admin.organization.index'))
+            ->assertOk()
+            ->assertJsonPath('data.santri.0.last_password_reset_link_request.delivery', 'accepted_by_mailer');
+    }
+
     public function test_non_admin_and_inactive_santri_cannot_reset_a_santri_password(): void
     {
         $admin = $this->userWithRole('admin');

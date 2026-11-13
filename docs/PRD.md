@@ -62,6 +62,7 @@ Admin mengelola konfigurasi serta data utama sistem.
 
 - Mengelola data Santri Karya dan struktur organisasinya.
 - Mengatur ulang password sementara akun Santri Karya aktif untuk pemulihan akses; sesi akun yang lama berakhir, akun wajib menggantinya saat masuk kembali, dan setiap password baru mengikuti kebijakan keamanan sistem.
+- Memantau waktu terakhir permintaan tautan reset password dari akun aktif; catatan hanya berarti mailer menerima permintaan, bukan bukti email telah sampai di inbox.
 - Mengelola periode, aktivitas, dan target LKS.
 - Melihat seluruh rekap dan laporan departemen.
 
@@ -206,6 +207,7 @@ Admin membuat periode
 | ID | Kebutuhan |
 |---|---|
 | FR-01 | Pengguna dapat login dengan akun terdaftar. |
+| FR-01a | Pengguna dapat meminta tautan reset password melalui email tanpa sistem mengungkap apakah email terdaftar atau aktif. Permintaan akun aktif dicatat tanpa token atau password; batasnya satu menit per email dan lima permintaan per menit dari satu alamat IP. |
 | FR-02 | Admin dapat menambah, mengubah, menonaktifkan, dan mengatur ulang password sementara Santri Karya aktif serta menetapkan tim, leader, dan departemen. |
 | FR-03 | Admin dapat membuat, mengatur tanggal, mengaktifkan, menjeda/melanjutkan pencatatan, dan menutup periode LKS. |
 | FR-04 | Admin dapat mengatur nama aktivitas, target, dan status aktif. |

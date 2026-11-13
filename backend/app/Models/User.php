@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\UserFactory;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -72,6 +73,18 @@ class User extends Authenticatable implements PasskeyUser
     public function isAdmin(): bool
     {
         return $this->hasRole('admin');
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPassword($token));
+
+        AuditLog::create([
+            'event' => 'password_reset.link_requested',
+            'auditable_type' => $this->getMorphClass(),
+            'auditable_id' => $this->getKey(),
+            'after_data' => ['delivery' => 'accepted_by_mailer'],
+        ]);
     }
 
     /**

@@ -85,7 +85,7 @@
                         <span class="auth-submit-loading" aria-live="polite" hidden><i aria-hidden="true"></i><span>Menyimpan password…</span></span>
                     </button>
                 </form>
-                <p class="auth-help">Setelah disimpan, Anda perlu masuk kembali menggunakan password baru.</p>
+                <p class="auth-help">Gunakan minimal 12 karakter dengan huruf besar-kecil, angka, dan simbol. Setelah disimpan, Anda perlu masuk kembali menggunakan password baru.</p>
                 <p class="auth-return">Tautan tidak lagi berlaku? <a href="{{ route('password.request') }}">Minta tautan reset baru</a></p>
             </div>
         </section>

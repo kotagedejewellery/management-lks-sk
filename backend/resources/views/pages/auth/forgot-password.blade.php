@@ -16,8 +16,8 @@
     @php
         $rawFeedbackMessage = session('status') ?: $errors->first('email');
         $feedbackMessage = match ($rawFeedbackMessage) {
-            'passwords.sent', 'We have emailed your password reset link.' => 'Tautan reset password telah dikirimkan ke email Anda.',
-            'passwords.throttled', 'Please wait before retrying.' => 'Tunggu beberapa saat sebelum meminta tautan reset password baru.',
+            'passwords.sent', 'We have emailed your password reset link.' => 'Jika alamat email ini terdaftar pada akun LKS yang aktif, tautan reset akan dikirim. Periksa Inbox dan Spam. Jika belum diterima dalam beberapa menit, pastikan email benar atau hubungi Admin LKS.',
+            'passwords.throttled', 'Please wait before retrying.' => 'Tunggu sekitar satu menit sebelum meminta tautan reset password baru.',
             default => $rawFeedbackMessage,
         };
         $feedbackType = $rawFeedbackMessage === 'passwords.throttled' || $errors->any() ? 'error' : 'success';
@@ -56,7 +56,7 @@
                 <div class="auth-card-head">
                     <p>Pulihkan akses akun</p>
                     <h2 id="forgot-password-title">Lupa password?</h2>
-                    <span>Masukkan email yang terdaftar. Kami akan mengirimkan tautan untuk mengatur password baru.</span>
+                    <span>Masukkan email yang digunakan untuk masuk ke akun LKS.</span>
                 </div>
 
                 <form method="POST" action="{{ route('password.email') }}" class="auth-form" data-password-reset-form>
@@ -70,7 +70,7 @@
                         <span class="auth-submit-loading" aria-live="polite" hidden><i aria-hidden="true"></i><span>Mengirim tautan…</span></span>
                     </button>
                 </form>
-                <p class="auth-help">Belum menerima tautan? Periksa email dan folder spam, lalu tunggu beberapa saat sebelum meminta tautan baru.</p>
+                <p class="auth-help">Untuk keamanan, kami tidak dapat mengonfirmasi status email. Tunggu beberapa saat sebelum meminta tautan baru.</p>
                 <p class="auth-return">Ingat password Anda? <a href="{{ route('login') }}">Kembali ke halaman masuk</a></p>
             </div>
         </section>

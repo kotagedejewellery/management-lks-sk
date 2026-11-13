@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "PRODUCT.md": {
-    "mtime": 1794282984.1984756,
-    "seen": 1794283054.8524797,
-    "ast_hash": "cc20fbcf47a7cf9bc6e02c017bcdccae",
+    "mtime": 1794564546.051304,
+    "seen": 1794564578.149855,
+    "ast_hash": "7347005a02747841e93979a0332fe0d2",
     "semantic_hash": ""
   },
   "docs/Architecture System.md": {
@@ -24,9 +24,9 @@
     "semantic_hash": ""
   },
   "docs/PRD.md": {
-    "mtime": 1794282984.200993,
-    "seen": 1794283054.8524969,
-    "ast_hash": "2ed8bcc3bd7a2af396cd47dda96e8df1",
+    "mtime": 1794564546.0533257,
+    "seen": 1794564578.1498752,
+    "ast_hash": "f936ec750f6abbbb6befede1be28aea3",
     "semantic_hash": ""
   },
   "docs/Tech Stack.md": {
@@ -72,9 +72,9 @@
     "semantic_hash": ""
   },
   "backend/app/Models/User.php": {
-    "mtime": 1791519043.0752754,
-    "seen": 1791520155.083078,
-    "ast_hash": "498209a88e1d5627d06f3a9ffee704b0",
+    "mtime": 1794564071.409866,
+    "seen": 1794564578.1496103,
+    "ast_hash": "0f2d66916138dc8730d9f8bca7d28114",
     "semantic_hash": ""
   },
   "backend/app/Providers/AppServiceProvider.php": {
@@ -96,9 +96,9 @@
     "semantic_hash": ""
   },
   "backend/bootstrap/app.php": {
-    "mtime": 1791519107.5443451,
-    "seen": 1791520155.083092,
-    "ast_hash": "3257cf1d85628f66b95920e0ffcc797b",
+    "mtime": 1794564335.069426,
+    "seen": 1794564578.1496303,
+    "ast_hash": "287f3457cd2c3764a26071281796b45a",
     "semantic_hash": ""
   },
   "backend/bootstrap/providers.php": {
@@ -384,9 +384,9 @@
     "semantic_hash": ""
   },
   "backend/resources/views/pages/auth/forgot-password.blade.php": {
-    "mtime": 1793668683.04682,
-    "seen": 1793668735.983041,
-    "ast_hash": "dde9fcde9bc0eeb6635ebdcf7fd88f89",
+    "mtime": 1794564071.9849024,
+    "seen": 1794564578.1497624,
+    "ast_hash": "98062e5f18a5eed7df15ceb259230342",
     "semantic_hash": ""
   },
   "backend/resources/views/pages/auth/login.blade.php": {
@@ -402,9 +402,9 @@
     "semantic_hash": ""
   },
   "backend/resources/views/pages/auth/reset-password.blade.php": {
-    "mtime": 1793668683.0488372,
-    "seen": 1793668735.9830544,
-    "ast_hash": "edd8b651d4f777d43ba6e7b69fafb542",
+    "mtime": 1794564335.9059527,
+    "seen": 1794564578.1497674,
+    "ast_hash": "ef65e645beda3bd558362f409e7131be",
     "semantic_hash": ""
   },
   "backend/resources/views/pages/auth/two-factor-challenge.blade.php": {
@@ -480,9 +480,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Auth/PasswordResetTest.php": {
-    "mtime": 1791531566.2610886,
-    "seen": 1791531760.8915558,
-    "ast_hash": "8481724e772b3c9b1d07ad1a8f654d9e",
+    "mtime": 1794564273.4432268,
+    "seen": 1794564578.149813,
+    "ast_hash": "8b7c681ed336e6f0881e2c700760289d",
     "semantic_hash": ""
   },
   "backend/tests/Feature/Auth/RegistrationTest.php": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1794553817.1386485,
-    "seen": 1794553852.3260844,
-    "ast_hash": "8e64234439dfb985f3cce1b08ce6b799",
+    "mtime": 1794564202.5813873,
+    "seen": 1794564578.149844,
+    "ast_hash": "5931ac2830b552545e0e84655e0e592c",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -804,9 +804,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/OrganizationController.php": {
-    "mtime": 1794189574.1829748,
-    "seen": 1794189784.6780102,
-    "ast_hash": "3a64dc462e5535b9eb931c66bb3ce45a",
+    "mtime": 1794564202.5789602,
+    "seen": 1794564578.1495132,
+    "ast_hash": "c86db2d3781c24e4b058a0fa72889db2",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1794552544.438248,
-    "seen": 1794552891.835328,
-    "ast_hash": "0f5b726e8d57704b7ea176c630ad9e3e",
+    "mtime": 1794564136.4003143,
+    "seen": 1794564578.1498218,
+    "ast_hash": "173cfa33fd5e472c81f56e0ede9ba6fc",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1794553817.1411688,
-    "seen": 1794553852.3260937,
-    "ast_hash": "17b6e0c814e6f69e267b443a85155fd1",
+    "mtime": 1794564546.0585475,
+    "seen": 1794564578.1498535,
+    "ast_hash": "8938a866b0c87084846b0f157834d525",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_16_000001_add_recording_enabled_to_lks_periods_table.php": {
@@ -1161,6 +1161,12 @@
     "mtime": 1793958285.3131561,
     "seen": 1793958722.6758626,
     "ast_hash": "7c3b0a6c6b6e25592c37876ae6db26ec",
+    "semantic_hash": ""
+  },
+  "backend/app/Http/Middleware/ThrottlePasswordResetRequests.php": {
+    "mtime": 1794564334.1652963,
+    "seen": 1794564578.1495395,
+    "ast_hash": "42d824779640610ccbed5efbd6e80a12",
     "semantic_hash": ""
   }
 }

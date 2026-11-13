@@ -70,12 +70,25 @@ class OrganizationController extends Controller
             ->get()
             ->unique('auditable_id')
             ->keyBy('auditable_id');
-        $santri->getCollection()->each(function (SantriProfile $profile) use ($lastPasswordResets): void {
+        $lastPasswordResetLinkRequests = AuditLog::query()
+            ->where('event', 'password_reset.link_requested')
+            ->where('auditable_type', (new User)->getMorphClass())
+            ->whereIn('auditable_id', $santri->pluck('user_id'))
+            ->latest('created_at')
+            ->get()
+            ->unique('auditable_id')
+            ->keyBy('auditable_id');
+        $santri->getCollection()->each(function (SantriProfile $profile) use ($lastPasswordResets, $lastPasswordResetLinkRequests): void {
             $lastPasswordReset = $lastPasswordResets->get($profile->getKey());
+            $lastPasswordResetLinkRequest = $lastPasswordResetLinkRequests->get($profile->user_id);
             $profile->setAttribute('category', $profile->current_lks_category);
             $profile->setAttribute('last_password_reset', $lastPasswordReset === null ? null : [
                 'created_at' => $lastPasswordReset->created_at->toISOString(),
                 'actor_name' => $lastPasswordReset->actor?->name,
+            ]);
+            $profile->setAttribute('last_password_reset_link_request', $lastPasswordResetLinkRequest === null ? null : [
+                'created_at' => $lastPasswordResetLinkRequest->created_at->toISOString(),
+                'delivery' => $lastPasswordResetLinkRequest->after_data['delivery'] ?? null,
             ]);
         });
         $organizationSearch = trim((string) $request->query('organization_search'));
