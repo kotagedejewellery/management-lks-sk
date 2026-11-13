@@ -1,7 +1,7 @@
-# Graph Report - lks-santri-karya  (2026-11-12)
+# Graph Report - lks-santri-karya  (2026-11-13)
 
 ## Corpus Check
-- 180 files · ~101,873 words
+- 180 files · ~101,942 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 28 file(s) not represented in the graph (top: (none) 18, .css 5, .example 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `a31ba19f`
+- Built from commit: `fc303f67`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

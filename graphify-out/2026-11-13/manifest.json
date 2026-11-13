@@ -498,9 +498,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/DashboardTest.php": {
-    "mtime": 1791452479.5220516,
-    "seen": 1791452541.1017988,
-    "ast_hash": "8fdf4efdc1cdeb013cf6019a9e5f9cb0",
+    "mtime": 1794541391.8639948,
+    "seen": 1794541468.343655,
+    "ast_hash": "6bc96fea18d151dd7de70af79d0a99ac",
     "semantic_hash": ""
   },
   "backend/tests/Feature/ExampleTest.php": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1794477275.40579,
-    "seen": 1794478063.9565413,
-    "ast_hash": "dc18c2eff007adeefcce1bf7763d6bf0",
+    "mtime": 1794541158.099487,
+    "seen": 1794541380.8606899,
+    "ast_hash": "6eb490e5bfa51ed2263a21a16eb1a3e7",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1794477275.4133093,
-    "seen": 1794478063.956551,
-    "ast_hash": "0bedd4f54b1e0795c275a535b549f51a",
+    "mtime": 1794541158.1005836,
+    "seen": 1794541380.8607018,
+    "ast_hash": "284cf73fd8f1acdf296f7ec4b6b23e55",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_16_000001_add_recording_enabled_to_lks_periods_table.php": {

@@ -2929,23 +2929,6 @@ async function submitAdminForm(form) {
       magang_menstruation_exempt: row.querySelector('[data-magang-menstruation-exempt]').checked,
     })) };
   }
-  if (type === 'menstruation-dispensation' && activeParticipant && activePeriod) {
-    const entries = activeParticipant.menstruation_dispensations ?? [];
-    const exemptActivityCount = Number(activeParticipant.menstruation_exempt_activity_count) || 0;
-    const categoryLabel = activeParticipant.category === 'magang' ? 'Magang' : 'Reguler';
-    const impactNote = exemptActivityCount > 0
-      ? `Catatan ini pribadi. Kategori ${categoryLabel}: target ${exemptActivityCount} aktivitas akan disesuaikan; dispensasi tidak memberi checklist atau nilai otomatis.`
-      : `Catatan ini pribadi. Kategori ${categoryLabel}: belum ada aktivitas yang akan disesuaikan; hubungi Admin LKS bila konfigurasi perlu diperbarui.`;
-    const entryList = entries.length
-      ? `<ul class="admin-form-note">${entries.map((entry) => `<li>${escapeHtml(formatDate(entry.start_date, true))}${entry.start_date === entry.end_date ? '' : ` sampai ${escapeHtml(formatDate(entry.end_date, true))}`} <button class="text-button" type="button" data-delete-menstruation-dispensation="${escapeHtml(entry.id)}">Hapus</button></li>`).join('')}</ul>`
-      : '<p class="admin-form-note">Belum ada dispensasi tercatat pada periode ini.</p>';
-    definitions['menstruation-dispensation'] = {
-      title: 'Dispensasi menstruasi',
-      description: impactNote,
-      submitLabel: 'Simpan dispensasi',
-      fields: `<div class="admin-modal-inline-fields"><label>Tanggal mulai<input type="date" name="start_date" min="${escapeHtml(dateInputValue(activeParticipant.participation_start_date))}" max="${escapeHtml(dateInputValue(activePeriod.end_date < todayIso() ? activePeriod.end_date : todayIso()))}" required></label><label>Tanggal selesai<input type="date" name="end_date" min="${escapeHtml(dateInputValue(activeParticipant.participation_start_date))}" max="${escapeHtml(dateInputValue(activePeriod.end_date < todayIso() ? activePeriod.end_date : todayIso()))}" required></label></div>${entryList}`,
-    };
-  }
   if (type === 'period-activity') {
     payload.allowed_weekdays = [...form.querySelectorAll('[name="allowed_weekdays"]:checked')].map((input) => Number(input.value));
     payload.applicable_genders = [...form.querySelectorAll('[name="applicable_genders"]:checked')].map((input) => input.value);
@@ -3340,6 +3323,23 @@ function openAdminFormModal(type, departmentId = '', returnView = '', activityRu
       fields: `<input type="hidden" name="period_id" value="${escapeHtml(selectedParticipantPeriod?.id ?? '')}"><label>Santri Karya<select name="profile_id" required>${adminOptions(availableParticipants)}</select></label><p class="admin-form-note">Pilih akun yang dibuat setelah periode aktif dimulai atau yang belum tercatat sebagai peserta.</p>`,
     },
   };
+  if (type === 'menstruation-dispensation' && activeParticipant && activePeriod) {
+    const entries = activeParticipant.menstruation_dispensations ?? [];
+    const exemptActivityCount = Number(activeParticipant.menstruation_exempt_activity_count) || 0;
+    const categoryLabel = activeParticipant.category === 'magang' ? 'Magang' : 'Reguler';
+    const impactNote = exemptActivityCount > 0
+      ? `Catatan ini pribadi. Kategori ${categoryLabel}: target ${exemptActivityCount} aktivitas akan disesuaikan; dispensasi tidak memberi checklist atau nilai otomatis.`
+      : `Catatan ini pribadi. Kategori ${categoryLabel}: belum ada aktivitas yang akan disesuaikan; hubungi Admin LKS bila konfigurasi perlu diperbarui.`;
+    const entryList = entries.length
+      ? `<ul class="admin-form-note">${entries.map((entry) => `<li>${escapeHtml(formatDate(entry.start_date, true))}${entry.start_date === entry.end_date ? '' : ` sampai ${escapeHtml(formatDate(entry.end_date, true))}`} <button class="text-button" type="button" data-delete-menstruation-dispensation="${escapeHtml(entry.id)}">Hapus</button></li>`).join('')}</ul>`
+      : '<p class="admin-form-note">Belum ada dispensasi tercatat pada periode ini.</p>';
+    definitions['menstruation-dispensation'] = {
+      title: 'Dispensasi menstruasi',
+      description: impactNote,
+      submitLabel: 'Simpan dispensasi',
+      fields: `<div class="admin-modal-inline-fields"><label>Tanggal mulai<input type="date" name="start_date" min="${escapeHtml(dateInputValue(activeParticipant.participation_start_date))}" max="${escapeHtml(dateInputValue(activePeriod.end_date < todayIso() ? activePeriod.end_date : todayIso()))}" required></label><label>Tanggal selesai<input type="date" name="end_date" min="${escapeHtml(dateInputValue(activeParticipant.participation_start_date))}" max="${escapeHtml(dateInputValue(activePeriod.end_date < todayIso() ? activePeriod.end_date : todayIso()))}" required></label></div>${entryList}`,
+    };
+  }
   if (type === 'period-activity') {
     definitions['period-activity'].description = 'Tentukan target maksimum, batas tuntas, jadwal, dan sasaran aktivitas untuk periode draft ini.';
   }
