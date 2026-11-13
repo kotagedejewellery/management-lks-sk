@@ -44,10 +44,14 @@ class DashboardController extends Controller
             ]]);
         }
 
+        $latestSelectableDate = $period->end_date->isBefore(today())
+            ? $period->end_date->copy()->startOfDay()
+            : today()->startOfDay();
+
         if ($selectedDate->lt($period->start_date)) {
             $selectedDate = $period->start_date->copy()->startOfDay();
-        } elseif ($selectedDate->gt($period->end_date)) {
-            $selectedDate = $period->end_date->copy()->startOfDay();
+        } elseif ($selectedDate->gt($latestSelectableDate)) {
+            $selectedDate = $latestSelectableDate;
         }
 
         $periodHasStarted = ! today()->startOfDay()->lt($period->start_date);

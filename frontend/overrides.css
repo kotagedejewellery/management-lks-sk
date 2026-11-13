@@ -1857,6 +1857,25 @@ body.is-booting .page-progress { inset: 0; }
     margin-bottom: 16px;
   }
 
+  .daily-progress .daily-progress-action {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+    margin-top: 16px;
+  }
+
+  .activity-section .section-head {
+    display: grid;
+    align-items: start;
+    justify-content: start;
+    gap: 10px;
+  }
+
+  .activity-section .section-head .text-button {
+    justify-self: start;
+  }
+
   .recap-filter-toolbar {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1868,5 +1887,118 @@ body.is-booting .page-progress { inset: 0; }
   .recap-filter-reset {
     width: 100%;
     justify-content: center;
+  }
+}
+
+.activity-rule-scope {
+  display: none;
+}
+
+@media (max-width: 1100px) {
+  .people-record-table .admin-record-head,
+  .activity-record-table .admin-record-head {
+    display: none;
+  }
+
+  .people-record-table .people-record-row,
+  .activity-record-table .activity-record-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    padding: 18px 0;
+  }
+
+  .people-record-row > :nth-child(1),
+  .people-record-row > :nth-child(2),
+  .people-record-row > :nth-child(3),
+  .people-record-row > :nth-child(4),
+  .activity-record-row > :nth-child(1),
+  .activity-record-row > :nth-child(2),
+  .activity-record-row > :nth-child(3),
+  .activity-record-row > :nth-child(4),
+  .activity-record-row > :nth-child(5) {
+    grid-column: 1;
+    grid-row: auto;
+    min-width: 0;
+    text-align: left;
+  }
+
+  .people-record-row > :nth-child(3) {
+    order: 1;
+  }
+
+  .people-record-row > :nth-child(2) {
+    order: 2;
+  }
+
+  .people-record-row > :nth-child(4) {
+    display: grid;
+    grid-template-columns: minmax(0, .8fr) minmax(0, 1.5fr);
+    gap: 8px;
+    margin-top: 4px;
+    order: 3;
+  }
+
+  .people-record-row > :nth-child(4) .organization-row-action {
+    min-width: 0;
+    margin: 0;
+    border-radius: 8px;
+    justify-content: center;
+  }
+
+  .people-record-row > :nth-child(4) [data-delete-resource="santri"] {
+    grid-column: 1 / -1;
+    justify-self: start;
+    min-height: 36px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .activity-record-row > :nth-child(5) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .activity-record-row > :nth-child(5) .organization-row-action {
+    min-width: 0;
+    min-height: 42px;
+    margin: 0;
+    border-radius: 8px;
+    justify-content: center;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .activity-rule-scope {
+    display: block !important;
+    margin: 0 0 3px !important;
+    color: var(--ink-soft, #53645a);
+    font-size: 11px !important;
+    font-weight: 800;
+  }
+
+  .activity-record-row > :nth-child(5) [data-open-admin-modal="activity-rule-edit"] {
+    grid-column: 1 / -1;
+    border-color: var(--evergreen, #25705b);
+    background: var(--evergreen, #25705b);
+    color: #fff;
+  }
+
+  .activity-record-row > :nth-child(5) [data-delete-resource="activity"] {
+    grid-column: 1 / -1;
+    justify-self: start;
+    min-height: 36px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+}
+
+@media (max-width: 360px) {
+  .people-record-row > :nth-child(4),
+  .activity-record-row > :nth-child(5) {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

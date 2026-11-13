@@ -1,17 +1,17 @@
 # Graph Report - lks-santri-karya  (2026-11-13)
 
 ## Corpus Check
-- 180 files · ~101,942 words
+- 180 files · ~101,950 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 28 file(s) not represented in the graph (top: (none) 18, .css 5, .example 1)
 
 ## Summary
-- 1500 nodes · 3273 edges · 142 communities (75 shown, 67 thin omitted)
+- 1500 nodes · 3269 edges · 142 communities (75 shown, 67 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 26 edges (avg confidence: 0.89)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `fc303f67`
+- Built from commit: `5b39b25e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -127,7 +127,7 @@
 4. `PeriodParticipantSnapshot` - 71 edges
 5. `PeriodActivity` - 50 edges
 6. `AuditLog` - 48 edges
-7. `escapeHtml()` - 44 edges
+7. `escapeHtml()` - 43 edges
 8. `SantriProfile` - 41 edges
 9. `LksScoreCalculator` - 39 edges
 10. `TestCase` - 36 edges
@@ -155,7 +155,7 @@ Nodes (4): Department, LksActivity, Team, LksCoreTest
 
 ### Community 1 - "frontend/app.js"
 Cohesion: 0.05
-Nodes (50): accountPasswordField(), activePeriodActivities, adminAnnualDefaultRange, adminAnnualRange, adminAnnualYears, adminFormDialog, adminFormDialogContent, adminFormSnapshot() (+42 more)
+Nodes (47): accountPasswordField(), activePeriodActivities, adminAnnualDefaultRange, adminAnnualRange, adminAnnualYears, adminFormDialog, adminFormDialogContent, adminFormSnapshot() (+39 more)
 
 ### Community 2 - "package.json"
 Cohesion: 0.06
@@ -178,8 +178,8 @@ Cohesion: 0.15
 Nodes (6): {closure#3}(), BaconQrCode\Renderer\Image\SvgImageBackEnd, BaconQrCode\Renderer\ImageRenderer, BaconQrCode\Renderer\RendererStyle\RendererStyle, BaconQrCode\Writer, Barryvdh\DomPDF\Facade\Pdf
 
 ### Community 9 - "escapeHtml"
-Cohesion: 0.18
-Nodes (32): dashboardSummaryData(), departmentReportGroups(), escapeHtml(), initials(), lksCategory(), lksCategoryLabel(), openRecapDetail(), participantStatus() (+24 more)
+Cohesion: 0.17
+Nodes (34): dashboardSummaryData(), departmentReportGroups(), escapeHtml(), formatDate(), initials(), lksCategory(), lksCategoryLabel(), openRecapDetail() (+26 more)
 
 ### Community 11 - "Illuminate\Database\Eloquent\Concerns\HasUuids"
 Cohesion: 0.06
@@ -238,8 +238,8 @@ Cohesion: 0.32
 Nodes (6): {closure#1}(), {closure#2}(), {closure#3}(), Illuminate\Foundation\Application, Illuminate\Foundation\Configuration\Exceptions, Illuminate\Foundation\Configuration\Middleware
 
 ### Community 29 - "openBulkChecklist"
-Cohesion: 0.24
-Nodes (10): activityRuleLabel(), activityScheduleLabel(), markBulkChecklistInvalidDates(), openBulkChecklist(), renderBulkChecklistCalendar(), selectedBulkDates(), setAllBulkChecklistDates(), showBulkChecklistMonth() (+2 more)
+Cohesion: 0.20
+Nodes (12): activityRuleLabel(), activityScheduleLabel(), loadChecklistCorrectionContext(), markAdminFormPristine(), markBulkChecklistInvalidDates(), openBulkChecklist(), renderBulkChecklistCalendar(), selectedBulkDates() (+4 more)
 
 ### Community 30 - "PeriodParticipantSnapshot"
 Cohesion: 0.18
@@ -359,7 +359,7 @@ Nodes (3): ProfileValidationRules, Illuminate\Contracts\Validation\ValidationRul
 
 ### Community 69 - "applyDashboard"
 Cohesion: 0.22
-Nodes (14): applyDashboard(), bulkChecklistMonths(), dateInputValue(), formatDate(), loadChecklistCorrectionContext(), localDateValue(), openChecklistCorrection(), renderAdminDispensationManager() (+6 more)
+Nodes (13): applyDashboard(), bulkChecklistMonths(), dateInputValue(), employmentCategoryForDate(), localDateValue(), openChecklistCorrection(), renderPersonalSummaryLoading(), renderPersonalSummaryUnavailable() (+5 more)
 
 ### Community 70 - "UserFactory.php"
 Cohesion: 0.27
@@ -468,6 +468,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `LksCoreTest` be split into smaller, more focused modules?**
   _Cohesion score 0.07977736549165121 - nodes in this community are weakly interconnected._
 - **Should `frontend/app.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.049019607843137254 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05102040816326531 - nodes in this community are weakly interconnected._
 - **Should `package.json` be split into smaller, more focused modules?**
   _Cohesion score 0.06439393939393939 - nodes in this community are weakly interconnected._

@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1794550275.7423146,
-    "seen": 1794550487.4243484,
-    "ast_hash": "b3e121e5ddde086419fe16f931b49ce5",
+    "mtime": 1794553817.1386485,
+    "seen": 1794553852.3260844,
+    "ast_hash": "8e64234439dfb985f3cce1b08ce6b799",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -576,9 +576,9 @@
     "semantic_hash": ""
   },
   "frontend/index.html": {
-    "mtime": 1794207506.2399654,
-    "seen": 1794207572.7111268,
-    "ast_hash": "8424c9c0af3d838a3d5f9a21b4e4ab30",
+    "mtime": 1794553517.2608778,
+    "seen": 1794553566.034511,
+    "ast_hash": "5148af8f01b8c4b68db8872c7bce7674",
     "semantic_hash": ""
   },
   "backend/public/apple-touch-icon.png": {
@@ -774,9 +774,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/DashboardController.php": {
-    "mtime": 1794476442.6699433,
-    "seen": 1794476584.8643847,
-    "ast_hash": "05f28e62a22288a3fb50714b637b7d8c",
+    "mtime": 1794552747.2720294,
+    "seen": 1794552891.8346884,
+    "ast_hash": "4c6019f35ea8e6b73ddcc5576cbd1b87",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodController.php": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1794477960.7239478,
-    "seen": 1794478063.9565012,
-    "ast_hash": "50e5415dd75cb8f7ddae95cbdf381d07",
+    "mtime": 1794552544.438248,
+    "seen": 1794552891.835328,
+    "ast_hash": "0f5b726e8d57704b7ea176c630ad9e3e",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1794541158.1005836,
-    "seen": 1794541380.8607018,
-    "ast_hash": "284cf73fd8f1acdf296f7ec4b6b23e55",
+    "mtime": 1794553817.1411688,
+    "seen": 1794553852.3260937,
+    "ast_hash": "17b6e0c814e6f69e267b443a85155fd1",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_16_000001_add_recording_enabled_to_lks_periods_table.php": {

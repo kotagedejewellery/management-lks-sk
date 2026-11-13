@@ -1224,6 +1224,24 @@ class LksCoreTest extends TestCase
             ->assertJsonPath('data.selected_date', $participationStart->toDateString());
     }
 
+    public function test_dashboard_clamps_a_requested_future_date_to_today(): void
+    {
+        $santri = $this->userWithRole('santri');
+        $today = now()->startOfDay();
+        $period = $this->period($santri, [
+            'status' => 'active',
+            'start_date' => $today->copy()->subDay()->toDateString(),
+            'end_date' => $today->copy()->addWeek()->toDateString(),
+        ]);
+        $this->periodActivity($period, 1);
+        $this->participant($period, $santri);
+
+        $this->actingAs($santri)
+            ->getJson(route('api.lks.dashboard', ['date' => $today->copy()->addDay()->toDateString()]))
+            ->assertOk()
+            ->assertJsonPath('data.selected_date', $today->toDateString());
+    }
+
     public function test_admin_cannot_add_a_participant_when_no_eligible_activity_day_remains(): void
     {
         $admin = $this->userWithRole('admin');

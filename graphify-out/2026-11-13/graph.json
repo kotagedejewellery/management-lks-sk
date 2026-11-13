@@ -2075,7 +2075,7 @@
       "file_type": "code",
       "norm_label": "adminformsnapshot()",
       "source_file": "frontend/app.js",
-      "source_location": "L3099"
+      "source_location": "L3082"
     },
     {
       "id": "frontend_app_clearpdfpreview",
@@ -2162,18 +2162,6 @@
       "source_location": "L1075"
     },
     {
-      "id": "frontend_app_employmentcategoryfordate",
-      "label": "employmentCategoryForDate()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "frontend/app.js",
-      "file_type": "code",
-      "norm_label": "employmentcategoryfordate()",
-      "source_file": "frontend/app.js",
-      "source_location": "L3230"
-    },
-    {
       "id": "frontend_app_filterrecaprows",
       "label": "filterRecapRows()",
       "_callable": true,
@@ -2195,19 +2183,7 @@
       "file_type": "code",
       "norm_label": "hasunsavedadminformchanges()",
       "source_file": "frontend/app.js",
-      "source_location": "L3111"
-    },
-    {
-      "id": "frontend_app_markadminformpristine",
-      "label": "markAdminFormPristine()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "frontend/app.js",
-      "file_type": "code",
-      "norm_label": "markadminformpristine()",
-      "source_file": "frontend/app.js",
-      "source_location": "L3106"
+      "source_location": "L3094"
     },
     {
       "id": "frontend_app_openpdfpreview",
@@ -2291,19 +2267,7 @@
       "file_type": "code",
       "norm_label": "requestadminformclose()",
       "source_file": "frontend/app.js",
-      "source_location": "L3116"
-    },
-    {
-      "id": "frontend_app_syncmagangjoblevel",
-      "label": "syncMagangJobLevel()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "frontend/app.js",
-      "file_type": "code",
-      "norm_label": "syncmagangjoblevel()",
-      "source_file": "frontend/app.js",
-      "source_location": "L3208"
+      "source_location": "L3099"
     },
     {
       "id": "frontend_app_updaterecapfilterreset",
@@ -3131,7 +3095,7 @@
       "file_type": "code",
       "norm_label": "openadminformmodal()",
       "source_file": "frontend/app.js",
-      "source_location": "L3246"
+      "source_location": "L3229"
     },
     {
       "id": "frontend_app_paginationcontrols",
@@ -5340,6 +5304,30 @@
       "norm_label": "activityschedulelabel()",
       "source_file": "frontend/app.js",
       "source_location": "L2428"
+    },
+    {
+      "id": "frontend_app_loadchecklistcorrectioncontext",
+      "label": "loadChecklistCorrectionContext()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "openBulkChecklist",
+      "file_type": "code",
+      "norm_label": "loadchecklistcorrectioncontext()",
+      "source_file": "frontend/app.js",
+      "source_location": "L3047"
+    },
+    {
+      "id": "frontend_app_markadminformpristine",
+      "label": "markAdminFormPristine()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 29,
+      "community_name": "openBulkChecklist",
+      "file_type": "code",
+      "norm_label": "markadminformpristine()",
+      "source_file": "frontend/app.js",
+      "source_location": "L3089"
     },
     {
       "id": "frontend_app_markbulkchecklistinvaliddates",
@@ -7571,7 +7559,7 @@
       "file_type": "code",
       "norm_label": "submitbulkchecklistform()",
       "source_file": "frontend/app.js",
-      "source_location": "L3019"
+      "source_location": "L3002"
     },
     {
       "id": "backend_app_policies_periodparticipantsnapshotpolicy_periodparticipantsnapshotpolicy_view",
@@ -9278,28 +9266,16 @@
       "source_location": "L379"
     },
     {
-      "id": "frontend_app_formatdate",
-      "label": "formatDate()",
+      "id": "frontend_app_employmentcategoryfordate",
+      "label": "employmentCategoryForDate()",
       "_callable": true,
       "_origin": "ast",
       "community": 69,
       "community_name": "applyDashboard",
       "file_type": "code",
-      "norm_label": "formatdate()",
+      "norm_label": "employmentcategoryfordate()",
       "source_file": "frontend/app.js",
-      "source_location": "L368"
-    },
-    {
-      "id": "frontend_app_loadchecklistcorrectioncontext",
-      "label": "loadChecklistCorrectionContext()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 69,
-      "community_name": "applyDashboard",
-      "file_type": "code",
-      "norm_label": "loadchecklistcorrectioncontext()",
-      "source_file": "frontend/app.js",
-      "source_location": "L3064"
+      "source_location": "L3213"
     },
     {
       "id": "frontend_app_localdatevalue",
@@ -9323,19 +9299,7 @@
       "file_type": "code",
       "norm_label": "openchecklistcorrection()",
       "source_file": "frontend/app.js",
-      "source_location": "L3083"
-    },
-    {
-      "id": "frontend_app_renderadmindispensationmanager",
-      "label": "renderAdminDispensationManager()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 69,
-      "community_name": "applyDashboard",
-      "file_type": "code",
-      "norm_label": "renderadmindispensationmanager()",
-      "source_file": "frontend/app.js",
-      "source_location": "L3055"
+      "source_location": "L3066"
     },
     {
       "id": "frontend_app_renderpersonalsummaryloading",
@@ -9384,6 +9348,18 @@
       "norm_label": "setchecklistready()",
       "source_file": "frontend/app.js",
       "source_location": "L689"
+    },
+    {
+      "id": "frontend_app_syncmagangjoblevel",
+      "label": "syncMagangJobLevel()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 69,
+      "community_name": "applyDashboard",
+      "file_type": "code",
+      "norm_label": "syncmagangjoblevel()",
+      "source_file": "frontend/app.js",
+      "source_location": "L3191"
     },
     {
       "id": "frontend_app_todayiso",
@@ -10742,6 +10718,18 @@
       "source_location": "L387"
     },
     {
+      "id": "frontend_app_formatdate",
+      "label": "formatDate()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "escapeHtml",
+      "file_type": "code",
+      "norm_label": "formatdate()",
+      "source_file": "frontend/app.js",
+      "source_location": "L368"
+    },
+    {
       "id": "frontend_app_initials",
       "label": "initials()",
       "_callable": true,
@@ -10872,6 +10860,18 @@
       "norm_label": "renderadminannualstatement()",
       "source_file": "frontend/app.js",
       "source_location": "L916"
+    },
+    {
+      "id": "frontend_app_renderadmindispensationmanager",
+      "label": "renderAdminDispensationManager()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 9,
+      "community_name": "escapeHtml",
+      "file_type": "code",
+      "norm_label": "renderadmindispensationmanager()",
+      "source_file": "frontend/app.js",
+      "source_location": "L3038"
     },
     {
       "id": "frontend_app_renderalldepartmenttrends",
@@ -25559,7 +25559,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3238",
+      "source_location": "L3221",
       "weight": 1.0
     },
     {
@@ -25607,7 +25607,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3113",
+      "source_location": "L3096",
       "weight": 1.0
     },
     {
@@ -25775,7 +25775,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3069",
+      "source_location": "L3052",
       "weight": 1.0
     },
     {
@@ -25787,7 +25787,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3071",
+      "source_location": "L3054",
       "weight": 1.0
     },
     {
@@ -25799,7 +25799,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3073",
+      "source_location": "L3056",
       "weight": 1.0
     },
     {
@@ -25811,7 +25811,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3074",
+      "source_location": "L3057",
       "weight": 1.0
     },
     {
@@ -26291,7 +26291,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3108",
+      "source_location": "L3091",
       "weight": 1.0
     },
     {
@@ -26387,7 +26387,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3264",
+      "source_location": "L3247",
       "weight": 1.0
     },
     {
@@ -26399,7 +26399,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3264",
+      "source_location": "L3247",
       "weight": 1.0
     },
     {
@@ -26411,7 +26411,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3274",
+      "source_location": "L3257",
       "weight": 1.0
     },
     {
@@ -26423,7 +26423,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3317",
+      "source_location": "L3300",
       "weight": 1.0
     },
     {
@@ -26435,7 +26435,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3332",
+      "source_location": "L3315",
       "weight": 1.0
     },
     {
@@ -26447,7 +26447,31 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3332",
+      "source_location": "L3315",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_app_openadminformmodal",
+      "target": "frontend_app_formatdate",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/app.js",
+      "source_location": "L3334",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_app_openadminformmodal",
+      "target": "frontend_app_todayiso",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/app.js",
+      "source_location": "L3340",
       "weight": 1.0
     },
     {
@@ -26464,18 +26488,6 @@
     },
     {
       "source": "frontend_app_openadminformmodal",
-      "target": "frontend_app_todayiso",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/app.js",
-      "source_location": "L3352",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_app_openadminformmodal",
       "target": "frontend_app_masteractivityrulefields",
       "relation": "calls",
       "_origin": "ast",
@@ -26484,18 +26496,6 @@
       "context": "call",
       "source_file": "frontend/app.js",
       "source_location": "L3359",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_app_openadminformmodal",
-      "target": "frontend_app_formatdate",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/app.js",
-      "source_location": "L3386",
       "weight": 1.0
     },
     {
@@ -26627,7 +26627,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3085",
+      "source_location": "L3068",
       "weight": 1.0
     },
     {
@@ -26639,7 +26639,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3089",
+      "source_location": "L3072",
       "weight": 1.0
     },
     {
@@ -26651,7 +26651,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3089",
+      "source_location": "L3072",
       "weight": 1.0
     },
     {
@@ -26663,7 +26663,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3096",
+      "source_location": "L3079",
       "weight": 1.0
     },
     {
@@ -27347,7 +27347,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3059",
+      "source_location": "L3042",
       "weight": 1.0
     },
     {
@@ -27359,7 +27359,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3059",
+      "source_location": "L3042",
       "weight": 1.0
     },
     {
@@ -28691,7 +28691,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3117",
+      "source_location": "L3100",
       "weight": 1.0
     },
     {
@@ -28703,7 +28703,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3121",
+      "source_location": "L3104",
       "weight": 1.0
     },
     {
@@ -28972,55 +28972,19 @@
     },
     {
       "source": "frontend_app_submitadminform",
-      "target": "frontend_app_escapehtml",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/app.js",
-      "source_location": "L2940",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_app_submitadminform",
-      "target": "frontend_app_formatdate",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/app.js",
-      "source_location": "L2940",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_app_submitadminform",
-      "target": "frontend_app_dateinputvalue",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/app.js",
-      "source_location": "L2946",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_app_submitadminform",
-      "target": "frontend_app_todayiso",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/app.js",
-      "source_location": "L2946",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_app_submitadminform",
       "target": "frontend_app_confirmaction",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/app.js",
+      "source_location": "L2945",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_app_submitadminform",
+      "target": "frontend_app_setformbusy",
       "relation": "calls",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -29032,18 +28996,6 @@
     },
     {
       "source": "frontend_app_submitadminform",
-      "target": "frontend_app_setformbusy",
-      "relation": "calls",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "call",
-      "source_file": "frontend/app.js",
-      "source_location": "L2979",
-      "weight": 1.0
-    },
-    {
-      "source": "frontend_app_submitadminform",
       "target": "frontend_app_apiformerror",
       "relation": "calls",
       "_origin": "ast",
@@ -29051,7 +29003,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2983",
+      "source_location": "L2966",
       "weight": 1.0
     },
     {
@@ -29063,7 +29015,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2985",
+      "source_location": "L2968",
       "weight": 1.0
     },
     {
@@ -29075,7 +29027,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L2994",
+      "source_location": "L2977",
       "weight": 1.0
     },
     {
@@ -29087,7 +29039,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3000",
+      "source_location": "L2983",
       "weight": 1.0
     },
     {
@@ -29099,7 +29051,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3004",
+      "source_location": "L2987",
       "weight": 1.0
     },
     {
@@ -29111,7 +29063,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3012",
+      "source_location": "L2995",
       "weight": 1.0
     },
     {
@@ -29123,7 +29075,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3020",
+      "source_location": "L3003",
       "weight": 1.0
     },
     {
@@ -29135,7 +29087,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3021",
+      "source_location": "L3004",
       "weight": 1.0
     },
     {
@@ -29147,7 +29099,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3022",
+      "source_location": "L3005",
       "weight": 1.0
     },
     {
@@ -29159,7 +29111,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3024",
+      "source_location": "L3007",
       "weight": 1.0
     },
     {
@@ -29171,7 +29123,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3033",
+      "source_location": "L3016",
       "weight": 1.0
     },
     {
@@ -29183,7 +29135,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3041",
+      "source_location": "L3024",
       "weight": 1.0
     },
     {
@@ -29195,7 +29147,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3045",
+      "source_location": "L3028",
       "weight": 1.0
     },
     {
@@ -29207,7 +29159,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3046",
+      "source_location": "L3029",
       "weight": 1.0
     },
     {
@@ -29219,7 +29171,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3049",
+      "source_location": "L3032",
       "weight": 1.0
     },
     {
@@ -29267,7 +29219,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3215",
+      "source_location": "L3198",
       "weight": 1.0
     },
     {
@@ -29639,7 +29591,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3064",
+      "source_location": "L3047",
       "weight": 1.0
     },
     {
@@ -29651,7 +29603,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3083",
+      "source_location": "L3066",
       "weight": 1.0
     },
     {
@@ -29663,7 +29615,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3111",
+      "source_location": "L3094",
       "weight": 1.0
     },
     {
@@ -29675,7 +29627,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3116",
+      "source_location": "L3099",
       "weight": 1.0
     },
     {
@@ -29687,7 +29639,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3208",
+      "source_location": "L3191",
       "weight": 1.0
     },
     {
@@ -29699,7 +29651,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/app.js",
-      "source_location": "L3246",
+      "source_location": "L3229",
       "weight": 1.0
     },
     {
@@ -48886,7 +48838,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app.js",
-      "source_location": "L3019",
+      "source_location": "L3002",
       "weight": 1.0
     },
     {
@@ -48897,7 +48849,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app.js",
-      "source_location": "L3055",
+      "source_location": "L3038",
       "weight": 1.0
     },
     {
@@ -48908,7 +48860,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app.js",
-      "source_location": "L3099",
+      "source_location": "L3082",
       "weight": 1.0
     },
     {
@@ -48919,7 +48871,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app.js",
-      "source_location": "L3106",
+      "source_location": "L3089",
       "weight": 1.0
     },
     {
@@ -48930,7 +48882,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/app.js",
-      "source_location": "L3230",
+      "source_location": "L3213",
       "weight": 1.0
     },
     {
@@ -55459,7 +55411,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "frontend/app.js",
-      "source_location": "L3271",
+      "source_location": "L3254",
       "weight": 1.0
     },
     {
@@ -55704,5 +55656,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "fc303f674c989d9f1d125179a002869e0d0c08cf"
+  "built_at_commit": "5b39b25effd06fdb0ed0a3d4f5d814bd8f35df95"
 }

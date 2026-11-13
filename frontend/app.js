@@ -2147,7 +2147,15 @@ document.addEventListener('click', (event) => {
 
 document.addEventListener('input', (event) => {
   if (event.target.matches('#member-search')) filterRecapRows();
-  if (event.target.matches('[data-checklist-date]')) loadDashboard({ date: event.target.value, reloadRecap: false });
+  if (event.target.matches('[data-checklist-date]')) {
+    const { value, min, max } = event.target;
+    if (!value || (min && value < min) || (max && value > max)) {
+      event.target.value = selectedChecklistDate;
+      showToast('Tanggal pencatatan hanya tersedia sampai hari ini.', 'error');
+      return;
+    }
+    loadDashboard({ date: value, reloadRecap: false });
+  }
 });
 
 function filterRecapRows() {
@@ -2737,7 +2745,7 @@ function renderAdminView(name) {
     const usageNote = hasHistoricalUsage ? '<small>Terkunci oleh periode aktif atau riwayat</small>' : draftPeriodCount ? '<small>Hanya dipakai di draft</small>' : '';
     const deleteAction = !hasHistoricalUsage ? `<button class="text-button organization-row-action" type="button" data-delete-resource="activity" data-resource-id="${escapeHtml(activity.id)}" data-resource-name="${escapeHtml(activity.name)}" data-draft-period-count="${draftPeriodCount}">Hapus</button>` : '';
     const isCategoryActive = activityRuleFocus === 'magang' ? activity.default_magang_is_active !== false : activity.is_active;
-    return `<div class="admin-record-row activity-record-row" role="row"><span role="cell"><strong>${escapeHtml(activity.name)}</strong><small>${escapeHtml(activity.code)}</small></span><span class="activity-default-rule" role="cell">${defaultRule}</span><span role="cell"><span class="status ${isCategoryActive ? 'status-active' : 'status-closed'}">${isCategoryActive ? 'Aktif' : 'Nonaktif'}</span></span><span role="cell">${usage}${usageNote}</span><span role="cell"><button class="text-button organization-row-action" type="button" data-open-admin-modal="activity-rule-edit" data-activity-id="${escapeHtml(activity.id)}" data-activity-rule-scope="${activityRuleFocus}">Edit default ${activityRuleFocusLabel}</button><button class="text-button organization-row-action" type="button" data-open-admin-modal="activity-edit" data-activity-id="${escapeHtml(activity.id)}">Kelola kode &amp; nama</button>${periodAction}${deleteAction}</span></div>`;
+    return `<div class="admin-record-row activity-record-row" role="row"><span role="cell"><strong>${escapeHtml(activity.name)}</strong><small>${escapeHtml(activity.code)}</small></span><span class="activity-default-rule" role="cell"><small class="activity-rule-scope">Default ${activityRuleFocusLabel}</small>${defaultRule}</span><span role="cell"><span class="status ${isCategoryActive ? 'status-active' : 'status-closed'}">${isCategoryActive ? 'Aktif' : 'Nonaktif'}</span></span><span role="cell">${usage}${usageNote}</span><span role="cell"><button class="text-button organization-row-action" type="button" data-open-admin-modal="activity-rule-edit" data-activity-id="${escapeHtml(activity.id)}" data-activity-rule-scope="${activityRuleFocus}">Edit default ${activityRuleFocusLabel}</button><button class="text-button organization-row-action" type="button" data-open-admin-modal="activity-edit" data-activity-id="${escapeHtml(activity.id)}">Kelola kode &amp; nama</button>${periodAction}${deleteAction}</span></div>`;
   }).join('');
   const activityRuleFocusControl = `<nav class="history-scope-toggle activity-rule-focus-control" aria-label="Jenis LKS untuk target default"><button class="filter-pill${activityRuleFocus === 'regular' ? ' is-on' : ''}" type="button" data-activity-list-rule-focus="regular" aria-pressed="${activityRuleFocus === 'regular'}">Reguler</button><button class="filter-pill${activityRuleFocus === 'magang' ? ' is-on' : ''}" type="button" data-activity-list-rule-focus="magang" aria-pressed="${activityRuleFocus === 'magang'}">Magang</button></nav>`;
   const activityRuleHeading = activityRuleFocus === 'magang' ? 'Default Magang' : 'Default Reguler';
