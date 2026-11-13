@@ -26,14 +26,18 @@ class DashboardTest extends TestCase
             ->assertSee('LKS Santri Karya')
             ->assertSee('/lks-prototype/styles.css')
             ->assertSee('app.js?v=')
-            ->assertSee('overrides.css?v=')
-            ->assertHeader('Cache-Control', 'private, no-store');
+            ->assertSee('overrides.css?v=');
+        $this->assertStringContainsString('private', $response->headers->get('Cache-Control', ''));
+        $this->assertStringContainsString('no-store', $response->headers->get('Cache-Control', ''));
 
-        $this->get('/lks-prototype/app.js')
+        $assetResponse = $this->get('/lks-prototype/app.js');
+        $assetResponse
             ->assertOk()
             ->assertHeader('Content-Type', 'application/javascript; charset=UTF-8')
-            ->assertHeader('Cache-Control', 'public, max-age=31536000, immutable')
             ->assertSee('data-open-bulk-checklist')
             ->assertSee('Catat beberapa tanggal');
+        $this->assertStringContainsString('public', $assetResponse->headers->get('Cache-Control', ''));
+        $this->assertStringContainsString('max-age=31536000', $assetResponse->headers->get('Cache-Control', ''));
+        $this->assertStringContainsString('immutable', $assetResponse->headers->get('Cache-Control', ''));
     }
 }

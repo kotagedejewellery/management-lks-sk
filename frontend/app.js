@@ -1864,16 +1864,23 @@ document.addEventListener('click', (event) => {
   }
 });
 
-document.addEventListener('click', (event) => {
+document.addEventListener('click', async (event) => {
   if (event.target.closest('[data-checklist-today]')) loadDashboard({ date: todayIso(), reloadRecap: false });
-  if (event.target.closest('[data-open-menstruation-dispensation]')) {
+  const trigger = event.target.closest('[data-open-menstruation-dispensation]');
+  if (trigger) {
     if (!activeParticipant?.id || !activePeriod?.id) {
-      showToast('Data dispensasi belum siap. Muat ulang halaman lalu coba kembali.', 'error');
+      setButtonBusy(trigger, true, 'Memuat…');
+      const loaded = await loadDashboard({ date: selectedChecklistDate, reloadRecap: false });
+      setButtonBusy(trigger, false);
+      if (!loaded) return;
+    }
+    if (!activeParticipant?.id || !activePeriod?.id) {
+      showToast('Dispensasi belum tersedia untuk periode aktif ini. Hubungi Admin LKS bila Anda belum terdaftar sebagai peserta.', 'error');
       return;
     }
     try {
       if (!openAdminFormModal('menstruation-dispensation')) {
-        showToast('Data dispensasi belum siap. Muat ulang halaman lalu coba kembali.', 'error');
+        showToast('Dialog dispensasi belum dapat dibuka. Coba lagi beberapa saat.', 'error');
       }
     } catch (error) {
       console.error('Dialog dispensasi tidak dapat dibuka.', error);
@@ -3714,15 +3721,20 @@ async function loadDashboard({ date = selectedChecklistDate, reloadRecap = true,
     const response = await fetch(`${apiBase}/dashboard?date=${encodeURIComponent(date)}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin', signal: dashboardAbortController.signal });
     if (!response.ok) throw new Error('Data LKS belum dapat dimuat. Muat ulang halaman untuk mencoba lagi.');
     if (requestId !== dashboardRequest) return;
-    if (applyDashboard((await response.json()).data) && reloadRecap) loadRecap('', { scope: viewer?.roles?.includes('leader') ? 'team' : 'personal' });
+    const data = (await response.json()).data;
+    if (requestId !== dashboardRequest) return false;
+    const applied = applyDashboard(data);
+    if (applied && reloadRecap) loadRecap('', { scope: viewer?.roles?.includes('leader') ? 'team' : 'personal' });
+    return applied;
   } catch (error) {
-    if (requestId !== dashboardRequest || error.name === 'AbortError') return;
+    if (requestId !== dashboardRequest || error.name === 'AbortError') return false;
     setChecklistEmpty('Data LKS belum dapat dimuat. Muat ulang halaman untuk mencoba lagi.');
     if (document.body.classList.contains('is-booting')) {
       openView('dashboard', { scroll: false, load: false });
       finishInitialBoot();
     }
     showToast(error.message, 'error');
+    return false;
   } finally {
     if (requestId === dashboardRequest && showProgress) hidePageProgress();
   }
