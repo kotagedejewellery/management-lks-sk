@@ -1621,6 +1621,17 @@ body.is-booting .page-progress { inset: 0; }
 
 .recap-threshold-note { display: block; margin-top: 2px; color: var(--ink-soft, #53645a); font-size: 11px; font-weight: 500; line-height: 1.35; }
 
+.dashboard-period-context { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--ink-soft, #53645a); font-size: 12px; }
+.dashboard-period-context svg { width: 18px; height: 18px; color: var(--evergreen-dark, #155244); }
+.dashboard-period-context span { display: grid; gap: 1px; }
+.dashboard-period-context small { font-size: 10px; font-weight: 700; }
+.dashboard-period-context strong { color: var(--ink, #203329); font-size: 12px; }
+
+.recap-personal-summary { grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); }
+.recap-personal-summary > div { display: grid; gap: 3px; }
+.recap-personal-summary dd { margin-top: 0; }
+.recap-personal-summary dd small { display: block; margin-top: 3px; color: var(--ink-soft, #53645a); font-size: 11px; font-weight: 500; line-height: 1.4; }
+
 .recap-department > small,
 .recap-score > small {
   display: none;
@@ -1662,9 +1673,15 @@ body.is-booting .page-progress { inset: 0; }
   .recap-summary > div:nth-child(n + 4) {
     border-top: 1px solid var(--line, #d9ddd5);
   }
+
+  .recap-personal-summary { grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); }
+  .recap-personal-summary > div:nth-child(n) { border-top: 0; }
+  .recap-personal-summary > div:nth-child(2n) { border-right: 0; }
 }
 
 @media (max-width: 640px) {
+  .dashboard-period-context { margin-top: 18px; }
+
   .activity-row {
     grid-template-columns: minmax(0, 1fr) 45px;
   }
@@ -1697,6 +1714,11 @@ body.is-booting .page-progress { inset: 0; }
   .recap-summary > div:last-child {
     grid-column: 1 / -1;
   }
+
+  .recap-personal-summary { grid-template-columns: 1fr; }
+  .recap-personal-summary > div { padding: 12px 10px; border-right: 0; }
+  .recap-personal-summary > div + div { border-top: 1px solid var(--line, #d9ddd5); }
+  .recap-personal-summary > div:last-child { grid-column: auto; }
 
   .recap-table .recap-row {
     display: grid;
@@ -1731,6 +1753,17 @@ body.is-booting .page-progress { inset: 0; }
     color: var(--ink, #203329);
     font-size: 12px;
     font-weight: 700;
+  }
+
+  .recap-table.is-personal-recap .recap-row {
+    grid-template-areas:
+      "member score"
+      "status status"
+      "actions actions";
+  }
+
+  .recap-table.is-personal-recap .recap-row > .recap-department {
+    display: none;
   }
 
   .recap-department > small,
@@ -1793,6 +1826,8 @@ body.is-booting .page-progress { inset: 0; }
   .recap-page-actions .report-period-control select {
     width: 100%;
   }
+
+  .view[data-view-panel="recap"] { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
 }
 
 /* Keep all recap criteria in one responsive toolbar instead of wrapping filter pills. */

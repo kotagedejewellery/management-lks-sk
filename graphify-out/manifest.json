@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1794564202.5813873,
-    "seen": 1794564578.149844,
-    "ast_hash": "5931ac2830b552545e0e84655e0e592c",
+    "mtime": 1794974144.1415193,
+    "seen": 1794974185.6108015,
+    "ast_hash": "19dbda42b103981bd8058d5b082de7d4",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -576,9 +576,9 @@
     "semantic_hash": ""
   },
   "frontend/index.html": {
-    "mtime": 1794553517.2608778,
-    "seen": 1794553566.034511,
-    "ast_hash": "5148af8f01b8c4b68db8872c7bce7674",
+    "mtime": 1794974144.1390057,
+    "seen": 1794974185.6108394,
+    "ast_hash": "0e968a2fd9f993545421b0f4d0d628d0",
     "semantic_hash": ""
   },
   "backend/public/apple-touch-icon.png": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1794564546.0585475,
-    "seen": 1794564578.1498535,
-    "ast_hash": "8938a866b0c87084846b0f157834d525",
+    "mtime": 1794974144.1445274,
+    "seen": 1794974185.6108115,
+    "ast_hash": "9cbaea0746f4c96b5d695019732619aa",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_16_000001_add_recording_enabled_to_lks_periods_table.php": {
