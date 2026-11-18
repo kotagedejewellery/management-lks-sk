@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1794564202.5813873,
-    "seen": 1794564578.149844,
-    "ast_hash": "5931ac2830b552545e0e84655e0e592c",
+    "mtime": 1794975726.6568365,
+    "seen": 1794975882.0025513,
+    "ast_hash": "b61343de3c9eacf23ae17dff4ebc86fb",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -576,9 +576,9 @@
     "semantic_hash": ""
   },
   "frontend/index.html": {
-    "mtime": 1794553517.2608778,
-    "seen": 1794553566.034511,
-    "ast_hash": "5148af8f01b8c4b68db8872c7bce7674",
+    "mtime": 1794974144.1390057,
+    "seen": 1794974185.6108394,
+    "ast_hash": "0e968a2fd9f993545421b0f4d0d628d0",
     "semantic_hash": ""
   },
   "backend/public/apple-touch-icon.png": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1794969909.1628716,
-    "seen": 1794969997.6680167,
-    "ast_hash": "d822da38e00b8ce4f13a310dd353a5e0",
+    "mtime": 1794975726.65885,
+    "seen": 1794975882.0025032,
+    "ast_hash": "327f3f2cfac4a8c6a19ca32dc72f4192",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1794564546.0585475,
-    "seen": 1794564578.1498535,
-    "ast_hash": "8938a866b0c87084846b0f157834d525",
+    "mtime": 1794975767.3247585,
+    "seen": 1794975882.002572,
+    "ast_hash": "97163566f731b3c711ce8fa006b8a946",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_16_000001_add_recording_enabled_to_lks_periods_table.php": {

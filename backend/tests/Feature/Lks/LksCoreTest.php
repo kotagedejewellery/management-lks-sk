@@ -1662,6 +1662,26 @@ class LksCoreTest extends TestCase
             ->assertJsonPath('data.0.id', $teamPeriod->id);
     }
 
+    public function test_personal_history_period_always_has_a_matching_personal_recap(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'closed', 'name' => 'Riwayat Pribadi Konsisten']);
+        $this->participant($period, $santri);
+
+        $this->actingAs($santri)
+            ->getJson(route('api.lks.periods.history', ['scope' => 'personal']))
+            ->assertOk()
+            ->assertJsonPath('data.0.id', $period->id);
+
+        $this->actingAs($santri)
+            ->getJson(route('api.lks.recap', ['period_id' => $period->id, 'scope' => 'personal']))
+            ->assertOk()
+            ->assertJsonPath('data.period.id', $period->id)
+            ->assertJsonPath('data.summary.participant_count', 1)
+            ->assertJsonPath('data.participants.0.user_id', $santri->id);
+    }
+
     public function test_history_loads_only_the_selected_authorized_year(): void
     {
         $admin = $this->userWithRole('admin');

@@ -1119,8 +1119,11 @@ function renderHistory() {
   const title = viewingTeam ? 'Riwayat tim' : 'Riwayat LKS saya';
   const description = viewingTeam
     ? 'Rekap periode tertutup untuk anggota dalam bimbingan Anda. Data dan aturan periode tetap tersimpan.'
-    : 'Rekap periode LKS Anda yang sudah ditutup tetap menggunakan data dan aturan saat periode tersebut berjalan.';
+    : 'Riwayat hanya memuat periode yang sudah ditutup. Data dan aturan periode tersebut tetap tersimpan.';
   const scopeToggle = isLeader ? `<nav class="history-scope-toggle" aria-label="Cakupan riwayat"><button class="filter-pill${viewingTeam ? ' is-on' : ''}" type="button" data-history-scope="team" aria-pressed="${viewingTeam}">Riwayat tim</button><button class="filter-pill${viewingTeam ? '' : ' is-on'}" type="button" data-history-scope="personal" aria-pressed="${!viewingTeam}">LKS saya</button></nav>` : '';
+  const activePeriodNotice = !viewingTeam && activePeriod?.status === 'active'
+    ? `<p class="history-active-period">Periode aktif: <strong>${escapeHtml(activePeriod.name)}</strong> masih berjalan. <button class="text-button" type="button" data-go="recap">Buka Rekap Saya</button></p>`
+    : '';
   if (!historyData) {
     panel.innerHTML = `${dashboardNotice('Memuat riwayat', 'Riwayat periode tertutup sedang disiapkan.')} `;
     return;
@@ -1132,8 +1135,10 @@ function renderHistory() {
       : 'Periode LKS Anda yang sudah ditutup akan tersimpan di sini.';
     const emptyAction = viewingTeam
       ? '<button class="primary-button" type="button" data-go="recap">Buka rekap tim</button>'
-      : '<button class="primary-button" type="button" data-go="lks">Buka Aktivitas Ibadah Saya</button>';
-    panel.innerHTML = `<div class="page-intro"><div><h2>Belum ada riwayat periode</h2><p>${emptyMessage}</p></div><div class="history-page-actions">${scopeToggle}${emptyAction}</div></div>`;
+      : activePeriodNotice
+        ? ''
+        : '<button class="primary-button" type="button" data-go="lks">Buka Aktivitas Ibadah Saya</button>';
+    panel.innerHTML = `<div class="page-intro"><div><h2>Belum ada riwayat periode</h2><p>${emptyMessage}</p>${activePeriodNotice}</div><div class="history-page-actions">${scopeToggle}${emptyAction}</div></div>`;
     return;
   }
 
@@ -1146,7 +1151,7 @@ function renderHistory() {
     return `<button type="button" data-history-period="${escapeHtml(period.id)}"><span><strong>${escapeHtml(period.name)}</strong><small>${formatDate(period.start_date, true)} - ${formatDate(period.end_date, true)}</small></span><span><strong>${percentage(period.statement?.average_percentage)}</strong><small>${detail}</small></span></button>`;
   }).join('')}</div></section>` : '';
   const periodRows = periods.map((period) => `<button class="history-period-row${period.id === selected ? ' is-selected' : ''}" type="button" data-history-period="${escapeHtml(period.id)}"${period.id === selected ? ' aria-current="page"' : ''}><span><strong>${escapeHtml(period.name)}</strong><small>${formatDate(period.start_date, true)} — ${formatDate(period.end_date, true)}</small></span><span>${period.id === selected ? 'Ditinjau' : 'Lihat rekap'}</span></button>`).join('');
-  const periodSelect = `<label class="history-period-select">Periode<select data-history-period-select>${periods.map((period) => `<option value="${escapeHtml(period.id)}"${period.id === selected ? ' selected' : ''}>${escapeHtml(period.name)} · ${formatDate(period.end_date)}</option>`).join('')}</select></label>`;
+  const periodSelect = `<div class="history-period-control"><label class="history-period-select">Periode yang sudah ditutup<select data-history-period-select>${periods.map((period) => `<option value="${escapeHtml(period.id)}"${period.id === selected ? ' selected' : ''}>${escapeHtml(period.name)} · ${formatDate(period.end_date)}</option>`).join('')}</select></label><button class="text-button history-refresh-mobile" type="button" data-history-refresh>Muat ulang</button></div>`;
   const detail = historyDetailLoading
     ? '<p class="history-empty-detail">Menyiapkan rekap periode…</p>'
     : historyDetailError
@@ -1155,7 +1160,7 @@ function renderHistory() {
         ? renderHistoryDetail(historyRecapData)
         : '<p class="history-empty-detail">Pilih periode untuk melihat rekap akhirnya.</p>';
 
-  panel.innerHTML = `<div class="page-intro"><div><h2>${title}</h2><p>${description}</p></div><div class="history-page-actions">${scopeToggle}${yearControl}<button class="text-button admin-refresh" type="button" data-history-refresh>Muat ulang data</button></div></div>${annualStatement}<section class="history-layout">${periodSelect}<nav class="history-period-list" aria-label="Daftar periode tertutup">${periodRows}</nav><section class="history-detail" aria-live="polite">${detail}</section></section>`;
+  panel.innerHTML = `<div class="page-intro"><div><h2>${title}</h2><p>${description}</p>${activePeriodNotice}</div><div class="history-page-actions">${scopeToggle}${yearControl}<span class="history-refresh-desktop"><button class="text-button admin-refresh" type="button" data-history-refresh>Muat ulang data</button></span></div></div>${annualStatement}<section class="history-layout">${periodSelect}<nav class="history-period-list" aria-label="Daftar periode tertutup">${periodRows}</nav><section class="history-detail" aria-live="polite">${detail}</section></section>`;
 }
 
 function renderHistoryActivities(participant) {
@@ -1175,6 +1180,11 @@ function renderHistoryParticipantDetail(participant, { label = 'Nilai akhir', in
 function renderHistoryDetail(data) {
   const { period, participants, summary } = data;
   const personal = historyScope === 'personal' ? participants.find((participant) => participant.user_id === viewer?.id) : null;
+  const closedAt = period.closed_at ? `<small>Ditutup ${formatDate(period.closed_at, true)}</small>` : '';
+  const detailHead = `<div class="history-detail-head"><span class="status status-closed">Ditutup</span><h3>${escapeHtml(period.name)}</h3><p>${formatDate(period.start_date, true)} — ${formatDate(period.end_date, true)}</p>${closedAt}</div>`;
+  if (historyScope === 'personal' && !personal) {
+    return `${detailHead}<p class="history-data-mismatch">Data peserta untuk periode ini belum dapat dicocokkan. Nilai tidak ditampilkan agar tidak menyesatkan. Muat ulang data atau hubungi Admin LKS.</p>`;
+  }
   const teamMembers = !personal ? [...participants].sort((left, right) => Number(left.final_percentage) - Number(right.final_percentage) || left.name.localeCompare(right.name, 'id')) : [];
   const selectedMember = teamMembers.find((participant) => participant.participant_id === historyParticipantId) ?? teamMembers[0] ?? null;
   const teamScore = `<div class="history-score"><span>Ringkasan tim</span><strong>${summary.participant_count}</strong><small>${summary.tuntas_count} tuntas · ${summary.belum_tuntas_count} belum tuntas · Rata-rata ${percentage(summary.average_percentage)}</small></div>`;
@@ -1184,9 +1194,7 @@ function renderHistoryDetail(data) {
     : selectedMember
       ? renderHistoryParticipantDetail(selectedMember, { label: `Capaian ${selectedMember.name}` })
       : '';
-  const closedAt = period.closed_at ? `<small>Ditutup ${formatDate(period.closed_at, true)}</small>` : '';
-
-  return `<div class="history-detail-head"><span class="status status-closed">Ditutup</span><h3>${escapeHtml(period.name)}</h3><p>${formatDate(period.start_date, true)} — ${formatDate(period.end_date, true)}</p>${closedAt}</div>${personal ? '' : teamScore}${memberPicker}${participantDetail}`;
+  return `${detailHead}${personal ? '' : teamScore}${memberPicker}${participantDetail}`;
 }
 
 async function loadHistory({ showProgress = false } = {}) {
