@@ -6,9 +6,9 @@
     "semantic_hash": ""
   },
   "PRODUCT.md": {
-    "mtime": 1794564546.051304,
-    "seen": 1794564578.149855,
-    "ast_hash": "7347005a02747841e93979a0332fe0d2",
+    "mtime": 1794972222.85449,
+    "seen": 1794972245.2729323,
+    "ast_hash": "867aa1afc390770b85314b1fcd953aa4",
     "semantic_hash": ""
   },
   "docs/Architecture System.md": {
@@ -1173,6 +1173,12 @@
     "mtime": 1794969929.6702223,
     "seen": 1794969997.667843,
     "ast_hash": "52e441b4b568382fa21fc3171b82a7c9",
+    "semantic_hash": ""
+  },
+  "backend/database/migrations/2026_11_18_000000_add_case_insensitive_unique_email_index.php": {
+    "mtime": 1794972222.8534913,
+    "seen": 1794972245.272779,
+    "ast_hash": "1ed0688219be65377e28eb2e7faf132f",
     "semantic_hash": ""
   }
 }

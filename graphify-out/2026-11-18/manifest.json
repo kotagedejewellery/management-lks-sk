@@ -486,9 +486,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Auth/RegistrationTest.php": {
-    "mtime": 1790582181.275128,
-    "seen": 1790584154.2909033,
-    "ast_hash": "20c05d654e2f8575dba1a104be36f62b",
+    "mtime": 1794971293.8209026,
+    "seen": 1794971323.414572,
+    "ast_hash": "c7193c03922ee317719b4647ce9a2369",
     "semantic_hash": ""
   },
   "backend/tests/Feature/Auth/TwoFactorChallengeTest.php": {
@@ -1032,9 +1032,9 @@
     "semantic_hash": ""
   },
   "backend/app/Auth/ActiveUserProvider.php": {
-    "mtime": 1794969718.2072532,
-    "seen": 1794969864.8302438,
-    "ast_hash": "e2ca98c116325f6319f4cbb656278b46",
+    "mtime": 1794971301.629001,
+    "seen": 1794971323.4140651,
+    "ast_hash": "193313a288c3c9d71277a5801fedc71d",
     "semantic_hash": ""
   },
   "backend/app/Http/Responses/GenericFailedPasswordResetLinkResponse.php": {
