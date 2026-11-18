@@ -11,6 +11,7 @@ use App\Models\Role;
 use App\Models\SantriProfile;
 use App\Models\Team;
 use App\Models\User;
+use App\Rules\UniqueEmailAddress;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -251,9 +252,10 @@ class OrganizationController extends Controller
     public function storeSantri(Request $request): JsonResponse
     {
         $this->ensureAdmin($request);
+        $request->merge(['email' => User::normalizeEmail((string) $request->input('email'))]);
         $data = $request->validate([
             'name' => ['required', 'string', 'max:150'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'email' => ['required', 'email', 'max:255', new UniqueEmailAddress],
             'temporary_password' => [...$this->passwordRules(), 'max:255'],
             'gender' => ['required', 'in:ikhwan,akhwat'],
             'team_id' => ['required', 'uuid', 'exists:teams,id'],
@@ -300,10 +302,11 @@ class OrganizationController extends Controller
     public function updateSantri(Request $request, SantriProfile $profile): JsonResponse
     {
         $this->ensureAdmin($request);
+        $request->merge(['email' => User::normalizeEmail((string) $request->input('email'))]);
         $previousStatus = $profile->status;
         $data = $request->validate([
             'name' => ['required', 'string', 'max:150'],
-            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($profile->getKey())],
+            'email' => ['required', 'email', 'max:255', new UniqueEmailAddress($profile->user_id)],
             'gender' => ['required', 'in:ikhwan,akhwat'],
             'team_id' => ['required', 'uuid', 'exists:teams,id'],
             'category' => ['nullable', Rule::in(['regular', 'magang'])],

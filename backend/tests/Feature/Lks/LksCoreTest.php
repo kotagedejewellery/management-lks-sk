@@ -671,7 +671,7 @@ class LksCoreTest extends TestCase
         $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
             ->postJson(route('api.lks.admin.santri.store'), [
                 'name' => 'Anggota Baru',
-                'email' => 'anggota-baru@example.test',
+                'email' => 'Anggota-Baru@Example.Test',
                 'temporary_password' => 'passwordsementara123',
                 'temporary_password_confirmation' => 'passwordsementara123',
                 'gender' => 'akhwat',
@@ -2183,10 +2183,11 @@ class LksCoreTest extends TestCase
         $this->actingAs($santri)
             ->putJson(route('api.lks.account.profile.update'), [
                 'name' => 'Nama Baru',
-                'email' => 'nama.baru@example.test',
+                'email' => 'Nama.Baru@Example.Test',
             ])
             ->assertOk()
-            ->assertJsonPath('data.name', 'Nama Baru');
+            ->assertJsonPath('data.name', 'Nama Baru')
+            ->assertJsonPath('data.email', 'nama.baru@example.test');
 
         $this->actingAs($santri)
             ->putJson(route('api.lks.account.password.update'), [
@@ -2198,6 +2199,21 @@ class LksCoreTest extends TestCase
             ->assertJsonPath('data.updated', true);
 
         $this->assertTrue(Hash::check('password-baru', $santri->fresh()->password));
+    }
+
+    public function test_profile_update_rejects_an_email_that_only_differs_from_another_account_by_letter_case(): void
+    {
+        $santri = $this->userWithRole('santri');
+        $otherUser = User::factory()->create(['email' => 'anggota@example.test']);
+        DB::table('users')->where('id', $otherUser->id)->update(['email' => 'Anggota@Example.Test']);
+
+        $this->actingAs($santri)
+            ->putJson(route('api.lks.account.profile.update'), [
+                'name' => $santri->name,
+                'email' => 'Anggota@Example.Test',
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('email');
     }
 
     public function test_admin_can_import_calendar_holidays(): void

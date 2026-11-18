@@ -49,6 +49,22 @@ class PasswordResetTest extends TestCase
         $this->assertSame(['delivery' => 'accepted_by_mailer'], $audit->after_data);
     }
 
+    public function test_reset_password_link_is_sent_when_a_legacy_email_uses_different_letter_case(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create(['email' => 'khulatulasfi123@gmail.com']);
+        DB::table('users')->where('id', $user->id)->update(['email' => 'Khulatulasfi123@gmail.com']);
+
+        $this->post(route('password.request'), ['email' => 'khulatulasfi123@gmail.com']);
+
+        Notification::assertSentTo($user, ResetPassword::class);
+        $this->assertDatabaseHas('audit_logs', [
+            'event' => 'password_reset.link_requested',
+            'auditable_id' => $user->id,
+        ]);
+    }
+
     public function test_unknown_or_inactive_accounts_receive_the_same_reset_request_response(): void
     {
         Notification::fake();

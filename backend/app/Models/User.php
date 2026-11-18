@@ -6,6 +6,8 @@ use Database\Factories\UserFactory;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -51,6 +53,24 @@ class User extends Authenticatable implements PasskeyUser
             'password' => 'hashed',
             'must_change_password' => 'boolean',
         ];
+    }
+
+    protected function email(): Attribute
+    {
+        return Attribute::make(
+            set: fn (string $value): string => static::normalizeEmail($value),
+        );
+    }
+
+    public static function normalizeEmail(string $email): string
+    {
+        return Str::lower(trim($email));
+    }
+
+    /** @param Builder<User> $query */
+    public function scopeMatchingEmail(Builder $query, string $email): Builder
+    {
+        return $query->whereRaw('LOWER(email) = ?', [static::normalizeEmail($email)]);
     }
 
     /** @return BelongsToMany<Role, $this> */

@@ -5,6 +5,7 @@ namespace Tests\Feature\Auth;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Support\Facades\DB;
 use Laravel\Fortify\Features;
 use Tests\TestCase;
 
@@ -40,6 +41,19 @@ class AuthenticationTest extends TestCase
             ->assertRedirect(route('dashboard', absolute: false));
 
         $this->assertAuthenticated();
+    }
+
+    public function test_users_can_authenticate_when_a_legacy_email_uses_different_letter_case(): void
+    {
+        $user = User::factory()->create(['email' => 'khulatulasfi123@gmail.com']);
+        DB::table('users')->where('id', $user->id)->update(['email' => 'Khulatulasfi123@gmail.com']);
+
+        $this->post(route('login.store'), [
+            'email' => 'khulatulasfi123@gmail.com',
+            'password' => 'password',
+        ])->assertRedirect(route('dashboard', absolute: false));
+
+        $this->assertAuthenticatedAs($user);
     }
 
     public function test_users_can_be_remembered_on_a_private_device(): void

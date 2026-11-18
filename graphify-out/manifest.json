@@ -36,9 +36,9 @@
     "semantic_hash": ""
   },
   "backend/app/Actions/Fortify/CreateNewUser.php": {
-    "mtime": 1789960738.0,
-    "seen": 1790581887.5533886,
-    "ast_hash": "0d3f62f3dad1521c95d13144cbe9b3cd",
+    "mtime": 1794969719.7450156,
+    "seen": 1794969864.8302317,
+    "ast_hash": "40998c1ccc143e1d66da7918bb247ae2",
     "semantic_hash": ""
   },
   "backend/app/Actions/Fortify/ResetUserPassword.php": {
@@ -54,9 +54,9 @@
     "semantic_hash": ""
   },
   "backend/app/Concerns/ProfileValidationRules.php": {
-    "mtime": 1789960738.0,
-    "seen": 1790581887.5534072,
-    "ast_hash": "9da65916eac719381c3ab04cb3a6320c",
+    "mtime": 1794969924.8762004,
+    "seen": 1794969997.6677697,
+    "ast_hash": "54db5f2bad4a69f78623a03c7048acff",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Controller.php": {
@@ -72,9 +72,9 @@
     "semantic_hash": ""
   },
   "backend/app/Models/User.php": {
-    "mtime": 1794564071.409866,
-    "seen": 1794564578.1496103,
-    "ast_hash": "0f2d66916138dc8730d9f8bca7d28114",
+    "mtime": 1794969756.287011,
+    "seen": 1794969864.8304002,
+    "ast_hash": "fcff6de3aea204b738947276d97a027b",
     "semantic_hash": ""
   },
   "backend/app/Providers/AppServiceProvider.php": {
@@ -84,9 +84,9 @@
     "semantic_hash": ""
   },
   "backend/app/Providers/FortifyServiceProvider.php": {
-    "mtime": 1791531882.306123,
-    "seen": 1791531947.5911489,
-    "ast_hash": "e62375c20018c4b5aa489c580ada4d6d",
+    "mtime": 1794969719.0323577,
+    "seen": 1794969864.8304133,
+    "ast_hash": "8460e549dd431f818ea4e7d4ac61f6ab",
     "semantic_hash": ""
   },
   "backend/artisan": {
@@ -462,9 +462,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Auth/AuthenticationTest.php": {
-    "mtime": 1791531565.792072,
-    "seen": 1791531760.8915453,
-    "ast_hash": "85dd1e9c2aded67b498cdb408b0ea860",
+    "mtime": 1794969654.2156873,
+    "seen": 1794969864.8307612,
+    "ast_hash": "28730b25f9841a2865791c8aaf960c70",
     "semantic_hash": ""
   },
   "backend/tests/Feature/Auth/EmailVerificationTest.php": {
@@ -480,15 +480,15 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Auth/PasswordResetTest.php": {
-    "mtime": 1794564273.4432268,
-    "seen": 1794564578.149813,
-    "ast_hash": "8b7c681ed336e6f0881e2c700760289d",
+    "mtime": 1794969655.1600404,
+    "seen": 1794969864.8307712,
+    "ast_hash": "99173ac82bc4fbff9b767d4a9c02b9fd",
     "semantic_hash": ""
   },
   "backend/tests/Feature/Auth/RegistrationTest.php": {
-    "mtime": 1790582181.275128,
-    "seen": 1790584154.2909033,
-    "ast_hash": "20c05d654e2f8575dba1a104be36f62b",
+    "mtime": 1794971293.8209026,
+    "seen": 1794971323.414572,
+    "ast_hash": "c7193c03922ee317719b4647ce9a2369",
     "semantic_hash": ""
   },
   "backend/tests/Feature/Auth/TwoFactorChallengeTest.php": {
@@ -804,9 +804,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/OrganizationController.php": {
-    "mtime": 1794564202.5789602,
-    "seen": 1794564578.1495132,
-    "ast_hash": "c86db2d3781c24e4b058a0fa72889db2",
+    "mtime": 1794969950.553108,
+    "seen": 1794969997.6677883,
+    "ast_hash": "2af3fad4ddd8610054349cba4fed8c3d",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodConfigurationController.php": {
@@ -840,9 +840,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/AccountController.php": {
-    "mtime": 1793871137.5405004,
-    "seen": 1793871298.4170353,
-    "ast_hash": "9bf26d09f27a2d944dd7f572012bd515",
+    "mtime": 1794969950.552106,
+    "seen": 1794969997.6677735,
+    "ast_hash": "e47845a9cdf6429e5f31f03e8728bff1",
     "semantic_hash": ""
   },
   ".github/workflows/deploy.yml": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1794564136.4003143,
-    "seen": 1794564578.1498218,
-    "ast_hash": "173cfa33fd5e472c81f56e0ede9ba6fc",
+    "mtime": 1794969909.1628716,
+    "seen": 1794969997.6680167,
+    "ast_hash": "d822da38e00b8ce4f13a310dd353a5e0",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {
@@ -1032,9 +1032,9 @@
     "semantic_hash": ""
   },
   "backend/app/Auth/ActiveUserProvider.php": {
-    "mtime": 1791530368.1817431,
-    "seen": 1791531760.8910441,
-    "ast_hash": "99cb49633a8cf8ee28b2c456c8035da8",
+    "mtime": 1794971301.629001,
+    "seen": 1794971323.4140651,
+    "ast_hash": "193313a288c3c9d71277a5801fedc71d",
     "semantic_hash": ""
   },
   "backend/app/Http/Responses/GenericFailedPasswordResetLinkResponse.php": {
@@ -1167,6 +1167,12 @@
     "mtime": 1794564334.1652963,
     "seen": 1794564578.1495395,
     "ast_hash": "42d824779640610ccbed5efbd6e80a12",
+    "semantic_hash": ""
+  },
+  "backend/app/Rules/UniqueEmailAddress.php": {
+    "mtime": 1794969929.6702223,
+    "seen": 1794969997.667843,
+    "ast_hash": "52e441b4b568382fa21fc3171b82a7c9",
     "semantic_hash": ""
   }
 }

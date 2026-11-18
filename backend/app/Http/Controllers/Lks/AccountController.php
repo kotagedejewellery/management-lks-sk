@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Lks;
 
 use App\Concerns\PasswordValidationRules;
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Rules\UniqueEmailAddress;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class AccountController extends Controller
@@ -29,9 +30,10 @@ class AccountController extends Controller
     public function updateProfile(Request $request): JsonResponse
     {
         $user = $request->user();
+        $request->merge(['email' => User::normalizeEmail((string) $request->input('email'))]);
         $data = $request->validate([
             'name' => ['required', 'string', 'max:150'],
-            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->getKey())],
+            'email' => ['required', 'email', 'max:255', new UniqueEmailAddress($user->getKey())],
         ]);
 
         $user->fill($data)->save();
