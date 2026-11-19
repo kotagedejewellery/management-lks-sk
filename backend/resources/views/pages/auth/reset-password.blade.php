@@ -61,7 +61,7 @@
                     <div class="auth-field">
                         <label for="password">Password baru</label>
                         <div class="password-control">
-                            <input id="password" name="password" type="password" required autocomplete="new-password" placeholder="Masukkan password baru">
+                            <input id="password" name="password" type="password" minlength="8" required autocomplete="new-password" placeholder="Masukkan password baru">
                             <button class="password-toggle" type="button" data-password-toggle aria-controls="password" aria-pressed="false" aria-label="Tampilkan password baru">
                                 <svg class="password-toggle-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.8"/></svg>
                                 <svg class="password-toggle-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18M10.6 5.2A10.4 10.4 0 0 1 12 5c6.1 0 9.5 7 9.5 7a17.1 17.1 0 0 1-3.1 3.8M6.2 6.2A17.2 17.2 0 0 0 2.5 12S5.9 19 12 19a9.9 9.9 0 0 0 2.2-.3M9.8 9.8a3.1 3.1 0 0 0 4.4 4.4"/></svg>
@@ -72,7 +72,7 @@
                     <div class="auth-field">
                         <label for="password_confirmation">Konfirmasi password baru</label>
                         <div class="password-control">
-                            <input id="password_confirmation" name="password_confirmation" type="password" required autocomplete="new-password" placeholder="Ulangi password baru">
+                            <input id="password_confirmation" name="password_confirmation" type="password" minlength="8" required autocomplete="new-password" placeholder="Ulangi password baru">
                             <button class="password-toggle" type="button" data-password-toggle aria-controls="password_confirmation" aria-pressed="false" aria-label="Tampilkan konfirmasi password">
                                 <svg class="password-toggle-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.8"/></svg>
                                 <svg class="password-toggle-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18M10.6 5.2A10.4 10.4 0 0 1 12 5c6.1 0 9.5 7 9.5 7a17.1 17.1 0 0 1-3.1 3.8M6.2 6.2A17.2 17.2 0 0 0 2.5 12S5.9 19 12 19a9.9 9.9 0 0 0 2.2-.3M9.8 9.8a3.1 3.1 0 0 0 4.4 4.4"/></svg>
@@ -85,7 +85,7 @@
                         <span class="auth-submit-loading" aria-live="polite" hidden><i aria-hidden="true"></i><span>Menyimpan password…</span></span>
                     </button>
                 </form>
-                <p class="auth-help">Gunakan minimal 12 karakter dengan huruf besar-kecil, angka, dan simbol. Setelah disimpan, Anda perlu masuk kembali menggunakan password baru.</p>
+                <p class="auth-help">Gunakan minimal 8 karakter dengan huruf besar-kecil, angka, dan simbol. Setelah disimpan, Anda perlu masuk kembali menggunakan password baru.</p>
                 <p class="auth-return">Tautan tidak lagi berlaku? <a href="{{ route('password.request') }}">Minta tautan reset baru</a></p>
             </div>
         </section>

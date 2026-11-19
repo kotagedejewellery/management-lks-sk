@@ -61,7 +61,7 @@ Leader melihat hasil anggota yang berada di bawah tanggung jawabnya.
 Admin mengelola konfigurasi serta data utama sistem.
 
 - Mengelola data Santri Karya dan struktur organisasinya.
-- Mengatur ulang password sementara akun Santri Karya aktif untuk pemulihan akses; sesi akun yang lama berakhir, akun wajib menggantinya saat masuk kembali, dan setiap password baru mengikuti kebijakan keamanan sistem.
+- Mengatur ulang password sementara akun Santri Karya aktif untuk pemulihan akses; sesi akun yang lama berakhir, akun wajib menggantinya saat masuk kembali, dan setiap password baru minimal delapan karakter serta mengikuti ketentuan huruf besar-kecil, angka, simbol, dan pemeriksaan password bocor.
 - Memantau waktu terakhir permintaan tautan reset password dari akun aktif; catatan hanya berarti mailer menerima permintaan, bukan bukti email telah sampai di inbox.
 - Mengelola periode, aktivitas, dan target LKS.
 - Melihat seluruh rekap dan laporan departemen.

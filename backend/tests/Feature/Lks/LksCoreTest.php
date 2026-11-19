@@ -668,17 +668,20 @@ class LksCoreTest extends TestCase
         $team = Team::query()->create(['department_id' => $department->id, 'code' => 'OPS-1', 'name' => 'Operasional Satu', 'leader_user_id' => $leader->id, 'is_active' => true]);
         SantriProfile::query()->create(['user_id' => $leader->id, 'gender' => 'ikhwan', 'department_id' => $department->id, 'team_id' => $team->id, 'level' => 'leader', 'status' => 'active']);
 
-        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
-            ->postJson(route('api.lks.admin.santri.store'), [
-                'name' => 'Anggota Baru',
-                'email' => 'Anggota-Baru@Example.Test',
-                'temporary_password' => 'passwordsementara123',
-                'temporary_password_confirmation' => 'passwordsementara123',
-                'gender' => 'akhwat',
-                'team_id' => $team->id,
-                'level' => 'staff',
-            ])
-            ->assertCreated();
+        $this->withProductionPasswordPolicy(function () use ($admin, $team): void {
+            $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
+                ->postJson(route('api.lks.admin.santri.store'), [
+                    'name' => 'Anggota Baru',
+                    'email' => 'Anggota-Baru@Example.Test',
+                    'temporary_password' => 'Aa1!bcde',
+                    'temporary_password_confirmation' => 'Aa1!bcde',
+                    'gender' => 'akhwat',
+                    'team_id' => $team->id,
+                    'employment_started_on' => today()->subDay()->toDateString(),
+                    'level' => 'staff',
+                ])
+                ->assertCreated();
+        });
 
         $newUser = User::query()->where('email', 'anggota-baru@example.test')->firstOrFail();
         $this->assertDatabaseHas('santri_profiles', [
@@ -698,16 +701,18 @@ class LksCoreTest extends TestCase
         $profile = SantriProfile::query()->create(['user_id' => $santri->id, 'gender' => 'ikhwan', 'department_id' => $department->id, 'team_id' => $team->id, 'level' => 'staff', 'status' => 'active']);
         DB::table('sessions')->insert(['id' => 'santri-session', 'user_id' => $santri->id, 'ip_address' => '127.0.0.1', 'user_agent' => 'PHPUnit', 'payload' => 'test', 'last_activity' => now()->timestamp]);
 
-        $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
-            ->patchJson(route('api.lks.admin.santri.password.reset', $profile), [
-                'password' => 'passwordbaru123',
-                'password_confirmation' => 'passwordbaru123',
-            ])
-            ->assertOk()
-            ->assertJsonPath('data.must_change_password', true);
+        $this->withProductionPasswordPolicy(function () use ($admin, $profile): void {
+            $this->withSession(['_token' => 'test-token'])->withHeader('X-CSRF-TOKEN', 'test-token')->actingAs($admin)
+                ->patchJson(route('api.lks.admin.santri.password.reset', $profile), [
+                    'password' => 'Aa1!bcde',
+                    'password_confirmation' => 'Aa1!bcde',
+                ])
+                ->assertOk()
+                ->assertJsonPath('data.must_change_password', true);
+        });
 
         $santri->refresh();
-        $this->assertTrue(Hash::check('passwordbaru123', $santri->password));
+        $this->assertTrue(Hash::check('Aa1!bcde', $santri->password));
         $this->assertTrue($santri->must_change_password);
         $audit = AuditLog::query()->where('event', 'santri.password_reset')->sole();
         $this->assertSame($admin->id, $audit->actor_user_id);
@@ -880,14 +885,16 @@ class LksCoreTest extends TestCase
             ->assertForbidden();
 
         $this->withoutMiddleware();
-        $this->actingAs($santri)
-            ->putJson(route('api.lks.account.password.update'), [
-                'current_password' => 'sementara123',
-                'password' => 'passwordbaru123',
-                'password_confirmation' => 'passwordbaru123',
-            ])
-            ->assertOk()
-            ->assertJsonPath('data.must_change_password', false);
+        $this->withProductionPasswordPolicy(function () use ($santri): void {
+            $this->actingAs($santri)
+                ->putJson(route('api.lks.account.password.update'), [
+                    'current_password' => 'sementara123',
+                    'password' => 'Aa1!bcde',
+                    'password_confirmation' => 'Aa1!bcde',
+                ])
+                ->assertOk()
+                ->assertJsonPath('data.must_change_password', false);
+        });
 
         $this->assertDatabaseHas('users', ['id' => $santri->id, 'must_change_password' => false]);
     }

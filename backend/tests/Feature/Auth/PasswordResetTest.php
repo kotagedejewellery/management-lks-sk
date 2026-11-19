@@ -7,8 +7,10 @@ use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
 use Laravel\Fortify\Features;
 use Tests\TestCase;
 
@@ -138,19 +140,36 @@ class PasswordResetTest extends TestCase
 
         $this->post(route('password.request'), ['email' => $user->email]);
 
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
-            $response = $this->post(route('password.update'), [
-                'token' => $notification->token,
-                'email' => $user->email,
-                'password' => 'password',
-                'password_confirmation' => 'password',
-            ]);
+        $this->withProductionPasswordPolicy(function () use ($user): void {
+            Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+                $response = $this->post(route('password.update'), [
+                    'token' => $notification->token,
+                    'email' => $user->email,
+                    'password' => 'Aa1!bcde',
+                    'password_confirmation' => 'Aa1!bcde',
+                ]);
 
-            $response
-                ->assertSessionHasNoErrors()
-                ->assertRedirect(route('login', absolute: false));
+                $response
+                    ->assertSessionHasNoErrors()
+                    ->assertRedirect(route('login', absolute: false));
 
-            return true;
+                return true;
+            });
+        });
+    }
+
+    public function test_production_password_policy_allows_eight_characters(): void
+    {
+        $this->withProductionPasswordPolicy(function (): void {
+            $this->assertFalse(Validator::make(
+                ['password' => 'Aa1!bcde'],
+                ['password' => ['required', Password::default()]],
+            )->fails());
+
+            $this->assertTrue(Validator::make(
+                ['password' => 'Aa1!bcd'],
+                ['password' => ['required', Password::default()]],
+            )->fails());
         });
     }
 
