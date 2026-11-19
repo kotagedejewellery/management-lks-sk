@@ -588,7 +588,7 @@ function openBulkChecklist(activityId) {
   };
   const currentMonth = months.find((month) => month.key === monthKey);
 
-  adminFormDialog.classList.remove('is-period-config', 'is-activity-rules', 'is-activity-rule-focus');
+  adminFormDialog.classList.remove('is-period-config', 'is-activity-rules', 'is-activity-rule-focus', 'is-checklist-correction');
   adminFormDialog.dataset.returnView = '';
   adminFormDialogContent.innerHTML = `<form class="admin-modal-form bulk-checklist-form" data-admin-form="bulk-checklist" data-activity-id="${escapeHtml(activity.id)}" data-max-per-week="${Number(activity.max_per_week) || ''}"><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">Catat beberapa tanggal</h2><p>${escapeHtml(activity.name)} · ${escapeHtml(activityScheduleLabel(activity))}. Tanggal yang telah tercatat dikunci.</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields"><div class="bulk-calendar-toolbar"><p class="admin-form-note" data-bulk-selection-summary>Pilih tanggal yang masih tersedia pada kalender.</p><div><button class="text-button" type="button" data-bulk-checklist-clear>Kosongkan semua</button><button class="text-button" type="button" data-bulk-checklist-select>Pilih semua bulan ini</button></div></div><label class="bulk-calendar-month-select">Bulan<select data-bulk-checklist-month>${months.map((month) => `<option value="${escapeHtml(month.key)}"${month.key === monthKey ? ' selected' : ''}>${escapeHtml(month.label)}</option>`).join('')}</select></label><p class="bulk-calendar-legend"><span><i class="is-selectable"></i>Dapat dicatat</span><span><i class="is-recorded"></i>Sudah dicatat</span><span><i class="is-holiday"></i>Hari libur · opsional</span><span><i class="is-invalid"></i>Perlu diperiksa</span></p><div class="bulk-checklist-calendar" data-bulk-checklist-calendar aria-label="Kalender pencatatan ${escapeHtml(activity.name)}">${renderBulkChecklistCalendar([currentMonth])}</div></div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit" data-bulk-submit disabled>Catat tanggal terpilih</button></div></form>`;
   adminFormDialog.showModal();
@@ -1624,7 +1624,7 @@ function openRecapDetail(participantId) {
     ? `<a class="text-action export-pdf-link" href="${apiBase}/exports/personal/${encodeURIComponent(recapData.period.id)}" data-export-pdf>Preview PDF LKS <svg><use href="#icon-arrow"/></svg></a>`
     : '';
 
-  adminFormDialog.classList.remove('is-period-config', 'is-activity-rules', 'is-activity-rule-focus');
+  adminFormDialog.classList.remove('is-period-config', 'is-activity-rules', 'is-activity-rule-focus', 'is-checklist-correction');
   adminFormDialog.dataset.returnView = 'recap';
   adminFormDialogContent.innerHTML = `<section class="admin-modal-form recap-detail-modal"><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">Rincian capaian</h2><p>${escapeHtml(participant.name)} · ${escapeHtml(participant.team ?? 'Tanpa tim')} · ${escapeHtml(recapData.period.name)}</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields"><section class="history-participant-detail"><div class="history-score"><span>Nilai akhir</span><strong>${percentage(participant.final_percentage)}</strong><small>Ambang tuntas ${percentage(participant.passing_threshold)}</small>${statusBadge(participantStatus(participant))}</div>${recommendation}${activities ? `<ul class="history-activity-list">${activities}</ul>` : '<p class="history-empty-detail">Tidak ada aktivitas yang berlaku untuk peserta ini.</p>'}${personalExport}</section></div><div class="admin-modal-actions"><button class="primary-button" type="button" data-close-admin-modal>Tutup</button></div></section>`;
   const participationNote = participationStartNote(participant, recapData.period);
@@ -3062,9 +3062,10 @@ function renderAdminDispensationManager(context) {
   if (context.participant.gender !== 'akhwat') return '';
   const entries = context.menstruation_dispensations ?? [];
   const entryList = entries.length
-    ? `<ul class="admin-form-note">${entries.map((entry) => `<li>${escapeHtml(formatDate(entry.start_date, true))}${entry.start_date === entry.end_date ? '' : ` sampai ${escapeHtml(formatDate(entry.end_date, true))}`} <button class="text-button" type="button" data-delete-admin-dispensation="${escapeHtml(entry.id)}">Hapus</button></li>`).join('')}</ul>`
+    ? `<ul class="correction-dispensation-list">${entries.map((entry) => `<li><span>${escapeHtml(formatDate(entry.start_date, true))}${entry.start_date === entry.end_date ? '' : ` sampai ${escapeHtml(formatDate(entry.end_date, true))}`}</span><button class="text-button" type="button" data-delete-admin-dispensation="${escapeHtml(entry.id)}">Hapus</button></li>`).join('')}</ul>`
     : '<p class="admin-form-note">Belum ada dispensasi tercatat pada periode ini.</p>';
-  return `<form class="admin-modal-form correction-dispensation-form" data-admin-form="admin-dispensation" data-period-id="${escapeHtml(recapData.period.id)}" data-participant-id="${escapeHtml(context.participant.id)}" data-correction-date="${escapeHtml(context.date)}"><section class="correction-checklist" aria-label="Koreksi dispensasi menstruasi"><h3>Dispensasi menstruasi</h3><p>Gunakan hanya untuk koreksi catatan peserta Akhwat. Alasan koreksi wajib disimpan pada audit.</p>${entryList}<div class="admin-modal-inline-fields"><label>Tanggal mulai<input type="date" name="start_date" min="${escapeHtml(context.minimum_date)}" max="${escapeHtml(context.maximum_date)}" required></label><label>Tanggal selesai<input type="date" name="end_date" min="${escapeHtml(context.minimum_date)}" max="${escapeHtml(context.maximum_date)}" required></label></div><label>Alasan koreksi<textarea name="reason" maxlength="1000" required></textarea></label><div class="admin-modal-actions"><button class="primary-button" type="submit">Simpan dispensasi</button></div></section></form>`;
+  const summary = entries.length ? `${entries.length} tercatat` : 'Kelola';
+  return `<details class="correction-dispensation"><summary><span><strong>Dispensasi menstruasi</strong><small>Khusus peserta Akhwat</small></span><span class="correction-dispensation-summary">${escapeHtml(summary)}<svg aria-hidden="true"><use href="#icon-arrow"/></svg></span></summary><form class="admin-modal-form correction-dispensation-form" data-admin-form="admin-dispensation" data-period-id="${escapeHtml(recapData.period.id)}" data-participant-id="${escapeHtml(context.participant.id)}" data-correction-date="${escapeHtml(context.date)}"><div class="admin-modal-fields correction-dispensation-fields"><p>Gunakan hanya untuk koreksi catatan peserta Akhwat. Alasan dispensasi wajib tersimpan pada audit.</p>${entryList}<div class="admin-modal-inline-fields"><label>Tanggal mulai<input type="date" name="start_date" min="${escapeHtml(context.minimum_date)}" max="${escapeHtml(context.maximum_date)}" required></label><label>Tanggal selesai<input type="date" name="end_date" min="${escapeHtml(context.minimum_date)}" max="${escapeHtml(context.maximum_date)}" required></label></div><label>Alasan dispensasi (wajib)<textarea name="reason" maxlength="1000" required></textarea></label></div><div class="admin-modal-actions"><button class="primary-button" type="submit">Simpan dispensasi</button></div></form></details>`;
 }
 
 async function loadChecklistCorrectionContext(date) {
@@ -3074,9 +3075,11 @@ async function loadChecklistCorrectionContext(date) {
     const response = await fetch(`${apiBase}/admin/periods/${encodeURIComponent(recapData.period.id)}/participants/${encodeURIComponent(correctionParticipantId)}/checklists?date=${encodeURIComponent(date)}`, { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
     if (!response.ok) throw new Error(await apiError(response));
     const context = (await response.json()).data;
+    const completedCount = context.activities.filter((activity) => activity.is_completed).length;
     const rows = context.activities.map((activity) => `<label class="correction-checklist-row"><span><strong>${escapeHtml(activity.name)}</strong><small>${activity.is_completed ? 'Tercatat selesai' : 'Belum dicatat'}</small></span><input type="checkbox" value="${escapeHtml(activity.id)}" data-correction-activity data-original-completed="${activity.is_completed ? 'true' : 'false'}"${activity.is_completed ? ' checked' : ''}><span class="sr-only">${escapeHtml(activity.name)}</span></label>`).join('');
     const auditTrail = context.corrections?.length ? `<section class="correction-audit" aria-label="Riwayat koreksi"><h3>Riwayat koreksi tanggal ini</h3>${context.corrections.map((correction) => `<p><strong>${escapeHtml(correction.activity ?? 'Aktivitas')}</strong> · ${escapeHtml(correction.actor)}<small>${correction.before === null ? 'Belum dicatat' : correction.before ? 'Selesai' : 'Tidak selesai'} → ${correction.after ? 'Selesai' : 'Tidak selesai'} · ${escapeHtml(correction.reason ?? '')}</small></p>`).join('')}</section>` : '';
-    adminFormDialogContent.innerHTML = `<form class="admin-modal-form" data-admin-form="checklist-correction" data-period-id="${escapeHtml(recapData.period.id)}" data-participant-id="${escapeHtml(context.participant.id)}"><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">Lihat &amp; koreksi catatan</h2><p>${escapeHtml(context.participant.name)} · ${escapeHtml(context.participant.team ?? 'Tanpa tim')} · ${escapeHtml(context.participant.department ?? 'Tanpa departemen')}</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="admin-modal-fields"><label>Tanggal pencatatan<input type="date" name="checklist_date" data-correction-date min="${escapeHtml(context.minimum_date)}" max="${escapeHtml(context.maximum_date)}" value="${escapeHtml(context.date)}" required></label><section class="correction-checklist" aria-label="Checklist ${escapeHtml(context.participant.name)}"><p>Ubah hanya aktivitas yang perlu dikoreksi. Nilai dan status akan dihitung ulang setelah disimpan.</p>${rows || '<p class="admin-form-note">Tidak ada aktivitas yang berlaku untuk peserta ini.</p>'}</section>${auditTrail}<label>Alasan koreksi<textarea name="reason" maxlength="1000" required></textarea><small>Alasan tersimpan pada riwayat audit.</small></label></div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit">Simpan koreksi</button></div></form>${renderAdminDispensationManager(context)}`;
+    adminFormDialog.classList.add('is-checklist-correction');
+    adminFormDialogContent.innerHTML = `<div class="checklist-correction-modal"><div class="admin-modal-heading"><div><h2 id="admin-form-dialog-title">Lihat &amp; koreksi catatan</h2><p>${escapeHtml(context.participant.name)} · ${escapeHtml(context.participant.team ?? 'Tanpa tim')} · ${escapeHtml(context.participant.department ?? 'Tanpa departemen')} · ${escapeHtml(formatDate(context.date, true))}</p></div><button class="text-button" type="button" data-close-admin-modal>Tutup</button></div><div class="checklist-correction-modal-body"><form class="admin-modal-form" data-admin-form="checklist-correction" data-period-id="${escapeHtml(recapData.period.id)}" data-participant-id="${escapeHtml(context.participant.id)}"><div class="admin-modal-fields"><label>Tanggal pencatatan<input type="date" name="checklist_date" data-correction-date data-loaded-date="${escapeHtml(context.date)}" min="${escapeHtml(context.minimum_date)}" max="${escapeHtml(context.maximum_date)}" value="${escapeHtml(context.date)}" required></label><section class="correction-checklist" aria-label="Checklist ${escapeHtml(context.participant.name)}"><div class="correction-checklist-heading"><h3>Koreksi aktivitas</h3><span>${completedCount} dari ${context.activities.length} tercatat</span></div><p>Ubah hanya aktivitas yang perlu dikoreksi. Nilai dan status akan dihitung ulang setelah disimpan.</p>${rows || '<p class="admin-form-note">Tidak ada aktivitas yang berlaku untuk peserta ini.</p>'}</section>${auditTrail}<label>Alasan koreksi<textarea name="reason" maxlength="1000" required></textarea><small>Alasan tersimpan pada riwayat audit.</small></label></div><div class="admin-modal-actions"><button class="text-button" type="button" data-close-admin-modal>Batal</button><button class="primary-button" type="submit">Simpan koreksi</button></div></form>${renderAdminDispensationManager(context)}</div></div>`;
     markAdminFormPristine();
     adminFormDialog.querySelector('[data-correction-date]')?.focus();
   } catch (error) {
@@ -3096,6 +3099,7 @@ async function openChecklistCorrection(participantId) {
   const selectedDate = selectedChecklistDate >= dateInputValue(recapData.period.start_date) && selectedChecklistDate <= maximumDate
     ? selectedChecklistDate
     : maximumDate;
+  adminFormDialog.classList.add('is-checklist-correction');
   adminFormDialogContent.innerHTML = '<div class="admin-modal-form"><p class="admin-form-note">Memuat catatan peserta…</p></div>';
   adminFormDialog.dataset.returnView = 'recap';
   adminFormDialog.showModal();
@@ -3110,13 +3114,23 @@ function adminFormSnapshot(form) {
 }
 
 function markAdminFormPristine() {
-  const form = adminFormDialog.querySelector('[data-admin-form]');
-  if (form) form.dataset.initialSnapshot = adminFormSnapshot(form);
+  adminFormDialog.querySelectorAll('[data-admin-form]').forEach((form) => {
+    form.dataset.initialSnapshot = adminFormSnapshot(form);
+  });
 }
 
 function hasUnsavedAdminFormChanges() {
-  const form = adminFormDialog.querySelector('[data-admin-form]');
-  return Boolean(form?.dataset.initialSnapshot) && form.dataset.initialSnapshot !== adminFormSnapshot(form);
+  return [...adminFormDialog.querySelectorAll('[data-admin-form]')].some((form) => (
+    Boolean(form.dataset.initialSnapshot) && form.dataset.initialSnapshot !== adminFormSnapshot(form)
+  ));
+}
+
+function hasUnsavedChecklistCorrectionChanges(dateField) {
+  const selectedDate = dateField.value;
+  dateField.value = dateField.dataset.loadedDate ?? selectedDate;
+  const hasChanges = hasUnsavedAdminFormChanges();
+  dateField.value = selectedDate;
+  return hasChanges;
 }
 
 async function requestAdminFormClose() {
@@ -3419,6 +3433,7 @@ function openAdminFormModal(type, departmentId = '', returnView = '', activityRu
   adminFormDialog.classList.toggle('is-period-config', type === 'period-config');
   adminFormDialog.classList.toggle('is-activity-rules', ['activity', 'activity-edit', 'activity-rule-edit'].includes(type));
   adminFormDialog.classList.toggle('is-activity-rule-focus', type === 'activity-rule-edit');
+  adminFormDialog.classList.remove('is-checklist-correction');
   adminFormDialog.dataset.returnView = returnView;
   adminFormDialog.showModal();
   markAdminFormPristine();
@@ -3490,8 +3505,24 @@ document.addEventListener('click', (event) => {
   const correction = event.target.closest('[data-open-checklist-correction]');
   if (correction) openChecklistCorrection(correction.dataset.openChecklistCorrection);
 });
-document.addEventListener('change', (event) => {
-  if (event.target.matches('[data-correction-date]')) loadChecklistCorrectionContext(event.target.value);
+document.addEventListener('change', async (event) => {
+  if (!event.target.matches('input[data-correction-date]')) return;
+  const dateField = event.target;
+  const previousDate = dateField.dataset.loadedDate ?? dateField.value;
+  if (dateField.value === previousDate) return;
+  if (hasUnsavedChecklistCorrectionChanges(dateField)) {
+    const confirmed = await confirmAction({
+      title: 'Ganti tanggal?',
+      message: 'Koreksi dan alasan yang belum disimpan akan hilang.',
+      confirmLabel: 'Buang perubahan',
+      tone: 'danger',
+    });
+    if (!confirmed) {
+      dateField.value = previousDate;
+      return;
+    }
+  }
+  loadChecklistCorrectionContext(dateField.value);
 });
 document.addEventListener('change', (event) => {
   if (!event.target.matches('[data-calendar-year]')) return;

@@ -78,9 +78,9 @@
     "semantic_hash": ""
   },
   "backend/app/Providers/AppServiceProvider.php": {
-    "mtime": 1795057678.189765,
-    "seen": 1795058081.6808228,
-    "ast_hash": "b6b36c122d57973c2e8ef765f97ad6ce",
+    "mtime": 1795059507.7836227,
+    "seen": 1795060175.2691479,
+    "ast_hash": "e9742704b1e54ae5aa8887f0c2ca4625",
     "semantic_hash": ""
   },
   "backend/app/Providers/FortifyServiceProvider.php": {
@@ -480,9 +480,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Auth/PasswordResetTest.php": {
-    "mtime": 1795058108.8879247,
-    "seen": 1795058136.2818472,
-    "ast_hash": "57980a32c30e6f1293396d623176f0b2",
+    "mtime": 1795059370.214325,
+    "seen": 1795060175.2694514,
+    "ast_hash": "8f76a51ddfd6ca3fcd413962f8001f77",
     "semantic_hash": ""
   },
   "backend/tests/Feature/Auth/RegistrationTest.php": {
@@ -522,9 +522,9 @@
     "semantic_hash": ""
   },
   "backend/tests/TestCase.php": {
-    "mtime": 1790582181.3317838,
-    "seen": 1790584154.2909431,
-    "ast_hash": "9b168c70272eed7a1c57c3a5703ac2b6",
+    "mtime": 1795059369.3217905,
+    "seen": 1795060175.2694752,
+    "ast_hash": "436aaf7b0b96047f2a08ae0255df7c9a",
     "semantic_hash": ""
   },
   "backend/tests/Unit/ExampleTest.php": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1794983183.7707956,
-    "seen": 1794983203.3395925,
-    "ast_hash": "0735082d4c380375eb3556df60b32284",
+    "mtime": 1795062573.7172863,
+    "seen": 1795062605.9567606,
+    "ast_hash": "813aada5b677bd5934d1f23e2e533cba",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1794975726.65885,
-    "seen": 1794975882.0025032,
-    "ast_hash": "327f3f2cfac4a8c6a19ca32dc72f4192",
+    "mtime": 1795059930.984569,
+    "seen": 1795060175.269465,
+    "ast_hash": "e83a439580c7d4323abad9e5e28ec559",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1795058109.554304,
-    "seen": 1795058136.2818875,
-    "ast_hash": "c1026784a5983e2dfc3d8a21c455d91f",
+    "mtime": 1795062573.7200658,
+    "seen": 1795062605.9567728,
+    "ast_hash": "f2f9ac3cc9334e828574ed81aba56e75",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_16_000001_add_recording_enabled_to_lks_periods_table.php": {

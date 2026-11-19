@@ -87,10 +87,16 @@ body.is-booting .page-progress { inset: 0; }
 .admin-form-dialog { width: min(520px, calc(100vw - 36px)); padding: 0; border: 0; border-radius: 14px; background: var(--surface, #fffefa); color: var(--ink, #203329); box-shadow: 0 24px 60px rgba(25, 52, 44, .2); }
 .admin-form-dialog.is-activity-rules { width: min(1080px, calc(100vw - 48px)); }
 .admin-form-dialog.is-activity-rule-focus { width: min(720px, calc(100vw - 48px)); overflow: hidden; }
+.admin-form-dialog.is-checklist-correction { width: min(680px, calc(100vw - 48px)); overflow: hidden; }
 .admin-form-dialog.is-activity-rule-focus .admin-modal-form { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 0; max-height: calc(100dvh - 48px); padding: 0; }
 .admin-form-dialog.is-activity-rule-focus .admin-modal-heading { padding: 28px 30px 20px; border-bottom: 1px solid var(--line, #d9ddd5); }
 .admin-form-dialog.is-activity-rule-focus .admin-modal-fields { min-height: 0; overflow-y: auto; padding: 22px 30px 28px; }
 .admin-form-dialog.is-activity-rule-focus .admin-modal-actions { padding: 16px 30px; border-top: 1px solid var(--line, #d9ddd5); background: var(--surface, #fffefa); }
+.checklist-correction-modal { display: grid; grid-template-rows: auto minmax(0, 1fr); max-height: calc(100dvh - 48px); }
+.checklist-correction-modal > .admin-modal-heading { padding: 28px 30px 20px; border-bottom: 1px solid var(--line, #d9ddd5); background: var(--surface, #fffefa); }
+.checklist-correction-modal-body { min-height: 0; overflow-y: auto; padding: 22px 30px 28px; }
+.checklist-correction-modal .admin-modal-form { gap: 20px; padding: 0; }
+.checklist-correction-modal .admin-modal-actions { padding-top: 16px; border-top: 1px solid var(--line, #d9ddd5); }
 .admin-form-dialog::backdrop { background: rgba(23, 49, 58, .35); backdrop-filter: blur(3px); }
 .confirm-dialog,
 .admin-form-dialog { max-height: calc(100dvh - 36px); overflow-y: auto; }
@@ -516,6 +522,10 @@ body.is-booting .page-progress { inset: 0; }
 .admin-modal-checkbox { display: flex !important; align-items: center; gap: 8px; color: var(--ink, #203329) !important; }
 .admin-modal-checkbox input { width: 16px !important; min-height: 16px !important; }
 .correction-checklist { display: grid; gap: 0; margin: 0; border-top: 1px solid var(--line-dark, #c5d0c8); }
+.correction-checklist-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; padding-top: 16px; }
+.correction-checklist-heading h3, .correction-checklist-heading span { margin: 0; }
+.correction-checklist-heading h3 { color: var(--ink, #203329); font-size: 15px; }
+.correction-checklist-heading span { color: var(--ink-soft, #53645a); font-size: 12px; font-weight: 700; }
 .correction-checklist > p { margin: 12px 0; color: var(--ink-soft, #53645a); font-size: 13px; line-height: 1.5; }
 .correction-checklist-row { display: grid !important; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line, #d9ddd5); color: var(--ink, #203329) !important; }
 .correction-checklist-row strong, .correction-checklist-row small { display: block; }
@@ -526,6 +536,19 @@ body.is-booting .page-progress { inset: 0; }
 .correction-audit h3 { margin: 13px 0 5px; color: var(--ink, #203329); font-size: 13px; }
 .correction-audit p { margin: 0; padding: 9px 0; border-bottom: 1px solid var(--line, #d9ddd5); color: var(--ink, #203329); font-size: 12px; }
 .correction-audit small { display: block; margin-top: 3px; color: var(--ink-soft, #53645a); font-size: 12px; line-height: 1.45; }
+.correction-dispensation { margin-top: 28px; border-top: 1px solid var(--line-dark, #c5d0c8); border-bottom: 1px solid var(--line, #d9ddd5); }
+.correction-dispensation summary { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 16px 0; cursor: pointer; color: var(--ink, #203329); list-style: none; }
+.correction-dispensation summary::-webkit-details-marker { display: none; }
+.correction-dispensation summary strong, .correction-dispensation summary small { display: block; }
+.correction-dispensation summary strong { font-size: 15px; }
+.correction-dispensation summary small { margin-top: 3px; color: var(--ink-soft, #53645a); font-size: 12px; font-weight: 400; }
+.correction-dispensation-summary { display: inline-flex; align-items: center; gap: 8px; color: var(--evergreen-dark, #155244); font-size: 12px; font-weight: 800; }
+.correction-dispensation-summary svg { width: 16px; height: 16px; transition: transform .18s ease; }
+.correction-dispensation[open] .correction-dispensation-summary svg { transform: rotate(90deg); }
+.correction-dispensation-form { padding-bottom: 20px !important; }
+.correction-dispensation-fields > p { margin: 0; color: var(--ink-soft, #53645a); font-size: 13px; line-height: 1.5; }
+.correction-dispensation-list { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line, #d9ddd5); }
+.correction-dispensation-list li { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--line, #d9ddd5); color: var(--ink, #203329); font-size: 13px; }
 
 @media (min-width: 901px) {
   .view {
@@ -565,11 +588,14 @@ body.is-booting .page-progress { inset: 0; }
   .pdf-preview-dialog { width: min(100vw - 20px, 620px); }
   .pdf-preview { max-height: calc(100dvh - 20px); padding: 20px; }
   .pdf-preview-frame iframe { height: min(62dvh, 620px); }
-  .admin-form-dialog.is-period-config, .admin-form-dialog.is-activity-rules, .admin-form-dialog.is-activity-rule-focus { width: min(100vw - 20px, 620px); }
+  .admin-form-dialog.is-period-config, .admin-form-dialog.is-activity-rules, .admin-form-dialog.is-activity-rule-focus, .admin-form-dialog.is-checklist-correction { width: min(100vw - 20px, 680px); }
   .admin-form-dialog.is-period-config .admin-modal-form, .admin-form-dialog.is-activity-rule-focus .admin-modal-form { max-height: calc(100dvh - 20px); }
   .admin-form-dialog.is-period-config .admin-modal-heading, .admin-form-dialog.is-period-config .admin-modal-actions, .admin-form-dialog.is-activity-rule-focus .admin-modal-heading, .admin-form-dialog.is-activity-rule-focus .admin-modal-actions { padding-left: 20px; padding-right: 20px; }
   .admin-form-dialog.is-period-config .form-feedback { margin-left: 20px; margin-right: 20px; }
   .admin-form-dialog.is-activity-rule-focus .admin-modal-fields { padding: 18px 20px 24px; }
+  .checklist-correction-modal { max-height: calc(100dvh - 20px); }
+  .checklist-correction-modal > .admin-modal-heading { padding: 20px; }
+  .checklist-correction-modal-body { padding: 18px 20px 24px; }
   .period-config-manager { display: block; height: min(62dvh, 620px); }
   .period-config-navigation { height: 100%; padding: 18px 20px; border-right: 0; }
   .period-config-editor { display: none; height: 100%; padding: 18px 20px 24px; }
