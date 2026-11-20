@@ -964,6 +964,21 @@ body.is-booting .page-progress { inset: 0; }
   display: block;
 }
 
+.checklist-explanation {
+  display: block;
+  margin-top: 5px;
+  line-height: 1.45;
+}
+
+.checklist-explanation[hidden] {
+  display: none;
+}
+
+.checklist-blocked-reason {
+  color: var(--ink-soft, #53645a);
+  font-weight: 700;
+}
+
 .bulk-checklist-trigger svg {
   width: 15px;
   height: 15px;

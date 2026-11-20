@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Lks;
 
 use App\Http\Controllers\Controller;
 use App\Models\LksPeriod;
+use App\Models\PeriodMenstruationDispensation;
 use App\Models\SantriProfile;
+use App\Services\ChecklistRecordingService;
 use App\Services\LksScoreCalculator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,7 +14,7 @@ use Illuminate\Support\Carbon;
 
 class DashboardController extends Controller
 {
-    public function __invoke(Request $request, LksScoreCalculator $calculator): JsonResponse
+    public function __invoke(Request $request, LksScoreCalculator $calculator, ChecklistRecordingService $checklists): JsonResponse
     {
         $viewer = $request->user()->loadMissing('roles');
         $selectedDate = Carbon::parse($request->validate(['date' => ['nullable', 'date']])['date'] ?? now())->startOfDay();
@@ -103,6 +105,7 @@ class DashboardController extends Controller
         $holidayDates = $calculator->periodHolidayDates($period);
         $isDispensationDate = $participant?->gender_snapshot === 'akhwat'
             && $participant->menstruationDispensations->contains(fn ($dispensation): bool => $selectedDate->betweenIncluded($dispensation->start_date, $dispensation->end_date));
+        $dispensationDates = $participant === null ? [] : PeriodMenstruationDispensation::datesFor($participant);
 
         $periodActivities = $period->periodActivities()
             ->orderBy('sort_order')
@@ -116,12 +119,21 @@ class DashboardController extends Controller
         $activities = $periodActivities
             ->filter(fn ($activity) => ($participant === null || $activity->appliesTo($participant))
                 && ($participant === null || $activity->allowedWeekdaysFor($participant) === [] || in_array($selectedDate->isoWeekday(), $activity->allowedWeekdaysFor($participant), true)))
-            ->map(function ($activity) use ($participant, $calculator, $period, $holidayDates, $holiday, $recordedDatesByActivity, $isDispensationDate): array {
+            ->map(function ($activity) use ($participant, $calculator, $period, $holidayDates, $holiday, $recordedDatesByActivity, $isDispensationDate, $dispensationDates, $recordingAvailable, $selectedDate, $checklists): array {
                 $checklist = $participant?->checklists->firstWhere('period_activity_id', $activity->getKey());
                 $rule = $calculator->effectiveTargets($activity, $period, $holidayDates, $participant);
                 $maxPerWeek = $participant === null ? null : $activity->maxPerWeekFor($participant);
                 $menstruationExempt = $participant !== null && $activity->menstruationExemptFor($participant);
                 $allowedWeekdays = $participant === null ? [] : $activity->allowedWeekdaysFor($participant);
+                $isCompleted = $checklist?->is_completed ?? false;
+                $recordedDates = $recordedDatesByActivity->get($activity->getKey(), []);
+                $recordingReason = ! $recordingAvailable
+                    ? ($period->recording_enabled ? 'Pencatatan LKS hanya dibuka selama rentang periode.' : 'Pencatatan LKS sedang dijeda oleh Admin.')
+                    : ($isDispensationDate && $menstruationExempt
+                        ? 'Aktivitas ini dibebaskan pada tanggal dispensasi yang tercatat.'
+                        : ($participant !== null && ! $isCompleted && $checklists->weeklyLimitReached($participant, $activity, $selectedDate, $recordedDates, $holidayDates, $dispensationDates)
+                            ? 'Batas pencatatan aktivitas untuk pekan ini sudah tercapai.'
+                            : null));
 
                 return [
                     'id' => $activity->getKey(),
@@ -132,12 +144,13 @@ class DashboardController extends Controller
                     'lks_category' => $rule['category'],
                     'max_per_week' => $maxPerWeek,
                     'menstruation_exempt' => $menstruationExempt,
-                    'is_completed' => $checklist?->is_completed ?? false,
-                    'recorded_dates' => $recordedDatesByActivity->get($activity->getKey(), []),
+                    'is_completed' => $isCompleted,
+                    'recorded_dates' => $recordedDates,
                     'allowed_weekdays' => $allowedWeekdays,
                     'is_optional_today' => $holiday !== null,
                     'holiday_name' => $holiday?->name,
                     'is_dispensation_today' => $isDispensationDate && $menstruationExempt,
+                    'recording_reason' => $recordingReason,
                 ];
             })
             ->filter(fn (array $activity): bool => $activity['target_count'] > 0 || $activity['is_dispensation_today'])
@@ -185,4 +198,5 @@ class DashboardController extends Controller
             'selected_date' => $selectedDate->toDateString(),
         ]]);
     }
+
 }

@@ -1,8 +1,8 @@
 {
   "AGENTS.md": {
-    "mtime": 1795156612.5239174,
-    "seen": 1795156632.8241272,
-    "ast_hash": "66fb63270544c432d9a0e545edf448f1",
+    "mtime": 1795157175.0868917,
+    "seen": 1795157188.5153034,
+    "ast_hash": "6b414949c3dfd7915e41aae1271a983f",
     "semantic_hash": ""
   },
   "PRODUCT.md": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1795062984.812508,
-    "seen": 1795063012.6608677,
-    "ast_hash": "75e0a58e2133dbdf7ad3eee7061ee122",
+    "mtime": 1795164380.6977165,
+    "seen": 1795164428.659902,
+    "ast_hash": "d9d13d97e1e18ef31a67249797373c18",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1795062984.8130147,
-    "seen": 1795063012.6608775,
-    "ast_hash": "76b6295a6432d90ff1ee88ba1ad6173b",
+    "mtime": 1795164380.7118504,
+    "seen": 1795164428.6599226,
+    "ast_hash": "13444a2bfc02aa9911099fdeec333102",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_16_000001_add_recording_enabled_to_lks_periods_table.php": {

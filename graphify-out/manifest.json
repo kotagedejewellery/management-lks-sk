@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/app.js": {
-    "mtime": 1795062984.812508,
-    "seen": 1795063012.6608677,
-    "ast_hash": "75e0a58e2133dbdf7ad3eee7061ee122",
+    "mtime": 1795165127.1254282,
+    "seen": 1795165527.1006596,
+    "ast_hash": "df0d68e237c73403c745e9486d63acd7",
     "semantic_hash": ""
   },
   ".impeccable/surfaces/frontend-index-html.md": {
@@ -756,9 +756,9 @@
     "semantic_hash": ""
   },
   "backend/app/Services/ChecklistRecordingService.php": {
-    "mtime": 1793956117.7278893,
-    "seen": 1793956970.0071056,
-    "ast_hash": "838366f007b912776c1c06f8758cbbbc",
+    "mtime": 1795165482.2194526,
+    "seen": 1795165527.1002357,
+    "ast_hash": "c1299807f50c3e3280470af6f0207b31",
     "semantic_hash": ""
   },
   "backend/app/Services/PeriodActivationService.php": {
@@ -774,9 +774,9 @@
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/DashboardController.php": {
-    "mtime": 1794552747.2720294,
-    "seen": 1794552891.8346884,
-    "ast_hash": "4c6019f35ea8e6b73ddcc5576cbd1b87",
+    "mtime": 1795165482.2204604,
+    "seen": 1795165527.1000955,
+    "ast_hash": "d27f86e11cff24739622ffbe37e9d758",
     "semantic_hash": ""
   },
   "backend/app/Http/Controllers/Lks/PeriodController.php": {
@@ -858,9 +858,9 @@
     "semantic_hash": ""
   },
   "backend/tests/Feature/Lks/LksCoreTest.php": {
-    "mtime": 1795059930.984569,
-    "seen": 1795060175.269465,
-    "ast_hash": "e83a439580c7d4323abad9e5e28ec559",
+    "mtime": 1795164989.602228,
+    "seen": 1795165527.1006186,
+    "ast_hash": "0a054fa2709544eb14a8a15668d161d8",
     "semantic_hash": ""
   },
   "docs/Email Reset Password.md": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "DESIGN.md": {
-    "mtime": 1795062984.8130147,
-    "seen": 1795063012.6608775,
-    "ast_hash": "76b6295a6432d90ff1ee88ba1ad6173b",
+    "mtime": 1795164380.7118504,
+    "seen": 1795164428.6599226,
+    "ast_hash": "13444a2bfc02aa9911099fdeec333102",
     "semantic_hash": ""
   },
   "backend/database/migrations/2026_10_16_000001_add_recording_enabled_to_lks_periods_table.php": {

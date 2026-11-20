@@ -394,16 +394,26 @@ function checkIcon() {
 
 function recordingUnavailableLabel(activity = null) {
   if (activity?.is_dispensation_today === true) return 'Dispensasi tercatat';
+  if (activity?.recording_reason) return 'Tidak dapat diubah';
   return activePeriod?.recording_enabled ? 'Pencatatan telah berakhir' : 'Pencatatan dijeda oleh Admin';
+}
+
+function recordingUnavailableReason(activity = null) {
+  if (activity?.recording_reason) return activity.recording_reason;
+  if (activity?.is_dispensation_today === true) return 'Tidak dapat diubah karena aktivitas ini dibebaskan oleh dispensasi yang tercatat.';
+  return activePeriod?.recording_enabled
+    ? 'Tidak dapat diubah karena periode pencatatan telah berakhir.'
+    : 'Tidak dapat diubah karena pencatatan LKS sedang dijeda oleh Admin.';
 }
 
 function renderQuickCheck(activity) {
   const complete = activity.is_completed ?? activity.is_completed_today;
   const saveError = checklistSaveErrors.get(checklistSaveErrorKey(activity.id));
   const isSaving = checklistSaveLocks.has(checklistSaveErrorKey(activity.id));
-  const canRecord = activePeriod?.recording_available === true && activity.is_dispensation_today !== true;
-  return `<button class="quick-check${complete ? ' is-done' : ''}${activity.is_dispensation_today ? ' is-dispensed' : ''}${isSaving ? ' is-busy' : ''}" data-activity-id="${escapeHtml(activity.id)}" aria-pressed="${complete}"${isSaving ? ' aria-busy="true"' : ''}${canRecord && !isSaving ? '' : ' disabled'}>
-    <span class="check-mark">${checkIcon()}</span><span><strong>${escapeHtml(activity.name)}</strong><small${saveError ? ' class="checklist-save-error"' : ''}>${escapeHtml(isSaving ? 'Menyimpan…' : saveError || (complete ? 'Sudah dicatat' : canRecord ? 'Belum dicatat' : recordingUnavailableLabel()))}</small></span>
+  const canRecord = activePeriod?.recording_available === true && !activity.recording_reason && activity.is_dispensation_today !== true;
+  const unavailableReason = !canRecord && !isSaving ? recordingUnavailableReason(activity) : '';
+  return `<button class="quick-check${complete ? ' is-done' : ''}${activity.is_dispensation_today ? ' is-dispensed' : ''}${isSaving ? ' is-busy' : ''}" data-activity-id="${escapeHtml(activity.id)}" data-unavailable-reason="${escapeHtml(unavailableReason)}" aria-pressed="${complete}"${isSaving ? ' aria-busy="true"' : ''}${canRecord && !isSaving ? '' : ' disabled'}>
+    <span class="check-mark">${checkIcon()}</span><span><strong>${escapeHtml(activity.name)}</strong><small class="${saveError ? 'checklist-explanation checklist-save-error' : unavailableReason ? 'checklist-explanation checklist-blocked-reason' : ''}">${escapeHtml(isSaving ? 'Menyimpan…' : saveError || unavailableReason || (complete ? 'Sudah dicatat' : 'Belum dicatat'))}</small></span>
   </button>`;
 }
 
@@ -412,11 +422,13 @@ function renderFullCheck(activity) {
   const optionalNote = activity.is_optional_today ? ` · Opsional${activity.holiday_name ? ` (${escapeHtml(activity.holiday_name)})` : ''}` : '';
   const saveError = checklistSaveErrors.get(checklistSaveErrorKey(activity.id));
   const isSaving = checklistSaveLocks.has(checklistSaveErrorKey(activity.id));
-  const canRecord = activePeriod?.recording_available === true && activity.is_dispensation_today !== true;
+  const canRecord = activePeriod?.recording_available === true && !activity.recording_reason && activity.is_dispensation_today !== true;
+  const unavailableReason = !canRecord && !isSaving ? recordingUnavailableReason(activity) : '';
+  const explanation = saveError || unavailableReason;
   return `<div class="checklist-item${complete ? ' is-done' : ''}${saveError ? ' has-save-error' : ''}">
-    <button class="square-check${isSaving ? ' is-busy' : ''}" data-activity-id="${escapeHtml(activity.id)}" aria-label="${complete ? 'Batalkan catatan' : 'Catat'} ${escapeHtml(activity.name)}" aria-pressed="${complete}"${isSaving ? ' aria-busy="true"' : ''}${canRecord && !isSaving ? '' : ' disabled'}>${checkIcon()}</button>
-    <div><strong>${escapeHtml(activity.name)}</strong><small>${escapeHtml(activityRuleLabel(activity))}${optionalNote}</small>${canRecord ? `<button class="text-button bulk-checklist-trigger" type="button" data-open-bulk-checklist="${escapeHtml(activity.id)}"><svg aria-hidden="true"><use href="#icon-calendar"/></svg>Catat beberapa tanggal</button>` : ''}</div>
-    <span class="item-note${saveError ? ' checklist-save-error' : ''}" role="status">${escapeHtml(isSaving ? 'Menyimpan…' : saveError || (complete ? 'Dicatat' : canRecord ? 'Belum dicatat' : recordingUnavailableLabel()))}</span>
+    <button class="square-check${isSaving ? ' is-busy' : ''}" data-activity-id="${escapeHtml(activity.id)}" data-unavailable-reason="${escapeHtml(unavailableReason)}" aria-label="${complete ? 'Batalkan catatan' : 'Catat'} ${escapeHtml(activity.name)}" aria-pressed="${complete}"${isSaving ? ' aria-busy="true"' : ''}${canRecord && !isSaving ? '' : ' disabled'}>${checkIcon()}</button>
+    <div><strong>${escapeHtml(activity.name)}</strong><small>${escapeHtml(activityRuleLabel(activity))}${optionalNote}</small><small class="checklist-explanation${saveError ? ' checklist-save-error' : unavailableReason ? ' checklist-blocked-reason' : ''}" data-checklist-explanation${explanation ? '' : ' hidden'}>${escapeHtml(explanation)}</small>${canRecord ? `<button class="text-button bulk-checklist-trigger" type="button" data-open-bulk-checklist="${escapeHtml(activity.id)}"><svg aria-hidden="true"><use href="#icon-calendar"/></svg>Catat beberapa tanggal</button>` : ''}</div>
+    <span class="item-note${saveError ? ' checklist-save-error' : ''}" role="status">${escapeHtml(isSaving ? 'Menyimpan…' : saveError ? 'Tidak dapat disimpan' : unavailableReason ? recordingUnavailableLabel(activity) : complete ? 'Dicatat' : 'Belum dicatat')}</span>
   </div>`;
 }
 
@@ -645,15 +657,25 @@ function setChecklistSaveError(activityId, message = '', checklistDate = selecte
     const error = checklistSaveErrors.get(key);
     if (button.classList.contains('quick-check')) {
       const label = button.querySelector('small');
-      label.textContent = error || (button.classList.contains('is-done') ? 'Sudah dicatat' : 'Belum dicatat');
+      const unavailableReason = button.dataset.unavailableReason || '';
+      label.textContent = error || unavailableReason || (button.classList.contains('is-done') ? 'Sudah dicatat' : 'Belum dicatat');
+      label.classList.toggle('checklist-explanation', Boolean(error || unavailableReason));
       label.classList.toggle('checklist-save-error', Boolean(error));
+      label.classList.toggle('checklist-blocked-reason', !error && Boolean(unavailableReason));
       return;
     }
     const item = button.closest('.checklist-item');
     const note = item.querySelector('.item-note');
+    const explanation = item.querySelector('[data-checklist-explanation]');
+    const unavailableReason = button.dataset.unavailableReason || '';
+    const explanationText = error || unavailableReason;
     item.classList.toggle('has-save-error', Boolean(error));
-    note.textContent = error || (item.classList.contains('is-done') ? 'Dicatat' : 'Belum dicatat');
+    note.textContent = error ? 'Tidak dapat disimpan' : unavailableReason ? 'Tidak dapat diubah' : (item.classList.contains('is-done') ? 'Dicatat' : 'Belum dicatat');
     note.classList.toggle('checklist-save-error', Boolean(error));
+    explanation.textContent = explanationText;
+    explanation.hidden = !explanationText;
+    explanation.classList.toggle('checklist-save-error', Boolean(error));
+    explanation.classList.toggle('checklist-blocked-reason', !error && Boolean(unavailableReason));
   });
 }
 

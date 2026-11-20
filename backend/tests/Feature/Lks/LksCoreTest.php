@@ -1335,6 +1335,29 @@ class LksCoreTest extends TestCase
             ->assertJsonPath('data.activities.0.id', $scheduled->id);
     }
 
+    public function test_dashboard_explains_when_an_incomplete_activity_has_reached_its_weekly_limit(): void
+    {
+        $admin = $this->userWithRole('admin');
+        $santri = $this->userWithRole('santri');
+        $period = $this->period($admin, ['status' => 'active', 'start_date' => now()->subWeeks(2)->toDateString()]);
+        $activity = $this->periodActivity($period, 4);
+        $activity->update(['max_per_week' => 1]);
+        $participant = $this->participant($period, $santri);
+        $recordedDate = now()->copy()->startOfWeek();
+        $selectedDate = $recordedDate->copy()->addDay();
+        if ($selectedDate->gt(now())) {
+            $recordedDate = $recordedDate->subWeek();
+            $selectedDate = $recordedDate->copy()->addDay();
+        }
+        $this->checklist($participant, $activity, $santri, $recordedDate->toDateString());
+
+        $this->actingAs($santri)
+            ->getJson(route('api.lks.dashboard', ['date' => $selectedDate->toDateString()]))
+            ->assertOk()
+            ->assertJsonPath('data.activities.0.is_completed', false)
+            ->assertJsonPath('data.activities.0.recording_reason', 'Batas pencatatan aktivitas untuk pekan ini sudah tercapai.');
+    }
+
     public function test_holiday_checklist_does_not_consume_the_weekly_limit(): void
     {
         $this->withoutMiddleware();

@@ -153,6 +153,39 @@ class ChecklistRecordingService
         }
     }
 
+    /**
+     * @param iterable<CarbonInterface|string> $completedDates
+     * @param list<string> $holidayDates
+     * @param list<string> $dispensationDates
+     */
+    public function weeklyLimitReached(
+        PeriodParticipantSnapshot $participant,
+        PeriodActivity $activity,
+        Carbon $date,
+        iterable $completedDates,
+        array $holidayDates = [],
+        array $dispensationDates = [],
+        int $pendingWeeklyCount = 0,
+    ): bool {
+        $maxPerWeek = $activity->maxPerWeekFor($participant);
+        if ($maxPerWeek === null || in_array($date->toDateString(), $holidayDates, true)) {
+            return false;
+        }
+
+        $weekStart = $date->copy()->startOfWeek();
+        $weekEnd = $date->copy()->endOfWeek();
+        $menstruationExempt = $activity->menstruationExemptFor($participant);
+        $weeklyCount = collect($completedDates)
+            ->map(fn (CarbonInterface|string $recordedDate): Carbon => Carbon::parse($recordedDate)->startOfDay())
+            ->filter(fn (Carbon $recordedDate): bool => $recordedDate->betweenIncluded($weekStart, $weekEnd)
+                && ! $recordedDate->isSameDay($date)
+                && ! in_array($recordedDate->toDateString(), $holidayDates, true)
+                && (! $menstruationExempt || ! in_array($recordedDate->toDateString(), $dispensationDates, true)))
+            ->count();
+
+        return $weeklyCount + $pendingWeeklyCount >= $maxPerWeek;
+    }
+
     /** @param list<string> $holidayDates
      *  @param array<string, int> $pendingWeeklyCounts
      *  @param list<string> $dispensationDates
@@ -195,22 +228,23 @@ class ChecklistRecordingService
             throw ValidationException::withMessages(['checklist_date' => 'Aktivitas ini dibebaskan pada tanggal dispensasi yang tercatat.']);
         }
 
-        $maxPerWeek = $activity->maxPerWeekFor($participant);
-        $menstruationExempt = $activity->menstruationExemptFor($participant);
-        if ($isCompleted && $maxPerWeek !== null && ! in_array($date->toDateString(), $holidayDates, true)) {
-            $weeklyCount = LksChecklist::query()
+        if ($isCompleted) {
+            $completedDates = LksChecklist::query()
                 ->where('period_participant_id', $participant->getKey())
                 ->where('period_activity_id', $activity->getKey())
                 ->where('is_completed', true)
                 ->whereBetween('checklist_date', [$date->copy()->startOfWeek(), $date->copy()->endOfWeek()])
-                ->whereDate('checklist_date', '!=', $date)
-                ->when($holidayDates !== [], fn ($query) => $query->whereNotIn('checklist_date', $holidayDates))
-                ->when($menstruationExempt && $dispensationDates !== [], fn ($query) => $query->whereNotIn('checklist_date', $dispensationDates))
-                ->count();
+                ->pluck('checklist_date');
 
-            $weeklyCount += $pendingWeeklyCounts[$date->copy()->startOfWeek()->toDateString()] ?? 0;
-
-            if ($weeklyCount >= $maxPerWeek) {
+            if ($this->weeklyLimitReached(
+                $participant,
+                $activity,
+                $date,
+                $completedDates,
+                $holidayDates,
+                $dispensationDates,
+                $pendingWeeklyCounts[$date->copy()->startOfWeek()->toDateString()] ?? 0,
+            )) {
                 throw ValidationException::withMessages(['checklist' => 'Batas pencatatan aktivitas untuk pekan ini sudah tercapai.']);
             }
         }
