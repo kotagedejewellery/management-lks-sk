@@ -1,26 +1,41 @@
 # Panduan Kerja Proyek LKS Santri Karya
 
-Dokumen ini wajib dibaca sepenuhnya pada awal setiap sesi kerja. Aturan di bawah berlaku bagi semua agen dan kontributor proyek.
+**Wajib:** sebelum setiap task proyek—termasuk sesi baru, sesi lanjutan, atau setelah context reset—agen membaca seluruh aturan `AGENTS.md` terbaru sebelum mengambil tindakan. Aturan di bawah berlaku bagi semua agen dan kontributor proyek.
 
-## Penggunaan skill wajib
+## Urutan kerja wajib
 
-1. **Pilih skill Matt Pocock yang paling relevan sebelum mulai.** Untuk setiap tugas software engineering, baca seluruh `SKILL.md` dan ikuti workflow-nya. Pilih secara sempit; gunakan skill tambahan hanya bila menangani cakupan berbeda yang benar-benar diperlukan.
-2. **Gunakan Ponytail untuk pekerjaan kode.** Gunakan sebagai standar analisis dependency dan blast radius. Gunakan level `full` untuk perubahan perilaku, aturan bisnis, aliran data, permission, kode bersama, bug, atau refactor; perubahan trivial dianalisis secara proporsional.
-3. **Pertahankan guardrail proyek.** Ponytail tidak menggantikan Graphify, Impeccable, validasi, keamanan, aksesibilitas, atau pengujian proporsional. Pada handoff, laporkan hal yang belum diperiksa/dikerjakan beserta risiko yang tersisa.
+1. **Baca `AGENTS.md` terbaru terlebih dahulu.** Sebelum setiap task proyek—termasuk sesi baru, sesi lanjutan, atau setelah context reset—baca seluruh isi `AGENTS.md` sebelum melakukan analisis, perubahan, atau menjalankan perintah proyek lainnya. Jangan mengandalkan pembacaan pada task atau sesi sebelumnya.
+2. **Pilih skill Matt Pocock yang paling relevan sebelum mulai.** Untuk setiap tugas software engineering, baca seluruh `SKILL.md` dan ikuti workflow-nya. Tambahkan skill lain hanya bila menangani kebutuhan yang benar-benar berbeda.
+3. **Gunakan Ponytail untuk pekerjaan kode.** Gunakan sebagai standar analisis dependency dan blast radius. Gunakan level `full` untuk perubahan perilaku, aturan bisnis, aliran data, permission, kode bersama, bug, atau refactor; perubahan trivial dianalisis secara proporsional.
+4. **Gunakan Graphify untuk perubahan non-trivial.** Sebelum memahami atau mengubah kode maupun arsitektur yang non-trivial, jalankan pembaruan dan/atau kueri Graphify untuk memperoleh konteks proyek. Baca source langsung hanya apabila konteks Graphify belum cukup.
+5. **Perbarui indeks Graphify setelah perubahan logis.** Setiap perubahan proyek, termasuk kode, konfigurasi, dan dokumentasi, wajib diikuti dengan pembaruan indeks Graphify sebelum handoff.
+6. **Gunakan Impeccable untuk UI/UX.** Baca `DESIGN.md`, lalu jalankan `impeccable context` satu kali pada setiap sesi sebelum mengubah antarmuka dan ikuti seluruh arahannya.
+7. **Pertahankan guardrail proyek.** Ponytail tidak menggantikan Graphify, Impeccable, validasi, keamanan, aksesibilitas, atau pengujian proporsional. Pada handoff, laporkan hal yang belum diperiksa/dikerjakan beserta risiko yang tersisa.
 
-## Aturan kerja wajib
+## Skill dan alat tambahan
 
-1. **Baca `AGENTS.md` terlebih dahulu.** Pada awal setiap sesi, baca seluruh isi `AGENTS.md` sebelum melakukan analisis, perubahan, atau menjalankan perintah proyek lainnya.
+- **Superpowers:** jika tersedia, gunakan skill yang relevan untuk merencanakan perubahan non-trivial, menelusuri akar masalah, dan memverifikasi hasil. Gabungkan langkah yang tumpang tindih dengan workflow Matt Pocock dan Ponytail agar analisis serta validasi dilakukan sekali saja.
+- **Prinsip Karpathy:** nyatakan asumsi yang memengaruhi hasil, pilih solusi paling sederhana, batasi perubahan pada scope, dan gunakan acceptance criteria yang dapat diverifikasi.
+- **Agent Browser:** jika tersedia dan validasi membutuhkan alur web nyata, gunakan untuk memeriksa navigasi, formulir, dan interaksi. Setelah aksi yang mengubah halaman atau DOM, ambil snapshot baru sebelum memakai referensi elemen lagi.
+- **Agent Desktop:** jika tersedia dan pengujian membutuhkan aplikasi desktop, dialog OS, atau alur lintas aplikasi, periksa statusnya lalu baca panduan `get desktop` dan `get platform` sebelum digunakan. Gunakan urutan snapshot -> aksi -> snapshot ulang; laporkan skenario, hasil aktual versus harapan, serta kendalanya.
+- **Inspo dan Hallmark:** untuk tampilan baru, redesign, atau arah visual yang belum jelas, gunakan Inspo melalui MCP dan Hallmark jika tersedia. Pilih referensi relevan untuk desktop serta mobile, catat sumber dan alasan adaptasinya, lalu terapkan hanya pada scope yang diminta.
+- Baca seluruh `SKILL.md` yang relevan sebelum menggunakan skill atau alat tambahan. Jika alat wajib tidak tersedia atau gagal, laporkan kendalanya dan ikuti aturan kegagalan alat di bawah.
+
+## Detail guardrail implementasi
+
+1. **Baca `AGENTS.md` terbaru terlebih dahulu.** Sebelum setiap task proyek—termasuk sesi baru, sesi lanjutan, atau setelah context reset—baca seluruh isi `AGENTS.md` sebelum melakukan analisis, perubahan, atau menjalankan perintah proyek lainnya. Jangan mengandalkan pembacaan pada task atau sesi sebelumnya.
 2. **Gunakan Graphify untuk perubahan non-trivial.** Sebelum memahami atau mengubah kode maupun arsitektur yang non-trivial, jalankan pembaruan dan/atau kueri Graphify untuk memperoleh konteks proyek.
 3. **Batasi pembacaan kode sumber mentah.** Baca source langsung hanya apabila konteks Graphify belum cukup.
 4. **Perbarui indeks Graphify setelah perubahan.** Setiap perubahan proyek—termasuk kode, konfigurasi, dan dokumentasi—wajib diikuti dengan pembaruan indeks Graphify.
 5. **Gunakan Impeccable untuk UI/UX.** Setiap pekerjaan yang membentuk, mengubah, atau meninjau antarmuka dan pengalaman pengguna wajib menggunakan skill Impeccable.
 6. **Muat konteks Impeccable sebelum perubahan UI.** Jalankan `impeccable context` satu kali pada setiap sesi sebelum mengubah antarmuka, lalu ikuti seluruh arahannya.
+   - Untuk tampilan baru, redesign, atau arah visual yang belum jelas, gunakan Inspo melalui MCP dan Hallmark jika tersedia. Pilih referensi relevan untuk desktop serta mobile, catat sumber dan alasan adaptasinya, lalu terapkan hanya pada scope yang diminta.
+   - Validasi hasil render, responsivitas, kontras, focus keyboard, dan interaksi yang terdampak memakai Agent Browser atau Agent Desktop bila tersedia dan sesuai.
 7. **Perubahan minimum.** Pilih solusi paling sederhana yang memenuhi kebutuhan dan kriteria penerimaan sepenuhnya.
 8. **Jaga scope dan perilaku yang ada.** Jangan melakukan refactor, cleanup, improvement, atau inisiasi di luar scope. Jangan mengubah kontrak API, URL, schema, permission, alur UX, nilai default, atau perilaku lain yang tidak diperlukan tugas. Ikuti arsitektur, convention, komponen, utility, dan dependency yang ada; jangan menambah dependency bila stack saat ini mencukupi.
 9. **Uji secara proporsional.** Setiap perubahan wajib diuji sesuai tingkat risikonya; aturan bisnis, hak akses, dan perhitungan wajib memiliki pengujian yang relevan.
 10. **Klarifikasi ambiguitas material.** Minta klarifikasi hanya bila aturan bisnis, permission, operasi destruktif, interpretasi data, scope, atau pilihan perilaku dapat mengubah hasil secara material. Gunakan codebase, test, dokumentasi, design system, dan convention yang ada untuk detail yang dapat ditentukan dengan aman.
-11. **Cegah regresi atas bug yang sudah diperbaiki.** Setelah memperbaiki bug, telusuri pola, komponen, handler, atau alur yang sama di seluruh proyek. Terapkan perbaikan pada seluruh kasus terkait dan lakukan validasi aman yang membuktikan penyebab bug tidak masih muncul di jalur lain. Jangan menganggap masalah bersifat satu halaman apabila implementasinya berbagi pola yang sama.
+11. **Cegah regresi atas bug yang sudah diperbaiki.** Temukan akar masalah, lalu telusuri caller, shared component, handler, utility, query, test, dan alur lain yang memakai pola sama. Terapkan perbaikan pada seluruh kasus dengan akar masalah yang sama, laporkan kasus serupa yang perilakunya berbeda, dan tambahkan atau jalankan test regresi yang relevan.
 
 ## Performa
 
@@ -78,7 +93,7 @@ Prinsip akhir: **Understand → Trace → Change minimally → Protect data → 
 
 ## Prosedur minimum
 
-1. Baca dokumen ini secara penuh.
+1. Sebelum setiap task proyek—termasuk sesi baru, sesi lanjutan, atau setelah context reset—baca dokumen ini secara penuh.
 2. Jalankan Graphify untuk mendapatkan konteks terbaru.
 3. Tentukan scope yang disetujui dan lakukan perubahan minimum yang diperlukan.
 4. Untuk pekerjaan UI, jalankan Impeccable sesuai aturan di atas sebelum mengubah antarmuka.
